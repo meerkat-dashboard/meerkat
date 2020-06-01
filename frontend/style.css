@@ -1,0 +1,188 @@
+:root {
+	--color-red: #984447;
+	--color-light-blue: #ADD9F4;
+	--color-blue: #476C9B;
+	--color-teal: #468C98;
+	--color-black: #101419;
+	--color-gray: #797979;
+	--color-light-gray: #c7c7c7;
+	--color-white: #eeeeee;
+
+}
+
+@font-face {
+	font-family: 'Nunito';
+	font-style: normal;
+	font-weight: 300;
+	font-display: swap;
+	src: local('Nunito Light'), local('Nunito-Light'), url(/res/fonts/nunito-light.woff2) format('woff2');
+}
+
+@font-face {
+	font-family: 'Nunito';
+	font-style: normal;
+	font-weight: 400;
+	font-display: swap;
+	src: local('Nunito Regular'), local('Nunito-Regular'), url(/res/fonts/nunito-regular.woff2) format('woff2');
+}
+
+@font-face {
+	font-family: 'Nunito';
+	font-style: normal;
+	font-weight: 700;
+	font-display: swap;
+	src: local('Nunito Bold'), local('Nunito-Bold'), url(/res/fonts/nunito-bold.woff2) format('woff2');
+}
+
+body {
+	margin: 0;
+	font-family: 'Nunito', sans-serif;
+	font-size: 20px;
+}
+
+h1, h2, h3, h4, h5, h6, p {
+	margin-top: 0;
+	margin-bottom: 20px;
+}
+
+hr {
+	height: 0;
+	border: 0;
+	border-bottom: 1px solid var(--color-light-gray);
+}
+
+a {
+	color: var(--color-blue);
+	cursor: pointer;
+}
+
+a:hover, a:focus {
+	color: var(--color-light-blue);
+}
+
+.subtle {
+	margin: 20px auto;
+	text-align: center;
+	font-style: italic;
+}
+
+span.tiny {
+	font-size: 12px;
+	font-style: italic;
+}
+
+/* INPUTS */
+label {
+	display: block;
+	margin-bottom: 5px;
+	font-size: 18px;
+}
+
+label~input, label~select {
+	margin-bottom: 20px;
+}
+
+button {
+	cursor: pointer;
+	background-color: var(--color-blue);
+	border: 0;
+	border-radius: 3px;
+	padding: 12px 30px;
+	font-size: 16px;
+	color: var(--color-white);
+}
+
+button:hover, button:focus {
+	background-color: var(--color-light-blue);
+}
+
+button.loading, div.loading {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+button.loading::before, div.loading::before {
+	content: '';
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+	background-color: transparent;
+	margin-right: 10px;
+	border-radius: 20px;
+	border: solid 2px transparent;
+	border-top-color: currentColor;
+	animation-name: spin;
+	animation-duration: 500ms;
+	animation-iteration-count: infinite;
+}
+
+input, select {
+	width: 100%;
+	padding: 8px;
+	border-radius: 3px;
+	border: solid 1.5px var(--color-gray);
+	transition: 300ms border-color;
+}
+
+input:focus, select:focus {
+	border-color: var(--color-blue);
+}
+
+select[multiple] {
+	padding: 0;
+}
+
+select[multiple] option {
+	padding: 8px;
+}
+
+input::placeholder {
+	color: #cccccc;
+	opacity: 1;
+}
+
+/* HOME */
+div.home {
+	max-width: 600px;
+	margin: 10vh auto;
+}
+
+div.home h1.title {
+	font-size: 80px;
+	font-weight: lighter;
+}
+
+div.home h1 {
+	text-align: center;
+}
+
+div.home .filter-wrap {
+	display: flex;
+	margin-bottom: 10px;
+}
+
+div.home .filter-wrap #filter {
+	margin-right: 10px;
+	font-size: 20px;
+	padding: 12px 16px;
+}
+
+.filter-results .dashboard-listing {
+	border: solid 1px var(--color-light-gray);
+	padding: 10px;
+	margin-bottom: 10px;
+	border-radius: 4px;
+}
+
+.dashboard-listing h3 {
+	margin-bottom: 10px;
+}
+
+.dashboard-listing p {
+	margin-bottom: 10px;
+}
+
+.dashboard-listing div.timestamps > span:first-child {
+	margin-right: 20px;
+}
