@@ -71,6 +71,16 @@ span.tiny {
 	font-style: italic;
 }
 
+.feather {
+	width: 24px;
+	height: 24px;
+	stroke: currentColor;
+	stroke-width: 2;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+	fill: none;
+}
+
 /* INPUTS */
 label {
 	display: block;
@@ -195,4 +205,19 @@ div.home .filter-wrap #filter {
 
 .dashboard-listing div.timestamps > span:last-child {
 	margin-left: 10px;
+}
+
+/* EDITOR */
+div.dashboard {
+
+}
+
+div.editor {
+	position: fixed;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	max-width: 200px;
+	background-color: var(--color-light-blue);
+	padding: 20px;
 }
