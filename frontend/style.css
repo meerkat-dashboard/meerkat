@@ -183,6 +183,16 @@ div.home .filter-wrap #filter {
 	margin-bottom: 10px;
 }
 
-.dashboard-listing div.timestamps > span:first-child {
-	margin-right: 20px;
+.dashboard-listing div.timestamps {
+	font-size: 16px;
+	display: flex;
+	align-items: center;
+}
+
+.dashboard-listing div.timestamps > a:first-child {
+	margin-right: auto;
+}
+
+.dashboard-listing div.timestamps > span:last-child {
+	margin-left: 10px;
 }

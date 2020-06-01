@@ -16,6 +16,8 @@ export function Home(props: RoutableProps) {
 				<h3>A dashboard name</h3>
 				<p>A description</p>
 				<div class="timestamps">
+					<a href="edit/asd-asd">edit</a>
+
 					<span class="tiny">edited: 19-04-20 - 19:05</span>
 					<span class="tiny">created: 19-04-20 - 19:05</span>
 				</div>
