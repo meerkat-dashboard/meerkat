@@ -1,6 +1,6 @@
 import { h, render, Fragment } from 'preact';
 import { useState, useEffect, useErrorBoundary } from 'preact/hooks';
-import { Router, getCurrentUrl, route, RoutableProps } from 'preact-router';
+import { Router, getCurrentUrl, route, RouterProps } from 'preact-router';
 
 import { Home } from './home';
 import { Editor } from './editor';
@@ -9,14 +9,14 @@ function Main() {
 	return <Fragment>
 		<Router>
 			<Home path="/" />
-			<Editor path="/create" />
+			<Editor path="/edit/:view" />
 
 			<NotFound default/>
 		</Router>
 	</Fragment>
 }
 
-function NotFound(props: RoutableProps) {
+function NotFound(props: RouterProps) {
 	return <div>404</div>
 }
 

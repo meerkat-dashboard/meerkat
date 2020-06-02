@@ -1,14 +1,14 @@
 import { h } from 'preact';
-import { RoutableProps, route } from 'preact-router';
+import { RouterProps, route } from 'preact-router';
 import { useState, useEffect } from 'preact/hooks';
 
-export function Home(props: RoutableProps) {
+export function Home(props: RouterProps) {
 	return <div class="home">
 		<h1 class="title">Meerkat</h1>
 
 		<div class="filter-wrap">
 			<input type="text" id="filter" placeholder="Filter dashboards" />
-			<button onClick={() => route('/create')}>Create</button>
+			<button onClick={() => route('/edit/settings')}>Create</button>
 		</div>
 
 		<div class="filter-results">

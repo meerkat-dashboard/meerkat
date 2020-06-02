@@ -1,13 +1,14 @@
 :root {
-	--color-red: #984447;
-	--color-light-blue: #ADD9F4;
+	--color-orange: #ec6c30;
+	--color-light-orange: #ff854c;
+	--color-light-blue: #cce5eb;
 	--color-blue: #476C9B;
 	--color-teal: #468C98;
 	--color-black: #101419;
 	--color-gray: #797979;
-	--color-light-gray: #c7c7c7;
+	--color-light-gray: #d1d9db;
 	--color-white: #eeeeee;
-
+	--color-light-black: #21272f;
 }
 
 @font-face {
@@ -34,10 +35,15 @@
 	src: local('Nunito Bold'), local('Nunito-Bold'), url(/res/fonts/nunito-bold.woff2) format('woff2');
 }
 
+* {
+	box-sizing: border-box;
+}
+
 body {
 	margin: 0;
 	font-family: 'Nunito', sans-serif;
 	font-size: 20px;
+	color: var(--color-black)
 }
 
 h1, h2, h3, h4, h5, h6, p {
@@ -58,6 +64,26 @@ a {
 
 a:hover, a:focus {
 	color: var(--color-light-blue);
+}
+
+.lefty-righty {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.lefty-righty > * {
+	margin-bottom: 0;
+}
+
+.center {
+	display: flex;
+	justify-content: center;
+}
+
+.right {
+	display: flex;
+	justify-content: end;
 }
 
 .subtle {
@@ -85,7 +111,8 @@ span.tiny {
 label {
 	display: block;
 	margin-bottom: 5px;
-	font-size: 18px;
+	font-size: 16px;
+	font-weight: bold;
 }
 
 label~input, label~select {
@@ -125,6 +152,12 @@ button.loading::before, div.loading::before {
 	animation-name: spin;
 	animation-duration: 500ms;
 	animation-iteration-count: infinite;
+}
+
+button.small {
+	padding: 6px 12px;
+	font-size: 12px;
+	text-transform: uppercase;
 }
 
 input, select {
@@ -207,17 +240,78 @@ div.home .filter-wrap #filter {
 	margin-left: 10px;
 }
 
-/* EDITOR */
-div.dashboard {
-
+/* EDITOR DASHBOARD */
+div.dashboard-wrap {
+	margin: 20px;
+	margin-left: 400px;
+	min-height: calc(100vh - 40px); /* margin * 2 */
+	display: flex;
+	flex-direction: column;
 }
 
+.dashboard-wrap .dashboard {
+	border: solid 1.5px var(--color-gray);
+	flex-grow: 1;
+	border-radius: 4px;
+}
+
+/* EDITOR */
 div.editor {
 	position: fixed;
-	right: 0;
+	left: 0;
 	top: 0;
 	bottom: 0;
 	max-width: 200px;
-	background-color: var(--color-light-blue);
+	background-color: var(--color-light-gray);
+	min-width: 380px;
+	display: flex;
+	justify-content: space-between;
+}
+
+.editor .options {
 	padding: 20px;
+	flex-grow: 1;
+}
+
+.editor .icons {
+	display: flex;
+	flex-direction: column;
+	background-color: var(--color-black);
+	color: var(--color-light-blue);
+}
+
+.editor .icons .icon-wraps {
+	padding: 12px 20px 10px 20px;
+	display: flex;
+	align-items: center;
+	flex-direction: column;
+	cursor: pointer;
+}
+
+.editor .icons .icon-wraps.active {
+	color: var(--color-light-orange);
+}
+
+.editor .icons .icon-wraps:hover {
+	background-color: var(--color-light-black);
+}
+
+.icons .icon-wraps .label {
+	text-transform: uppercase;
+	font-size: 10px;
+	margin-top: 6px;
+}
+
+/* DASHBOARD ELEMENTS */
+.check {
+	background-color: magenta;
+	cursor: move;
+}
+
+.check > * {
+	pointer-events: none;
+}
+
+.check.card {
+
 }
