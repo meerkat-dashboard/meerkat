@@ -312,6 +312,7 @@ div.editor {
 
 .check > * {
 	pointer-events: none;
+	user-select: none;
 }
 
 .check.card {

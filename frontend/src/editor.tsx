@@ -193,26 +193,40 @@ function DashboardChecks(props: RouterProps & optionalPanelProps) {
 		routeParam('id', (newChecks.length-1).toString());
 	}
 
-	return <Fragment>
-		<div class="lefty-righty" style="margin-bottom: 20px;">
-			<h3>Checks</h3>
-			<button class="small" onClick={addCheck}>New</button>
-		</div>
-		{ props.selectedElement === null ?
-			<div class="subtle" style="flex-direction: column; font-size: 16px;">
-				<div>No checks added.</div>
-				<a onClick={addCheck}>Create one</a>
-			</div>
-			:
-			<Fragment>
+	let view = null;
+	if(props.selectedElement !== null) {
+		//Selected checks options
+		view = <Fragment>
+			<label for="name">Name</label>
+			<input id="name" type="text" placeholder="Cool check" />
+
 			<label>Visual Type</label>
 			<select name="item-type">
 				<option value="card">Card</option>
 				<option value="svg">SVG</option>
 				<option value="image">Image</option>
 			</select>
-			</Fragment>
-		}
+
+		</Fragment>
+	} else if(props.dashboard.checks.length > 0) {
+		//List of available checks
+		view = props.dashboard.checks.map(check => <div>
+			{check.type}
+		</div>)
+	} else {
+		//No checks create one
+		view = <div class="subtle" style="flex-direction: column; font-size: 16px;">
+			<div>No checks added.</div>
+			<a onClick={addCheck}>Create one</a>
+		</div>
+	}
+
+	return <Fragment>
+		<div class="lefty-righty" style="margin-bottom: 20px;">
+			<h3>Checks</h3>
+			<button class="small" onClick={addCheck}>New</button>
+		</div>
+		{view}
 	</Fragment>
 }
 
