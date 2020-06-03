@@ -1,4 +1,5 @@
 :root {
+	--color-dark-orange: #d44400;
 	--color-orange: #ec6c30;
 	--color-light-orange: #ff854c;
 	--color-light-blue: #cce5eb;
@@ -37,6 +38,12 @@
 
 * {
 	box-sizing: border-box;
+}
+
+@keyframes flash-in {
+	0% {background-color: transparent;}
+	50% {background-color: #ffffff73;}
+	100% {background-color: transparent;}
 }
 
 body {
@@ -121,16 +128,16 @@ label~input, label~select {
 
 button {
 	cursor: pointer;
-	background-color: var(--color-blue);
+	background-color: var(--color-dark-orange);
 	border: 0;
 	border-radius: 3px;
-	padding: 12px 30px;
+	padding: 10px 20px;
 	font-size: 16px;
 	color: var(--color-white);
 }
 
 button:hover, button:focus {
-	background-color: var(--color-light-blue);
+	background-color: var(--color-orange);
 }
 
 button.loading, div.loading {
@@ -289,6 +296,10 @@ div.editor {
 	cursor: pointer;
 }
 
+.icon-wraps:last-child {
+	margin-top: auto;
+}
+
 .editor .icons .icon-wraps.active {
 	color: var(--color-light-orange);
 }
@@ -305,16 +316,50 @@ div.editor {
 
 /* DASHBOARD ELEMENTS */
 .check {
-	background-color: magenta;
 	cursor: move;
 	position: absolute;
 }
 
-.check > * {
-	pointer-events: none;
-	user-select: none;
+.check > div.resize {
+	position: absolute;
+	right: -4px;
+	bottom: -4px;
+	width: 12px;
+	height: 12px;
+	background-color: var(--color-light-blue);
+	cursor: se-resize;
+	border-radius: 8px;
+	border: solid 1.5px var(--color-black);
 }
 
-.check.card {
+.check > .check-content {
+	pointer-events: none;
+	user-select: none;
+	width: 100%;
+	height: 100%;
+}
 
+.check > .card {
+	background-color: var(--color-light-gray);
+	border: solid 1.5px var(--color-black);
+	border-radius: 4px;
+	padding: 6px 10px;
+}
+
+.check-list > .check-item {
+	padding: 6px 10px;
+	border-radius: 4px;
+	font-size: 18px;
+	margin-bottom: 6px;
+	cursor: pointer;
+	
+	animation-name: flash-in;
+	animation-iteration-count: initial;
+	animation-fill-mode: forwards;
+	animation-duration: 500ms;
+}
+
+.check-list > .check-item:hover {
+	/* animation messing with this, so apply !important */
+	background-color: #ffffff73!important;
 }

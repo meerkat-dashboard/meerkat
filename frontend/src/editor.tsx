@@ -1,8 +1,8 @@
-import { h, Fragment } from 'preact';
+import { h, Fragment, JSX } from 'preact';
 import { RouterProps, route, RoutableProps } from 'preact-router';
-import { useState, useEffect, StateUpdater } from 'preact/hooks';
+import { useState, useEffect, StateUpdater, useReducer } from 'preact/hooks';
 
-import { routeParam } from './util';
+import { SidePanelChecks } from './side-panel-checks';
 import { CardElement } from './elements/check';
 
 interface OptionLinkProps {
@@ -24,47 +24,73 @@ const OptionLink = (props: OptionLinkProps) => {
 	</div>
 }
 
+const initialDashboard: Dashboard = {
+	title: 'New Dashboard',
+	checks: []
+};
+
+type DashboardAction = {
+		type: "setTitle"
+		title: string;
+	} | {
+		type: "addCheck"
+	} | {
+		type: "updateCheck"
+		checkIndex: number
+		check: Check
+};
+
+//Manage dashboard state
+const dashboardReducer = (state: Dashboard, action: DashboardAction) => {
+	switch (action.type) {
+		case 'setTitle':
+			console.log('Setting title to ' + action.title)
+			return {...state, title: action.title};
+		case 'addCheck':
+			console.log('Adding new check')
+			const newCheck: Check = {type: 'card', title: 'New Check', rect:{ x: 0, y: 0, w: 100, h: 100}};
+			return {
+				...state,
+				checks: state.checks.concat(newCheck)
+			};
+		case 'updateCheck':
+			console.log('Updating check')
+			const newState = {...state};
+			newState.checks[action.checkIndex] = action.check;
+			return newState;
+		default: throw new Error(`Unexpected action`);
+	}
+};
+
 interface EditorProps {
 	view?: string;
 	id?: string;
 }
 
-function newDashboard(): Dashboard {
-	return {
-		title: 'New Dashboard',
-		checks: []
-	}
-};
-
 //Edit page
 export function Editor(props: RouterProps & EditorProps) {
-	const [dashboard, setDashboard] = useState(newDashboard());
-
-	const updateDashboard = (diff: Partial<Dashboard>) => {
-		setDashboard({
-			...dashboard,
-			...diff
-		});
-	}
+	const [dashboard, dashboardDispatch] =  useReducer(dashboardReducer, initialDashboard);
 
 	const selectedElement = props.id ? Number(props.id) : null;
 
-	let view = <DashboardSettings dashboard={dashboard} updateDashboard={updateDashboard} selectedElement={selectedElement} />
+	let view = <SidePanelSettings dashboard={dashboard} dashboardDispatch={dashboardDispatch} selectedElement={selectedElement} />
 	if(props.view === 'checks') {
-		view = <DashboardChecks dashboard={dashboard} updateDashboard={updateDashboard} selectedElement={selectedElement} />
+		view = <SidePanelChecks dashboard={dashboard} dashboardDispatch={dashboardDispatch} selectedElement={selectedElement} />
 	}
 	if(props.view === 'statics') {
-		view = <DashboardStatics dashboard={dashboard} updateDashboard={updateDashboard} selectedElement={selectedElement} />
+		view = <SidePanelStatics dashboard={dashboard} dashboardDispatch={dashboardDispatch} selectedElement={selectedElement} />
 	}
 
 	return <Fragment>
-		<DashboardView dashboard={dashboard} />
+		<DashboardView dashboard={dashboard} dashboardDispatch={dashboardDispatch} selectedElement={selectedElement} />
 
 		<div class="editor">
 			<div class="icons">
 				<OptionLink icon="settings" href="/edit/settings" label="settings" />
 				<OptionLink icon="activity" href="/edit/checks" label="checks" />
 				<OptionLink icon="image" href="/edit/statics" label="statics" />
+
+				<OptionLink icon="home" href="/" label="home" />
 			</div>
 			<div class="options">
 				{view}
@@ -78,14 +104,15 @@ interface Dashboard {
 	checks: Array<Check>
 }
 
-interface optionalPanelProps {
+export interface OptionalPanelProps {
 	dashboard: Dashboard;
-	updateDashboard: (diff: Partial<Dashboard>) => void;
+	dashboardDispatch: (action: DashboardAction) => void;
 	selectedElement: number | null;
 }
 
 export interface Check {
-	type: string;
+	type: 'card' | 'image' | 'svg';
+	title: string;
 	rect: Rect;
 }
 
@@ -97,11 +124,9 @@ interface Rect {
 	h: number;
 }
 
-function TransformableElement(props: {rect: Rect} & {children: any}) { //TODO children any
-	const [moving, setMoving] = useState(false);
-
+function TransformableElement(props: {rect: Rect, updateRect: (rect: Rect) => void} & JSX.ElementChildrenAttribute) {
 	//Handle dragging elements
-	const mousedown = downEvent => {
+	const handleMove = downEvent => {
 		const mousemove = moveEvent => {
 			const ele = downEvent.target;
 	
@@ -118,8 +143,7 @@ function TransformableElement(props: {rect: Rect} & {children: any}) { //TODO ch
 			top = top > maxTop ? maxTop : top;
 
 			//set position
-			ele.style.top = `${top}px`;
-			ele.style.left = `${left}px`;
+			props.updateRect({x: left, y: top, w: props.rect.w, h: props.rect.h});
 		}
 
 		//Remove listeners on mouse button up
@@ -133,16 +157,59 @@ function TransformableElement(props: {rect: Rect} & {children: any}) { //TODO ch
 		window.addEventListener('mousemove', mousemove);
 	}
 
-	return <div class="check card"
+	const handleResize = downEvent => {
+		downEvent.stopPropagation();
+
+		const mousemove = moveEvent => {
+			const ele = downEvent.target;
+	
+			//Get max dimensions
+			let width = ele.parentElement.clientWidth + moveEvent.movementX;
+			let height = ele.parentElement.clientHeight + moveEvent.movementY;
+
+			//TODO don't allow resize over dashboard borders
+
+			//limit minimun resize
+			width = width < 100 ? 100 : width;
+			height = height < 100 ? 100 : height;
+
+			//set position
+			props.updateRect({x: props.rect.x, y: props.rect.y, w: width, h: height});
+		}
+
+		//Remove listeners on mouse button up
+		const mouseup = () => {
+			window.removeEventListener('mousemove', mousemove);
+			window.removeEventListener('mouseup', mouseup);
+		}
+
+		//Add movement and mouseup events
+		window.addEventListener('mouseup', mouseup);
+		window.addEventListener('mousemove', mousemove);
+	}
+
+	return <div class="check"
 		style={{left: props.rect.x, top: props.rect.y, width: props.rect.w, height: props.rect.h}}
-		onMouseDown={mousedown}>
+		onMouseDown={handleMove}>
 			{props.children}
+			<div class="resize" onMouseDown={handleResize}></div>
 	</div>
 }
 
 //The actual dashboard being rendered
-function DashboardView(props: RouterProps & {dashboard: Dashboard}) {
-	const checks = props.dashboard.checks.map(check => {
+function DashboardView(props: RouterProps & OptionalPanelProps) {
+	const checks = props.dashboard.checks.map((check, index) => {
+		const updateRect = rect => {
+			props.dashboardDispatch({
+				type: 'updateCheck',
+				checkIndex: index,
+				check: {
+					...check,
+					rect: rect
+				}
+			});
+		}
+
 		let element = <CardElement check={check} />
 		if(check.type === 'svg') {
 			element = <div> todo </div>
@@ -151,13 +218,16 @@ function DashboardView(props: RouterProps & {dashboard: Dashboard}) {
 			element = <div> todo </div>
 		}
 
-		return <TransformableElement rect={check.rect}>
+		return <TransformableElement rect={check.rect} updateRect={updateRect}>
 			{element}
 		</TransformableElement>
 	});
 
 	return <div class="dashboard-wrap">
-		<h2>{props.dashboard.title}</h2>
+		<div class="lefty-righty" style="margin-bottom: 20px;">
+			<h2>{props.dashboard.title}</h2>
+			<button>Save Dashboard</button>
+		</div>
 		<div class="dashboard">
 			{checks}
 		</div>
@@ -165,73 +235,17 @@ function DashboardView(props: RouterProps & {dashboard: Dashboard}) {
 }
 
 //Settings view for the sidebar
-function DashboardSettings(props: RouterProps & optionalPanelProps) {
+function SidePanelSettings(props: RouterProps & OptionalPanelProps) {
 	return <Fragment>
 		<h3>Settings</h3>
 		<label for="title">Title</label>
-		<input type="text" id="title" placeholder="Network Overview"
-			value={props.dashboard.title} onInput={e => props.updateDashboard({title: e.currentTarget.value})} />
-	</Fragment>
-}
-
-//Checks view for the sidebar
-function DashboardChecks(props: RouterProps & optionalPanelProps) {
-	const addCheck = () => {
-		const newChecks = props.dashboard.checks.concat({
-			type: 'card',
-			rect: {
-				x: 0,
-				y: 0,
-				w: 100,
-				h: 100
-			}
-		});
-		props.updateDashboard({
-			checks: newChecks
-		});
-
-		routeParam('id', (newChecks.length-1).toString());
-	}
-
-	let view = null;
-	if(props.selectedElement !== null) {
-		//Selected checks options
-		view = <Fragment>
-			<label for="name">Name</label>
-			<input id="name" type="text" placeholder="Cool check" />
-
-			<label>Visual Type</label>
-			<select name="item-type">
-				<option value="card">Card</option>
-				<option value="svg">SVG</option>
-				<option value="image">Image</option>
-			</select>
-
-		</Fragment>
-	} else if(props.dashboard.checks.length > 0) {
-		//List of available checks
-		view = props.dashboard.checks.map(check => <div>
-			{check.type}
-		</div>)
-	} else {
-		//No checks create one
-		view = <div class="subtle" style="flex-direction: column; font-size: 16px;">
-			<div>No checks added.</div>
-			<a onClick={addCheck}>Create one</a>
-		</div>
-	}
-
-	return <Fragment>
-		<div class="lefty-righty" style="margin-bottom: 20px;">
-			<h3>Checks</h3>
-			<button class="small" onClick={addCheck}>New</button>
-		</div>
-		{view}
+		<input type="text" id="title" placeholder="Network Overview" value={props.dashboard.title}
+			onInput={e => props.dashboardDispatch({type: 'setTitle', title: e.currentTarget.value})} />
 	</Fragment>
 }
 
 //Statics view for the sidebar
-function DashboardStatics(props: RouterProps & optionalPanelProps) {
+function SidePanelStatics(props: RouterProps & OptionalPanelProps) {
 	return <Fragment>
 		<h3>Static Content</h3>
 		<select>
