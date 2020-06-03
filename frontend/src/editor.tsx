@@ -223,10 +223,14 @@ function DashboardView(props: RouterProps & OptionalPanelProps) {
 		</TransformableElement>
 	});
 
+	const saveDashboard = e => {
+		console.log(props.dashboard);
+	}
+
 	return <div class="dashboard-wrap">
 		<div class="lefty-righty" style="margin-bottom: 20px;">
 			<h2>{props.dashboard.title}</h2>
-			<button>Save Dashboard</button>
+			<button onClick={saveDashboard}>Save Dashboard</button>
 		</div>
 		<div class="dashboard">
 			{checks}

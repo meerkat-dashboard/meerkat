@@ -1,5 +1,5 @@
 :root {
-	--color-dark-orange: #d44400;
+	--color-dark-orange: #f0570d;
 	--color-orange: #ec6c30;
 	--color-light-orange: #ff854c;
 	--color-light-blue: #cce5eb;
@@ -213,7 +213,6 @@ div.home .filter-wrap {
 }
 
 div.home .filter-wrap #filter {
-	margin-right: 10px;
 	font-size: 20px;
 	padding: 12px 16px;
 }
@@ -344,6 +343,10 @@ div.editor {
 	border: solid 1.5px var(--color-black);
 	border-radius: 4px;
 	padding: 6px 10px;
+}
+
+.check > .card > p {
+	text-align: center;
 }
 
 .check-list > .check-item {

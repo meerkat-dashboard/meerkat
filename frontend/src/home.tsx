@@ -6,9 +6,12 @@ export function Home(props: RouterProps) {
 	return <div class="home">
 		<h1 class="title">Meerkat</h1>
 
+		<div class="center" style="margin: 20px 0 40px;">
+			<button onClick={() => route('/edit/settings')}>Create New Dashboard</button>
+		</div>
+
 		<div class="filter-wrap">
 			<input type="text" id="filter" placeholder="Filter dashboards" />
-			<button onClick={() => route('/edit/settings')}>Create</button>
 		</div>
 
 		<div class="filter-results">
