@@ -100,14 +100,42 @@ interface Rect {
 function TransformableElement(props: {rect: Rect} & {children: any}) { //TODO children any
 	const [moving, setMoving] = useState(false);
 
-	const mouseMove = e => {
-		console.log(e);
-		e.currentTarget.style.marginLeft = `${e.x}`;
+	//Handle dragging elements
+	const mousedown = downEvent => {
+		const mousemove = moveEvent => {
+			const ele = downEvent.target;
+	
+			//Get max dimensions
+			let left = ele.offsetLeft + moveEvent.movementX;
+			let top = ele.offsetTop + moveEvent.movementY;
+			const maxLeft = ele.parentElement.clientWidth - ele.clientWidth;
+			const maxTop = ele.parentElement.clientHeight - ele.clientHeight;
+
+			//limit movement to max dimensions
+			left = left < 0 ? 0 : left;
+			left = left > maxLeft ? maxLeft : left;
+			top = top < 0 ? 0 : top;
+			top = top > maxTop ? maxTop : top;
+
+			//set position
+			ele.style.top = `${top}px`;
+			ele.style.left = `${left}px`;
+		}
+
+		//Remove listeners on mouse button up
+		const mouseup = () => {
+			window.removeEventListener('mousemove', mousemove);
+			window.removeEventListener('mouseup', mouseup);
+		}
+
+		//Add movement and mouseup events
+		window.addEventListener('mouseup', mouseup);
+		window.addEventListener('mousemove', mousemove);
 	}
 
 	return <div class="check card"
-		style={{marginLeft: props.rect.x, marginTop: props.rect.y, width: props.rect.w, height: props.rect.h}}
-		onMouseMove={mouseMove}>
+		style={{left: props.rect.x, top: props.rect.y, width: props.rect.w, height: props.rect.h}}
+		onMouseDown={mousedown}>
 			{props.children}
 	</div>
 }

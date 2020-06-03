@@ -253,6 +253,7 @@ div.dashboard-wrap {
 	border: solid 1.5px var(--color-gray);
 	flex-grow: 1;
 	border-radius: 4px;
+	position: relative;
 }
 
 /* EDITOR */
@@ -306,6 +307,7 @@ div.editor {
 .check {
 	background-color: magenta;
 	cursor: move;
+	position: absolute;
 }
 
 .check > * {
