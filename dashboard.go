@@ -14,6 +14,10 @@ func handleCreateDashboard(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func handleCreateDashboardData(w http.ResponseWriter, r *http.Request) {
+
+}
+
 func handleUpdateDashboard(w http.ResponseWriter, r *http.Request) {
 
 }

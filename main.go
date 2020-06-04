@@ -18,22 +18,27 @@ import (
 )
 
 func initDirs() error {
-	//Check dashboards directory exists, create if not
+	requiredDirs := []string{"dashboards", "dashboards-data"}
+
 	files, err := ioutil.ReadDir("./")
 	if err != nil {
 		return fmt.Errorf("Failed to read directory - %s", err)
 	}
 
-	for _, f := range files {
-		if f.Name() == "dashboards" {
-			return nil
+	//Check directories exist, if not create
+Files:
+	for _, p := range requiredDirs {
+		for _, f := range files {
+			if f.Name() == p {
+				continue Files
+			}
 		}
-	}
 
-	fmt.Printf("dashboards directory not found, creating\n")
-	err = os.Mkdir("dashboards", os.ModeDir)
-	if err != nil {
-		return err
+		fmt.Printf("%s directory not found, creating\n", p)
+		err = os.Mkdir(p, os.ModeDir)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -78,6 +83,7 @@ func main() {
 	r.Get("/dashboard", handleListDashboards)
 	r.Get("/dashboard/{dashboardName}", handleListDashboard)
 	r.Post("/dashboard", handleCreateDashboard)
+	r.Post("/dashboard/{dashboardName}/data", handleCreateDashboardData)
 	r.Post("/dashboard/{dashboardName}", handleUpdateDashboard)
 	r.Delete("/dashboard/{dashboardName}", handleDeleteDashboard)
 
