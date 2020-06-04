@@ -81,11 +81,11 @@ func main() {
 	r.Use(middleware.Timeout(30 * time.Second))
 
 	r.Get("/dashboard", handleListDashboards)
-	r.Get("/dashboard/{dashboardName}", handleListDashboard)
+	r.Get("/dashboard/{dashboard-slug}", handleListDashboard)
 	r.Post("/dashboard", handleCreateDashboard)
-	r.Post("/dashboard/{dashboardName}/data", handleCreateDashboardData)
-	r.Post("/dashboard/{dashboardName}", handleUpdateDashboard)
-	r.Delete("/dashboard/{dashboardName}", handleDeleteDashboard)
+	r.Post("/upload", handleUpload)
+	r.Post("/dashboard/{dashboard-slug}", handleUpdateDashboard)
+	r.Delete("/dashboard/{dashboard-slug}", handleDeleteDashboard)
 
 	r.NotFound(createFileHandler("./frontend"))
 

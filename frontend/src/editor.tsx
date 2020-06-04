@@ -240,11 +240,28 @@ function DashboardView(props: RouterProps & OptionalPanelProps) {
 
 //Settings view for the sidebar
 function SidePanelSettings(props: RouterProps & OptionalPanelProps) {
+	const handleBackgroundImg = async e => {
+		const data = await fetch('/upload', {
+			headers: {
+				"filename": e.target.files[0].name
+			},
+			method: 'POST',
+			body: e.target.files[0]
+		}).then(res => res.json());
+
+		//TODO data.url while include the /res/slug-path/filename which we include in dashboard
+		console.log(data);
+	}
+
 	return <Fragment>
 		<h3>Settings</h3>
 		<label for="title">Title</label>
 		<input type="text" id="title" placeholder="Network Overview" value={props.dashboard.title}
 			onInput={e => props.dashboardDispatch({type: 'setTitle', title: e.currentTarget.value})} />
+
+		<label for="background-image">Background Image</label>
+		<input id="background-image" type="file" placeholder="Upload a background image"
+			accept="image/*" onChange={handleBackgroundImg} />
 	</Fragment>
 }
 

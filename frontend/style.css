@@ -187,6 +187,10 @@ select[multiple] option {
 	padding: 8px;
 }
 
+input[type="file"] {
+	background-color: white;
+}
+
 input::placeholder {
 	color: #cccccc;
 	opacity: 1;
