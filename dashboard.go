@@ -34,7 +34,7 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(r.Body)
-	contents := buf.Bytes()f
+	contents := buf.Bytes()
 
 	h := sha256.New()
 	h.Write(contents)
