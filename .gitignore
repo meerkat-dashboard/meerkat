@@ -2,4 +2,5 @@
 /meerkat.toml
 /frontend/node_modules
 /dashboards
+/dashboards-data
 /frontend/dist
