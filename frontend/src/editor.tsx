@@ -26,12 +26,16 @@ const OptionLink = (props: OptionLinkProps) => {
 
 const initialDashboard: Dashboard = {
 	title: 'New Dashboard',
+	background: null,
 	checks: []
 };
 
 type DashboardAction = {
 		type: "setTitle"
 		title: string;
+	} | {
+		type: "setBackground"
+		background?: string;
 	} | {
 		type: "addCheck"
 	} | {
@@ -46,6 +50,9 @@ const dashboardReducer = (state: Dashboard, action: DashboardAction) => {
 		case 'setTitle':
 			console.log('Setting title to ' + action.title)
 			return {...state, title: action.title};
+		case 'setBackground':
+			console.log('Setting background to ' + action.background)
+			return {...state, background: action.background};
 		case 'addCheck':
 			console.log('Adding new check')
 			const newCheck: Check = {type: 'card', title: 'New Check', rect:{ x: 0, y: 0, w: 100, h: 100}};
@@ -101,6 +108,7 @@ export function Editor(props: RouterProps & EditorProps) {
 
 interface Dashboard {
 	title: string;
+	background?: string;
 	checks: Array<Check>
 }
 
@@ -227,12 +235,14 @@ function DashboardView(props: RouterProps & OptionalPanelProps) {
 		console.log(props.dashboard);
 	}
 
+	const backgroundImage = props.dashboard.background ? `url(${props.dashboard.background})` : 'none';
+
 	return <div class="dashboard-wrap">
 		<div class="lefty-righty" style="margin-bottom: 20px;">
 			<h2>{props.dashboard.title}</h2>
 			<button onClick={saveDashboard}>Save Dashboard</button>
 		</div>
-		<div class="dashboard">
+		<div class="dashboard" style={{backgroundImage: backgroundImage}}>
 			{checks}
 		</div>
 	</div>
@@ -241,16 +251,24 @@ function DashboardView(props: RouterProps & OptionalPanelProps) {
 //Settings view for the sidebar
 function SidePanelSettings(props: RouterProps & OptionalPanelProps) {
 	const handleBackgroundImg = async e => {
-		const data = await fetch('/upload', {
-			headers: {
-				"filename": e.target.files[0].name
-			},
-			method: 'POST',
-			body: e.target.files[0]
-		}).then(res => res.json());
-
-		//TODO data.url while include the /res/slug-path/filename which we include in dashboard
-		console.log(data);
+		try {
+			const data = await fetch('/upload', {
+				headers: {
+					"filename": e.target.files[0].name
+				},
+				method: 'POST',
+				body: e.target.files[0]
+			}).then(res => res.json());
+			
+			props.dashboardDispatch({
+				type: 'setBackground',
+				background: '/' + data.url
+			});
+		} catch (e) {
+			//TODO improve
+			console.log('failed to upload image and set background');
+			console.log(e);
+		}
 	}
 
 	return <Fragment>

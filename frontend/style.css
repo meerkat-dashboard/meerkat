@@ -260,6 +260,7 @@ div.dashboard-wrap {
 }
 
 .dashboard-wrap .dashboard {
+	background-size: cover;
 	border: solid 1.5px var(--color-gray);
 	flex-grow: 1;
 	border-radius: 4px;

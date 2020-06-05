@@ -83,9 +83,11 @@ func main() {
 	r.Get("/dashboard", handleListDashboards)
 	r.Get("/dashboard/{dashboard-slug}", handleListDashboard)
 	r.Post("/dashboard", handleCreateDashboard)
-	r.Post("/upload", handleUpload)
 	r.Post("/dashboard/{dashboard-slug}", handleUpdateDashboard)
 	r.Delete("/dashboard/{dashboard-slug}", handleDeleteDashboard)
+
+	r.Post("/upload", handleUpload)
+	r.Handle("/dashboards-data/*", http.StripPrefix("/dashboards-data/", http.FileServer(http.Dir("./dashboards-data"))))
 
 	r.NotFound(createFileHandler("./frontend"))
 
