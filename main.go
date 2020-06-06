@@ -81,10 +81,10 @@ func main() {
 	r.Use(middleware.Timeout(30 * time.Second))
 
 	r.Get("/dashboard", handleListDashboards)
-	r.Get("/dashboard/{dashboard-slug}", handleListDashboard)
+	r.Get("/dashboard/{slug}", handleListDashboard)
 	r.Post("/dashboard", handleCreateDashboard)
-	r.Post("/dashboard/{dashboard-slug}", handleUpdateDashboard)
-	r.Delete("/dashboard/{dashboard-slug}", handleDeleteDashboard)
+	r.Post("/dashboard/{slug}", handleUpdateDashboard)
+	r.Delete("/dashboard/{slug}", handleDeleteDashboard)
 
 	r.Post("/upload", handleUpload)
 	r.Handle("/dashboards-data/*", http.StripPrefix("/dashboards-data/", http.FileServer(http.Dir("./dashboards-data"))))

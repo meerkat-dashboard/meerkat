@@ -11,8 +11,9 @@ import (
 	"path/filepath"
 )
 
-//UploadRes
-type UploadRes struct {
+//ResponseURL helper struct to send return URLs to the client
+//TODO change to hash, and fix frontend
+type ResponseURL struct {
 	URL string `json:"url"`
 }
 
@@ -37,5 +38,5 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Printf("Created file %s\n", filepath)
 	enc := json.NewEncoder(w)
-	enc.Encode(UploadRes{URL: filepath})
+	enc.Encode(ResponseURL{URL: filepath})
 }

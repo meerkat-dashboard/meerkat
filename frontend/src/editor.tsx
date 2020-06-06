@@ -24,13 +24,10 @@ const OptionLink = (props: OptionLinkProps) => {
 	</div>
 }
 
-const initialDashboard: Dashboard = {
-	title: 'New Dashboard',
-	background: null,
-	checks: []
-};
-
 type DashboardAction = {
+		type: "setDashboard"
+		dashboard: Dashboard;
+	} | {
 		type: "setTitle"
 		title: string;
 	} | {
@@ -47,6 +44,8 @@ type DashboardAction = {
 //Manage dashboard state
 const dashboardReducer = (state: Dashboard, action: DashboardAction) => {
 	switch (action.type) {
+		case 'setDashboard':
+			return action.dashboard;
 		case 'setTitle':
 			console.log('Setting title to ' + action.title)
 			return {...state, title: action.title};
@@ -70,13 +69,27 @@ const dashboardReducer = (state: Dashboard, action: DashboardAction) => {
 };
 
 interface EditorProps {
+	slug?: string;
 	view?: string;
 	id?: string;
 }
 
 //Edit page
 export function Editor(props: RouterProps & EditorProps) {
-	const [dashboard, dashboardDispatch] =  useReducer(dashboardReducer, initialDashboard);
+	const [dashboard, dashboardDispatch] =  useReducer(dashboardReducer, null);
+
+	useEffect(() => {
+		//TODO error handling
+		fetch(`/dashboard/${props.slug}`)
+			.then(async res => dashboardDispatch({
+				type: 'setDashboard',
+				dashboard: await res.json()
+			}));
+	}, [props.slug]);
+
+	if(dashboard === null) {
+		return <div class="loading center subtle">Loading dashboard</div>
+	}
 
 	const selectedElement = props.id ? Number(props.id) : null;
 
@@ -89,13 +102,13 @@ export function Editor(props: RouterProps & EditorProps) {
 	}
 
 	return <Fragment>
-		<DashboardView dashboard={dashboard} dashboardDispatch={dashboardDispatch} selectedElement={selectedElement} />
+		<DashboardView slug={props.slug} view={props.view} dashboard={dashboard} dashboardDispatch={dashboardDispatch} selectedElement={selectedElement} />
 
 		<div class="editor">
 			<div class="icons">
-				<OptionLink icon="settings" href="/edit/settings" label="settings" />
-				<OptionLink icon="activity" href="/edit/checks" label="checks" />
-				<OptionLink icon="image" href="/edit/statics" label="statics" />
+				<OptionLink icon="settings" href={`/edit/${props.slug}/settings`} label="settings" />
+				<OptionLink icon="activity" href={`/edit/${props.slug}/checks`} label="checks" />
+				<OptionLink icon="image" href={`/edit/${props.slug}/statics`} label="statics" />
 
 				<OptionLink icon="home" href="/" label="home" />
 			</div>
@@ -205,7 +218,7 @@ function TransformableElement(props: {rect: Rect, updateRect: (rect: Rect) => vo
 }
 
 //The actual dashboard being rendered
-function DashboardView(props: RouterProps & OptionalPanelProps) {
+function DashboardView(props: {slug: string, view: string} & RouterProps & OptionalPanelProps) {
 	const checks = props.dashboard.checks.map((check, index) => {
 		const updateRect = rect => {
 			props.dashboardDispatch({
@@ -231,8 +244,21 @@ function DashboardView(props: RouterProps & OptionalPanelProps) {
 		</TransformableElement>
 	});
 
-	const saveDashboard = e => {
+	const saveDashboard = async e => {
 		console.log(props.dashboard);
+		try {
+			const data = await fetch(`/dashboard/${props.slug}`, {
+				method: 'POST',
+				body: JSON.stringify(props.dashboard)
+			}).then(res => res.json());
+
+			route(`/edit/${data.slug}/${props.view}`)
+			//TODO show success
+		} catch (e) {
+			//TODO improve
+			console.log('error saving dashboard:');
+			console.log(e);
+		}
 	}
 
 	const backgroundImage = props.dashboard.background ? `url(${props.dashboard.background})` : 'none';

@@ -46,6 +46,16 @@
 	100% {background-color: transparent;}
 }
 
+@keyframes slide-up {
+	from { transform: translate(0, 40px); }
+	to { transform: translate(0, 0); }
+}
+
+@keyframes spin {
+	from { transform: rotate(0deg); }
+	to { transform: rotate(360deg); }
+}
+
 body {
 	margin: 0;
 	font-family: 'Nunito', sans-serif;
@@ -130,7 +140,7 @@ button {
 	cursor: pointer;
 	background-color: var(--color-dark-orange);
 	border: 0;
-	border-radius: 3px;
+	border-radius: 40px;
 	padding: 10px 20px;
 	font-size: 16px;
 	color: var(--color-white);
@@ -194,6 +204,60 @@ input[type="file"] {
 input::placeholder {
 	color: #cccccc;
 	opacity: 1;
+}
+
+/* COPY SELECTION BOX */
+div.copy-box {
+	position: relative;
+}
+
+div.copy-box > input {
+	background-color: #f9f6f6;
+	padding-right: 32px;
+	cursor: pointer;
+}
+
+div.copy-box > svg {
+	width: 24px;
+	height: 24px;
+	content: '';
+	position: absolute;
+	right: 0;
+	top: 0;
+	display: block;
+	margin: 5px;
+	color: var(--color-light-black);
+	cursor: pointer;
+}
+
+/* MODAL */
+div.modal-wrap {
+	background-color: rgba(0,0,0,.4);
+	position: fixed;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	z-index: 2;
+	animation-name: fade-in;
+	animation-iteration-count: initial;
+	animation-fill-mode: forwards;
+	animation-duration: 300ms;
+}
+
+div.modal-wrap .modal {
+	position: fixed;
+	background-color: white;
+	padding: 20px;
+	left: calc(50% - 200px);
+	width: 400px;
+	top: 20vh;
+	color: var(--color-black);
+	border-radius: 4px;
+	animation-name: slide-up;
+	animation-iteration-count: initial;
+	animation-fill-mode: forwards;
+	animation-duration: 300ms;
 }
 
 /* HOME */

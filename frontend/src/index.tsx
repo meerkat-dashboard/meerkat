@@ -9,7 +9,7 @@ function Main() {
 	return <Fragment>
 		<Router>
 			<Home path="/" />
-			<Editor path="/edit/:view" />
+			<Editor path="/edit/:slug/:view" />
 
 			<NotFound default/>
 		</Router>
