@@ -112,7 +112,7 @@ function DashboardList(props: {dashboards: Array<Dashboard>, filter: string}) {
 	return <Fragment>{dbs}</Fragment>
 }
 
-export function Home(props: RouterProps): JSX.Element | Array<JSX.Element> {
+export function Home(props: RouterProps) {
 	const [showModal, setShowModal] = useState(false);
 	const [dashboards, setDashboards] = useState(null);
 	const [filter, setFilter] = useState('');

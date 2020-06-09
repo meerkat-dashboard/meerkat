@@ -48,9 +48,10 @@ Files:
 type Config struct {
 	HTTPAddr string
 
-	IcingaURL      string
-	IcingaUsername string
-	IcingaPassword string
+	IcingaURL         string
+	IcingaUsername    string
+	IcingaPassword    string
+	IcingaInsecureTLS bool
 }
 
 var config Config
@@ -85,6 +86,8 @@ func main() {
 	r.Post("/dashboard", handleCreateDashboard)
 	r.Post("/dashboard/{slug}", handleUpdateDashboard)
 	r.Delete("/dashboard/{slug}", handleDeleteDashboard)
+
+	r.Get("/icinga/{check-type}", handleIcingaCheck)
 
 	r.Post("/upload", handleUpload)
 	r.Handle("/dashboards-data/*", http.StripPrefix("/dashboards-data/", http.FileServer(http.Dir("./dashboards-data"))))

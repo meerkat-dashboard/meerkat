@@ -5,7 +5,13 @@ import { useState, useEffect, StateUpdater, useReducer } from 'preact/hooks';
 import { OptionalPanelProps, Check } from './editor';
 import { routeParam } from './util';
 
-function EditPanel(props: {updateCheck: (Check) => void, check: Check}): h.JSX.Element {
+function IcingaCheckList() {
+
+
+	return <div class="loading small">Loading checks</div>
+}
+
+function EditPanel(props: {updateCheck: (Check) => void, check: Check}) {
 	return <Fragment>
 		<label for="name">Name</label>
 		<input id="name" type="text" placeholder="Cool check" value={props.check.title}
@@ -18,6 +24,9 @@ function EditPanel(props: {updateCheck: (Check) => void, check: Check}): h.JSX.E
 			<option value="svg">SVG</option>
 			<option value="image">Image</option>
 		</select>
+
+		<label>Icinga Check</label>
+		<IcingaCheckList />
 	</Fragment>
 }
 

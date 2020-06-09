@@ -153,7 +153,10 @@ button:hover, button:focus {
 button.loading, div.loading {
 	display: flex;
 	align-items: center;
-	justify-content: center;
+}
+
+div.loading {
+	font-style: italic;
 }
 
 button.loading::before, div.loading::before {
@@ -175,6 +178,16 @@ button.small {
 	padding: 6px 12px;
 	font-size: 12px;
 	text-transform: uppercase;
+}
+
+div.small {
+	font-size: 14px;
+}
+
+button.small.loading::before,
+div.small.loading::before {
+	width: 10px;
+	height: 10px;
 }
 
 input, select {
