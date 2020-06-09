@@ -119,7 +119,7 @@ export function Editor(props: RouterProps & EditorProps) {
 	</Fragment>
 }
 
-interface Dashboard {
+export interface Dashboard {
 	title: string;
 	background?: string;
 	checks: Array<Check>

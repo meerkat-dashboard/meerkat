@@ -1,6 +1,8 @@
-import { h, Fragment, createRef } from 'preact';
+import { h, Fragment, createRef, JSX } from 'preact';
 import { RouterProps, route } from 'preact-router';
 import { useState, useEffect } from 'preact/hooks';
+
+import { Dashboard } from './editor';
 
 function CopyTextBox({text}: {text: string}) {
 	const ref = createRef();
@@ -20,18 +22,18 @@ function CopyTextBox({text}: {text: string}) {
 		</div> 
 }
 
+const titleToSlug = (title: string): string => {
+	let result = title;
+	result.toLowerCase(); //convert upper case to lower case
+	result = result.trim() //remove preceeding and trailing whitespace
+	result = result.replace(/[_\s]/g, '-'); //convert spaces and underscores to dashes
+	result = result.replace(/[^a-z0-9\-]/g, ''); //Remove any other characters
+
+	return result;
+}
+
 function CreateDashboardModal(props: {hide: () => void}) {
 	const [title, setTitle] = useState('');
-
-	const titleToSlug = (title: string): string => {
-		let result = title;
-		result.toLowerCase(); //convert upper case to lower case
-		result = result.trim() //remove preceeding and trailing whitespace
-		result = result.replace(/[_\s]/g, '-'); //convert spaces and underscores to dashes
-		result = result.replace(/[^a-z0-9\-]/g, ''); //Remove any other characters
-
-		return result;
-	}
 
 	const createDashboard = async e => {
 		try {
@@ -74,8 +76,52 @@ function CreateDashboardModal(props: {hide: () => void}) {
 	</div>
 }
 
-export function Home(props: RouterProps) {
+function deleteDashboard(slug: string) {
+	alert('todo delete '+ slug)
+}
+
+function DashboardList(props: {dashboards: Array<Dashboard>, filter: string}) {
+	if(props.dashboards === null) {
+		return <div class="subtle loading">Loading Dashboards</div>
+	}
+
+	const filteredDashboards = props.dashboards.filter((dashboard: Dashboard) => {
+		if(props.filter === '') {
+			return true;
+		} else {
+			return dashboard.title.toLowerCase().includes(props.filter.toLowerCase());
+		}
+	})
+
+	if(filteredDashboards.length < 1) {
+		return <div class="subtle">No dashboards found</div>
+	}
+
+	const dbs = filteredDashboards.map(dashboard => {
+		const slug = titleToSlug(dashboard.title);
+		
+		return <div class="dashboard-listing">
+			<h3>{dashboard.title}</h3>
+			<div class="timestamps">
+				<a onClick={e => route(`/edit/${slug}/settings`)}>edit</a>
+				<a onClick={e => deleteDashboard(slug)}>delete</a>
+			</div>
+		</div>
+	});
+
+	return <Fragment>{dbs}</Fragment>
+}
+
+export function Home(props: RouterProps): JSX.Element | Array<JSX.Element> {
 	const [showModal, setShowModal] = useState(false);
+	const [dashboards, setDashboards] = useState(null);
+	const [filter, setFilter] = useState('');
+
+	useEffect(() => {
+		fetch('/dashboard')
+			.then(res => res.json())
+			.then(dbs => setDashboards(dbs));
+	}, []);
 
 	return <Fragment>
 	<div class="home">
@@ -86,20 +132,11 @@ export function Home(props: RouterProps) {
 		</div>
 
 		<div class="filter-wrap">
-			<input type="text" id="filter" placeholder="Filter dashboards" />
+			<input type="text" id="filter" onInput={e => setFilter(e.currentTarget.value)} placeholder="Filter dashboards" />
 		</div>
 
 		<div class="filter-results">
-			<div class="dashboard-listing">
-				<h3>A dashboard name</h3>
-				<p>A description</p>
-				<div class="timestamps">
-					<a href="edit/asd-asd">edit</a>
-
-					<span class="tiny">edited: 19-04-20 - 19:05</span>
-					<span class="tiny">created: 19-04-20 - 19:05</span>
-				</div>
-			</div>
+			<DashboardList dashboards={dashboards} filter={filter} />
 		</div>
 	</div>
 	{showModal ? <CreateDashboardModal hide={() => setShowModal(false)} /> : null}

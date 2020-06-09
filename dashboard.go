@@ -49,7 +49,40 @@ func titleToSlug(title string) string {
 }
 
 func handleListDashboards(w http.ResponseWriter, r *http.Request) {
+	files, err := ioutil.ReadDir("dashboards")
+	if err != nil {
+		http.Error(w, "Failed to read directory: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
 
+	var dashboards []Dashboard
+
+	for _, f := range files {
+		if strings.HasSuffix(f.Name(), ".json") {
+			data, err := ioutil.ReadFile(path.Join("dashboards", f.Name()))
+			if err != nil {
+				http.Error(w, "Error reading file contents: "+err.Error(), http.StatusInternalServerError)
+				return
+			}
+
+			var dashboard Dashboard
+			err = json.Unmarshal(data, &dashboard)
+			//skip files with invalid json
+			if err != nil {
+				http.Error(w, "Invalid file: "+err.Error(), http.StatusInternalServerError)
+				fmt.Printf("Invalid dashboard file %s - %s\n", f.Name(), err)
+				continue
+			}
+
+			dashboards = append(dashboards, dashboard)
+		}
+	}
+
+	enc := json.NewEncoder(w)
+	err = enc.Encode(dashboards)
+	if err != nil {
+		fmt.Printf("Error encoding response: %s\n", err)
+	}
 }
 
 func handleListDashboard(w http.ResponseWriter, r *http.Request) {
