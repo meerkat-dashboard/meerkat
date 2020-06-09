@@ -35,7 +35,7 @@ Files:
 		}
 
 		fmt.Printf("%s directory not found, creating\n", p)
-		err = os.Mkdir(p, os.ModeDir)
+		err = os.Mkdir(p, os.ModePerm)
 		if err != nil {
 			return err
 		}
