@@ -10,6 +10,11 @@
 	--color-light-gray: #d1d9db;
 	--color-white: #eeeeee;
 	--color-light-black: #21272f;
+
+	--color-icinga-red: #f56;
+	--color-icinga-green: #4b7;
+	--color-icinga-purple: #a4f;
+	--color-icinga-yellow: #fa4;
 }
 
 @font-face {
@@ -419,14 +424,28 @@ div.editor {
 }
 
 .check > .card {
-	background-color: var(--color-light-gray);
-	border: solid 1.5px var(--color-black);
-	border-radius: 4px;
 	padding: 6px 10px;
+	text-align: center;
+	color: white;
+	background-color: var(--color-black);
 }
+
+.check > .card.critical, .check > .card.down {background-color: var(--color-icinga-red)}
+.check > .card.ok, .check > .card.up {background-color: var(--color-icinga-green)}
+.check > .card.unknown {background-color: var(--color-icinga-purple)}
+.check > .card.warning {background-color: var(--color-icinga-yellow)}
 
 .check > .card > p {
 	text-align: center;
+	font-weight: bold;
+	font-size: 40px;
+	margin-bottom: 5px;
+}
+
+.check > .card > div.check-state {
+	text-transform: uppercase;
+	font-weight: normal;
+	font-size: 60px;
 }
 
 .check-list > .check-item {
