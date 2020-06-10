@@ -58,7 +58,7 @@ const dashboardReducer = (state: Dashboard, action: DashboardAction) => {
 				type: 'card',
 				title: 'New Check',
 				checkID: null,
-				rect:{ x: 0, y: 0, w: 100, h: 100}
+				rect:{ x: 0, y: 0, w: 15, h: 15}
 			};
 			return {
 				...state,
@@ -170,8 +170,12 @@ function TransformableElement(props: {rect: Rect, updateRect: (rect: Rect) => vo
 			top = top < 0 ? 0 : top;
 			top = top > maxTop ? maxTop : top;
 
+			//convert dimensions to relative (px -> percentage based)
+			const relativeLeft = left / dashboardNode.clientWidth * 100;
+			const relativeTop = top / dashboardNode.clientHeight * 100;
+
 			//set position
-			props.updateRect({x: left, y: top, w: props.rect.w, h: props.rect.h});
+			props.updateRect({x: relativeLeft, y: relativeTop, w: props.rect.w, h: props.rect.h});
 		}
 
 		//Remove listeners on mouse button up
@@ -204,9 +208,13 @@ function TransformableElement(props: {rect: Rect, updateRect: (rect: Rect) => vo
 			width = width < maxWidth ? width : maxWidth;
 			height = height < 100 ? 100 : height;
 			height = height < maxHeight ? height : maxHeight;
+			
+			//convert dimensions to relative (px -> percentage based)
+			const relativeWidth = width / dashboardNode.clientWidth * 100;
+			const relativeHeight = height / dashboardNode.clientHeight * 100;
 
 			//set position
-			props.updateRect({x: props.rect.x, y: props.rect.y, w: width, h: height});
+			props.updateRect({x: props.rect.x, y: props.rect.y, w: relativeWidth, h: relativeHeight});
 		}
 
 		//Remove listeners on mouse button up
@@ -220,8 +228,13 @@ function TransformableElement(props: {rect: Rect, updateRect: (rect: Rect) => vo
 		window.addEventListener('mousemove', mousemove);
 	}
 
+	const left = `${props.rect.x}%`;
+	const top = `${props.rect.y}%`;
+	const width = `${props.rect.w}%`;
+	const height = `${props.rect.h}%`;
+
 	return <div class="check"
-		style={{left: props.rect.x, top: props.rect.y, width: props.rect.w, height: props.rect.h}}
+		style={{left: left, top: top, width: width, height: height}}
 		onMouseDown={handleMove}>
 			{props.children}
 			<div class="resize" onMouseDown={handleResize}></div>

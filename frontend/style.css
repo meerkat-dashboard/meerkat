@@ -340,7 +340,7 @@ div.dashboard-wrap {
 }
 
 .dashboard-wrap .dashboard {
-	background-size: cover;
+	background-size: 100% 100%;
 	border: solid 1.5px var(--color-gray);
 	flex-grow: 1;
 	border-radius: 4px;
