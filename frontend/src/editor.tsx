@@ -155,13 +155,14 @@ function TransformableElement(props: {rect: Rect, updateRect: (rect: Rect) => vo
 	//Handle dragging elements
 	const handleMove = downEvent => {
 		const mousemove = moveEvent => {
-			const ele = downEvent.target;
+			const checkNode = downEvent.target;
+			const dashboardNode = checkNode.parentElement;
 	
 			//Get max dimensions
-			let left = ele.offsetLeft + moveEvent.movementX;
-			let top = ele.offsetTop + moveEvent.movementY;
-			const maxLeft = ele.parentElement.clientWidth - ele.clientWidth;
-			const maxTop = ele.parentElement.clientHeight - ele.clientHeight;
+			let left = checkNode.offsetLeft + moveEvent.movementX;
+			let top = checkNode.offsetTop + moveEvent.movementY;
+			const maxLeft = dashboardNode.clientWidth - checkNode.clientWidth;
+			const maxTop = dashboardNode.clientHeight - checkNode.clientHeight;
 
 			//limit movement to max dimensions
 			left = left < 0 ? 0 : left;
@@ -188,17 +189,21 @@ function TransformableElement(props: {rect: Rect, updateRect: (rect: Rect) => vo
 		downEvent.stopPropagation();
 
 		const mousemove = moveEvent => {
-			const ele = downEvent.target;
+			//Go up an element due to resize dot
+			const checkNode = downEvent.target.parentElement;
+			const dashboardNode = checkNode.parentElement;
 	
 			//Get max dimensions
-			let width = ele.parentElement.clientWidth + moveEvent.movementX;
-			let height = ele.parentElement.clientHeight + moveEvent.movementY;
-
-			//TODO don't allow resize over dashboard borders
+			let width = checkNode.clientWidth + moveEvent.movementX;
+			let height = checkNode.clientHeight + moveEvent.movementY;
+			let maxWidth = dashboardNode.clientWidth - checkNode.offsetLeft;
+			let maxHeight = dashboardNode.clientHeight - checkNode.offsetTop;
 
 			//limit minimun resize
 			width = width < 100 ? 100 : width;
+			width = width < maxWidth ? width : maxWidth;
 			height = height < 100 ? 100 : height;
+			height = height < maxHeight ? height : maxHeight;
 
 			//set position
 			props.updateRect({x: props.rect.x, y: props.rect.y, w: width, h: height});

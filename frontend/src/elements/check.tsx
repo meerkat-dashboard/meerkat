@@ -30,7 +30,6 @@ const checkType = (checkID: string) => checkID.includes('!') ? 'service' : 'host
 
 export function CardElement(props: {check: Check}) {
 	const [checkState, setCheckState] = useState(null);
-	console.log(props.check)
 
 	//Handle state update
 	const updateState = () => {
@@ -52,7 +51,7 @@ export function CardElement(props: {check: Check}) {
 			const intervalID = window.setInterval(updateState, 30*1000)
 			return () => window.clearInterval(intervalID);
 		}
-	}, [props.check]);
+	}, [props.check.checkID]);
 
 	return <div class={"check-content card " + checkState}>
 		<p>{props.check.title}</p>
