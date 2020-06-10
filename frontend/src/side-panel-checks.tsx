@@ -5,10 +5,65 @@ import { useState, useEffect, StateUpdater, useReducer } from 'preact/hooks';
 import { OptionalPanelProps, Check } from './editor';
 import { routeParam } from './util';
 
-function IcingaCheckList() {
+interface IcingaObject {
+	id: string;
+	type: string;
+	name: string;
+	hostName: string;
+	displayName: string;
+	checkCommand: string;
+	state: number;
+	checkInterval: number;
+	groups: Array<string>;
+}
 
+function sortHost(a: IcingaObject, b: IcingaObject) {
+	return a.displayName.toLowerCase() > b.displayName.toLowerCase() ? 1 : 0;
+}
 
-	return <div class="loading small">Loading checks</div>
+function sortService(a: IcingaObject, b: IcingaObject) {
+	return a.hostName.toLowerCase() > b.hostName.toLowerCase() ? 1 : 0;
+}
+
+function IcingaCheckList(props: {check: Check, updateCheckID: (checkID: string) => void}) {
+	const [hosts, setHosts] = useState(null);
+	const [services, setServices] = useState(null);
+	
+	useEffect(() => {
+		fetch(`/icinga/hosts`)
+			.then(res => res.json())
+			.then(h => {
+				h.sort(sortHost);
+				setHosts(h);
+			});
+
+		fetch(`/icinga/services`)
+			.then(res => res.json())
+			.then(s => {
+				s.sort(sortService);
+				setServices(s)
+			});
+	}, [])
+
+	if(hosts === null || services === null) {
+		return <div class="loading small">Loading hosts and services</div>
+	}
+
+	const options = [];
+	options.push(<option value={null}></option>)
+	options.push(<option disabled><b>HOSTS</b></option>)
+	for(const host of hosts) {
+		options.push(<option value={host.id}>{host.displayName}</option>)
+	}
+
+	options.push(<option disabled><b>SERVICES</b></option>)
+	for(const service of services) {
+		options.push(<option value={service.id}>{service.hostName} - {service.displayName}</option>)
+	}
+
+	return <select value={props.check.checkID} onInput={e => props.updateCheckID(e.currentTarget.value)}>
+		{options}
+	</select>
 }
 
 function EditPanel(props: {updateCheck: (Check) => void, check: Check}) {
@@ -25,8 +80,9 @@ function EditPanel(props: {updateCheck: (Check) => void, check: Check}) {
 			<option value="image">Image</option>
 		</select>
 
-		<label>Icinga Check</label>
-		<IcingaCheckList />
+		<label>Icinga Host or Service</label>
+		<IcingaCheckList check={props.check}
+			updateCheckID={checkID => props.updateCheck({...props.check, checkID: checkID})} />
 	</Fragment>
 }
 

@@ -20,6 +20,7 @@ type icingaAPIResult struct {
 
 type icingaAttributes struct {
 	Name        string   `json:"name"`
+	HostName    string   `json:"host_name"`
 	DisplayName string   `json:"display_name"`
 	Command     string   `json:"check_command"`
 	State       float32  `json:"state"`
@@ -32,6 +33,7 @@ func (ir *icingaAPIResult) toIcingaObject() icingaObject {
 		ID:          ir.Name,
 		Type:        ir.Type,
 		Name:        ir.Attributes.Name,
+		HostName:    ir.Attributes.HostName,
 		DisplayName: ir.Attributes.DisplayName,
 		Command:     ir.Attributes.Command,
 		State:       ir.Attributes.State,
@@ -44,6 +46,7 @@ type icingaObject struct {
 	ID          string   `json:"id"`
 	Type        string   `json:"type"`
 	Name        string   `json:"name"`
+	HostName    string   `json:"hostName"`
 	DisplayName string   `json:"displayName"`
 	Command     string   `json:"checkCommand"`
 	State       float32  `json:"state"`

@@ -54,7 +54,12 @@ const dashboardReducer = (state: Dashboard, action: DashboardAction) => {
 			return {...state, background: action.background};
 		case 'addCheck':
 			console.log('Adding new check')
-			const newCheck: Check = {type: 'card', title: 'New Check', rect:{ x: 0, y: 0, w: 100, h: 100}};
+			const newCheck: Check = {
+				type: 'card',
+				title: 'New Check',
+				checkID: null,
+				rect:{ x: 0, y: 0, w: 100, h: 100}
+			};
 			return {
 				...state,
 				checks: state.checks.concat(newCheck)
@@ -135,6 +140,7 @@ export interface Check {
 	type: 'card' | 'image' | 'svg';
 	title: string;
 	rect: Rect;
+	checkID?: string;
 }
 
 //get rekt
