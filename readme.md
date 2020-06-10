@@ -7,9 +7,10 @@ You can use the `-config` flag to specify an alternative config path
 ```
 HTTPAddr = "localhost:8585"
 
-IcingaURL      = ""
-IcingaUsername = ""
-IcingaPassword = ""
+IcingaURL      = "https://icinga.example.com:5665"
+IcingaUsername = "api-user"
+IcingaPassword = "api-password"
+IcingaInsecureTLS = false
 ```
 
 ### TODO
