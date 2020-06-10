@@ -31,10 +31,10 @@ type Check struct {
 
 //Rect helper struct for positions
 type Rect struct {
-	X int64 `json:"x"`
-	Y int64 `json:"y"`
-	W int64 `json:"w"`
-	H int64 `json:"h"`
+	X float64 `json:"x"`
+	Y float64 `json:"y"`
+	W float64 `json:"w"`
+	H float64 `json:"h"`
 }
 
 func titleToSlug(title string) string {

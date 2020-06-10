@@ -347,6 +347,16 @@ div.dashboard-wrap {
 	position: relative;
 }
 
+.dashboard.view-only {
+	background-size: 100% 100%;
+	width: 100vw;
+	height: 100vh;
+}
+
+.dashboard.view-only .check {
+	cursor: default;
+}
+
 /* EDITOR */
 div.editor {
 	position: fixed;
