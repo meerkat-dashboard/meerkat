@@ -13,13 +13,6 @@ IcingaPassword = ""
 ```
 
 ### TODO
- - Make dashboard elements percentage based so they're relative to screen size
  - Add tags to dashboards
- - Save and retrieve dashboards
- - Home page actually list dashboards
- - Filter on homepage
- - Improve card appearence
  - Ability to re-order checks/statics
  - Implement Statics (Start with lines)
- - Add icinga service/host searching
- - Add icinga service/host polling
