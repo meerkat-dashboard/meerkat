@@ -54,7 +54,7 @@ type icingaObject struct {
 //This function isn't very optimized, decodes json -> convert to our type -> re-encode json
 func handleIcingaCheck(w http.ResponseWriter, r *http.Request) {
 	checkType := chi.URLParam(r, "check-type")
-	objectID := r.URL.Query().Get("object-id")
+	objectID := chi.URLParam(r, "object-id")
 
 	//We only support looking up hosts and services
 	if checkType != "hosts" && checkType != "services" {

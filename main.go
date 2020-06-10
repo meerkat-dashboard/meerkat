@@ -88,6 +88,7 @@ func main() {
 	r.Delete("/dashboard/{slug}", handleDeleteDashboard)
 
 	r.Get("/icinga/{check-type}", handleIcingaCheck)
+	r.Get("/icinga/{check-type}/{object-id}", handleIcingaCheck)
 
 	r.Post("/upload", handleUpload)
 	r.Handle("/dashboards-data/*", http.StripPrefix("/dashboards-data/", http.FileServer(http.Dir("./dashboards-data"))))
