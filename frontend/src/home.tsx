@@ -76,11 +76,13 @@ function CreateDashboardModal(props: {hide: () => void}) {
 	</div>
 }
 
-function deleteDashboard(slug: string) {
-	alert('todo delete '+ slug)
-}
+function DashboardList(props: {dashboards: Array<Dashboard>, loadDashboards: () => void, filter: string}) {
+	const deleteDashboard = (slug: string) => {
+		fetch(`/dashboard/${slug}`, {
+			method: 'DELETE'
+		}).then(props.loadDashboards)
+	}
 
-function DashboardList(props: {dashboards: Array<Dashboard>, filter: string}) {
 	if(props.dashboards === null) {
 		return <div class="subtle loading">Loading Dashboards</div>
 	}
@@ -103,6 +105,7 @@ function DashboardList(props: {dashboards: Array<Dashboard>, filter: string}) {
 		return <div class="dashboard-listing">
 			<h3>{dashboard.title}</h3>
 			<div class="timestamps">
+				<a onClick={e => route(`/view/${slug}`)}>view</a>
 				<a onClick={e => route(`/edit/${slug}/settings`)}>edit</a>
 				<a onClick={e => deleteDashboard(slug)}>delete</a>
 			</div>
@@ -117,11 +120,13 @@ export function Home(props: RouterProps) {
 	const [dashboards, setDashboards] = useState(null);
 	const [filter, setFilter] = useState('');
 
-	useEffect(() => {
+	const loadDashboards = () => {
 		fetch('/dashboard')
 			.then(res => res.json())
 			.then(dbs => setDashboards(dbs));
-	}, []);
+	}
+
+	useEffect(loadDashboards, []);
 
 	return <Fragment>
 	<div class="home">
@@ -136,7 +141,7 @@ export function Home(props: RouterProps) {
 		</div>
 
 		<div class="filter-results">
-			<DashboardList dashboards={dashboards} filter={filter} />
+			<DashboardList loadDashboards={loadDashboards} dashboards={dashboards} filter={filter} />
 		</div>
 	</div>
 	{showModal ? <CreateDashboardModal hide={() => setShowModal(false)} /> : null}

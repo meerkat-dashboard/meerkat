@@ -357,6 +357,18 @@ div.dashboard-wrap {
 	cursor: default;
 }
 
+.dashboard.view-only button.view-only-button {
+	position: absolute;
+	bottom: 20px;
+	left: 20px;
+	opacity: .4;
+	transition: opacity 400ms;
+}
+
+.dashboard.view-only button.view-only-button:hover {
+	opacity: 1.0;
+}
+
 /* EDITOR */
 div.editor {
 	position: fixed;

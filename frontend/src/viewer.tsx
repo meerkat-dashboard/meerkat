@@ -32,5 +32,6 @@ export function Viewer(props: {slug?: string} & RouterProps) {
 	const backgroundImage = dashboard.background ? `url(${dashboard.background})` : 'none';
 	return <div class="dashboard view-only" style={{backgroundImage: backgroundImage}}>
 		{checks}
+		<button class="view-only-button" onClick={e => route('/')}>Home</button>
 	</div>
 }
