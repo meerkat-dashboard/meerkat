@@ -13,6 +13,12 @@ IcingaPassword = "api-password"
 IcingaInsecureTLS = false
 ```
 
+### Build / Run
+ - `go build` in the root directory of this project to build the server
+ - From the `frontend` directory run `npm i` which installs JS dependencies
+ - `npm run prod` from the frontend directory which builds the frontend code (`index.html` loads this output (`bundle.js`))
+ - You can then run `./meerkat -config meerkat.toml` after creating the config file above
+
 ### TODO
  - Add tags to dashboards
  - Ability to re-order checks/statics
