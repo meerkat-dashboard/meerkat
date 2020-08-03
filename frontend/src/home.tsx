@@ -24,7 +24,7 @@ function CopyTextBox({text}: {text: string}) {
 
 const titleToSlug = (title: string): string => {
 	let result = title;
-	result.toLowerCase(); //convert upper case to lower case
+	result = result.toLowerCase(); //convert upper case to lower case
 	result = result.trim() //remove preceeding and trailing whitespace
 	result = result.replace(/[_\s]/g, '-'); //convert spaces and underscores to dashes
 	result = result.replace(/[^a-z0-9\-]/g, ''); //Remove any other characters
@@ -58,8 +58,8 @@ function CreateDashboardModal(props: {hide: () => void}) {
 		}
 	}
 
-	return <div class="modal-wrap" onClick={props.hide}>
-		<div class="modal" onClick={e => e.stopPropagation()}>
+	return <div class="modal-wrap" onMouseDown={props.hide}>
+		<div class="modal" onMouseDown={e => e.stopPropagation()}>
 			<h3>Create Dashboard</h3>
 
 			<label for="title">Title</label>
