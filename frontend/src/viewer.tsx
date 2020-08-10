@@ -2,7 +2,7 @@ import { h, Fragment, JSX } from 'preact';
 import { RouterProps, route, RoutableProps } from 'preact-router';
 import { useState, useEffect, StateUpdater, useReducer } from 'preact/hooks';
 
-import { CardElement } from './elements/check';
+import { CardElement } from './elements/card';
 
 //Read only page
 export function Viewer(props: {slug?: string} & RouterProps) {

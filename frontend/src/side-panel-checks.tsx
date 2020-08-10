@@ -3,6 +3,7 @@ import { RouterProps, route, RoutableProps } from 'preact-router';
 import { useState, useEffect, StateUpdater, useReducer } from 'preact/hooks';
 
 import { OptionalPanelProps, Check } from './editor';
+import { CardOptionFields, CardOptions } from './elements/card';
 import { routeParam } from './util';
 
 interface IcingaObject {
@@ -66,7 +67,19 @@ function IcingaCheckList(props: {check: Check, updateCheckID: (checkID: string) 
 	</select>
 }
 
+//The root sidebar 
 function EditPanel(props: {updateCheck: (Check) => void, check: Check}) {
+	const updateCheckOptions = (options: CardOptions) => {
+		const newOptions = Object.assign(props.check.options, options)
+		props.updateCheck({...props.check, options: newOptions})
+	}
+
+	const checkTypeOptions = {
+		'card': <CardOptionFields updateOptions={updateCheckOptions} check={props.check} />,
+		'svg': <div>svg options</div>,
+		'image': <div>image options</div>
+	}
+
 	return <Fragment>
 		<label for="name">Name</label>
 		<input id="name" type="text" placeholder="Cool check" value={props.check.title}
@@ -83,6 +96,8 @@ function EditPanel(props: {updateCheck: (Check) => void, check: Check}) {
 		<label>Icinga Host or Service</label>
 		<IcingaCheckList check={props.check}
 			updateCheckID={checkID => props.updateCheck({...props.check, checkID: checkID})} />
+
+		{checkTypeOptions[props.check.type]}
 	</Fragment>
 }
 

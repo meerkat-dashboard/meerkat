@@ -26,8 +26,14 @@ const states = {
 	}
 }
 
+export interface CardOptions {
+	statusFontSize?: number;
+	nameFontSize?: number;
+}
+
 const checkType = (checkID: string) => checkID.includes('!') ? 'service' : 'host';
 
+//The rendered view (in the actual dashboard) of the Card Element
 export function CardElement(props: {check: Check}) {
 	const [checkState, setCheckState] = useState(null);
 
@@ -54,9 +60,24 @@ export function CardElement(props: {check: Check}) {
 	}, [props.check.checkID]);
 
 	return <div class={"check-content card " + checkState}>
-		<p>{props.check.title}</p>
-		<div class="check-state">
+		<p style={`font-size: ${props.check.options.nameFontSize}px`}>{props.check.title}</p>
+		<div class="check-state" style={`font-size: ${props.check.options.statusFontSize}px`}>
 			{checkState === null ? 'Unconfigured' : checkState}
 		</div>
+	</div>
+}
+
+//Card options, displayed in the sidebar
+export function CardOptionFields(props: {updateOptions: (CardOptions) => void, check: Check}) {
+	return <div class="card-options">
+		<label for="name-font-size">Name Font Size</label>
+		<input id="name-font-size" name="name-font-size" type="number" min="0"
+			value={props.check.options.nameFontSize}
+			onInput={e => props.updateOptions({nameFontSize: e.currentTarget.value})}/>
+			
+		<label for="status-font-size">Status Font Size</label>
+		<input id="status-font-size" name="status-font-size" type="number" min="0"
+			value={props.check.options.statusFontSize}
+			onInput={e => props.updateOptions({statusFontSize: e.currentTarget.value})}/>
 	</div>
 }

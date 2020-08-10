@@ -3,7 +3,7 @@ import { RouterProps, route, RoutableProps } from 'preact-router';
 import { useState, useEffect, StateUpdater, useReducer } from 'preact/hooks';
 
 import { SidePanelChecks } from './side-panel-checks';
-import { CardElement } from './elements/check';
+import { CardElement, CardOptions } from './elements/card';
 
 interface OptionLinkProps {
 	icon: string;
@@ -58,7 +58,11 @@ const dashboardReducer = (state: Dashboard, action: DashboardAction) => {
 				type: 'card',
 				title: 'New Check',
 				checkID: null,
-				rect:{ x: 0, y: 0, w: 15, h: 15}
+				rect:{ x: 0, y: 0, w: 15, h: 15},
+				options: {
+					nameFontSize: 40,
+					statusFontSize: 60
+				}
 			};
 			return {
 				...state,
@@ -141,6 +145,7 @@ export interface Check {
 	title: string;
 	rect: Rect;
 	checkID?: string;
+	options?: CardOptions;
 }
 
 //get rekt
@@ -206,7 +211,7 @@ function TransformableElement(props: {rect: Rect, updateRect: (rect: Rect) => vo
 			//limit minimun resize
 			width = width < 100 ? 100 : width;
 			width = width < maxWidth ? width : maxWidth;
-			height = height < 100 ? 100 : height;
+			height = height < 50 ? 50 : height;
 			height = height < maxHeight ? height : maxHeight;
 			
 			//convert dimensions to relative (px -> percentage based)
