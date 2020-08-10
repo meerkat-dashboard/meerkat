@@ -1,10 +1,8 @@
-import { h, Fragment, createRef, JSX } from 'preact';
-import { RouterProps, route } from 'preact-router';
+import { h, Fragment, createRef } from 'preact';
+import { route } from 'preact-router';
 import { useState, useEffect } from 'preact/hooks';
 
-import { Dashboard } from './editor';
-
-function CopyTextBox({text}: {text: string}) {
+function CopyTextBox({text}) {
 	const ref = createRef();
 
 	const handleClick = e => {
@@ -22,7 +20,7 @@ function CopyTextBox({text}: {text: string}) {
 		</div> 
 }
 
-const titleToSlug = (title: string): string => {
+const titleToSlug = (title) => {
 	let result = title;
 	result = result.toLowerCase(); //convert upper case to lower case
 	result = result.trim() //remove preceeding and trailing whitespace
@@ -32,7 +30,7 @@ const titleToSlug = (title: string): string => {
 	return result;
 }
 
-function CreateDashboardModal(props: {hide: () => void}) {
+function CreateDashboardModal(props) {
 	const [title, setTitle] = useState('');
 
 	const createDashboard = async e => {
@@ -76,8 +74,8 @@ function CreateDashboardModal(props: {hide: () => void}) {
 	</div>
 }
 
-function DashboardList(props: {dashboards: Array<Dashboard>, loadDashboards: () => void, filter: string}) {
-	const deleteDashboard = (slug: string) => {
+function DashboardList(props) {
+	const deleteDashboard = (slug) => {
 		fetch(`/dashboard/${slug}`, {
 			method: 'DELETE'
 		}).then(props.loadDashboards)
@@ -87,7 +85,7 @@ function DashboardList(props: {dashboards: Array<Dashboard>, loadDashboards: () 
 		return <div class="subtle loading">Loading Dashboards</div>
 	}
 
-	const filteredDashboards = props.dashboards.filter((dashboard: Dashboard) => {
+	const filteredDashboards = props.dashboards.filter((dashboard) => {
 		if(props.filter === '') {
 			return true;
 		} else {
@@ -115,7 +113,7 @@ function DashboardList(props: {dashboards: Array<Dashboard>, loadDashboards: () 
 	return <Fragment>{dbs}</Fragment>
 }
 
-export function Home(props: RouterProps) {
+export function Home() {
 	const [showModal, setShowModal] = useState(false);
 	const [dashboards, setDashboards] = useState(null);
 	const [filter, setFilter] = useState('');

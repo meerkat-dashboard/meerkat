@@ -5,13 +5,7 @@ import { useState, useEffect, StateUpdater, useReducer } from 'preact/hooks';
 import { SidePanelChecks } from './side-panel-checks';
 import { CardElement, CardOptions } from './elements/card';
 
-interface OptionLinkProps {
-	icon: string;
-	href: string;
-	label: string;
-}
-
-const OptionLink = (props: OptionLinkProps) => {
+const OptionLink = (props) => {
 	//url with no params
 	const currentURL = window.location.pathname;
 	
@@ -24,25 +18,8 @@ const OptionLink = (props: OptionLinkProps) => {
 	</div>
 }
 
-type DashboardAction = {
-		type: "setDashboard"
-		dashboard: Dashboard;
-	} | {
-		type: "setTitle"
-		title: string;
-	} | {
-		type: "setBackground"
-		background?: string;
-	} | {
-		type: "addCheck"
-	} | {
-		type: "updateCheck"
-		checkIndex: number
-		check: Check
-};
-
 //Manage dashboard state
-const dashboardReducer = (state: Dashboard, action: DashboardAction) => {
+const dashboardReducer = (state, action) => {
 	switch (action.type) {
 		case 'setDashboard':
 			return action.dashboard;
@@ -54,7 +31,7 @@ const dashboardReducer = (state: Dashboard, action: DashboardAction) => {
 			return {...state, background: action.background};
 		case 'addCheck':
 			console.log('Adding new check')
-			const newCheck: Check = {
+			const newCheck = {
 				type: 'card',
 				title: 'New Check',
 				checkID: null,
@@ -77,14 +54,8 @@ const dashboardReducer = (state: Dashboard, action: DashboardAction) => {
 	}
 };
 
-interface EditorProps {
-	slug?: string;
-	view?: string;
-	id?: string;
-}
-
 //Edit page
-export function Editor(props: RouterProps & EditorProps) {
+export function Editor(props) {
 	const [dashboard, dashboardDispatch] =  useReducer(dashboardReducer, null);
 
 	useEffect(() => {
@@ -128,35 +99,7 @@ export function Editor(props: RouterProps & EditorProps) {
 	</Fragment>
 }
 
-export interface Dashboard {
-	title: string;
-	background?: string;
-	checks: Array<Check>
-}
-
-export interface OptionalPanelProps {
-	dashboard: Dashboard;
-	dashboardDispatch: (action: DashboardAction) => void;
-	selectedElement: number | null;
-}
-
-export interface Check {
-	type: 'card' | 'image' | 'svg';
-	title: string;
-	rect: Rect;
-	checkID?: string;
-	options?: CardOptions;
-}
-
-//get rekt
-interface Rect {
-	x: number;
-	y: number;
-	w: number;
-	h: number;
-}
-
-function TransformableElement(props: {rect: Rect, updateRect: (rect: Rect) => void} & JSX.ElementChildrenAttribute) {
+function TransformableElement(props) {
 	//Handle dragging elements
 	const handleMove = downEvent => {
 		const mousemove = moveEvent => {
@@ -247,7 +190,7 @@ function TransformableElement(props: {rect: Rect, updateRect: (rect: Rect) => vo
 }
 
 //The actual dashboard being rendered
-function DashboardView(props: {slug: string, view: string} & RouterProps & OptionalPanelProps) {
+function DashboardView(props) {
 	const checks = props.dashboard.checks.map((check, index) => {
 		const updateRect = rect => {
 			props.dashboardDispatch({
@@ -304,7 +247,7 @@ function DashboardView(props: {slug: string, view: string} & RouterProps & Optio
 }
 
 //Settings view for the sidebar
-function SidePanelSettings(props: RouterProps & OptionalPanelProps) {
+function SidePanelSettings(props) {
 	const handleBackgroundImg = async e => {
 		try {
 			const data = await fetch('/upload', {
@@ -339,7 +282,7 @@ function SidePanelSettings(props: RouterProps & OptionalPanelProps) {
 }
 
 //Statics view for the sidebar
-function SidePanelStatics(props: RouterProps & OptionalPanelProps) {
+function SidePanelStatics() {
 	return <Fragment>
 		<h3>Static Content</h3>
 		<select>

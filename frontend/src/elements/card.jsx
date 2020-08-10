@@ -2,8 +2,6 @@ import { h, Fragment } from 'preact';
 import { RouterProps, route } from 'preact-router';
 import { useState, useEffect, StateUpdater } from 'preact/hooks';
 
-import { Check } from '../editor';
-
 // Value 	Host State 	Service State
 // 0 		Up 			OK
 // 1 		Up 			Warning
@@ -26,15 +24,10 @@ const states = {
 	}
 }
 
-export interface CardOptions {
-	statusFontSize?: number;
-	nameFontSize?: number;
-}
-
-const checkType = (checkID: string) => checkID.includes('!') ? 'service' : 'host';
+const checkType = (checkID) => checkID.includes('!') ? 'service' : 'host';
 
 //The rendered view (in the actual dashboard) of the Card Element
-export function CardElement(props: {check: Check}) {
+export function CardElement(props) {
 	const [checkState, setCheckState] = useState(null);
 
 	//Handle state update
@@ -68,7 +61,7 @@ export function CardElement(props: {check: Check}) {
 }
 
 //Card options, displayed in the sidebar
-export function CardOptionFields(props: {updateOptions: (CardOptions) => void, check: Check}) {
+export function CardOptionFields(props) {
 	return <div class="card-options">
 		<label for="name-font-size">Name Font Size</label>
 		<input id="name-font-size" name="name-font-size" type="number" min="0"

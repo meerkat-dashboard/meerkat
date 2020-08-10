@@ -2,31 +2,18 @@ import { h, Fragment, JSX,  } from 'preact';
 import { RouterProps, route, RoutableProps } from 'preact-router';
 import { useState, useEffect, StateUpdater, useReducer } from 'preact/hooks';
 
-import { OptionalPanelProps, Check } from './editor';
 import { CardOptionFields, CardOptions } from './elements/card';
 import { routeParam } from './util';
 
-interface IcingaObject {
-	id: string;
-	type: string;
-	name: string;
-	hostName: string;
-	displayName: string;
-	checkCommand: string;
-	state: number;
-	checkInterval: number;
-	groups: Array<string>;
-}
-
-function sortHost(a: IcingaObject, b: IcingaObject) {
+function sortHost(a, b) {
 	return a.displayName.toLowerCase() > b.displayName.toLowerCase() ? 1 : 0;
 }
 
-function sortService(a: IcingaObject, b: IcingaObject) {
+function sortService(a, b) {
 	return a.hostName.toLowerCase() > b.hostName.toLowerCase() ? 1 : 0;
 }
 
-function IcingaCheckList(props: {check: Check, updateCheckID: (checkID: string) => void}) {
+function IcingaCheckList(props) {
 	const [hosts, setHosts] = useState(null);
 	const [services, setServices] = useState(null);
 	
@@ -68,8 +55,8 @@ function IcingaCheckList(props: {check: Check, updateCheckID: (checkID: string) 
 }
 
 //The root sidebar 
-function EditPanel(props: {updateCheck: (Check) => void, check: Check}) {
-	const updateCheckOptions = (options: CardOptions) => {
+function EditPanel(props) {
+	const updateCheckOptions = (options) => {
 		const newOptions = Object.assign(props.check.options, options)
 		props.updateCheck({...props.check, options: newOptions})
 	}
@@ -101,7 +88,7 @@ function EditPanel(props: {updateCheck: (Check) => void, check: Check}) {
 	</Fragment>
 }
 
-function CheckListPanel(props: RouterProps & {checks: Array<Check>}) {
+function CheckListPanel(props) {
 	const checkList = props.checks.map((check, index) => (
 		<div class="check-item" onClick={ e => routeParam('id', index.toString()) }>
 			<div>{check.title}</div>
@@ -114,7 +101,7 @@ function CheckListPanel(props: RouterProps & {checks: Array<Check>}) {
 }
 
 //Checks view for the sidebar
-export function SidePanelChecks(props: RouterProps & OptionalPanelProps) {
+export function SidePanelChecks(props) {
 	const addCheck = e => props.dashboardDispatch({type: 'addCheck'});
 
 	let view = null;

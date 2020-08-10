@@ -5,7 +5,7 @@ import { useState, useEffect, StateUpdater, useReducer } from 'preact/hooks';
 import { CardElement } from './elements/card';
 
 //Read only page
-export function Viewer(props: {slug?: string} & RouterProps) {
+export function Viewer(props) {
 	const [dashboard, setDashboard] =  useState(null);
 
 	useEffect(() => {
