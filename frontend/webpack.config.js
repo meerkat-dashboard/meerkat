@@ -5,14 +5,24 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.tsx?$/,
-        use: 'ts-loader',
+        test: /\.jsx?$/,
         exclude: /node_modules/,
-      },
-    ],
+        use: {
+          loader: 'babel-loader',
+          options: {
+            plugins: [
+              ["@babel/plugin-transform-react-jsx", {
+                "pragma": "h", // default pragma is React.createElement
+                "pragmaFrag": "Preact.Fragment", // default is React.Fragment
+              }]
+            ]
+          }
+        }
+      }
+    ]
   },
   resolve: {
-    extensions: [ '.tsx', '.ts', '.js' ],
+    extensions: [ '.jsx', '.ts', '.js' ],
   },
   output: {
     filename: 'bundle.js',
