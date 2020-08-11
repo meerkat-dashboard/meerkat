@@ -12,9 +12,9 @@ function StaticListPanel({statics, addStatic}) {
 		</div>
 	}
 
-	const staticList = statics.map((static, index) => (
+	const staticList = statics.map((s, index) => (
 		<div class="static-item" onClick={ e => routeParam('selectedStaticId', index.toString()) }>
-			<div>{static.title}</div>
+			<div>{s.title}</div>
 		</div>
 	));
 
@@ -23,52 +23,37 @@ function StaticListPanel({statics, addStatic}) {
 	</div>
 }
 
-// export function CheckSettings({selectedCheck, updateCheck}) {
-// 	if(selectedCheck === null) {
-// 		return null;
-// 	}
+export function StaticSettings({selectedStatic, updateStatic}) {
+	if(selectedStatic === null) {
+		return null;
+	}
 
-// 	const updateCheckOptions = (options) => {
-// 		const newOptions = Object.assign(selectedCheck.options, options)
-// 		updateCheck({...selectedCheck, options: newOptions})
-// 	}
+	const updateStaticOptions = (options) => {
+		const newOptions = Object.assign(selectedStatic.options, options)
+		updateStatic({...selectedStatic, options: newOptions})
+	}
 
-// 	const checkTypeOptions = {
-// 		'card': <CardOptionFields updateOptions={updateCheckOptions} check={selectedCheck} />,
-// 		'svg': <div>svg options</div>,
-// 		'image': <div>image options</div>
-// 	}
+	const staticTypeOptions = {
+		'text': <div>text options</div>,
+		'svg': <div>svg options</div>,
+		'image': <div>image options</div>
+	}
+	const options = staticTypeOptions[selectedStatic.type]
 
-// 	return <div class="editor settings-overlay">
-// 		<div class="options">
-// 			<div class="left">
-// 				<svg class="feather" onClick={e => removeParam('selectedCheckId')}>
-// 					<use xlinkHref={`/res/svgs/feather-sprite.svg#chevron-left`}/>
-// 				</svg>
-// 				<h3 class="no-margin">{selectedCheck.title}</h3>
-// 			</div>
-// 			<div class="asd">
-// 				<label for="name">Name</label>
-// 				<input id="name" type="text" placeholder="Cool check" value={selectedCheck.title}
-// 					onInput={e => updateCheck({...selectedCheck, title: e.currentTarget.value})} />
-
-// 				<label>Visual Type</label>
-// 				<select name="item-type" value={selectedCheck.type}
-// 					onInput={e => updateCheck({...selectedCheck, type: e.currentTarget.value})}>
-// 					<option value="card">Card</option>
-// 					<option value="svg">SVG</option>
-// 					<option value="image">Image</option>
-// 				</select>
-
-// 				<label>Icinga Host or Service</label>
-// 				<IcingaCheckList check={selectedCheck}
-// 					updateCheckID={checkID => updateCheck({...selectedCheck, checkID: checkID})} />
-
-// 				{checkTypeOptions[selectedCheck.type]}
-// 			</div>
-// 		</div>
-// 	</div>
-// }
+	return <div class="editor settings-overlay">
+		<div class="options">
+			<div class="lefty-righty spacer">
+				<h3 class="no-margin">{selectedStatic.title}</h3>
+				<svg class="feather" onClick={e => removeParam('selectedStaticId')}>
+					<use xlinkHref={`/res/svgs/feather-sprite.svg#x`}/>
+				</svg>
+			</div>
+			<div class="asd">
+				{options}
+			</div>
+		</div>
+	</div>
+}
 
 //Statics view for the sidebar
 export function SidePanelStatics({dashboard, dashboardDispatch}) {
@@ -79,7 +64,7 @@ export function SidePanelStatics({dashboard, dashboardDispatch}) {
 	}
 
 	return <Fragment>
-		<div class="lefty-righty" style="margin-bottom: 20px;">
+		<div class="lefty-righty">
 			<h3>Static Content</h3>
 			<button class="small" onClick={addStatic}>New</button>
 		</div>

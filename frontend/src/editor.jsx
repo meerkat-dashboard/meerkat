@@ -3,6 +3,7 @@ import { route } from 'preact-router';
 import { useEffect, useReducer } from 'preact/hooks';
 
 import { SidePanelChecks, CheckSettings } from './check-settings';
+import { SidePanelStatics, StaticSettings } from './static-settings';
 import { CardElement } from './elements/card';
 
 //Manage dashboard state
@@ -49,7 +50,7 @@ const dashboardReducer = (state, action) => {
 			};
 			return {
 				...state,
-				statics: state.statics.concat(newCheck)
+				statics: state.statics.concat(newStatic)
 			};
 		case 'updateStatic':
 			console.log('Updating static')
@@ -61,7 +62,7 @@ const dashboardReducer = (state, action) => {
 };
 
 //Edit page
-export function Editor({slug, selectedCheckId}) {
+export function Editor({slug, selectedCheckId, selectedStaticId}) {
 	const [dashboard, dashboardDispatch] =  useReducer(dashboardReducer, null);
 
 	useEffect(() => {
@@ -86,17 +87,35 @@ export function Editor({slug, selectedCheckId}) {
 		});
 	}
 
+	const selectedStatic = selectedStaticId ? dashboard.statics[selectedStaticId] : null;
+	const updateStatic = s => {
+		dashboardDispatch({
+			type: 'updateStatic',
+			staticIndex: selectedStaticId,
+			static: s
+		});
+	}
+
 	return <Fragment>
 		<DashboardView slug={slug} dashboard={dashboard} dashboardDispatch={dashboardDispatch}
 			selectedCheckId={selectedCheckId ? Number(selectedCheckId) : null} />
 
 		<div class="editor">
 			<div class="options">
-				<h3>{dashboard.title}</h3>
+				<div class="lefty-righty spacer">
+					<h3 class="no-margin">{dashboard.title}</h3>
+					<svg class="feather" onClick={e => route('/')}>
+						<use xlinkHref={`/res/svgs/feather-sprite.svg#home`}/>
+					</svg>
+				</div>
 				<SidePanelSettings dashboard={dashboard} dashboardDispatch={dashboardDispatch} />
+				<hr />
 				<SidePanelChecks dashboard={dashboard} dashboardDispatch={dashboardDispatch} />
+				<hr />
+				<SidePanelStatics dashboard={dashboard} dashboardDispatch={dashboardDispatch} />
 
 				<CheckSettings selectedCheck={selectedCheck} updateCheck={updateCheck}/>
+				<StaticSettings selectedStatic={selectedStatic} updateStatic={updateStatic}/>
 			</div>
 		</div>
 	</Fragment>
@@ -240,8 +259,7 @@ function DashboardView({dashboard, dashboardDispatch, selectedCheckId, slug}) {
 	const backgroundImage = dashboard.background ? `url(${dashboard.background})` : 'none';
 
 	return <div class="dashboard-wrap">
-		<div class="right" style="margin-bottom: 20px;">
-			<button onClick={e => route('/')}>Home</button>
+		<div class="right spacer">
 			<button onClick={saveDashboard}>Save Dashboard</button>
 		</div>
 		<div class="dashboard" style={{backgroundImage: backgroundImage}}>

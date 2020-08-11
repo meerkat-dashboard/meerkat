@@ -91,11 +91,11 @@ export function CheckSettings({selectedCheck, updateCheck}) {
 
 	return <div class="editor settings-overlay">
 		<div class="options">
-			<div class="left">
-				<svg class="feather" onClick={e => removeParam('selectedCheckId')}>
-					<use xlinkHref={`/res/svgs/feather-sprite.svg#chevron-left`}/>
-				</svg>
+			<div class="lefty-righty spacer">
 				<h3 class="no-margin">{selectedCheck.title}</h3>
+				<svg class="feather" onClick={e => removeParam('selectedCheckId')}>
+					<use xlinkHref={`/res/svgs/feather-sprite.svg#x`}/>
+				</svg>
 			</div>
 			<div class="asd">
 				<label for="name">Name</label>
@@ -129,7 +129,7 @@ export function SidePanelChecks({dashboard, dashboardDispatch}) {
 	}
 
 	return <Fragment>
-		<div class="lefty-righty" style="margin-bottom: 20px;">
+		<div class="lefty-righty">
 			<h3>Checks</h3>
 			<button class="small" onClick={addCheck}>New</button>
 		</div>
