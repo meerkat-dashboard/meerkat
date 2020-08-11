@@ -250,6 +250,11 @@ select[multiple] option {
 input[type="file"] {
 	background-color: white;
 }
+input[type="color"] {
+	width: 36px;
+	height: 36px;
+	margin-right: 5px;
+}
 
 input::placeholder {
 	color: #cccccc;

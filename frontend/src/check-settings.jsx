@@ -97,7 +97,7 @@ export function CheckSettings({selectedCheck, updateCheck}) {
 					<use xlinkHref={`/res/svgs/feather-sprite.svg#x`}/>
 				</svg>
 			</div>
-			<div class="asd">
+			<div class="settings">
 				<label for="name">Name</label>
 				<input id="name" type="text" placeholder="Cool check" value={selectedCheck.title}
 					onInput={e => updateCheck({...selectedCheck, title: e.currentTarget.value})} />
