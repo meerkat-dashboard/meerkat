@@ -48,7 +48,7 @@ function CreateDashboardModal(props) {
 				body: JSON.stringify(newDashboard)
 			}).then(res => res.json());
 
-			route(`/edit/${data.slug}/settings`);
+			route(`/edit/${data.slug}`);
 		} catch(e) {
 			//TODO
 			console.log("Failed to create modal")
@@ -104,7 +104,7 @@ function DashboardList(props) {
 			<h3>{dashboard.title}</h3>
 			<div class="timestamps">
 				<a onClick={e => route(`/view/${slug}`)}>view</a>
-				<a onClick={e => route(`/edit/${slug}/settings`)}>edit</a>
+				<a onClick={e => route(`/edit/${slug}`)}>edit</a>
 				<a onClick={e => deleteDashboard(slug)}>delete</a>
 			</div>
 		</div>

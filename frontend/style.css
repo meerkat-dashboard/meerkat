@@ -51,9 +51,25 @@
 	100% {background-color: transparent;}
 }
 
+@keyframes expand-in {
+	from {
+		opacity: 0;
+		transform: scale(0.95);
+	}
+	to {
+		opacity: 1.0;
+		transform: scale(1.0);
+	}
+}
+
 @keyframes slide-up {
 	from { transform: translate(0, 40px); }
 	to { transform: translate(0, 0); }
+}
+
+@keyframes slide-right {
+	from { transform: translate(-100%, 0); }
+	to { transform: translate(0%, 0); }
 }
 
 @keyframes spin {
@@ -106,6 +122,17 @@ a:hover, a:focus {
 .right {
 	display: flex;
 	justify-content: end;
+	align-items: center;
+}
+
+.left {
+	display: flex;
+	justify-content: start;
+	align-items: center;
+}
+
+.no-margin {
+	margin: 0;
 }
 
 .subtle {
@@ -387,43 +414,23 @@ div.editor {
 	flex-grow: 1;
 }
 
-.editor .icons {
-	display: flex;
-	flex-direction: column;
-	background-color: var(--color-black);
-	color: var(--color-light-blue);
-}
-
-.editor .icons .icon-wraps {
-	padding: 12px 20px 10px 20px;
-	display: flex;
-	align-items: center;
-	flex-direction: column;
-	cursor: pointer;
-}
-
-.icon-wraps:last-child {
-	margin-top: auto;
-}
-
-.editor .icons .icon-wraps.active {
-	color: var(--color-light-orange);
-}
-
-.editor .icons .icon-wraps:hover {
-	background-color: var(--color-light-black);
-}
-
-.icons .icon-wraps .label {
-	text-transform: uppercase;
-	font-size: 10px;
-	margin-top: 6px;
+.editor.settings-overlay {
+	animation-name: slide-right;
+	animation-iteration-count: initial;
+	animation-fill-mode: forwards;
+	animation-timing-function: linear;
+	animation-duration: 100ms;
 }
 
 /* DASHBOARD ELEMENTS */
 .check {
 	cursor: move;
 	position: absolute;
+	overflow: hidden;
+}
+
+.check.glow {
+	outline: 2px solid var(--color-light-orange);
 }
 
 .check > div.resize {
@@ -432,10 +439,8 @@ div.editor {
 	bottom: -4px;
 	width: 12px;
 	height: 12px;
-	background-color: var(--color-light-blue);
+	background-color: var(--color-light-orange);
 	cursor: se-resize;
-	border-radius: 8px;
-	border: solid 1.5px var(--color-black);
 }
 
 .check > .check-content {

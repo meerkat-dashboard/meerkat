@@ -1,6 +1,5 @@
-import { h, Fragment } from 'preact';
-import { RouterProps, route } from 'preact-router';
-import { useState, useEffect, StateUpdater } from 'preact/hooks';
+import { h } from 'preact';
+import { useState, useEffect } from 'preact/hooks';
 
 // Value 	Host State 	Service State
 // 0 		Up 			OK

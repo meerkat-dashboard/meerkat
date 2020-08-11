@@ -1,22 +1,9 @@
-import { h, Fragment, JSX } from 'preact';
-import { RouterProps, route, RoutableProps } from 'preact-router';
-import { useState, useEffect, StateUpdater, useReducer } from 'preact/hooks';
+import { h, Fragment } from 'preact';
+import { route } from 'preact-router';
+import { useEffect, useReducer } from 'preact/hooks';
 
-import { SidePanelChecks } from './side-panel-checks';
-import { CardElement, CardOptions } from './elements/card';
-
-const OptionLink = (props) => {
-	//url with no params
-	const currentURL = window.location.pathname;
-	
-	return <div class={`icon-wraps ${props.href === currentURL ? 'active' : ''}`}
-			tabIndex={0} onClick={() => route(props.href)}>
-		<svg class="feather">
-			<use xlinkHref={`/res/svgs/feather-sprite.svg#${props.icon}`}/>
-		</svg>
-		<div class="label">{props.label}</div>
-	</div>
-}
+import { SidePanelChecks, CheckSettings } from './check-settings';
+import { CardElement } from './elements/card';
 
 //Manage dashboard state
 const dashboardReducer = (state, action) => {
@@ -55,51 +42,48 @@ const dashboardReducer = (state, action) => {
 };
 
 //Edit page
-export function Editor(props) {
+export function Editor({slug, selectedCheckId}) {
 	const [dashboard, dashboardDispatch] =  useReducer(dashboardReducer, null);
 
 	useEffect(() => {
 		//TODO error handling
-		fetch(`/dashboard/${props.slug}`)
+		fetch(`/dashboard/${slug}`)
 			.then(async res => dashboardDispatch({
 				type: 'setDashboard',
 				dashboard: await res.json()
 			}));
-	}, [props.slug]);
+	}, [slug]);
 
 	if(dashboard === null) {
 		return <div class="loading center subtle">Loading dashboard</div>
 	}
 
-	const selectedElement = props.id ? Number(props.id) : null;
-
-	let view = <SidePanelSettings dashboard={dashboard} dashboardDispatch={dashboardDispatch} selectedElement={selectedElement} />
-	if(props.view === 'checks') {
-		view = <SidePanelChecks dashboard={dashboard} dashboardDispatch={dashboardDispatch} selectedElement={selectedElement} />
-	}
-	if(props.view === 'statics') {
-		view = <SidePanelStatics dashboard={dashboard} dashboardDispatch={dashboardDispatch} selectedElement={selectedElement} />
+	const selectedCheck = selectedCheckId ? dashboard.checks[selectedCheckId] : null;
+	const updateCheck = check => {
+		dashboardDispatch({
+			type: 'updateCheck',
+			checkIndex: selectedCheckId,
+			check: check
+		});
 	}
 
 	return <Fragment>
-		<DashboardView slug={props.slug} view={props.view} dashboard={dashboard} dashboardDispatch={dashboardDispatch} selectedElement={selectedElement} />
+		<DashboardView slug={slug} dashboard={dashboard} dashboardDispatch={dashboardDispatch}
+			selectedCheckId={selectedCheckId ? Number(selectedCheckId) : null} />
 
 		<div class="editor">
-			<div class="icons">
-				<OptionLink icon="settings" href={`/edit/${props.slug}/settings`} label="settings" />
-				<OptionLink icon="activity" href={`/edit/${props.slug}/checks`} label="checks" />
-				<OptionLink icon="image" href={`/edit/${props.slug}/statics`} label="statics" />
-
-				<OptionLink icon="home" href="/" label="home" />
-			</div>
 			<div class="options">
-				{view}
+				<h3>{dashboard.title}</h3>
+				<SidePanelSettings dashboard={dashboard} dashboardDispatch={dashboardDispatch} />
+				<SidePanelChecks dashboard={dashboard} dashboardDispatch={dashboardDispatch} />
+
+				<CheckSettings selectedCheck={selectedCheck} updateCheck={updateCheck}/>
 			</div>
 		</div>
 	</Fragment>
 }
 
-function TransformableElement(props) {
+function TransformableElement({rect, updateRect, children, glow}) {
 	//Handle dragging elements
 	const handleMove = downEvent => {
 		const mousemove = moveEvent => {
@@ -123,7 +107,7 @@ function TransformableElement(props) {
 			const relativeTop = top / dashboardNode.clientHeight * 100;
 
 			//set position
-			props.updateRect({x: relativeLeft, y: relativeTop, w: props.rect.w, h: props.rect.h});
+			updateRect({x: relativeLeft, y: relativeTop, w: rect.w, h: rect.h});
 		}
 
 		//Remove listeners on mouse button up
@@ -162,7 +146,7 @@ function TransformableElement(props) {
 			const relativeHeight = height / dashboardNode.clientHeight * 100;
 
 			//set position
-			props.updateRect({x: props.rect.x, y: props.rect.y, w: relativeWidth, h: relativeHeight});
+			updateRect({x: rect.x, y: rect.y, w: relativeWidth, h: relativeHeight});
 		}
 
 		//Remove listeners on mouse button up
@@ -176,24 +160,24 @@ function TransformableElement(props) {
 		window.addEventListener('mousemove', mousemove);
 	}
 
-	const left = `${props.rect.x}%`;
-	const top = `${props.rect.y}%`;
-	const width = `${props.rect.w}%`;
-	const height = `${props.rect.h}%`;
+	const left = `${rect.x}%`;
+	const top = `${rect.y}%`;
+	const width = `${rect.w}%`;
+	const height = `${rect.h}%`;
 
-	return <div class="check"
+	return <div class={`check ${glow ? 'glow' : ''}`}
 		style={{left: left, top: top, width: width, height: height}}
 		onMouseDown={handleMove}>
-			{props.children}
+			{children}
 			<div class="resize" onMouseDown={handleResize}></div>
 	</div>
 }
 
 //The actual dashboard being rendered
-function DashboardView(props) {
-	const checks = props.dashboard.checks.map((check, index) => {
+function DashboardView({dashboard, dashboardDispatch, selectedCheckId, slug}) {
+	const checks = dashboard.checks.map((check, index) => {
 		const updateRect = rect => {
-			props.dashboardDispatch({
+			dashboardDispatch({
 				type: 'updateCheck',
 				checkIndex: index,
 				check: {
@@ -211,20 +195,21 @@ function DashboardView(props) {
 			element = <div> todo </div>
 		}
 
-		return <TransformableElement rect={check.rect} updateRect={updateRect}>
+		return <TransformableElement rect={check.rect} updateRect={updateRect}
+			checkId={check.id} glow={selectedCheckId === index}>
 			{element}
 		</TransformableElement>
 	});
 
 	const saveDashboard = async e => {
-		console.log(props.dashboard);
+		console.log(dashboard);
 		try {
-			const data = await fetch(`/dashboard/${props.slug}`, {
+			const data = await fetch(`/dashboard/${slug}`, {
 				method: 'POST',
-				body: JSON.stringify(props.dashboard)
+				body: JSON.stringify(dashboard)
 			}).then(res => res.json());
 
-			route(`/edit/${data.slug}/${props.view}`)
+			route(`/edit/${data.slug}`)
 			//TODO show success
 		} catch (e) {
 			//TODO improve
@@ -233,11 +218,11 @@ function DashboardView(props) {
 		}
 	}
 
-	const backgroundImage = props.dashboard.background ? `url(${props.dashboard.background})` : 'none';
+	const backgroundImage = dashboard.background ? `url(${dashboard.background})` : 'none';
 
 	return <div class="dashboard-wrap">
-		<div class="lefty-righty" style="margin-bottom: 20px;">
-			<h2>{props.dashboard.title}</h2>
+		<div class="right" style="margin-bottom: 20px;">
+			<button onClick={e => route('/')}>Home</button>
 			<button onClick={saveDashboard}>Save Dashboard</button>
 		</div>
 		<div class="dashboard" style={{backgroundImage: backgroundImage}}>
@@ -270,25 +255,12 @@ function SidePanelSettings(props) {
 	}
 
 	return <Fragment>
-		<h3>Settings</h3>
 		<label for="title">Title</label>
 		<input type="text" id="title" placeholder="Network Overview" value={props.dashboard.title}
 			onInput={e => props.dashboardDispatch({type: 'setTitle', title: e.currentTarget.value})} />
 
 		<label for="background-image">Background Image</label>
 		<input id="background-image" type="file" placeholder="Upload a background image"
-			accept="image/*" onChange={handleBackgroundImg} />
-	</Fragment>
-}
-
-//Statics view for the sidebar
-function SidePanelStatics() {
-	return <Fragment>
-		<h3>Static Content</h3>
-		<select>
-			<option value="item-type">Card</option>
-			<option value="item-type">SVG</option>
-			<option value="item-type">Image</option>
-		</select>
+			accept="image/*" onChange={handleBackgroundImg}/>
 	</Fragment>
 }
