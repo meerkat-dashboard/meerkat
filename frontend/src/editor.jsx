@@ -37,6 +37,25 @@ const dashboardReducer = (state, action) => {
 			const newState = {...state};
 			newState.checks[action.checkIndex] = action.check;
 			return newState;
+		case 'addStatic':
+			console.log('Adding new static')
+			const newStatic = {
+				type: 'text',
+				title: 'New text',
+				rect:{ x: 0, y: 0, w: 15, h: 15},
+				options: {
+					fontSize: 40
+				}
+			};
+			return {
+				...state,
+				statics: state.statics.concat(newCheck)
+			};
+		case 'updateStatic':
+			console.log('Updating static')
+			const ns = {...state};
+			ns.statics[action.staticIndex] = action.static;
+			return ns;
 		default: throw new Error(`Unexpected action`);
 	}
 };
@@ -232,7 +251,7 @@ function DashboardView({dashboard, dashboardDispatch, selectedCheckId, slug}) {
 }
 
 //Settings view for the sidebar
-function SidePanelSettings(props) {
+function SidePanelSettings({dashboardDispatch, dashboard}) {
 	const handleBackgroundImg = async e => {
 		try {
 			const data = await fetch('/upload', {
@@ -243,7 +262,7 @@ function SidePanelSettings(props) {
 				body: e.target.files[0]
 			}).then(res => res.json());
 			
-			props.dashboardDispatch({
+			dashboardDispatch({
 				type: 'setBackground',
 				background: '/' + data.url
 			});
@@ -256,8 +275,8 @@ function SidePanelSettings(props) {
 
 	return <Fragment>
 		<label for="title">Title</label>
-		<input type="text" id="title" placeholder="Network Overview" value={props.dashboard.title}
-			onInput={e => props.dashboardDispatch({type: 'setTitle', title: e.currentTarget.value})} />
+		<input type="text" id="title" placeholder="Network Overview" value={dashboard.title}
+			onInput={e => dashboardDispatch({type: 'setTitle', title: e.currentTarget.value})} />
 
 		<label for="background-image">Background Image</label>
 		<input id="background-image" type="file" placeholder="Upload a background image"

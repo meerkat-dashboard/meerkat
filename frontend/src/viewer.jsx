@@ -5,14 +5,14 @@ import { useState, useEffect } from 'preact/hooks';
 import { CardElement } from './elements/card';
 
 //Read only page
-export function Viewer(props) {
+export function Viewer({slug}) {
 	const [dashboard, setDashboard] =  useState(null);
 
 	useEffect(() => {
-		fetch(`/dashboard/${props.slug}`)
+		fetch(`/dashboard/${slug}`)
 			.then(res => res.json())
 			.then(res => setDashboard(res));
-	}, [props.slug]);
+	}, [slug]);
 
 	if(dashboard === null) {
 		return <div class="loading center subtle">Loading dashboard</div>

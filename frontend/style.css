@@ -407,6 +407,7 @@ div.editor {
 	min-width: 380px;
 	display: flex;
 	justify-content: space-between;
+	overflow-y: auto;
 }
 
 .editor .options {

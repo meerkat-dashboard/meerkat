@@ -13,7 +13,7 @@ function sortService(a, b) {
 	return a.hostName.toLowerCase() > b.hostName.toLowerCase() ? 1 : 0;
 }
 
-function IcingaCheckList(props) {
+function IcingaCheckList({check, updateCheckID}) {
 	const [hosts, setHosts] = useState(null);
 	const [services, setServices] = useState(null);
 	
@@ -49,7 +49,7 @@ function IcingaCheckList(props) {
 		options.push(<option value={service.id}>{service.hostName} - {service.displayName}</option>)
 	}
 
-	return <select value={props.check.checkID} onInput={e => props.updateCheckID(e.currentTarget.value)}>
+	return <select value={check.checkID} onInput={e => updateCheckID(e.currentTarget.value)}>
 		{options}
 	</select>
 }

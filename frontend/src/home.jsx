@@ -30,7 +30,7 @@ const titleToSlug = (title) => {
 	return result;
 }
 
-function CreateDashboardModal(props) {
+function CreateDashboardModal({hide}) {
 	const [title, setTitle] = useState('');
 
 	const createDashboard = async e => {
@@ -40,7 +40,8 @@ function CreateDashboardModal(props) {
 			const newDashboard = {
 				title: title,
 				background: null,
-				checks: []
+				checks: [],
+				statics: []
 			}
 
 			const data = await fetch(`/dashboard`, {
@@ -56,7 +57,7 @@ function CreateDashboardModal(props) {
 		}
 	}
 
-	return <div class="modal-wrap" onMouseDown={props.hide}>
+	return <div class="modal-wrap" onMouseDown={hide}>
 		<div class="modal" onMouseDown={e => e.stopPropagation()}>
 			<h3>Create Dashboard</h3>
 
@@ -74,22 +75,22 @@ function CreateDashboardModal(props) {
 	</div>
 }
 
-function DashboardList(props) {
+function DashboardList({dashboards, loadDashboards, filter}) {
 	const deleteDashboard = (slug) => {
 		fetch(`/dashboard/${slug}`, {
 			method: 'DELETE'
-		}).then(props.loadDashboards)
+		}).then(loadDashboards)
 	}
 
-	if(props.dashboards === null) {
+	if(dashboards === null) {
 		return <div class="subtle loading">Loading Dashboards</div>
 	}
 
-	const filteredDashboards = props.dashboards.filter((dashboard) => {
-		if(props.filter === '') {
+	const filteredDashboards = dashboards.filter((dashboard) => {
+		if(filter === '') {
 			return true;
 		} else {
-			return dashboard.title.toLowerCase().includes(props.filter.toLowerCase());
+			return dashboard.title.toLowerCase().includes(filter.toLowerCase());
 		}
 	})
 

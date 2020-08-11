@@ -26,12 +26,12 @@ const states = {
 const checkType = (checkID) => checkID.includes('!') ? 'service' : 'host';
 
 //The rendered view (in the actual dashboard) of the Card Element
-export function CardElement(props) {
+export function CardElement({check}) {
 	const [checkState, setCheckState] = useState(null);
 
 	//Handle state update
 	const updateState = () => {
-		const id = props.check.checkID;
+		const id = check.checkID;
 		const t = checkType(id);
 
 		fetch(`/icinga/${t}s/${encodeURIComponent(id)}`)
@@ -44,32 +44,32 @@ export function CardElement(props) {
 
 	//Setup check refresher
 	useEffect(() => {
-		if(props.check.checkID !== null) {
+		if(check.checkID !== null) {
 			updateState();
 			const intervalID = window.setInterval(updateState, 30*1000)
 			return () => window.clearInterval(intervalID);
 		}
-	}, [props.check.checkID]);
+	}, [check.checkID]);
 
 	return <div class={"check-content card " + checkState}>
-		<p style={`font-size: ${props.check.options.nameFontSize}px`}>{props.check.title}</p>
-		<div class="check-state" style={`font-size: ${props.check.options.statusFontSize}px`}>
+		<p style={`font-size: ${check.options.nameFontSize}px`}>{check.title}</p>
+		<div class="check-state" style={`font-size: ${check.options.statusFontSize}px`}>
 			{checkState === null ? 'Unconfigured' : checkState}
 		</div>
 	</div>
 }
 
 //Card options, displayed in the sidebar
-export function CardOptionFields(props) {
+export function CardOptionFields({check, updateOptions}) {
 	return <div class="card-options">
 		<label for="name-font-size">Name Font Size</label>
 		<input id="name-font-size" name="name-font-size" type="number" min="0"
-			value={props.check.options.nameFontSize}
-			onInput={e => props.updateOptions({nameFontSize: e.currentTarget.value})}/>
+			value={check.options.nameFontSize}
+			onInput={e => updateOptions({nameFontSize: e.currentTarget.value})}/>
 			
 		<label for="status-font-size">Status Font Size</label>
 		<input id="status-font-size" name="status-font-size" type="number" min="0"
-			value={props.check.options.statusFontSize}
-			onInput={e => props.updateOptions({statusFontSize: e.currentTarget.value})}/>
+			value={check.options.statusFontSize}
+			onInput={e => updateOptions({statusFontSize: e.currentTarget.value})}/>
 	</div>
 }
