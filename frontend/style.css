@@ -507,6 +507,11 @@ div.editor {
 	display: flex;
 }
 
+.check > .svg > svg {
+	width: 100%;
+	height: 100%;
+}
+
 .check > .card {
 	padding: 6px 10px;
 	text-align: center;

@@ -8,6 +8,8 @@ import { CardElement } from './elements/card';
 import { removeParam } from './util';
 
 import { StaticText } from './statics/text';
+import { StaticSVG } from './statics/svg';
+import { StaticImage } from './statics/image';
 
 //Manage dashboard state
 const dashboardReducer = (state, action) => {
@@ -266,6 +268,8 @@ function DashboardStatics({dashboardDispatch, selectedStaticId, statics}) {
 
 		let element = null;
 		if(static_.type === 'text') { element = <StaticText options={static_.options}/> }
+		if(static_.type === 'svg') { element = <StaticSVG options={static_.options}/> }
+		if(static_.type === 'image') { element = <StaticImage options={static_.options}/> }
 
 		return <TransformableElement rect={static_.rect} updateRect={updateRect}
 			glow={selectedStaticId === index}>
@@ -284,7 +288,7 @@ function DashboardView({dashboard, dashboardDispatch, selectedCheckId, selectedS
 				body: JSON.stringify(dashboard)
 			}).then(res => res.json());
 
-			route(`/edit/${data.slug}`)
+			route(`/edit/${data.slug}${window.location.search}`)
 			//TODO show success
 		} catch (e) {
 			//TODO improve

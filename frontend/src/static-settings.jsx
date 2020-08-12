@@ -1,10 +1,11 @@
 import { h, Fragment } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
 
-import { svgList } from './svg-list';
 import { routeParam, removeParam } from './util';
 import { route } from 'preact-router';
 import { StaticTextOptions } from './statics/text';
+import { StaticSVGOptions } from './statics/svg';
+import { StaticImageOptions } from './statics/image';
 
 function StaticListPanel({statics, addStatic}) {
 	if(statics.length < 1) {
@@ -25,36 +26,6 @@ function StaticListPanel({statics, addStatic}) {
 	</div>
 }
 
-function SVGOptions({options, updateOptions}) {
-	const svgOptions = svgList.map(svgName => <option>{svgName}</option>)
-
-	return <Fragment>
-		<label for="svg">SVG</label>
-		<select id="svg" name="svg">
-			{svgOptions}
-		</select>
-
-		<label for="color">Color</label>
-		<div class="left spacer">
-			<input type="color" name="color" id="color" value={options.color}
-				onInput={e => updateOptions({color: e.currentTarget.value})}/>
-			<input type="text" value={options.color} disabled />
-		</div>
-
-		<label for="stroke-width">Stroke width</label>
-		<input id="stroke-width" name="stroke-width" type="number" min="0" value={options.strokeWidth}
-			onInput={e => updateOptions({strokeWidth: e.currentTarget.value})}/>
-	</Fragment>
-}
-
-function ImageOptions({options, updateOptions}) {
-	return <Fragment>
-		<label for="image">Image</label>
-		<input id="image" name="image" type="file" value={options.image} accept="image/*" 
-			onInput={e => updateOptions({image: e.currentTarget.value})}/>
-	</Fragment>
-}
-
 export function StaticSettings({selectedStatic, updateStatic}) {
 	if(selectedStatic === null) {
 		return null;
@@ -67,8 +38,8 @@ export function StaticSettings({selectedStatic, updateStatic}) {
 
 	const staticTypeOptions = {
 		'text': <StaticTextOptions updateOptions={updateOptions} options={selectedStatic.options} />,
-		'svg': <SVGOptions updateOptions={updateOptions} options={selectedStatic.options} />,
-		'image': <ImageOptions updateOptions={updateOptions} options={selectedStatic.options} />,
+		'svg': <StaticSVGOptions updateOptions={updateOptions} options={selectedStatic.options} />,
+		'image': <StaticImageOptions updateOptions={updateOptions} options={selectedStatic.options} />,
 	}
 	const options = staticTypeOptions[selectedStatic.type]
 
