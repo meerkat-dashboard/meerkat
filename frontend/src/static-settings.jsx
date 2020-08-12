@@ -4,6 +4,7 @@ import { useState, useEffect } from 'preact/hooks';
 import { svgList } from './svg-list';
 import { routeParam, removeParam } from './util';
 import { route } from 'preact-router';
+import { StaticTextOptions } from './statics/text';
 
 function StaticListPanel({statics, addStatic}) {
 	if(statics.length < 1) {
@@ -22,18 +23,6 @@ function StaticListPanel({statics, addStatic}) {
 	return <div class="static-list">
 		{staticList}
 	</div>
-}
-
-function TextOptions({options, updateOptions}) {
-	return <Fragment>
-		<label for="text">Text</label>
-		<input id="text" name="text" type="text" value={options.text}
-			onInput={e => updateOptions({text: e.currentTarget.value})}/>
-			
-		<label for="font-size">Font Size</label>
-		<input id="font-size" name="font-size" type="number" min="0" value={options.statusFontSize}
-			onInput={e => updateOptions({statusFontSize: e.currentTarget.value})}/>
-	</Fragment>
 }
 
 function SVGOptions({options, updateOptions}) {
@@ -77,7 +66,7 @@ export function StaticSettings({selectedStatic, updateStatic}) {
 	}
 
 	const staticTypeOptions = {
-		'text': <TextOptions updateOptions={updateOptions} options={selectedStatic.options} />,
+		'text': <StaticTextOptions updateOptions={updateOptions} options={selectedStatic.options} />,
 		'svg': <SVGOptions updateOptions={updateOptions} options={selectedStatic.options} />,
 		'image': <ImageOptions updateOptions={updateOptions} options={selectedStatic.options} />,
 	}

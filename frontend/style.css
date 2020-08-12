@@ -169,7 +169,7 @@ label {
 	font-weight: bold;
 }
 
-label~input, label~select {
+label~input, label~select, label~textarea {
 	margin-bottom: 15px;
 }
 
@@ -227,12 +227,17 @@ div.small.loading::before {
 	height: 10px;
 }
 
-input, select {
+input, select, textarea {
 	width: 100%;
 	padding: 8px;
 	border-radius: 3px;
 	border: solid 1.5px var(--color-gray);
 	transition: 300ms border-color;
+}
+
+textarea {
+	resize: vertical;
+	min-height: 80px;
 }
 
 input:focus, select:focus {
@@ -259,6 +264,42 @@ input[type="color"] {
 input::placeholder {
 	color: #cccccc;
 	opacity: 1;
+}
+
+div.selection {
+	display: flex;
+	font-size: 15px;
+}
+
+label~div.selection {
+	margin-bottom: 15px;
+}
+
+div.selection > .selector {
+	padding: 4px 8px;
+	background-color: white;
+	border: solid 1.5px var(--color-gray);
+	border-left: 0;
+	cursor: pointer;
+	color: var(--color-black);
+	border-radius: 0;
+}
+
+div.selection > .selector:hover {
+	background-color: #eee;
+}
+div.selection > .selector.active {
+	background-color: var(--color-light-orange);
+	color: white;
+}
+
+div.selection > .selector:first-child {
+	border-radius: 3px 0 0 3px;
+	border: solid 1.5px var(--color-gray);
+}
+
+div.selection > .selector:last-child {
+	border-radius: 0 3px 3px 0;
 }
 
 /* COPY SELECTION BOX */
@@ -459,6 +500,11 @@ div.editor {
 	user-select: none;
 	width: 100%;
 	height: 100%;
+}
+
+.check > .text {
+	white-space: pre;
+	display: flex;
 }
 
 .check > .card {

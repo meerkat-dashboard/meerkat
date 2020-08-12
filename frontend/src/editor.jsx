@@ -5,6 +5,9 @@ import { useEffect, useReducer } from 'preact/hooks';
 import { SidePanelChecks, CheckSettings } from './check-settings';
 import { SidePanelStatics, StaticSettings } from './static-settings';
 import { CardElement } from './elements/card';
+import { removeParam } from './util';
+
+import { StaticText } from './statics/text';
 
 //Manage dashboard state
 const dashboardReducer = (state, action) => {
@@ -79,6 +82,10 @@ export function Editor({slug, selectedCheckId, selectedStaticId}) {
 	}
 
 	const selectedCheck = selectedCheckId ? dashboard.checks[selectedCheckId] : null;
+	if(typeof selectedCheck === 'undefined') {
+		removeParam('selectedCheckId');
+		return
+	}
 	const updateCheck = check => {
 		dashboardDispatch({
 			type: 'updateCheck',
@@ -88,6 +95,10 @@ export function Editor({slug, selectedCheckId, selectedStaticId}) {
 	}
 
 	const selectedStatic = selectedStaticId ? dashboard.statics[selectedStaticId] : null;
+	if(typeof selectedStatic === 'undefined') {
+		removeParam('selectedStaticId');
+		return
+	}
 	const updateStatic = s => {
 		dashboardDispatch({
 			type: 'updateStatic',
@@ -98,7 +109,8 @@ export function Editor({slug, selectedCheckId, selectedStaticId}) {
 
 	return <Fragment>
 		<DashboardView slug={slug} dashboard={dashboard} dashboardDispatch={dashboardDispatch}
-			selectedCheckId={selectedCheckId ? Number(selectedCheckId) : null} />
+			selectedCheckId={selectedCheckId ? Number(selectedCheckId) : null}
+			selectedStaticId={selectedStaticId ? Number(selectedStaticId) : null} />
 
 		<div class="editor">
 			<div class="options">
@@ -211,9 +223,8 @@ function TransformableElement({rect, updateRect, children, glow}) {
 	</div>
 }
 
-//The actual dashboard being rendered
-function DashboardView({dashboard, dashboardDispatch, selectedCheckId, slug}) {
-	const checks = dashboard.checks.map((check, index) => {
+function DashboardChecks({dashboardDispatch, selectedCheckId, checks}) {
+	return checks.map((check, index) => {
 		const updateRect = rect => {
 			dashboardDispatch({
 				type: 'updateCheck',
@@ -234,11 +245,37 @@ function DashboardView({dashboard, dashboardDispatch, selectedCheckId, slug}) {
 		}
 
 		return <TransformableElement rect={check.rect} updateRect={updateRect}
-			checkId={check.id} glow={selectedCheckId === index}>
+			glow={selectedCheckId === index}>
 			{element}
 		</TransformableElement>
 	});
+}
 
+function DashboardStatics({dashboardDispatch, selectedStaticId, statics}) {
+	return statics.map((static_, index) => {
+		const updateRect = rect => {
+			dashboardDispatch({
+				type: 'updateStatic',
+				staticIndex: index,
+				static: {
+					...static_,
+					rect: rect
+				}
+			});
+		}
+
+		let element = null;
+		if(static_.type === 'text') { element = <StaticText options={static_.options}/> }
+
+		return <TransformableElement rect={static_.rect} updateRect={updateRect}
+			glow={selectedStaticId === index}>
+			{element}
+		</TransformableElement>
+	});
+}
+
+//The actual dashboard being rendered
+function DashboardView({dashboard, dashboardDispatch, selectedCheckId, selectedStaticId, slug}) {
 	const saveDashboard = async e => {
 		console.log(dashboard);
 		try {
@@ -263,7 +300,10 @@ function DashboardView({dashboard, dashboardDispatch, selectedCheckId, slug}) {
 			<button onClick={saveDashboard}>Save Dashboard</button>
 		</div>
 		<div class="dashboard" style={{backgroundImage: backgroundImage}}>
-			{checks}
+			<DashboardStatics statics={dashboard.statics} selectedStaticId={selectedStaticId}
+				dashboardDispatch={dashboardDispatch} />
+			<DashboardChecks checks={dashboard.checks} selectedCheckId={selectedCheckId}
+				dashboardDispatch={dashboardDispatch} />
 		</div>
 	</div>
 }
