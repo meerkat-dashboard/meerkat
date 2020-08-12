@@ -2,6 +2,8 @@ import { h, Fragment, createRef } from 'preact';
 import { route } from 'preact-router';
 import { useState, useEffect } from 'preact/hooks';
 
+import * as meerkat from './meerkat';
+
 function CopyTextBox({text}) {
 	const ref = createRef();
 
@@ -36,7 +38,6 @@ function CreateDashboardModal({hide}) {
 	const createDashboard = async e => {
 		try {
 			//TODO validate SERVER SIDE titleToSlug(title).length > 0
-
 			const newDashboard = {
 				title: title,
 				background: null,
@@ -44,12 +45,8 @@ function CreateDashboardModal({hide}) {
 				statics: []
 			}
 
-			const data = await fetch(`/dashboard`, {
-				method: 'POST',
-				body: JSON.stringify(newDashboard)
-			}).then(res => res.json());
-
-			route(`/edit/${data.slug}`);
+			const res = await meerkat.createDashboard(newDashboard);
+			route(`/edit/${res.slug}`);
 		} catch(e) {
 			//TODO
 			console.log("Failed to create modal")
@@ -76,11 +73,7 @@ function CreateDashboardModal({hide}) {
 }
 
 function DashboardList({dashboards, loadDashboards, filter}) {
-	const deleteDashboard = (slug) => {
-		fetch(`/dashboard/${slug}`, {
-			method: 'DELETE'
-		}).then(loadDashboards)
-	}
+	const deleteDashboard = slug => meerkat.deleteDashboard(slug).then(loadDashboards);
 
 	if(dashboards === null) {
 		return <div class="subtle loading">Loading Dashboards</div>
@@ -119,11 +112,7 @@ export function Home() {
 	const [dashboards, setDashboards] = useState(null);
 	const [filter, setFilter] = useState('');
 
-	const loadDashboards = () => {
-		fetch('/dashboard')
-			.then(res => res.json())
-			.then(dbs => setDashboards(dbs));
-	}
+	const loadDashboards = () => meerkat.getAllDashboards().then(dbs => setDashboards(dbs));
 
 	useEffect(loadDashboards, []);
 

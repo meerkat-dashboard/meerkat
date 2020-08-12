@@ -4,6 +4,7 @@ import { useState, useEffect } from 'preact/hooks';
 import { CardOptionFields } from './elements/card';
 import { routeParam, removeParam } from './util';
 import { route } from 'preact-router';
+import * as meerkat from './meerkat';
 
 function sortHost(a, b) {
 	return a.displayName.toLowerCase() > b.displayName.toLowerCase() ? 1 : 0;
@@ -18,19 +19,15 @@ function IcingaCheckList({check, updateCheckID}) {
 	const [services, setServices] = useState(null);
 	
 	useEffect(() => {
-		fetch(`/icinga/hosts`)
-			.then(res => res.json())
-			.then(h => {
-				h.sort(sortHost);
-				setHosts(h);
-			});
+		meerkat.getIcingaHosts().then(h => {
+			h.sort(sortHost);
+			setHosts(h);
+		});
 
-		fetch(`/icinga/services`)
-			.then(res => res.json())
-			.then(s => {
-				s.sort(sortService);
-				setServices(s)
-			});
+		meerkat.getIcingaServices().then(s => {
+			s.sort(sortService);
+			setServices(s)
+		});
 	}, [])
 
 	if(hosts === null || services === null) {

@@ -2,6 +2,7 @@ import { h } from 'preact';
 import { route } from 'preact-router';
 import { useState, useEffect } from 'preact/hooks';
 
+import * as meerkat from './meerkat';
 import { CardElement } from './elements/card';
 
 //Read only page
@@ -9,9 +10,7 @@ export function Viewer({slug}) {
 	const [dashboard, setDashboard] =  useState(null);
 
 	useEffect(() => {
-		fetch(`/dashboard/${slug}`)
-			.then(res => res.json())
-			.then(res => setDashboard(res));
+		meerkat.getDashboard(slug).then(board => setDashboard(board));
 	}, [slug]);
 
 	if(dashboard === null) {

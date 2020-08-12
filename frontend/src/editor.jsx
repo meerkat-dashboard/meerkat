@@ -2,11 +2,11 @@ import { h, Fragment } from 'preact';
 import { route } from 'preact-router';
 import { useEffect, useReducer } from 'preact/hooks';
 
+import * as meerkat from './meerkat'
 import { SidePanelChecks, CheckSettings } from './check-settings';
 import { SidePanelStatics, StaticSettings } from './static-settings';
 import { CardElement } from './elements/card';
 import { removeParam } from './util';
-
 import { StaticText } from './statics/text';
 import { StaticSVG } from './statics/svg';
 import { StaticImage } from './statics/image';
@@ -71,12 +71,9 @@ export function Editor({slug, selectedCheckId, selectedStaticId}) {
 	const [dashboard, dashboardDispatch] =  useReducer(dashboardReducer, null);
 
 	useEffect(() => {
-		//TODO error handling
-		fetch(`/dashboard/${slug}`)
-			.then(async res => dashboardDispatch({
-				type: 'setDashboard',
-				dashboard: await res.json()
-			}));
+		meerkat.getDashboard(slug).then(async d => {
+			dashboardDispatch({ type: 'setDashboard', dashboard: d });
+		});
 	}, [slug]);
 
 	if(dashboard === null) {
@@ -283,11 +280,7 @@ function DashboardView({dashboard, dashboardDispatch, selectedCheckId, selectedS
 	const saveDashboard = async e => {
 		console.log(dashboard);
 		try {
-			const data = await fetch(`/dashboard/${slug}`, {
-				method: 'POST',
-				body: JSON.stringify(dashboard)
-			}).then(res => res.json());
-
+			const data = await meerkat.saveDashboard(slug, dashboard);
 			route(`/edit/${data.slug}${window.location.search}`)
 			//TODO show success
 		} catch (e) {
@@ -316,17 +309,11 @@ function DashboardView({dashboard, dashboardDispatch, selectedCheckId, selectedS
 function SidePanelSettings({dashboardDispatch, dashboard}) {
 	const handleBackgroundImg = async e => {
 		try {
-			const data = await fetch('/upload', {
-				headers: {
-					"filename": e.target.files[0].name
-				},
-				method: 'POST',
-				body: e.target.files[0]
-			}).then(res => res.json());
+			const res = await meerkat.uploadFile(e.target.files[0]);
 			
 			dashboardDispatch({
 				type: 'setBackground',
-				background: '/' + data.url
+				background: '/' + res.url
 			});
 		} catch (e) {
 			//TODO improve

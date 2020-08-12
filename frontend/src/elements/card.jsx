@@ -1,6 +1,8 @@
 import { h } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
 
+import * as meerkat from '../meerkat';
+
 // Value 	Host State 	Service State
 // 0 		Up 			OK
 // 1 		Up 			Warning
@@ -34,12 +36,10 @@ export function CardElement({check}) {
 		const id = check.checkID;
 		const t = checkType(id);
 
-		fetch(`/icinga/${t}s/${encodeURIComponent(id)}`)
-			.then(res => res.json())
-			.then(res => {
-				const state = states[t][res[0].state];
-				setCheckState(state);
-			});
+		meerkat.getIcingaCheckState(id, t).then(res => {
+			const state = states[t][res[0].state];
+			setCheckState(state);
+		});
 	}
 
 	//Setup check refresher
