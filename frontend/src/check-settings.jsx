@@ -128,7 +128,7 @@ export function SidePanelChecks({dashboard, dashboardDispatch}) {
 	return <Fragment>
 		<div class="lefty-righty">
 			<h3>Checks</h3>
-			<button class="small" onClick={addCheck}>New</button>
+			<button class="small hollow" onClick={addCheck}>New</button>
 		</div>
 		<CheckListPanel checks={dashboard.checks} addCheck={addCheck} />
 	</Fragment>

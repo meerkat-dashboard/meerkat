@@ -80,7 +80,7 @@ export function SidePanelStatics({dashboard, dashboardDispatch}) {
 	return <Fragment>
 		<div class="lefty-righty">
 			<h3>Static Content</h3>
-			<button class="small" onClick={addStatic}>New</button>
+			<button class="small hollow" onClick={addStatic}>New</button>
 		</div>
 		<StaticListPanel statics={dashboard.statics} addStatic={addStatic} />
 	</Fragment>

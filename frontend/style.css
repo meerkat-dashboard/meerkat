@@ -212,9 +212,20 @@ button.loading::before, div.loading::before {
 }
 
 button.small {
-	padding: 6px 12px;
+	padding: 4px 8px;
 	font-size: 12px;
 	text-transform: uppercase;
+}
+
+button.hollow {
+	border: solid 1px var(--color-dark-orange);
+	color: var(--color-orange);
+	background-color: transparent;
+}
+
+button.hollow:hover, button.hollow:focus {
+	color: var(--color-orange);
+	border-color: var(--color-orange);
 }
 
 div.small {
@@ -452,12 +463,10 @@ div.editor {
 	position: fixed;
 	left: 0;
 	top: 0;
-	bottom: 0;
+	bottom: 80px;
 	max-width: 200px;
 	background-color: var(--color-light-gray);
 	min-width: 380px;
-	display: flex;
-	justify-content: space-between;
 	overflow-y: auto;
 }
 
@@ -472,6 +481,15 @@ div.editor {
 	animation-fill-mode: forwards;
 	animation-timing-function: linear;
 	animation-duration: 100ms;
+}
+
+div.side-bar-footer {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	padding: 20px;
+	background-color: var(--color-light-gray);
+	min-width: 380px;
 }
 
 /* DASHBOARD ELEMENTS */

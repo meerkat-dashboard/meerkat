@@ -106,19 +106,27 @@ export function Editor({slug, selectedCheckId, selectedStaticId}) {
 		});
 	}
 
+	const saveDashboard = async e => {
+		console.log(dashboard);
+		try {
+			const data = await meerkat.saveDashboard(slug, dashboard);
+			route(`/edit/${data.slug}${window.location.search}`)
+			//TODO show success
+		} catch (e) {
+			//TODO improve
+			console.log('error saving dashboard:');
+			console.log(e);
+		}
+	}
+
 	return <Fragment>
-		<DashboardView slug={slug} dashboard={dashboard} dashboardDispatch={dashboardDispatch}
+		<DashboardView dashboard={dashboard} dashboardDispatch={dashboardDispatch}
 			selectedCheckId={selectedCheckId ? Number(selectedCheckId) : null}
 			selectedStaticId={selectedStaticId ? Number(selectedStaticId) : null} />
 
 		<div class="editor">
 			<div class="options">
-				<div class="lefty-righty spacer">
-					<h3 class="no-margin">{dashboard.title}</h3>
-					<svg class="feather" onClick={e => route('/')}>
-						<use xlinkHref={`/res/svgs/feather-sprite.svg#home`}/>
-					</svg>
-				</div>
+				<h3>{dashboard.title}</h3>
 				<SidePanelSettings dashboard={dashboard} dashboardDispatch={dashboardDispatch} />
 				<hr />
 				<SidePanelChecks dashboard={dashboard} dashboardDispatch={dashboardDispatch} />
@@ -128,6 +136,10 @@ export function Editor({slug, selectedCheckId, selectedStaticId}) {
 				<CheckSettings selectedCheck={selectedCheck} updateCheck={updateCheck}/>
 				<StaticSettings selectedStatic={selectedStatic} updateStatic={updateStatic}/>
 			</div>
+		</div>
+		<div class="side-bar-footer lefty-righty">
+			<button class="hollow" onClick={e => route('/')}>Home</button>
+			<button onClick={saveDashboard}>Save Dashboard</button>
 		</div>
 	</Fragment>
 }
@@ -276,26 +288,10 @@ function DashboardStatics({dashboardDispatch, selectedStaticId, statics}) {
 }
 
 //The actual dashboard being rendered
-function DashboardView({dashboard, dashboardDispatch, selectedCheckId, selectedStaticId, slug}) {
-	const saveDashboard = async e => {
-		console.log(dashboard);
-		try {
-			const data = await meerkat.saveDashboard(slug, dashboard);
-			route(`/edit/${data.slug}${window.location.search}`)
-			//TODO show success
-		} catch (e) {
-			//TODO improve
-			console.log('error saving dashboard:');
-			console.log(e);
-		}
-	}
-
+function DashboardView({dashboard, dashboardDispatch, selectedCheckId, selectedStaticId}) {
 	const backgroundImage = dashboard.background ? `url(${dashboard.background})` : 'none';
 
 	return <div class="dashboard-wrap">
-		<div class="right spacer">
-			<button onClick={saveDashboard}>Save Dashboard</button>
-		</div>
 		<div class="dashboard" style={{backgroundImage: backgroundImage}}>
 			<DashboardStatics statics={dashboard.statics} selectedStaticId={selectedStaticId}
 				dashboardDispatch={dashboardDispatch} />
