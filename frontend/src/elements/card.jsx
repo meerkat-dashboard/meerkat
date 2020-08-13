@@ -2,44 +2,18 @@ import { h } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
 
 import * as meerkat from '../meerkat';
-
-// Value 	Host State 	Service State
-// 0 		Up 			OK
-// 1 		Up 			Warning
-// 2 		Down 		Critical
-// 3 		Down 		Unknown
-
-//icinga state matrix: states[type][state]
-const states = {
-	service: {
-		0: 'ok',
-		1: 'warning',
-		2: 'critical',
-		3: 'unknown'
-	},
-	host: {
-		0: 'up',
-		1: 'up',
-		2: 'down',
-		3: 'down'
-	}
-}
-
-const checkType = (checkID) => checkID.includes('!') ? 'service' : 'host';
+import { icingaResultCodeToCheckState, icingaCheckTypeFromId } from '../util'
 
 //The rendered view (in the actual dashboard) of the Card Element
-export function CardElement({check}) {
+export function CheckCard({check}) {
 	const [checkState, setCheckState] = useState(null);
 
 	//Handle state update
-	const updateState = () => {
-		const id = check.checkID;
-		const t = checkType(id);
-
-		meerkat.getIcingaCheckState(id, t).then(res => {
-			const state = states[t][res[0].state];
-			setCheckState(state);
-		});
+	const updateState = async () => {
+		const checkType = icingaCheckTypeFromId(check.checkID);
+		const res = await meerkat.getIcingaCheckState(check.checkID, checkType);
+		const state = icingaResultCodeToCheckState(checkType, res.state);
+		setCheckState(state);
 	}
 
 	//Setup check refresher
@@ -60,7 +34,7 @@ export function CardElement({check}) {
 }
 
 //Card options, displayed in the sidebar
-export function CardOptionFields({check, updateOptions}) {
+export function CheckCardOptions({check, updateOptions}) {
 	return <div class="card-options">
 		<label for="name-font-size">Name Font Size</label>
 		<input id="name-font-size" name="name-font-size" type="number" min="0"

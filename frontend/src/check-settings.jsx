@@ -1,7 +1,8 @@
 import { h, Fragment } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
 
-import { CardOptionFields } from './elements/card';
+import { CheckCardOptions } from './elements/card';
+import { CheckImageOptions } from './elements/image';
 import { routeParam, removeParam } from './util';
 import { route } from 'preact-router';
 import * as meerkat from './meerkat';
@@ -80,11 +81,10 @@ export function CheckSettings({selectedCheck, updateCheck}) {
 		updateCheck({...selectedCheck, options: newOptions})
 	}
 
-	const checkTypeOptions = {
-		'card': <CardOptionFields updateOptions={updateCheckOptions} check={selectedCheck} />,
-		'svg': <div>svg options</div>,
-		'image': <div>image options</div>
-	}
+	let checkOptions = null;
+	if(selectedCheck.type === 'card') { checkOptions = <CheckCardOptions updateOptions={updateCheckOptions} check={selectedCheck} /> }
+	// if(selectedCheck.type === 'svg') { checkOptions = <CheckSVGOptions updateOptions={updateCheckOptions} options={check.options}/> }
+	if(selectedCheck.type === 'image') { checkOptions = <CheckImageOptions updateOptions={updateCheckOptions} options={selectedCheck}/> }
 
 	return <div class="editor settings-overlay">
 		<div class="options">
@@ -111,7 +111,7 @@ export function CheckSettings({selectedCheck, updateCheck}) {
 				<IcingaCheckList check={selectedCheck}
 					updateCheckID={checkID => updateCheck({...selectedCheck, checkID: checkID})} />
 
-				{checkTypeOptions[selectedCheck.type]}
+				{checkOptions}
 			</div>
 		</div>
 	</div>

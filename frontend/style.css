@@ -490,6 +490,7 @@ div.side-bar-footer {
 	padding: 20px;
 	background-color: var(--color-light-gray);
 	min-width: 380px;
+	border-top: solid 1px #aaa;
 }
 
 /* DASHBOARD ELEMENTS */

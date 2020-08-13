@@ -3,7 +3,9 @@ import { route } from 'preact-router';
 import { useState, useEffect } from 'preact/hooks';
 
 import * as meerkat from './meerkat';
-import { CardElement } from './elements/card';
+import { CheckCard } from './elements/card';
+import { CheckImage } from './elements/image';
+import { CheckSVG } from './elements/svg';
 
 import { StaticText } from './statics/text';
 import { StaticSVG } from './statics/svg';
@@ -27,8 +29,13 @@ export function Viewer({slug}) {
 		const width = `${check.rect.w}%`;
 		const height = `${check.rect.h}%`;
 
+		let element = null;
+		if(check.type === 'card') { element = <CheckCard check={check}/> }
+		if(check.type === 'svg') { element = <CheckSVG check={check}/> }
+		if(check.type === 'image') { element = <CheckImage check={check}/> }
+
 		return <div class="check" style={{left: left, top: top, width: width, height: height}}>
-			<CardElement check={check} />
+			{element}
 		</div>
 	});
 

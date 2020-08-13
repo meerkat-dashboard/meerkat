@@ -12,7 +12,11 @@ export async function getIcingaServices() {
 
 export async function getIcingaCheckState(checkId, checkType) {
 	const res = await fetch(`/icinga/${checkType}s/${encodeURIComponent(checkId)}`);
-	return res.json();
+	const data = await res.json();
+	if(data.length < 1) {
+		throw new Error('Expected atleast one result in icinga check response');
+	}
+	return data[0];
 }
 
 export async function getAllDashboards() {

@@ -5,7 +5,8 @@ import { useEffect, useReducer } from 'preact/hooks';
 import * as meerkat from './meerkat'
 import { SidePanelChecks, CheckSettings } from './check-settings';
 import { SidePanelStatics, StaticSettings } from './static-settings';
-import { CardElement } from './elements/card';
+import { CheckCard } from './elements/card';
+import { CheckImage } from './elements/image';
 import { removeParam } from './util';
 import { StaticText } from './statics/text';
 import { StaticSVG } from './statics/svg';
@@ -247,13 +248,10 @@ function DashboardChecks({dashboardDispatch, selectedCheckId, checks}) {
 			});
 		}
 
-		let element = <CardElement check={check} />
-		if(check.type === 'svg') {
-			element = <div> todo </div>
-		}
-		if(check.type === 'image') {
-			element = <div> todo </div>
-		}
+		let element = null;
+		if(check.type === 'card') { element = <CheckCard check={check} /> }
+		if(check.type === 'svg') { element = <CheckSVG check={check}/> }
+		if(check.type === 'image') { element = <CheckImage check={check}/> }
 
 		return <TransformableElement rect={check.rect} updateRect={updateRect}
 			glow={selectedCheckId === index}>

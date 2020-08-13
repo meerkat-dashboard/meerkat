@@ -21,3 +21,31 @@ export function removeParam(name) {
 		route(`${window.location.pathname}?${params}`);
 	}
 }
+
+export function icingaCheckTypeFromId(checkId) {
+	if(checkId.includes('!')) {
+		return 'service';
+	} else {
+		return 'host';
+	}
+}
+
+export function icingaResultCodeToCheckState(checkType, resultCode) {
+	if(checkType === 'service') {
+		switch(resultCode){
+			case 0: return 'ok';
+			case 1: return 'warning';
+			case 2: return 'critical';
+			case 3: return 'unknown';
+		}
+	} else if(checkType === 'host') {
+		switch(resultCode){
+			case 0: return 'up';
+			case 1: return 'up';
+			case 2: return 'down';
+			case 3: return 'down';
+		}
+	}
+
+	return 'invalid'
+}
