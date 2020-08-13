@@ -2,6 +2,7 @@ import { h, Fragment } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
 
 import { CheckCardOptions } from './elements/card';
+import { CheckSVGOptions } from './elements/svg';
 import { CheckImageOptions } from './elements/image';
 import { routeParam, removeParam } from './util';
 import { route } from 'preact-router';
@@ -83,8 +84,8 @@ export function CheckSettings({selectedCheck, updateCheck}) {
 
 	let checkOptions = null;
 	if(selectedCheck.type === 'card') { checkOptions = <CheckCardOptions updateOptions={updateCheckOptions} check={selectedCheck} /> }
-	// if(selectedCheck.type === 'svg') { checkOptions = <CheckSVGOptions updateOptions={updateCheckOptions} options={check.options}/> }
-	if(selectedCheck.type === 'image') { checkOptions = <CheckImageOptions updateOptions={updateCheckOptions} options={selectedCheck}/> }
+	if(selectedCheck.type === 'svg') { checkOptions = <CheckSVGOptions updateOptions={updateCheckOptions} options={selectedCheck.options}/> }
+	if(selectedCheck.type === 'image') { checkOptions = <CheckImageOptions updateOptions={updateCheckOptions} options={selectedCheck.options}/> }
 
 	return <div class="editor settings-overlay">
 		<div class="options">

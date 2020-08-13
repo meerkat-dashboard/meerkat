@@ -6,6 +6,7 @@ import * as meerkat from './meerkat'
 import { SidePanelChecks, CheckSettings } from './check-settings';
 import { SidePanelStatics, StaticSettings } from './static-settings';
 import { CheckCard } from './elements/card';
+import { CheckSVG } from './elements/svg';
 import { CheckImage } from './elements/image';
 import { removeParam } from './util';
 import { StaticText } from './statics/text';
