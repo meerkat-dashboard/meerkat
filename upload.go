@@ -38,5 +38,5 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Printf("Created file %s\n", filepath)
 	enc := json.NewEncoder(w)
-	enc.Encode(ResponseURL{URL: filepath})
+	enc.Encode(ResponseURL{URL: path.Join("/", filepath)})
 }
