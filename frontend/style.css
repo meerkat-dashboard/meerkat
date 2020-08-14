@@ -557,22 +557,24 @@ div.side-bar-footer {
 	font-size: 60px;
 }
 
-.check-list > .check-item, .static-list > .static-item {
-	padding: 6px 10px;
-	border-radius: 4px;
+.element-list > .element-item {
 	font-size: 18px;
-	margin-bottom: 6px;
 	cursor: pointer;
-	
-	animation-name: flash-in;
-	animation-iteration-count: initial;
-	animation-fill-mode: forwards;
-	animation-duration: 500ms;
 }
 
-.check-list > .check-item:hover, .static-list > .static-item:hover {
-	/* animation messing with this, so apply !important */
-	background-color: #ffffff73!important;
+.element-list > .element-item > .drop-zone {
+	height: 10px;
+	border-radius: 8px;
+
+	transition: height 200ms;
 }
 
-/* STATICS */ 
+.element-list > .element-item > .drop-zone.active {
+	background-color: var(--color-light-orange);
+	opacity: 50%;
+	height: 20px;
+}
+
+.element-list > .element-item:hover {
+	color: var(--color-orange);
+}

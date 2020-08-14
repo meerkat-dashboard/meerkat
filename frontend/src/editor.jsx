@@ -43,6 +43,15 @@ const dashboardReducer = (state, action) => {
 			const newState = {...state};
 			newState.elements[action.elementIndex] = action.element;
 			return newState;
+		case 'reorderElements':
+			console.log('Reordering elements')
+			const ns = {...state};
+
+			const element = ns.elements[action.sourcePosition];
+			ns.elements.splice(action.sourcePosition, 1);
+			ns.elements.splice(action.destinationPosition, 0, element);
+
+			return ns;
 		default: throw new Error(`Unexpected action`);
 	}
 };
@@ -273,16 +282,37 @@ function SidePanelElements({dashboard, dashboardDispatch}) {
 		routeParam('selectedElementId', newId);
 	}
 
+	const handleDragStart = e => {
+		e.dataTransfer.setData("source-id", e.target.id);
+	}
+
+	const handleDrop = e => {
+		e.preventDefault();
+		e.currentTarget.classList.remove('active');
+		const sourceId = e.dataTransfer.getData("source-id");
+		const destId = e.target.id;
+		dashboardDispatch({
+			type: 'reorderElements',
+			sourcePosition: sourceId,
+			destinationPosition: destId
+		});
+	}
+
 	let elementList = dashboard.elements.map((element, index) => (
-		<div class="element-item" onClick={ e => routeParam('selectedElementId', index.toString()) }>
-			<div>{element.title}</div>
+		<div class="element-item" draggable={true} id={index} onDragStart={handleDragStart}
+			onClick={ e => routeParam('selectedElementId', index.toString()) }>
+			<div class="element-title">{element.title}</div>
+			<div class="drop-zone" onDrop={handleDrop} id={index}
+				onDragEnter={e => {e.preventDefault(); e.currentTarget.classList.add('active')}}
+				onDragOver={e => e.preventDefault()}
+				onDragExit={e => e.currentTarget.classList.remove('active')}></div>
 		</div>
 	));
 
 	if(elementList.length < 1) { elementList = <div class="subtle">No elements added.</div>}
 
 	return <Fragment>
-		<div class="lefty-righty">
+		<div class="lefty-righty spacer">
 			<h3>Elements</h3>
 			<button class="small hollow" onClick={addElement}>New</button>
 		</div>
