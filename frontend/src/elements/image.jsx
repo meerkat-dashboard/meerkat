@@ -2,7 +2,7 @@ import { h, Fragment } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
 
 import * as meerkat from '../meerkat';
-import { icingaResultCodeToCheckState, icingaCheckTypeFromId } from '../util'
+import { icingaResultCodeToCheckState, icingaCheckTypeFromId, IcingaCheckList } from '../util'
 
 export function CheckImageOptions({options, updateOptions}) {
 	const handleImageUpload = async (fieldName, files) => {
@@ -13,6 +13,10 @@ export function CheckImageOptions({options, updateOptions}) {
 	}
 
 	return <Fragment>
+		<label>Icinga Host or Service</label>
+		<IcingaCheckList checkId={options.checkId}
+			updateCheckId={checkId => updateOptions({checkId: checkId})} />
+
 		<label for="ok-image">OK State Image</label>
 		<input id="ok-image" name="ok-image" type="file"
 			accept="image/*" onInput={e => handleImageUpload('okImage', e.target.files)}/>
@@ -32,31 +36,31 @@ export function CheckImageOptions({options, updateOptions}) {
 }
 
 //The rendered view (in the actual dashboard) of the Check Image
-export function CheckImage({check}) {
+export function CheckImage({options}) {
 	const [checkState, setCheckState] = useState(null);
 
 	//Handle state update
 	const updateState = async () => {
-		const checkType = icingaCheckTypeFromId(check.checkID);
-		const res = await meerkat.getIcingaCheckState(check.checkID, checkType);
+		const checkType = icingaCheckTypeFromId(options.checkId);
+		const res = await meerkat.getIcingaCheckState(options.checkId, checkType);
 		const state = icingaResultCodeToCheckState(checkType, res.state);
 		setCheckState(state);
 	}
 
 	//Setup check refresher
 	useEffect(() => {
-		if(check.checkID !== null) {
+		if(options.checkId !== null) {
 			updateState();
 			const intervalID = window.setInterval(updateState, 30*1000)
 			return () => window.clearInterval(intervalID);
 		}
-	}, [check.checkID]);
+	}, [options.checkId]);
 
 	let source = null;
-	if(checkState === 'ok' || checkState === 'up') {source = check.options.okImage}
-	if(checkState === 'warning') {source = check.options.warningImage}
-	if(checkState === 'unknown') {source = check.options.unknownImage}
-	if(checkState === 'critical' || checkState === 'down') {source = check.options.criticalImage}
+	if(checkState === 'ok' || checkState === 'up') {source = options.okImage}
+	if(checkState === 'warning') {source = options.warningImage}
+	if(checkState === 'unknown') {source = options.unknownImage}
+	if(checkState === 'critical' || checkState === 'down') {source = options.criticalImage}
 
 	return <div class="check-content image">
 		<img src={source} />

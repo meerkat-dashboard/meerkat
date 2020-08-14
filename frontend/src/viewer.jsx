@@ -23,42 +23,28 @@ export function Viewer({slug}) {
 		return <div class="loading center subtle">Loading dashboard</div>
 	}
 	
-	const checks = dashboard.checks.map(check => {
-		const left = `${check.rect.x}%`;
-		const top = `${check.rect.y}%`;
-		const width = `${check.rect.w}%`;
-		const height = `${check.rect.h}%`;
+	const elements = dashboard.elements.map(element => {
+		const left = `${element.rect.x}%`;
+		const top = `${element.rect.y}%`;
+		const width = `${element.rect.w}%`;
+		const height = `${element.rect.h}%`;
 
-		let element = null;
-		if(check.type === 'card') { element = <CheckCard check={check}/> }
-		if(check.type === 'svg') { element = <CheckSVG check={check}/> }
-		if(check.type === 'image') { element = <CheckImage check={check}/> }
-
-		return <div class="check" style={{left: left, top: top, width: width, height: height}}>
-			{element}
-		</div>
-	});
-
-	const statics = dashboard.statics.map(static_ => {
-		const left = `${static_.rect.x}%`;
-		const top = `${static_.rect.y}%`;
-		const width = `${static_.rect.w}%`;
-		const height = `${static_.rect.h}%`;
-
-		let element = null;
-		if(static_.type === 'text') { element = <StaticText options={static_.options}/> }
-		if(static_.type === 'svg') { element = <StaticSVG options={static_.options}/> }
-		if(static_.type === 'image') { element = <StaticImage options={static_.options}/> }
+		let ele = null;
+		if(element.type === 'check-card') { ele = <CheckCard options={element.options}/> }
+		if(element.type === 'check-svg') { ele = <CheckSVG options={element.options}/> }
+		if(element.type === 'check-image') { ele = <CheckImage options={element.options}/> }
+		if(element.type === 'static-text') { ele = <StaticText options={element.options}/> }
+		if(element.type === 'static-svg') { ele = <StaticSVG options={element.options}/> }
+		if(element.type === 'static-image') { ele = <StaticImage options={element.options}/> }
 
 		return <div class="check" style={{left: left, top: top, width: width, height: height}}>
-			{element}
+			{ele}
 		</div>
 	});
 
 	const backgroundImage = dashboard.background ? `url(${dashboard.background})` : 'none';
 	return <div class="dashboard view-only" style={{backgroundImage: backgroundImage}}>
-		{statics}
-		{checks}
+		{elements}
 		<button class="view-only-button" onClick={e => route('/')}>Home</button>
 	</div>
 }

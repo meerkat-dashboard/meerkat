@@ -1,5 +1,8 @@
 import { h } from 'preact';
+import { useState, useEffect } from 'preact/hooks';
 import { route } from 'preact-router';
+
+import * as meerkat from './meerkat';
 
 //Set the a URL paramater, this will keep the current URL and parameters intact,
 //and update the one given. Useful to add search filters etc.
@@ -48,4 +51,50 @@ export function icingaResultCodeToCheckState(checkType, resultCode) {
 	}
 
 	return 'invalid'
+}
+
+
+function sortHost(a, b) {
+	return a.displayName.toLowerCase() > b.displayName.toLowerCase() ? 1 : 0;
+}
+
+function sortService(a, b) {
+	return a.hostName.toLowerCase() > b.hostName.toLowerCase() ? 1 : 0;
+}
+
+export function IcingaCheckList({checkId, updateCheckId}) {
+	const [hosts, setHosts] = useState(null);
+	const [services, setServices] = useState(null);
+	
+	useEffect(() => {
+		meerkat.getIcingaHosts().then(h => {
+			h.sort(sortHost);
+			setHosts(h);
+		});
+
+		meerkat.getIcingaServices().then(s => {
+			s.sort(sortService);
+			setServices(s)
+		});
+	}, [])
+
+	if(hosts === null || services === null) {
+		return <div class="loading small">Loading hosts and services</div>
+	}
+
+	const options = [];
+	options.push(<option value={null}></option>)
+	options.push(<option disabled><b>HOSTS</b></option>)
+	for(const host of hosts) {
+		options.push(<option value={host.id}>{host.displayName}</option>)
+	}
+
+	options.push(<option disabled><b>SERVICES</b></option>)
+	for(const service of services) {
+		options.push(<option value={service.id}>{service.hostName} - {service.displayName}</option>)
+	}
+
+	return <select value={checkId} onInput={e => updateCheckId(e.currentTarget.value)}>
+		{options}
+	</select>
 }

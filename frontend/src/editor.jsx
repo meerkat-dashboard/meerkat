@@ -3,15 +3,13 @@ import { route } from 'preact-router';
 import { useEffect, useReducer } from 'preact/hooks';
 
 import * as meerkat from './meerkat'
-import { SidePanelChecks, CheckSettings } from './check-settings';
-import { SidePanelStatics, StaticSettings } from './static-settings';
-import { CheckCard } from './elements/card';
-import { CheckSVG } from './elements/svg';
-import { CheckImage } from './elements/image';
-import { removeParam } from './util';
-import { StaticText } from './statics/text';
-import { StaticSVG } from './statics/svg';
-import { StaticImage } from './statics/image';
+import { routeParam, removeParam } from './util';
+import { CheckCard, CheckCardOptions } from './elements/card';
+import { CheckSVG, CheckSVGOptions } from './elements/svg';
+import { CheckImage, CheckImageOptions } from './elements/image';
+import { StaticText, StaticTextOptions } from './statics/text';
+import { StaticSVG, StaticSVGOptions } from './statics/svg';
+import { StaticImage, StaticImageOptions } from './statics/image';
 
 //Manage dashboard state
 const dashboardReducer = (state, action) => {
@@ -24,52 +22,33 @@ const dashboardReducer = (state, action) => {
 		case 'setBackground':
 			console.log('Setting background to ' + action.background)
 			return {...state, background: action.background};
-		case 'addCheck':
-			console.log('Adding new check')
-			const newCheck = {
-				type: 'card',
-				title: 'New Check',
-				checkID: null,
+		case 'addElement':
+			console.log('Adding new element')
+			const newElement = {
+				type: 'check-card',
+				title: 'New Element',
 				rect:{ x: 0, y: 0, w: 15, h: 15},
 				options: {
+					checkId: null,
 					nameFontSize: 40,
 					statusFontSize: 60
 				}
 			};
 			return {
 				...state,
-				checks: state.checks.concat(newCheck)
+				elements: state.elements.concat(newElement)
 			};
-		case 'updateCheck':
-			console.log('Updating check')
+		case 'updateElement':
+			console.log('Updating element')
 			const newState = {...state};
-			newState.checks[action.checkIndex] = action.check;
+			newState.elements[action.elementIndex] = action.element;
 			return newState;
-		case 'addStatic':
-			console.log('Adding new static')
-			const newStatic = {
-				type: 'text',
-				title: 'New text',
-				rect:{ x: 0, y: 0, w: 15, h: 15},
-				options: {
-					fontSize: 40
-				}
-			};
-			return {
-				...state,
-				statics: state.statics.concat(newStatic)
-			};
-		case 'updateStatic':
-			console.log('Updating static')
-			const ns = {...state};
-			ns.statics[action.staticIndex] = action.static;
-			return ns;
 		default: throw new Error(`Unexpected action`);
 	}
 };
 
 //Edit page
-export function Editor({slug, selectedCheckId, selectedStaticId}) {
+export function Editor({slug, selectedElementId}) {
 	const [dashboard, dashboardDispatch] =  useReducer(dashboardReducer, null);
 
 	useEffect(() => {
@@ -82,29 +61,16 @@ export function Editor({slug, selectedCheckId, selectedStaticId}) {
 		return <div class="loading center subtle">Loading dashboard</div>
 	}
 
-	const selectedCheck = selectedCheckId ? dashboard.checks[selectedCheckId] : null;
-	if(typeof selectedCheck === 'undefined') {
-		removeParam('selectedCheckId');
+	const selectedElement = selectedElementId ? dashboard.elements[selectedElementId] : null;
+	if(typeof selectedElement === 'undefined') {
+		removeParam('selectedElementId');
 		return
 	}
-	const updateCheck = check => {
+	const updateElement = element => {
 		dashboardDispatch({
-			type: 'updateCheck',
-			checkIndex: selectedCheckId,
-			check: check
-		});
-	}
-
-	const selectedStatic = selectedStaticId ? dashboard.statics[selectedStaticId] : null;
-	if(typeof selectedStatic === 'undefined') {
-		removeParam('selectedStaticId');
-		return
-	}
-	const updateStatic = s => {
-		dashboardDispatch({
-			type: 'updateStatic',
-			staticIndex: selectedStaticId,
-			static: s
+			type: 'updateElement',
+			elementIndex: selectedElementId,
+			element: element
 		});
 	}
 
@@ -123,20 +89,16 @@ export function Editor({slug, selectedCheckId, selectedStaticId}) {
 
 	return <Fragment>
 		<DashboardView dashboard={dashboard} dashboardDispatch={dashboardDispatch}
-			selectedCheckId={selectedCheckId ? Number(selectedCheckId) : null}
-			selectedStaticId={selectedStaticId ? Number(selectedStaticId) : null} />
+			selectedElementId={selectedElementId ? Number(selectedElementId) : null} />
 
 		<div class="editor">
 			<div class="options">
 				<h3>{dashboard.title}</h3>
 				<SidePanelSettings dashboard={dashboard} dashboardDispatch={dashboardDispatch} />
 				<hr />
-				<SidePanelChecks dashboard={dashboard} dashboardDispatch={dashboardDispatch} />
-				<hr />
-				<SidePanelStatics dashboard={dashboard} dashboardDispatch={dashboardDispatch} />
+				<SidePanelElements dashboard={dashboard} dashboardDispatch={dashboardDispatch} />
 
-				<CheckSettings selectedCheck={selectedCheck} updateCheck={updateCheck}/>
-				<StaticSettings selectedStatic={selectedStatic} updateStatic={updateStatic}/>
+				<ElementSettings selectedElement={selectedElement} updateElement={updateElement}/>
 			</div>
 		</div>
 		<div class="side-bar-footer lefty-righty">
@@ -150,14 +112,14 @@ function TransformableElement({rect, updateRect, children, glow}) {
 	//Handle dragging elements
 	const handleMove = downEvent => {
 		const mousemove = moveEvent => {
-			const checkNode = downEvent.target;
-			const dashboardNode = checkNode.parentElement;
+			const elementNode = downEvent.target;
+			const dashboardNode = elementNode.parentElement;
 	
 			//Get max dimensions
-			let left = checkNode.offsetLeft + moveEvent.movementX;
-			let top = checkNode.offsetTop + moveEvent.movementY;
-			const maxLeft = dashboardNode.clientWidth - checkNode.clientWidth;
-			const maxTop = dashboardNode.clientHeight - checkNode.clientHeight;
+			let left = elementNode.offsetLeft + moveEvent.movementX;
+			let top = elementNode.offsetTop + moveEvent.movementY;
+			const maxLeft = dashboardNode.clientWidth - elementNode.clientWidth;
+			const maxTop = dashboardNode.clientHeight - elementNode.clientHeight;
 
 			//limit movement to max dimensions
 			left = left < 0 ? 0 : left;
@@ -189,14 +151,14 @@ function TransformableElement({rect, updateRect, children, glow}) {
 
 		const mousemove = moveEvent => {
 			//Go up an element due to resize dot
-			const checkNode = downEvent.target.parentElement;
-			const dashboardNode = checkNode.parentElement;
+			const elementNode = downEvent.target.parentElement;
+			const dashboardNode = elementNode.parentElement;
 	
 			//Get max dimensions
-			let width = checkNode.clientWidth + moveEvent.movementX;
-			let height = checkNode.clientHeight + moveEvent.movementY;
-			let maxWidth = dashboardNode.clientWidth - checkNode.offsetLeft;
-			let maxHeight = dashboardNode.clientHeight - checkNode.offsetTop;
+			let width = elementNode.clientWidth + moveEvent.movementX;
+			let height = elementNode.clientHeight + moveEvent.movementY;
+			let maxWidth = dashboardNode.clientWidth - elementNode.offsetLeft;
+			let maxHeight = dashboardNode.clientHeight - elementNode.offsetTop;
 
 			//limit minimun resize
 			width = width < 100 ? 100 : width;
@@ -236,65 +198,41 @@ function TransformableElement({rect, updateRect, children, glow}) {
 	</div>
 }
 
-function DashboardChecks({dashboardDispatch, selectedCheckId, checks}) {
-	return checks.map((check, index) => {
+function DashboardElements({dashboardDispatch, selectedElementId, elements}) {
+	return elements.map((element, index) => {
 		const updateRect = rect => {
 			dashboardDispatch({
-				type: 'updateCheck',
-				checkIndex: index,
-				check: {
-					...check,
+				type: 'updateElement',
+				elementIndex: index,
+				element: {
+					...element,
 					rect: rect
 				}
 			});
 		}
 
-		let element = null;
-		if(check.type === 'card') { element = <CheckCard check={check} /> }
-		if(check.type === 'svg') { element = <CheckSVG check={check}/> }
-		if(check.type === 'image') { element = <CheckImage check={check}/> }
+		let ele = null;
+		if(element.type === 'check-card') { ele = <CheckCard options={element.options} /> }
+		if(element.type === 'check-svg') { ele = <CheckSVG options={element.options}/> }
+		if(element.type === 'check-image') { ele = <CheckImage options={element.options}/> }
+		if(element.type === 'static-text') { ele = <StaticText options={element.options}/> }
+		if(element.type === 'static-svg') { ele = <StaticSVG options={element.options}/> }
+		if(element.type === 'static-image') { ele = <StaticImage options={element.options}/> }
 
-		return <TransformableElement rect={check.rect} updateRect={updateRect}
-			glow={selectedCheckId === index}>
-			{element}
-		</TransformableElement>
-	});
-}
-
-function DashboardStatics({dashboardDispatch, selectedStaticId, statics}) {
-	return statics.map((static_, index) => {
-		const updateRect = rect => {
-			dashboardDispatch({
-				type: 'updateStatic',
-				staticIndex: index,
-				static: {
-					...static_,
-					rect: rect
-				}
-			});
-		}
-
-		let element = null;
-		if(static_.type === 'text') { element = <StaticText options={static_.options}/> }
-		if(static_.type === 'svg') { element = <StaticSVG options={static_.options}/> }
-		if(static_.type === 'image') { element = <StaticImage options={static_.options}/> }
-
-		return <TransformableElement rect={static_.rect} updateRect={updateRect}
-			glow={selectedStaticId === index}>
-			{element}
+		return <TransformableElement rect={element.rect} updateRect={updateRect}
+			glow={selectedElementId === index}>
+			{ele}
 		</TransformableElement>
 	});
 }
 
 //The actual dashboard being rendered
-function DashboardView({dashboard, dashboardDispatch, selectedCheckId, selectedStaticId}) {
+function DashboardView({dashboard, dashboardDispatch, selectedElementId}) {
 	const backgroundImage = dashboard.background ? `url(${dashboard.background})` : 'none';
 
 	return <div class="dashboard-wrap">
 		<div class="dashboard" style={{backgroundImage: backgroundImage}}>
-			<DashboardStatics statics={dashboard.statics} selectedStaticId={selectedStaticId}
-				dashboardDispatch={dashboardDispatch} />
-			<DashboardChecks checks={dashboard.checks} selectedCheckId={selectedCheckId}
+			<DashboardElements elements={dashboard.elements} selectedElementId={selectedElementId}
 				dashboardDispatch={dashboardDispatch} />
 		</div>
 	</div>
@@ -308,7 +246,7 @@ function SidePanelSettings({dashboardDispatch, dashboard}) {
 			
 			dashboardDispatch({
 				type: 'setBackground',
-				background: '/' + res.url
+				background: res.url
 			});
 		} catch (e) {
 			//TODO improve
@@ -326,4 +264,79 @@ function SidePanelSettings({dashboardDispatch, dashboard}) {
 		<input id="background-image" type="file" placeholder="Upload a background image"
 			accept="image/*" onChange={handleBackgroundImg}/>
 	</Fragment>
+}
+
+function SidePanelElements({dashboard, dashboardDispatch}) {
+	const addElement = e => {
+		const newId = dashboard.elements.length;
+		dashboardDispatch({type: 'addElement'});
+		routeParam('selectedElementId', newId);
+	}
+
+	let elementList = dashboard.elements.map((element, index) => (
+		<div class="element-item" onClick={ e => routeParam('selectedElementId', index.toString()) }>
+			<div>{element.title}</div>
+		</div>
+	));
+
+	if(elementList.length < 1) { elementList = <div class="subtle">No elements added.</div>}
+
+	return <Fragment>
+		<div class="lefty-righty">
+			<h3>Elements</h3>
+			<button class="small hollow" onClick={addElement}>New</button>
+		</div>
+		<div class="element-list">
+			{elementList}
+		</div>
+	</Fragment>
+}
+
+export function ElementSettings({selectedElement, updateElement}) {
+	if(selectedElement === null) {
+		return null;
+	}
+
+	const updateElementOptions = (options) => {
+		const newOptions = Object.assign(selectedElement.options, options)
+		updateElement({...selectedElement, options: newOptions})
+	}
+
+	let ElementOptions = null;
+	if(selectedElement.type === 'check-card') { ElementOptions = <CheckCardOptions updateOptions={updateElementOptions} options={selectedElement.options} /> }
+	if(selectedElement.type === 'check-svg') { ElementOptions = <CheckSVGOptions updateOptions={updateElementOptions} options={selectedElement.options}/> }
+	if(selectedElement.type === 'check-image') { ElementOptions = <CheckImageOptions updateOptions={updateElementOptions} options={selectedElement.options}/> }
+	if(selectedElement.type === 'static-text') { ElementOptions = <StaticTextOptions updateOptions={updateElementOptions} options={selectedElement.options} /> }
+	if(selectedElement.type === 'static-svg') { ElementOptions = <StaticSVGOptions updateOptions={updateElementOptions} options={selectedElement.options}/> }
+	if(selectedElement.type === 'static-image') { ElementOptions = <StaticImageOptions updateOptions={updateElementOptions} options={selectedElement.options}/> }
+
+	return <div class="editor settings-overlay">
+		<div class="options">
+			<div class="lefty-righty spacer">
+				<h3 class="no-margin">{selectedElement.title}</h3>
+				<svg class="feather" onClick={e => removeParam('selectedElementId')}>
+					<use xlinkHref={`/res/svgs/feather-sprite.svg#x`}/>
+				</svg>
+			</div>
+			<div class="settings">
+				<label for="name">Name</label>
+				<input id="name" type="text" placeholder="Cool Element" value={selectedElement.title}
+					onInput={e => updateElement({...selectedElement, title: e.currentTarget.value})} />
+
+				<label>Visual Type</label>
+				<select name="item-type" value={selectedElement.type}
+					onInput={e => updateElement({...selectedElement, type: e.currentTarget.value})}>
+					<option value="check-card">Icinga Card</option>
+					<option value="check-svg">Icinga SVG</option>
+					<option value="check-image">Icinga Image</option>
+					<option value="static-text">Static Text</option>
+					<option value="static-svg">Static SVG</option>
+					<option value="static-image">Static Image</option>
+				</select>
+				<hr />
+
+				{ElementOptions}
+			</div>
+		</div>
+	</div>
 }

@@ -144,6 +144,7 @@ a:hover, a:focus {
 	margin: 20px auto;
 	text-align: center;
 	font-style: italic;
+	font-size: 16px;
 }
 
 span.tiny {
@@ -538,22 +539,17 @@ div.side-bar-footer {
 
 .check > .card {
 	padding: 6px 10px;
-	text-align: center;
 	color: white;
 	background-color: var(--color-black);
+	display: flex;
+	justify-content: center;
+	align-items: center;
 }
 
 .check > .card.critical, .check > .card.down {background-color: var(--color-icinga-red)}
 .check > .card.ok, .check > .card.up {background-color: var(--color-icinga-green)}
 .check > .card.unknown {background-color: var(--color-icinga-purple)}
 .check > .card.warning {background-color: var(--color-icinga-yellow)}
-
-.check > .card > p {
-	text-align: center;
-	font-weight: bold;
-	font-size: 40px;
-	margin-bottom: 5px;
-}
 
 .check > .card > div.check-state {
 	text-transform: uppercase;

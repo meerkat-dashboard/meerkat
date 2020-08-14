@@ -2,7 +2,7 @@ import { h, Fragment, options } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
 
 import * as meerkat from '../meerkat';
-import { icingaResultCodeToCheckState, icingaCheckTypeFromId } from '../util'
+import { icingaResultCodeToCheckState, icingaCheckTypeFromId, IcingaCheckList } from '../util'
 
 import { svgList } from '../svg-list'
 
@@ -10,6 +10,10 @@ export function CheckSVGOptions({options, updateOptions}) {
 	const svgOptions = svgList.map(svgName => <option value={svgName}>{svgName}</option>)
 
 	return <div class="card-options">
+		<label>Icinga Host or Service</label>
+		<IcingaCheckList checkId={options.checkId}
+			updateCheckId={checkId => updateOptions({checkId: checkId})} />
+
 		<label for="okSvg">OK SVG</label>
 		<select id="okSvg" name="okSvg" value={options.okSvg}
 				onInput={e => updateOptions({okSvg: e.currentTarget.value})}>
@@ -64,45 +68,45 @@ export function CheckSVGOptions({options, updateOptions}) {
 }
 
 //The rendered view (in the actual dashboard) of the Check SVG
-export function CheckSVG({check}) {
+export function CheckSVG({options}) {
 	const [checkState, setCheckState] = useState(null);
 
 	//Handle state update
 	const updateState = async () => {
-		const checkType = icingaCheckTypeFromId(check.checkID);
-		const res = await meerkat.getIcingaCheckState(check.checkID, checkType);
+		const checkType = icingaCheckTypeFromId(options.checkId);
+		const res = await meerkat.getIcingaCheckState(options.checkId, checkType);
 		const state = icingaResultCodeToCheckState(checkType, res.state);
 		setCheckState(state);
 	}
 
 	//Setup check refresher
 	useEffect(() => {
-		if(check.checkID !== null) {
+		if(options.checkId !== null) {
 			updateState();
 			const intervalID = window.setInterval(updateState, 30*1000)
 			return () => window.clearInterval(intervalID);
 		}
-	}, [check.checkID]);
+	}, [options.checkId]);
 
 	//SVG stroke color and icons to the correct version based 
 	//on the current check state
 	let styles = '';
 	let svgName = '';
 	if(checkState === 'ok' || checkState === 'up') {
-		styles = check.options.okStrokeColor ? `stroke: ${check.options.okStrokeColor}` : '';
-		svgName = check.options.okSvg;
+		styles = options.okStrokeColor ? `stroke: ${options.okStrokeColor}` : '';
+		svgName = options.okSvg;
 	}
 	if(checkState === 'warning') {
-		styles = check.options.warningStrokeColor ? `stroke: ${check.options.warningStrokeColor}` : '';
-		svgName = check.options.warningSvg;
+		styles = options.warningStrokeColor ? `stroke: ${options.warningStrokeColor}` : '';
+		svgName = options.warningSvg;
 	}
 	if(checkState === 'unknown') {
-		styles = check.options.unknownStrokeColor ? `stroke: ${check.options.unknownStrokeColor}` : '';
-		svgName = check.options.unknownSvg;
+		styles = options.unknownStrokeColor ? `stroke: ${options.unknownStrokeColor}` : '';
+		svgName = options.unknownSvg;
 	}
 	if(checkState === 'critical' || checkState === 'down') {
-		styles = check.options.criticalStrokeColor ? `stroke: ${check.options.criticalStrokeColor}` : '';
-		svgName = check.options.criticalSvg;
+		styles = options.criticalStrokeColor ? `stroke: ${options.criticalStrokeColor}` : '';
+		svgName = options.criticalSvg;
 	}
 
 	return <div class="check-content svg">

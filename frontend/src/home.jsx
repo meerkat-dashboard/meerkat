@@ -41,8 +41,7 @@ function CreateDashboardModal({hide}) {
 			const newDashboard = {
 				title: title,
 				background: null,
-				checks: [],
-				statics: []
+				elements: []
 			}
 
 			const res = await meerkat.createDashboard(newDashboard);
