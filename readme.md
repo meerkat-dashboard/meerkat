@@ -1,6 +1,6 @@
 # Meerkat
 
-A utility to create and share dashboards for icinga2 checks and hosts.
+A utility to create and share dashboards for icinga2 checks and hosts. Needs Golang 1.13 at least (you will need newer packages on Debian 10)
 
 ### Sample config
 You can use the `-config` flag to specify an alternative config path
