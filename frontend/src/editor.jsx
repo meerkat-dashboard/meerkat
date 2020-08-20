@@ -19,7 +19,7 @@ const dashboardReducer = (state, action) => {
 		case 'setTitle':
 			console.log('Setting title to ' + action.title)
 			return {...state, title: action.title};
-		case 'updateTags':
+		case 'setTags':
 			console.log(`Setting tags to ${action.tags}`);
 			return {...state, tags: action.tags};
 		case 'setBackground':
@@ -85,13 +85,6 @@ export function Editor({slug, selectedElementId}) {
 			element: element
 		});
 	}
-	const updateTags = action => {
-		const newTags = action.tags.split(' ');
-		dashboardDispatch({
-			type: 'updateTags',
-			tags: newTags
-		});
-	}
 
 	const saveDashboard = async e => {
 		console.log(dashboard);
@@ -117,7 +110,7 @@ export function Editor({slug, selectedElementId}) {
 				<hr />
 				<SidePanelElements dashboard={dashboard} dashboardDispatch={dashboardDispatch} />
 
-				<ElementSettings selectedElement={selectedElement} updateElement={updateElement} updateTags={updateTags}/>
+				<ElementSettings selectedElement={selectedElement} updateElement={updateElement}/>
 			</div>
 		</div>
 		<div class="side-bar-footer lefty-righty">
@@ -274,11 +267,22 @@ function SidePanelSettings({dashboardDispatch, dashboard}) {
 		}
 	}
 
+	const updateTags = tags => {
+		dashboardDispatch({
+			type: 'setTags',
+			tags: tags.split(',').map(v => v.trim())
+		});
+	}
+
 	return <Fragment>
 		<label for="title">Title</label>
 		<input type="text" id="title" placeholder="Network Overview" value={dashboard.title}
 			onInput={e => dashboardDispatch({type: 'setTitle', title: e.currentTarget.value})} />
 
+		<label for="tags">Tags</label>
+		<input id="tags" type="text" placeholder="Cool Tags" value={dashboard.tags.join(',')}
+			onInput={e => updateTags(e.currentTarget.value)} />
+	
 		<label for="background-image">Background Image</label>
 		<input id="background-image" type="file" placeholder="Upload a background image"
 			accept="image/*" onChange={handleBackgroundImg}/>
@@ -362,10 +366,6 @@ export function ElementSettings({selectedElement, updateElement, updateTags}) {
 				<label for="name">Name</label>
 				<input id="name" type="text" placeholder="Cool Element" value={selectedElement.title}
 					onInput={e => updateElement({...selectedElement, title: e.currentTarget.value})} />
-
-				<label for="tags">Tags</label>
-				<input id="tags" type="text" placeholder="Cool Tags" value={selectedElement.tags}
-					onInput={e => updateTags({tags: e.currentTarget.value})} />
 
 				<label>Visual Type</label>
 				<select name="item-type" value={selectedElement.type}
