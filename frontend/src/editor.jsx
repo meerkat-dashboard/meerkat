@@ -19,6 +19,9 @@ const dashboardReducer = (state, action) => {
 		case 'setTitle':
 			console.log('Setting title to ' + action.title)
 			return {...state, title: action.title};
+		case 'updateTags':
+			console.log(`Setting tags to ${action.tags}`);
+			return {...state, tags: action.tags};
 		case 'setBackground':
 			console.log('Setting background to ' + action.background)
 			return {...state, background: action.background};
@@ -82,6 +85,13 @@ export function Editor({slug, selectedElementId}) {
 			element: element
 		});
 	}
+	const updateTags = action => {
+		const newTags = action.tags.split(' ');
+		dashboardDispatch({
+			type: 'updateTags',
+			tags: newTags
+		});
+	}
 
 	const saveDashboard = async e => {
 		console.log(dashboard);
@@ -107,7 +117,7 @@ export function Editor({slug, selectedElementId}) {
 				<hr />
 				<SidePanelElements dashboard={dashboard} dashboardDispatch={dashboardDispatch} />
 
-				<ElementSettings selectedElement={selectedElement} updateElement={updateElement}/>
+				<ElementSettings selectedElement={selectedElement} updateElement={updateElement} updateTags={updateTags}/>
 			</div>
 		</div>
 		<div class="side-bar-footer lefty-righty">
@@ -322,7 +332,7 @@ function SidePanelElements({dashboard, dashboardDispatch}) {
 	</Fragment>
 }
 
-export function ElementSettings({selectedElement, updateElement}) {
+export function ElementSettings({selectedElement, updateElement, updateTags}) {
 	if(selectedElement === null) {
 		return null;
 	}
@@ -352,6 +362,10 @@ export function ElementSettings({selectedElement, updateElement}) {
 				<label for="name">Name</label>
 				<input id="name" type="text" placeholder="Cool Element" value={selectedElement.title}
 					onInput={e => updateElement({...selectedElement, title: e.currentTarget.value})} />
+
+				<label for="tags">Tags</label>
+				<input id="tags" type="text" placeholder="Cool Tags" value={selectedElement.tags}
+					onInput={e => updateTags({tags: e.currentTarget.value})} />
 
 				<label>Visual Type</label>
 				<select name="item-type" value={selectedElement.type}
