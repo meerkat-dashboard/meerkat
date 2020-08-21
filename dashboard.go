@@ -17,14 +17,14 @@ import (
 
 //Dashboard contains all information to render a dashboard
 type Dashboard struct {
-	Title      string   `json:"title"`
-	Background string   `json:"background"`
-	Tags       []string `json:"tags"`
-	Checks     []Check  `json:"checks"`
+	Title      string    `json:"title"`
+	Background string    `json:"background"`
+	Tags       []string  `json:"tags"`
+	Elements   []Element `json:"elements"`
 }
 
-//Check contains any service/host information needed
-type Check struct {
+//Element contains any service/host information needed
+type Element struct {
 	Type  string `json:"type"`
 	Title string `json:"title"`
 	Rect  Rect   `json:"rect"`
