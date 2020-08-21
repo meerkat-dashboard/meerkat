@@ -17,9 +17,10 @@ import (
 
 //Dashboard contains all information to render a dashboard
 type Dashboard struct {
-	Title      string  `json:"title"`
-	Background string  `json:"background"`
-	Checks     []Check `json:"checks"`
+	Title      string   `json:"title"`
+	Background string   `json:"background"`
+	Tags       []string `json:"tags"`
+	Checks     []Check  `json:"checks"`
 }
 
 //Check contains any service/host information needed
@@ -48,6 +49,15 @@ func titleToSlug(title string) string {
 	return title
 }
 
+func arrayContains(array []string, value string) bool {
+	for _, v := range array {
+		if v == value {
+			return true
+		}
+	}
+	return false
+}
+
 func handleListDashboards(w http.ResponseWriter, r *http.Request) {
 	files, err := ioutil.ReadDir("dashboards")
 	if err != nil {
@@ -56,6 +66,7 @@ func handleListDashboards(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var dashboards []Dashboard
+	tagParam := r.URL.Query().Get("tag")
 
 	for _, f := range files {
 		if strings.HasSuffix(f.Name(), ".json") {
@@ -74,7 +85,15 @@ func handleListDashboards(w http.ResponseWriter, r *http.Request) {
 				continue
 			}
 
-			dashboards = append(dashboards, dashboard)
+			tags := dashboard.Tags
+
+			if tagParam != "" {
+				if arrayContains(tags, tagParam) {
+					dashboards = append(dashboards, dashboard)
+				}
+			} else {
+				dashboards = append(dashboards, dashboard)
+			}
 		}
 	}
 
