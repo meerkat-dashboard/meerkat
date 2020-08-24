@@ -2,8 +2,9 @@
 	--color-dark-orange: #f0570d;
 	--color-orange: #ec6c30;
 	--color-light-orange: #ff854c;
-	--color-light-blue: #cce5eb;
+	--color-dark-blue: #213b5c;
 	--color-blue: #476C9B;
+	--color-light-blue: #cce5eb;
 	--color-teal: #468C98;
 	--color-black: #101419;
 	--color-gray: #797979;
@@ -99,10 +100,11 @@ hr {
 a {
 	color: var(--color-blue);
 	cursor: pointer;
+	font-weight: normal;
 }
 
 a:hover, a:focus {
-	color: var(--color-light-blue);
+	color: var(--color-dark-blue);
 }
 
 .lefty-righty {

@@ -9,6 +9,13 @@ import { svgList } from '../svg-list'
 export function CheckSVGOptions({options, updateOptions}) {
 	const svgOptions = svgList.map(svgName => <option value={svgName}>{svgName}</option>)
 
+	const clearField = (e, field) => {
+		e.preventDefault();
+		let opts = {};
+		opts[field] = null;
+		updateOptions(opts);
+	}
+
 	return <div class="card-options">
 		<label>Icinga Host or Service</label>
 		<IcingaCheckList checkId={options.checkId}
@@ -19,7 +26,7 @@ export function CheckSVGOptions({options, updateOptions}) {
 				onInput={e => updateOptions({okSvg: e.currentTarget.value})}>
 			{svgOptions}
 		</select>
-		<label for="ok-stroke-color">OK Stroke color</label>
+		<label for="ok-stroke-color">OK Stroke color <a onClick={e => clearField(e, 'okStrokeColor')}>clear</a></label>
 		<div class="left spacer">
 			<input type="color" name="ok-stroke-color" id="ok-stroke-color" value={options.okStrokeColor}
 				onInput={e => updateOptions({okStrokeColor: e.currentTarget.value})}/>
@@ -32,7 +39,7 @@ export function CheckSVGOptions({options, updateOptions}) {
 				onInput={e => updateOptions({warningSvg: e.currentTarget.value})}>
 			{svgOptions}
 		</select>
-		<label for="warning-stroke-color">Warning Stroke color</label>
+		<label for="warning-stroke-color">Warning Stroke color <a onClick={e => clearField(e, 'warningStrokeColor')}>clear</a></label>
 		<div class="left spacer">
 			<input type="color" name="warning-stroke-color" id="warning-stroke-color" value={options.warningStrokeColor}
 				onInput={e => updateOptions({warningStrokeColor: e.currentTarget.value})}/>
@@ -45,7 +52,7 @@ export function CheckSVGOptions({options, updateOptions}) {
 				onInput={e => updateOptions({unknownSvg: e.currentTarget.value})}>
 			{svgOptions}
 		</select>
-		<label for="unknown-stroke-color">Unknown Stroke color</label>
+		<label for="unknown-stroke-color">Unknown Stroke color <a onClick={e => clearField(e, 'unknownStrokeColor')}>clear</a></label>
 		<div class="left spacer">
 			<input type="color" name="unknown-stroke-color" id="unknown-stroke-color" value={options.unknownStrokeColor}
 				onInput={e => updateOptions({unknownStrokeColor: e.currentTarget.value})}/>
@@ -58,7 +65,7 @@ export function CheckSVGOptions({options, updateOptions}) {
 				onInput={e => updateOptions({criticalSvg: e.currentTarget.value})}>
 			{svgOptions}
 		</select>
-		<label for="critical-stroke-color">Critical Stroke color</label>
+		<label for="critical-stroke-color">Critical Stroke color <a onClick={e => clearField(e, 'criticalStrokeColor')}>clear</a></label>
 		<div class="left spacer">
 			<input type="color" name="critical-stroke-color" id="critical-stroke-color" value={options.criticalStrokeColor}
 				onInput={e => updateOptions({criticalStrokeColor: e.currentTarget.value})}/>

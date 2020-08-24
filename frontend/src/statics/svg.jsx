@@ -6,6 +6,13 @@ import { svgList } from '../svg-list';
 export function StaticSVGOptions({options, updateOptions}) {
 	const svgOptions = svgList.map(svgName => <option value={svgName}>{svgName}</option>)
 
+	const clearField = (e, field) => {
+		e.preventDefault();
+		let opts = {};
+		opts[field] = null;
+		updateOptions(opts);
+	}
+
 	return <Fragment>
 		<label for="svg">SVG</label>
 		<select id="svg" name="svg" value={options.svg}
@@ -13,7 +20,7 @@ export function StaticSVGOptions({options, updateOptions}) {
 			{svgOptions}
 		</select>
 
-		<label for="stroke-color">Stroke color</label>
+		<label for="stroke-color">Stroke color <a onClick={e => clearField(e, 'strokeColor')}>clear</a></label>
 		<div class="left spacer">
 			<input type="color" name="stroke-color" id="stroke-color" value={options.strokeColor}
 				onInput={e => updateOptions({strokeColor: e.currentTarget.value})}/>
