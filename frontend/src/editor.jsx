@@ -280,6 +280,24 @@ function SidePanelSettings({dashboardDispatch, dashboard}) {
 		});
 	}
 
+	const clearBackground = e => {
+		e.preventDefault();
+		dashboardDispatch({
+			type: 'setBackground',
+			background: null
+		});
+	}
+
+	const imgControls = src => {
+		if(src) {
+			return <Fragment>
+				<a onClick={clearBackground}>clear</a>&nbsp;
+				<a target="_blank" href={src}>view</a>
+			</Fragment>
+		}
+		return null;
+	}
+
 	return <Fragment>
 		<label for="title">Title</label>
 		<input type="text" id="title" placeholder="Network Overview" value={dashboard.title}
@@ -287,7 +305,7 @@ function SidePanelSettings({dashboardDispatch, dashboard}) {
 
 		<TagEditor tags={dashboard.tags} updateTags={tags => updateTags(tags)} />
 	
-		<label for="background-image">Background Image</label>
+		<label for="background-image">Background Image {imgControls(dashboard.background)}</label>
 		<input id="background-image" type="file" placeholder="Upload a background image"
 			accept="image/*" onChange={handleBackgroundImg}/>
 	</Fragment>

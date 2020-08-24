@@ -101,6 +101,7 @@ a {
 	color: var(--color-blue);
 	cursor: pointer;
 	font-weight: normal;
+	text-decoration: none;
 }
 
 a:hover, a:focus {
