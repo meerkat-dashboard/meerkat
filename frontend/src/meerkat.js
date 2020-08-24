@@ -21,7 +21,12 @@ export async function getIcingaCheckState(checkId, checkType) {
 
 export async function getAllDashboards() {
 	const res = await fetch('/dashboard')
-	return res.json();
+	const data = await res.json();
+	console.log(data);
+	if(data === null) {
+		return [];
+	}
+	return data;
 }
 
 export async function getDashboard(slug) {
