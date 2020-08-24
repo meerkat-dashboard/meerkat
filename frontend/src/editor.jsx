@@ -1,6 +1,6 @@
 import { h, Fragment } from 'preact';
 import { route } from 'preact-router';
-import { useEffect, useReducer } from 'preact/hooks';
+import { useEffect, useReducer, useState } from 'preact/hooks';
 
 import * as meerkat from './meerkat'
 import { routeParam, removeParam, TagEditor } from './util';
@@ -62,6 +62,7 @@ const dashboardReducer = (state, action) => {
 //Edit page
 export function Editor({slug, selectedElementId}) {
 	const [dashboard, dashboardDispatch] =  useReducer(dashboardReducer, null);
+	const [savingDashboard, setSavingDashboard] = useState(false);
 
 	useEffect(() => {
 		meerkat.getDashboard(slug).then(async d => {
@@ -87,6 +88,7 @@ export function Editor({slug, selectedElementId}) {
 	}
 
 	const saveDashboard = async e => {
+		setSavingDashboard(true);
 		console.log(dashboard);
 		try {
 			const data = await meerkat.saveDashboard(slug, dashboard);
@@ -97,6 +99,7 @@ export function Editor({slug, selectedElementId}) {
 			console.log('error saving dashboard:');
 			console.log(e);
 		}
+		setSavingDashboard(false);
 	}
 
 	return <Fragment>
@@ -115,7 +118,7 @@ export function Editor({slug, selectedElementId}) {
 		</div>
 		<div class="side-bar-footer lefty-righty">
 			<button class="hollow" onClick={e => route('/')}>Home</button>
-			<button onClick={saveDashboard}>Save Dashboard</button>
+			<button onClick={saveDashboard} class={ savingDashboard ? 'loading' : ''}>Save Dashboard</button>
 		</div>
 	</Fragment>
 }
