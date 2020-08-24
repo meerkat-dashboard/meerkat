@@ -518,7 +518,7 @@ div.tag .close {
 }
 
 .check.glow {
-	outline: 2px solid var(--color-light-orange);
+	outline: 3px solid #c700ff;
 }
 
 .check > div.resize {

@@ -63,6 +63,7 @@ const dashboardReducer = (state, action) => {
 export function Editor({slug, selectedElementId}) {
 	const [dashboard, dashboardDispatch] =  useReducer(dashboardReducer, null);
 	const [savingDashboard, setSavingDashboard] = useState(false);
+	const [highlightedElementId, setHighlightedElementId] = useState(null);
 
 	useEffect(() => {
 		meerkat.getDashboard(slug).then(async d => {
@@ -104,16 +105,18 @@ export function Editor({slug, selectedElementId}) {
 
 	return <Fragment>
 		<DashboardView dashboard={dashboard} dashboardDispatch={dashboardDispatch}
-			selectedElementId={selectedElementId ? Number(selectedElementId) : null} />
+			selectedElementId={selectedElementId ? Number(selectedElementId) : null}
+			highlightedElementId={highlightedElementId} />
 
 		<div class="editor">
 			<div class="options">
 				<h3>{dashboard.title}</h3>
 				<SidePanelSettings dashboard={dashboard} dashboardDispatch={dashboardDispatch} />
 				<hr />
-				<SidePanelElements dashboard={dashboard} dashboardDispatch={dashboardDispatch} />
+				<SidePanelElements dashboard={dashboard} dashboardDispatch={dashboardDispatch}
+					setHighlightedElementId={setHighlightedElementId} />
 
-				<ElementSettings selectedElement={selectedElement} updateElement={updateElement}/>
+				<ElementSettings selectedElement={selectedElement} updateElement={updateElement} />
 			</div>
 		</div>
 		<div class="side-bar-footer lefty-righty">
@@ -123,7 +126,7 @@ export function Editor({slug, selectedElementId}) {
 	</Fragment>
 }
 
-function TransformableElement({rect, updateRect, children, glow}) {
+function TransformableElement({rect, updateRect, children, glow, highlight}) {
 	//Handle dragging elements
 	const handleMove = downEvent => {
 		const mousemove = moveEvent => {
@@ -205,7 +208,7 @@ function TransformableElement({rect, updateRect, children, glow}) {
 	const width = `${rect.w}%`;
 	const height = `${rect.h}%`;
 
-	return <div class={`check ${glow ? 'glow' : ''}`}
+	return <div class={`check ${glow || highlight ? 'glow' : ''}`}
 		style={{left: left, top: top, width: width, height: height}}
 		onMouseDown={handleMove}>
 			{children}
@@ -213,7 +216,7 @@ function TransformableElement({rect, updateRect, children, glow}) {
 	</div>
 }
 
-function DashboardElements({dashboardDispatch, selectedElementId, elements}) {
+function DashboardElements({dashboardDispatch, selectedElementId, elements, highlightedElementId}) {
 	return elements.map((element, index) => {
 		const updateRect = rect => {
 			dashboardDispatch({
@@ -235,20 +238,20 @@ function DashboardElements({dashboardDispatch, selectedElementId, elements}) {
 		if(element.type === 'static-image') { ele = <StaticImage options={element.options}/> }
 
 		return <TransformableElement rect={element.rect} updateRect={updateRect}
-			glow={selectedElementId === index}>
+			glow={selectedElementId === index} highlight={highlightedElementId === index}>
 			{ele}
 		</TransformableElement>
 	});
 }
 
 //The actual dashboard being rendered
-function DashboardView({dashboard, dashboardDispatch, selectedElementId}) {
+function DashboardView({dashboard, dashboardDispatch, selectedElementId, highlightedElementId}) {
 	const backgroundImage = dashboard.background ? `url(${dashboard.background})` : 'none';
 
 	return <div class="dashboard-wrap">
 		<div class="dashboard" style={{backgroundImage: backgroundImage}}>
 			<DashboardElements elements={dashboard.elements} selectedElementId={selectedElementId}
-				dashboardDispatch={dashboardDispatch} />
+				dashboardDispatch={dashboardDispatch} highlightedElementId={highlightedElementId}/>
 		</div>
 	</div>
 }
@@ -290,7 +293,7 @@ function SidePanelSettings({dashboardDispatch, dashboard}) {
 	</Fragment>
 }
 
-function SidePanelElements({dashboard, dashboardDispatch}) {
+function SidePanelElements({dashboard, dashboardDispatch, setHighlightedElementId}) {
 	const addElement = e => {
 		const newId = dashboard.elements.length;
 		dashboardDispatch({type: 'addElement'});
@@ -315,7 +318,9 @@ function SidePanelElements({dashboard, dashboardDispatch}) {
 
 	let elementList = dashboard.elements.map((element, index) => (
 		<div class="element-item" draggable={true} id={index} onDragStart={handleDragStart}
-			onClick={ e => routeParam('selectedElementId', index.toString()) }>
+			onClick={ e => routeParam('selectedElementId', index.toString()) }
+			onMouseEnter={e => {e.stopPropagation(); setHighlightedElementId(index)}}
+			onMouseLeave={e => {e.stopPropagation(); setHighlightedElementId(null)}}>
 			<div class="element-title">{element.title}</div>
 			<div class="drop-zone" onDrop={handleDrop} id={index}
 				onDragEnter={e => {e.preventDefault(); e.currentTarget.classList.add('active')}}
@@ -337,7 +342,7 @@ function SidePanelElements({dashboard, dashboardDispatch}) {
 	</Fragment>
 }
 
-export function ElementSettings({selectedElement, updateElement, updateTags}) {
+export function ElementSettings({selectedElement, updateElement}) {
 	if(selectedElement === null) {
 		return null;
 	}
