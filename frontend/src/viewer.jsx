@@ -45,6 +45,6 @@ export function Viewer({slug}) {
 	const backgroundImage = dashboard.background ? `url(${dashboard.background})` : 'none';
 	return <div class="dashboard view-only" style={{backgroundImage: backgroundImage}}>
 		{elements}
-		<button class="view-only-button" onClick={e => route('/')}>Home</button>
+		{/* <button class="view-only-button" onClick={e => route('/')}>Home</button> */}
 	</div>
 }
