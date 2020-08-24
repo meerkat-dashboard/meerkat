@@ -494,6 +494,22 @@ div.side-bar-footer {
 	border-top: solid 1px #aaa;
 }
 
+div.pill {
+	border-radius: 20px;
+	padding: 0 10px;
+	background-color: var(--color-orange);
+	color: white;
+	display: inline-flex;
+	align-items: center;
+	margin: 0 5px 5px 0;
+	font-size: 16px;
+}
+
+div.tag .close {
+	padding: 4px;
+	cursor: pointer;
+}
+
 /* DASHBOARD ELEMENTS */
 .check {
 	cursor: move;

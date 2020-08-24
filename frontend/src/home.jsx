@@ -40,6 +40,7 @@ function CreateDashboardModal({hide}) {
 			//TODO validate SERVER SIDE titleToSlug(title).length > 0
 			const newDashboard = {
 				title: title,
+				tags: [],
 				background: null,
 				elements: []
 			}

@@ -3,7 +3,7 @@ import { route } from 'preact-router';
 import { useEffect, useReducer } from 'preact/hooks';
 
 import * as meerkat from './meerkat'
-import { routeParam, removeParam } from './util';
+import { routeParam, removeParam, TagEditor } from './util';
 import { CheckCard, CheckCardOptions } from './elements/card';
 import { CheckSVG, CheckSVGOptions } from './elements/svg';
 import { CheckImage, CheckImageOptions } from './elements/image';
@@ -270,7 +270,7 @@ function SidePanelSettings({dashboardDispatch, dashboard}) {
 	const updateTags = tags => {
 		dashboardDispatch({
 			type: 'setTags',
-			tags: tags.split(',').map(v => v.trim())
+			tags: tags.map(v => v.toLowerCase().trim())
 		});
 	}
 
@@ -279,9 +279,7 @@ function SidePanelSettings({dashboardDispatch, dashboard}) {
 		<input type="text" id="title" placeholder="Network Overview" value={dashboard.title}
 			onInput={e => dashboardDispatch({type: 'setTitle', title: e.currentTarget.value})} />
 
-		<label for="tags">Tags</label>
-		<input id="tags" type="text" placeholder="Cool Tags" value={dashboard.tags.join(',')}
-			onInput={e => updateTags(e.currentTarget.value)} />
+		<TagEditor tags={dashboard.tags} updateTags={tags => updateTags(tags)} />
 	
 		<label for="background-image">Background Image</label>
 		<input id="background-image" type="file" placeholder="Upload a background image"
