@@ -5,10 +5,10 @@ import { useEffect, useReducer, useState } from 'preact/hooks';
 import * as meerkat from './meerkat'
 import { routeParam, removeParam, TagEditor } from './util';
 import { CheckCard, CheckCardOptions } from './elements/card';
-import { CheckSVG, CheckSVGOptions } from './elements/svg';
+import { CheckSVG, CheckSVGOptions, CheckSVGDefaults } from './elements/svg';
 import { CheckImage, CheckImageOptions } from './elements/image';
-import { StaticText, StaticTextOptions } from './statics/text';
-import { StaticSVG, StaticSVGOptions } from './statics/svg';
+import { StaticText, StaticTextOptions, StaticTextDefaults } from './statics/text';
+import { StaticSVG, StaticSVGOptions, StaticSVGDefaults } from './statics/svg';
 import { StaticImage, StaticImageOptions } from './statics/image';
 
 //Manage dashboard state
@@ -347,6 +347,23 @@ export function ElementSettings({selectedElement, updateElement, updateTags}) {
 		updateElement({...selectedElement, options: newOptions})
 	}
 
+	//sets good default values for each visial type when they're selected
+	const updateType = e => {
+		const newType = e.currentTarget.value
+		let defaults = {};
+		switch(newType) {
+			case 'check-svg': defaults = CheckSVGDefaults; break;
+			case 'static-text': defaults = StaticTextDefaults; break;
+			case 'static-svg': defaults = StaticSVGDefaults; break;
+		}
+
+		updateElement({
+			...selectedElement,
+			type: newType,
+			options: Object.assign(selectedElement.options, defaults)
+		});
+	}
+
 	let ElementOptions = null;
 	if(selectedElement.type === 'check-card') { ElementOptions = <CheckCardOptions updateOptions={updateElementOptions} options={selectedElement.options} /> }
 	if(selectedElement.type === 'check-svg') { ElementOptions = <CheckSVGOptions updateOptions={updateElementOptions} options={selectedElement.options}/> }
@@ -369,8 +386,7 @@ export function ElementSettings({selectedElement, updateElement, updateTags}) {
 					onInput={e => updateElement({...selectedElement, title: e.currentTarget.value})} />
 
 				<label>Visual Type</label>
-				<select name="item-type" value={selectedElement.type}
-					onInput={e => updateElement({...selectedElement, type: e.currentTarget.value})}>
+				<select name="item-type" value={selectedElement.type} onInput={updateType}>
 					<option value="check-card">Icinga Card</option>
 					<option value="check-svg">Icinga SVG</option>
 					<option value="check-image">Icinga Image</option>

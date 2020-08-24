@@ -41,3 +41,9 @@ export function StaticSVG({options}) {
 		</svg>
 	</div>
 }
+
+export const StaticSVGDefaults = {
+	svg: 'cloud',
+	strokeColor: '#00b6ff',
+	strokeWidth: '1'
+}

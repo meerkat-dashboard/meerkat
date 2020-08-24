@@ -72,3 +72,12 @@ export function StaticText({options}) {
 		{options.text}
 	</div>
 }
+
+export const StaticTextDefaults = {
+	text: 'sample message',
+	fontSize: '22',
+	fontColor: '#ffffff',
+	textAlign: 'center',
+	textVerticalAlign: 'center',
+	backgroundColor: '#ff5400'
+}

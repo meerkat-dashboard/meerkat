@@ -115,3 +115,14 @@ export function CheckSVG({options}) {
 		</svg>
 	</div>
 }
+
+export const CheckSVGDefaults = {
+	okSvg: 'check-circle',
+	okStrokeColor: '#44bb77',
+	warningSvg: 'alert-triangle',
+	warningStrokeColor: '#aa44ff',
+	unknownSvg: 'help-circle',
+	unknownStrokeColor: '#ffaa44',
+	criticalSvg: 'alert-octagon',
+	criticalStrokeColor: '#ff5566',
+}
