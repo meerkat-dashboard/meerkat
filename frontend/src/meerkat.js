@@ -22,7 +22,8 @@ export async function getIcingaCheckState(checkId, checkType) {
 export async function getAllDashboards() {
 	const res = await fetch('/dashboard')
 	const data = await res.json();
-	console.log(data);
+
+	//handle Go trolling us (returns empty slices of builtins as nil)
 	if(data === null) {
 		return [];
 	}
