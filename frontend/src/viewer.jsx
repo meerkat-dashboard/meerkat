@@ -29,6 +29,8 @@ export function Viewer({slug}) {
 		const width = `${element.rect.w}%`;
 		const height = `${element.rect.h}%`;
 
+		const rotation = element.rotation ? `rotate(${element.rotation}rad)` : `rotate(0rad)`;
+
 		let ele = null;
 		if(element.type === 'check-card') { ele = <CheckCard options={element.options}/> }
 		if(element.type === 'check-svg') { ele = <CheckSVG options={element.options}/> }
@@ -37,7 +39,7 @@ export function Viewer({slug}) {
 		if(element.type === 'static-svg') { ele = <StaticSVG options={element.options}/> }
 		if(element.type === 'static-image') { ele = <StaticImage options={element.options}/> }
 
-		return <div class="check" style={{left: left, top: top, width: width, height: height}}>
+		return <div class="check" style={{left: left, top: top, width: width, height: height, transform: rotation}}>
 			{ele}
 		</div>
 	});

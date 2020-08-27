@@ -126,7 +126,7 @@ export function Editor({slug, selectedElementId}) {
 	</Fragment>
 }
 
-function TransformableElement({rect, updateRect, children, glow, highlight}) {
+function TransformableElement({rect, updateRect, rotation, updateRotation, children, glow, highlight}) {
 	//Handle dragging elements
 	const handleMove = downEvent => {
 		const mousemove = moveEvent => {
@@ -203,16 +203,47 @@ function TransformableElement({rect, updateRect, children, glow, highlight}) {
 		window.addEventListener('mousemove', mousemove);
 	}
 
+	const handleRotate = downEvent => {
+		downEvent.stopPropagation();
+
+		const mousemove = moveEvent => {
+			//Go up an element due to rotate dot
+			const elementRect = downEvent.target.parentElement.getBoundingClientRect();
+
+			let centerX = elementRect.left + ((elementRect.right - elementRect.left) / 2.0);
+			let centerY = elementRect.top + ((elementRect.bottom - elementRect.top) / 2.0);
+
+			const mouseX = moveEvent.clientX;
+			const mouseY = moveEvent.clientY;
+
+			const radians = Math.atan2(mouseY - centerY, mouseX - centerX);
+			updateRotation(radians);
+		}
+
+		//Remove listeners on mouse button up
+		const mouseup = () => {
+			window.removeEventListener('mousemove', mousemove);
+			window.removeEventListener('mouseup', mouseup);
+		}
+
+		//Add movement and mouseup events
+		window.addEventListener('mouseup', mouseup);
+		window.addEventListener('mousemove', mousemove);
+	}
+
 	const left = `${rect.x}%`;
 	const top = `${rect.y}%`;
 	const width = `${rect.w}%`;
 	const height = `${rect.h}%`;
 
+	const _rotation = rotation ? `rotate(${rotation}rad)` : `rotate(0rad)`;
+
 	return <div class={`check ${glow || highlight ? 'glow' : ''}`}
-		style={{left: left, top: top, width: width, height: height}}
+		style={{left: left, top: top, width: width, height: height, transform: _rotation}}
 		onMouseDown={handleMove}>
 			{children}
 			<div class="resize" onMouseDown={handleResize}></div>
+			<div class="rotate" onMouseDown={handleRotate}></div>
 	</div>
 }
 
@@ -229,6 +260,17 @@ function DashboardElements({dashboardDispatch, selectedElementId, elements, high
 			});
 		}
 
+		const updateRotation = radian => {
+			dashboardDispatch({
+				type: 'updateElement',
+				elementIndex: index,
+				element: {
+					...element,
+					rotation: radian
+				}
+			});
+		}
+
 		let ele = null;
 		if(element.type === 'check-card') { ele = <CheckCard options={element.options} /> }
 		if(element.type === 'check-svg') { ele = <CheckSVG options={element.options}/> }
@@ -238,7 +280,8 @@ function DashboardElements({dashboardDispatch, selectedElementId, elements, high
 		if(element.type === 'static-image') { ele = <StaticImage options={element.options}/> }
 
 		return <TransformableElement rect={element.rect} updateRect={updateRect}
-			glow={selectedElementId === index} highlight={highlightedElementId === index}>
+			glow={selectedElementId === index} highlight={highlightedElementId === index}
+			updateRotation={updateRotation} rotation={element.rotation}>
 			{ele}
 		</TransformableElement>
 	});

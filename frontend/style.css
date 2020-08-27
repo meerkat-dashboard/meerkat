@@ -534,6 +534,16 @@ div.tag .close {
 	cursor: se-resize;
 }
 
+.check > div.rotate {
+	position: absolute;
+	right: 2px;
+	top: calc(50% - 6px);
+	width: 6px;
+	height: 12px;
+	background-color: var(--color-light-orange);
+	cursor: ns-resize;
+}
+
 .check > .check-content {
 	pointer-events: none;
 	user-select: none;
