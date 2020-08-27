@@ -7,7 +7,7 @@ import { routeParam, removeParam, TagEditor } from './util';
 import { CheckCard, CheckCardOptions } from './elements/card';
 import { CheckSVG, CheckSVGOptions, CheckSVGDefaults } from './elements/svg';
 import { CheckImage, CheckImageOptions } from './elements/image';
-import { CheckLine, CheckLineOptions } from './elements/line';
+import { CheckLine, CheckLineOptions, CheckLineDefaults } from './elements/line';
 import { StaticText, StaticTextOptions, StaticTextDefaults } from './statics/text';
 import { StaticSVG, StaticSVGOptions, StaticSVGDefaults } from './statics/svg';
 import { StaticImage, StaticImageOptions } from './statics/image';
@@ -421,6 +421,7 @@ export function ElementSettings({selectedElement, updateElement}) {
 		let defaults = {};
 		switch(newType) {
 			case 'check-svg': defaults = CheckSVGDefaults; break;
+			case 'check-line': defaults = CheckLineDefaults; break;
 			case 'static-text': defaults = StaticTextDefaults; break;
 			case 'static-svg': defaults = StaticSVGDefaults; break;
 		}

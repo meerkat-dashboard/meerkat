@@ -78,7 +78,7 @@ export function CheckLine({options}) {
 	</div>
 }
 
-export const CheckSVGDefaults = {
+export const CheckLineDefaults = {
 	strokeWidth: 4,
 	leftArrow: false,
 	rightArrow: true
