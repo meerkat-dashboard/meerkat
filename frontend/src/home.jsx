@@ -36,6 +36,7 @@ function CreateDashboardModal({hide}) {
 	const [title, setTitle] = useState('');
 
 	const createDashboard = async e => {
+		e.preventDefault();
 		try {
 			//TODO validate SERVER SIDE titleToSlug(title).length > 0
 			const newDashboard = {
@@ -58,16 +59,18 @@ function CreateDashboardModal({hide}) {
 		<div class="modal" onMouseDown={e => e.stopPropagation()}>
 			<h3>Create Dashboard</h3>
 
-			<label for="title">Title</label>
-			<input id="title" name="title" type="text" placeholder="New Dashboard"
-				value={title} onInput={e => setTitle(e.currentTarget.value)} />
+			<form onSubmit={createDashboard}>
+				<label for="title">Title</label>
+				<input id="title" name="title" type="text" placeholder="New Dashboard"
+					value={title} onInput={e => setTitle(e.currentTarget.value)} />
 
-			<label>Result url</label>
-			<CopyTextBox text={window.location.host + '/view/' + titleToSlug(title)} />
+				<label>Result url</label>
+				<CopyTextBox text={window.location.host + '/view/' + titleToSlug(title)} />
 
-			<div class="right" style="margin-top: 20px">
-				<button onClick={createDashboard}>Create</button>
-			</div>
+				<div class="right" style="margin-top: 20px">
+					<button type="submit">Create</button>
+				</div>
+			</form>
 		</div>
 	</div>
 }
