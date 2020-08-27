@@ -7,6 +7,7 @@ import { routeParam, removeParam, TagEditor } from './util';
 import { CheckCard, CheckCardOptions } from './elements/card';
 import { CheckSVG, CheckSVGOptions, CheckSVGDefaults } from './elements/svg';
 import { CheckImage, CheckImageOptions } from './elements/image';
+import { CheckLine, CheckLineOptions } from './elements/line';
 import { StaticText, StaticTextOptions, StaticTextDefaults } from './statics/text';
 import { StaticSVG, StaticSVGOptions, StaticSVGDefaults } from './statics/svg';
 import { StaticImage, StaticImageOptions } from './statics/image';
@@ -179,9 +180,9 @@ function TransformableElement({rect, updateRect, rotation, updateRotation, child
 			let maxHeight = dashboardNode.clientHeight - elementNode.offsetTop;
 
 			//limit minimun resize
-			width = width < 100 ? 100 : width;
+			width = width < 40 ? 40 : width;
 			width = width < maxWidth ? width : maxWidth;
-			height = height < 50 ? 50 : height;
+			height = height < 40 ? 40 : height;
 			height = height < maxHeight ? height : maxHeight;
 			
 			//convert dimensions to relative (px -> percentage based)
@@ -275,6 +276,7 @@ function DashboardElements({dashboardDispatch, selectedElementId, elements, high
 		if(element.type === 'check-card') { ele = <CheckCard options={element.options} /> }
 		if(element.type === 'check-svg') { ele = <CheckSVG options={element.options}/> }
 		if(element.type === 'check-image') { ele = <CheckImage options={element.options}/> }
+		if(element.type === 'check-line') { ele = <CheckLine options={element.options} /> }
 		if(element.type === 'static-text') { ele = <StaticText options={element.options}/> }
 		if(element.type === 'static-svg') { ele = <StaticSVG options={element.options}/> }
 		if(element.type === 'static-image') { ele = <StaticImage options={element.options}/> }
@@ -434,6 +436,7 @@ export function ElementSettings({selectedElement, updateElement}) {
 	if(selectedElement.type === 'check-card') { ElementOptions = <CheckCardOptions updateOptions={updateElementOptions} options={selectedElement.options} /> }
 	if(selectedElement.type === 'check-svg') { ElementOptions = <CheckSVGOptions updateOptions={updateElementOptions} options={selectedElement.options}/> }
 	if(selectedElement.type === 'check-image') { ElementOptions = <CheckImageOptions updateOptions={updateElementOptions} options={selectedElement.options}/> }
+	if(selectedElement.type === 'check-line') { ElementOptions = <CheckLineOptions updateOptions={updateElementOptions} options={selectedElement.options}/> }
 	if(selectedElement.type === 'static-text') { ElementOptions = <StaticTextOptions updateOptions={updateElementOptions} options={selectedElement.options} /> }
 	if(selectedElement.type === 'static-svg') { ElementOptions = <StaticSVGOptions updateOptions={updateElementOptions} options={selectedElement.options}/> }
 	if(selectedElement.type === 'static-image') { ElementOptions = <StaticImageOptions updateOptions={updateElementOptions} options={selectedElement.options}/> }
@@ -456,6 +459,7 @@ export function ElementSettings({selectedElement, updateElement}) {
 					<option value="check-card">Icinga Card</option>
 					<option value="check-svg">Icinga SVG</option>
 					<option value="check-image">Icinga Image</option>
+					<option value="check-line">Icinga Line</option>
 					<option value="static-text">Static Text</option>
 					<option value="static-svg">Static SVG</option>
 					<option value="static-image">Static Image</option>

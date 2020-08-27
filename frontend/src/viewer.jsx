@@ -6,6 +6,7 @@ import * as meerkat from './meerkat';
 import { CheckCard } from './elements/card';
 import { CheckImage } from './elements/image';
 import { CheckSVG } from './elements/svg';
+import { CheckLine } from './elements/line';
 
 import { StaticText } from './statics/text';
 import { StaticSVG } from './statics/svg';
@@ -35,6 +36,7 @@ export function Viewer({slug}) {
 		if(element.type === 'check-card') { ele = <CheckCard options={element.options}/> }
 		if(element.type === 'check-svg') { ele = <CheckSVG options={element.options}/> }
 		if(element.type === 'check-image') { ele = <CheckImage options={element.options}/> }
+		if(element.type === 'check-line') { ele = <CheckLine options={element.options} /> }
 		if(element.type === 'static-text') { ele = <StaticText options={element.options}/> }
 		if(element.type === 'static-svg') { ele = <StaticSVG options={element.options}/> }
 		if(element.type === 'static-image') { ele = <StaticImage options={element.options}/> }

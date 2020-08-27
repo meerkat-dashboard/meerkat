@@ -276,6 +276,12 @@ input[type="color"] {
 	margin-right: 5px;
 }
 
+input[type="checkbox"], input[type="radio"] {
+	cursor: pointer;
+	width: unset;
+	margin: 0 5px 0 0;
+}
+
 input::placeholder {
 	color: #cccccc;
 	opacity: 1;
