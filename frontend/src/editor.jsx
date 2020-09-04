@@ -1,14 +1,15 @@
 import { h, Fragment } from 'preact';
 import { route } from 'preact-router';
-import { useEffect, useReducer } from 'preact/hooks';
+import { useEffect, useReducer, useState } from 'preact/hooks';
 
 import * as meerkat from './meerkat'
-import { routeParam, removeParam } from './util';
+import { routeParam, removeParam, TagEditor } from './util';
 import { CheckCard, CheckCardOptions } from './elements/card';
-import { CheckSVG, CheckSVGOptions } from './elements/svg';
+import { CheckSVG, CheckSVGOptions, CheckSVGDefaults } from './elements/svg';
 import { CheckImage, CheckImageOptions } from './elements/image';
-import { StaticText, StaticTextOptions } from './statics/text';
-import { StaticSVG, StaticSVGOptions } from './statics/svg';
+import { CheckLine, CheckLineOptions, CheckLineDefaults } from './elements/line';
+import { StaticText, StaticTextOptions, StaticTextDefaults } from './statics/text';
+import { StaticSVG, StaticSVGOptions, StaticSVGDefaults } from './statics/svg';
 import { StaticImage, StaticImageOptions } from './statics/image';
 
 //Manage dashboard state
@@ -64,6 +65,8 @@ const dashboardReducer = (state, action) => {
 //Edit page
 export function Editor({slug, selectedElementId}) {
 	const [dashboard, dashboardDispatch] =  useReducer(dashboardReducer, null);
+	const [savingDashboard, setSavingDashboard] = useState(false);
+	const [highlightedElementId, setHighlightedElementId] = useState(null);
 
 	useEffect(() => {
 		meerkat.getDashboard(slug).then(async d => {
@@ -89,6 +92,7 @@ export function Editor({slug, selectedElementId}) {
 	}
 
 	const saveDashboard = async e => {
+		setSavingDashboard(true);
 		console.log(dashboard);
 		try {
 			const data = await meerkat.saveDashboard(slug, dashboard);
@@ -99,30 +103,33 @@ export function Editor({slug, selectedElementId}) {
 			console.log('error saving dashboard:');
 			console.log(e);
 		}
+		setSavingDashboard(false);
 	}
 
 	return <Fragment>
 		<DashboardView dashboard={dashboard} dashboardDispatch={dashboardDispatch}
-			selectedElementId={selectedElementId ? Number(selectedElementId) : null} />
+			selectedElementId={selectedElementId ? Number(selectedElementId) : null}
+			highlightedElementId={highlightedElementId} />
 
 		<div class="editor">
 			<div class="options">
 				<h3>{dashboard.title}</h3>
 				<SidePanelSettings dashboard={dashboard} dashboardDispatch={dashboardDispatch} />
 				<hr />
-				<SidePanelElements dashboard={dashboard} dashboardDispatch={dashboardDispatch} />
+				<SidePanelElements dashboard={dashboard} dashboardDispatch={dashboardDispatch}
+					setHighlightedElementId={setHighlightedElementId} />
 
-				<ElementSettings selectedElement={selectedElement} updateElement={updateElement}/>
+				<ElementSettings selectedElement={selectedElement} updateElement={updateElement} />
 			</div>
 		</div>
 		<div class="side-bar-footer lefty-righty">
 			<button class="hollow" onClick={e => route('/')}>Home</button>
-			<button onClick={saveDashboard}>Save Dashboard</button>
+			<button onClick={saveDashboard} class={ savingDashboard ? 'loading' : ''}>Save Dashboard</button>
 		</div>
 	</Fragment>
 }
 
-function TransformableElement({rect, updateRect, children, glow}) {
+function TransformableElement({rect, updateRect, rotation, updateRotation, children, glow, highlight}) {
 	//Handle dragging elements
 	const handleMove = downEvent => {
 		const mousemove = moveEvent => {
@@ -175,9 +182,9 @@ function TransformableElement({rect, updateRect, children, glow}) {
 			let maxHeight = dashboardNode.clientHeight - elementNode.offsetTop;
 
 			//limit minimun resize
-			width = width < 100 ? 100 : width;
+			width = width < 40 ? 40 : width;
 			width = width < maxWidth ? width : maxWidth;
-			height = height < 50 ? 50 : height;
+			height = height < 40 ? 40 : height;
 			height = height < maxHeight ? height : maxHeight;
 			
 			//convert dimensions to relative (px -> percentage based)
@@ -199,20 +206,51 @@ function TransformableElement({rect, updateRect, children, glow}) {
 		window.addEventListener('mousemove', mousemove);
 	}
 
+	const handleRotate = downEvent => {
+		downEvent.stopPropagation();
+
+		const mousemove = moveEvent => {
+			//Go up an element due to rotate dot
+			const elementRect = downEvent.target.parentElement.getBoundingClientRect();
+
+			let centerX = elementRect.left + ((elementRect.right - elementRect.left) / 2.0);
+			let centerY = elementRect.top + ((elementRect.bottom - elementRect.top) / 2.0);
+
+			const mouseX = moveEvent.clientX;
+			const mouseY = moveEvent.clientY;
+
+			const radians = Math.atan2(mouseY - centerY, mouseX - centerX);
+			updateRotation(radians);
+		}
+
+		//Remove listeners on mouse button up
+		const mouseup = () => {
+			window.removeEventListener('mousemove', mousemove);
+			window.removeEventListener('mouseup', mouseup);
+		}
+
+		//Add movement and mouseup events
+		window.addEventListener('mouseup', mouseup);
+		window.addEventListener('mousemove', mousemove);
+	}
+
 	const left = `${rect.x}%`;
 	const top = `${rect.y}%`;
 	const width = `${rect.w}%`;
 	const height = `${rect.h}%`;
 
-	return <div class={`check ${glow ? 'glow' : ''}`}
-		style={{left: left, top: top, width: width, height: height}}
+	const _rotation = rotation ? `rotate(${rotation}rad)` : `rotate(0rad)`;
+
+	return <div class={`check ${glow || highlight ? 'glow' : ''}`}
+		style={{left: left, top: top, width: width, height: height, transform: _rotation}}
 		onMouseDown={handleMove}>
 			{children}
 			<div class="resize" onMouseDown={handleResize}></div>
+			<div class="rotate" onMouseDown={handleRotate}></div>
 	</div>
 }
 
-function DashboardElements({dashboardDispatch, selectedElementId, elements}) {
+function DashboardElements({dashboardDispatch, selectedElementId, elements, highlightedElementId}) {
 	return elements.map((element, index) => {
 		const updateRect = rect => {
 			dashboardDispatch({
@@ -225,29 +263,42 @@ function DashboardElements({dashboardDispatch, selectedElementId, elements}) {
 			});
 		}
 
+		const updateRotation = radian => {
+			dashboardDispatch({
+				type: 'updateElement',
+				elementIndex: index,
+				element: {
+					...element,
+					rotation: radian
+				}
+			});
+		}
+
 		let ele = null;
 		if(element.type === 'check-card') { ele = <CheckCard options={element.options} /> }
 		if(element.type === 'check-svg') { ele = <CheckSVG options={element.options}/> }
 		if(element.type === 'check-image') { ele = <CheckImage options={element.options}/> }
+		if(element.type === 'check-line') { ele = <CheckLine options={element.options} /> }
 		if(element.type === 'static-text') { ele = <StaticText options={element.options}/> }
 		if(element.type === 'static-svg') { ele = <StaticSVG options={element.options}/> }
 		if(element.type === 'static-image') { ele = <StaticImage options={element.options}/> }
 
 		return <TransformableElement rect={element.rect} updateRect={updateRect}
-			glow={selectedElementId === index}>
+			glow={selectedElementId === index} highlight={highlightedElementId === index}
+			updateRotation={updateRotation} rotation={element.rotation}>
 			{ele}
 		</TransformableElement>
 	});
 }
 
 //The actual dashboard being rendered
-function DashboardView({dashboard, dashboardDispatch, selectedElementId}) {
+function DashboardView({dashboard, dashboardDispatch, selectedElementId, highlightedElementId}) {
 	const backgroundImage = dashboard.background ? `url(${dashboard.background})` : 'none';
 
 	return <div class="dashboard-wrap">
 		<div class="dashboard" style={{backgroundImage: backgroundImage}}>
 			<DashboardElements elements={dashboard.elements} selectedElementId={selectedElementId}
-				dashboardDispatch={dashboardDispatch} />
+				dashboardDispatch={dashboardDispatch} highlightedElementId={highlightedElementId}/>
 		</div>
 	</div>
 }
@@ -272,8 +323,26 @@ function SidePanelSettings({dashboardDispatch, dashboard}) {
 	const updateTags = tags => {
 		dashboardDispatch({
 			type: 'setTags',
-			tags: tags.split(',').map(v => v.trim())
+			tags: tags.map(v => v.toLowerCase().trim())
 		});
+	}
+
+	const clearBackground = e => {
+		e.preventDefault();
+		dashboardDispatch({
+			type: 'setBackground',
+			background: null
+		});
+	}
+
+	const imgControls = src => {
+		if(src) {
+			return <Fragment>
+				<a onClick={clearBackground}>clear</a>&nbsp;
+				<a target="_blank" href={src}>view</a>
+			</Fragment>
+		}
+		return null;
 	}
 
 	return <Fragment>
@@ -281,17 +350,15 @@ function SidePanelSettings({dashboardDispatch, dashboard}) {
 		<input type="text" id="title" placeholder="Network Overview" value={dashboard.title}
 			onInput={e => dashboardDispatch({type: 'setTitle', title: e.currentTarget.value})} />
 
-		<label for="tags">Tags</label>
-		<input id="tags" type="text" placeholder="Cool Tags" value={dashboard.tags.join(',')}
-			onInput={e => updateTags(e.currentTarget.value)} />
+		<TagEditor tags={dashboard.tags} updateTags={tags => updateTags(tags)} />
 	
-		<label for="background-image">Background Image</label>
+		<label for="background-image">Background Image {imgControls(dashboard.background)}</label>
 		<input id="background-image" type="file" placeholder="Upload a background image"
 			accept="image/*" onChange={handleBackgroundImg}/>
 	</Fragment>
 }
 
-function SidePanelElements({dashboard, dashboardDispatch}) {
+function SidePanelElements({dashboard, dashboardDispatch, setHighlightedElementId}) {
 	const addElement = e => {
 		const newId = dashboard.elements.length;
 		dashboardDispatch({type: 'addElement'});
@@ -350,7 +417,7 @@ function SidePanelElements({dashboard, dashboardDispatch}) {
 	</Fragment>
 }
 
-export function ElementSettings({selectedElement, updateElement, updateTags}) {
+export function ElementSettings({selectedElement, updateElement}) {
 	if(selectedElement === null) {
 		return null;
 	}
@@ -360,10 +427,29 @@ export function ElementSettings({selectedElement, updateElement, updateTags}) {
 		updateElement({...selectedElement, options: newOptions})
 	}
 
+	//sets good default values for each visial type when they're selected
+	const updateType = e => {
+		const newType = e.currentTarget.value
+		let defaults = {};
+		switch(newType) {
+			case 'check-svg': defaults = CheckSVGDefaults; break;
+			case 'check-line': defaults = CheckLineDefaults; break;
+			case 'static-text': defaults = StaticTextDefaults; break;
+			case 'static-svg': defaults = StaticSVGDefaults; break;
+		}
+
+		updateElement({
+			...selectedElement,
+			type: newType,
+			options: Object.assign(selectedElement.options, defaults)
+		});
+	}
+
 	let ElementOptions = null;
 	if(selectedElement.type === 'check-card') { ElementOptions = <CheckCardOptions updateOptions={updateElementOptions} options={selectedElement.options} /> }
 	if(selectedElement.type === 'check-svg') { ElementOptions = <CheckSVGOptions updateOptions={updateElementOptions} options={selectedElement.options}/> }
 	if(selectedElement.type === 'check-image') { ElementOptions = <CheckImageOptions updateOptions={updateElementOptions} options={selectedElement.options}/> }
+	if(selectedElement.type === 'check-line') { ElementOptions = <CheckLineOptions updateOptions={updateElementOptions} options={selectedElement.options}/> }
 	if(selectedElement.type === 'static-text') { ElementOptions = <StaticTextOptions updateOptions={updateElementOptions} options={selectedElement.options} /> }
 	if(selectedElement.type === 'static-svg') { ElementOptions = <StaticSVGOptions updateOptions={updateElementOptions} options={selectedElement.options}/> }
 	if(selectedElement.type === 'static-image') { ElementOptions = <StaticImageOptions updateOptions={updateElementOptions} options={selectedElement.options}/> }
@@ -382,11 +468,11 @@ export function ElementSettings({selectedElement, updateElement, updateTags}) {
 					onInput={e => updateElement({...selectedElement, title: e.currentTarget.value})} />
 
 				<label>Visual Type</label>
-				<select name="item-type" value={selectedElement.type}
-					onInput={e => updateElement({...selectedElement, type: e.currentTarget.value})}>
+				<select name="item-type" value={selectedElement.type} onInput={updateType}>
 					<option value="check-card">Icinga Card</option>
 					<option value="check-svg">Icinga SVG</option>
 					<option value="check-image">Icinga Image</option>
+					<option value="check-line">Icinga Line</option>
 					<option value="static-text">Static Text</option>
 					<option value="static-svg">Static SVG</option>
 					<option value="static-image">Static Image</option>

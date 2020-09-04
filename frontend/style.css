@@ -2,8 +2,9 @@
 	--color-dark-orange: #f0570d;
 	--color-orange: #ec6c30;
 	--color-light-orange: #ff854c;
-	--color-light-blue: #cce5eb;
+	--color-dark-blue: #213b5c;
 	--color-blue: #476C9B;
+	--color-light-blue: #cce5eb;
 	--color-teal: #468C98;
 	--color-black: #101419;
 	--color-gray: #797979;
@@ -99,10 +100,12 @@ hr {
 a {
 	color: var(--color-blue);
 	cursor: pointer;
+	font-weight: normal;
+	text-decoration: none;
 }
 
 a:hover, a:focus {
-	color: var(--color-light-blue);
+	color: var(--color-dark-blue);
 }
 
 .lefty-righty {
@@ -275,6 +278,12 @@ input[type="color"] {
 	width: 36px;
 	height: 36px;
 	margin-right: 5px;
+}
+
+input[type="checkbox"], input[type="radio"] {
+	cursor: pointer;
+	width: unset;
+	margin: 0 5px 0 0;
 }
 
 input::placeholder {
@@ -498,6 +507,22 @@ div.side-bar-footer {
 	border-top: solid 1px #aaa;
 }
 
+div.pill {
+	border-radius: 20px;
+	padding: 0 10px;
+	background-color: var(--color-orange);
+	color: white;
+	display: inline-flex;
+	align-items: center;
+	margin: 0 5px 5px 0;
+	font-size: 16px;
+}
+
+div.tag .close {
+	padding: 4px 0 4px 4px;
+	cursor: pointer;
+}
+
 /* DASHBOARD ELEMENTS */
 .check {
 	cursor: move;
@@ -506,7 +531,7 @@ div.side-bar-footer {
 }
 
 .check.glow {
-	outline: 2px solid var(--color-light-orange);
+	outline: 3px solid #c700ff;
 }
 
 .check > div.resize {
@@ -517,6 +542,16 @@ div.side-bar-footer {
 	height: 12px;
 	background-color: var(--color-light-orange);
 	cursor: se-resize;
+}
+
+.check > div.rotate {
+	position: absolute;
+	right: 2px;
+	top: calc(50% - 6px);
+	width: 6px;
+	height: 12px;
+	background-color: var(--color-light-orange);
+	cursor: ns-resize;
 }
 
 .check > .check-content {

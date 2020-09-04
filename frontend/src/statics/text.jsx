@@ -2,6 +2,13 @@ import { h, Fragment } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
 
 export function StaticTextOptions({options, updateOptions}) {
+	const clearField = (e, field) => {
+		e.preventDefault();
+		let opts = {};
+		opts[field] = null;
+		updateOptions(opts);
+	}
+
 	return <Fragment>
 		<label for="text">Text</label>
 		<textarea id="text" name="text" value={options.text}
@@ -32,14 +39,14 @@ export function StaticTextOptions({options, updateOptions}) {
 		</div>
 
 
-		<label for="font-color">Font Color</label>
+		<label for="font-color">Font Color <a onClick={e => clearField(e, 'fontColor')}>clear</a></label>
 		<div class="lefty-righty spacer">
 			<input id="font-color" name="font-color" type="color" value={options.fontColor}
 				onInput={e => updateOptions({fontColor: e.currentTarget.value})}/>
 			<input type="text" value={options.fontColor} disabled/>
 		</div>
 
-		<label for="background-color">Background Color</label>
+		<label for="background-color">Background Color <a onClick={e => clearField(e, 'backgroundColor')}>clear</a></label>
 		<div class="lefty-righty spacer">
 			<input id="background-color" name="background-color" type="color" value={options.backgroundColor}
 				onInput={e => updateOptions({backgroundColor: e.currentTarget.value})}/>
@@ -71,4 +78,13 @@ export function StaticText({options}) {
 	return <div class="check-content text" style={styles}>
 		{options.text}
 	</div>
+}
+
+export const StaticTextDefaults = {
+	text: 'sample message',
+	fontSize: '22',
+	fontColor: '#ffffff',
+	textAlign: 'center',
+	textVerticalAlign: 'center',
+	backgroundColor: '#ff5400'
 }

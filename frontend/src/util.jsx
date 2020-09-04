@@ -1,4 +1,4 @@
-import { h } from 'preact';
+import { h, Fragment, createRef } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
 import { route } from 'preact-router';
 
@@ -97,4 +97,34 @@ export function IcingaCheckList({checkId, updateCheckId}) {
 	return <select value={checkId} onInput={e => updateCheckId(e.currentTarget.value)}>
 		{options}
 	</select>
+}
+
+export function TagEditor({tags, updateTags}) {
+	const inputRef = createRef();
+	const addTag = e => {
+		e.preventDefault();
+		updateTags(tags.concat(e.currentTarget['add-tag'].value));
+		inputRef.current.value = '';
+	}
+
+	const removeTag = index => {
+		tags.splice(index, 1);
+		updateTags(tags);
+	}
+
+	const tagElements = tags.map((tag, i) => {
+		return <div class="pill tag">
+			<span>{tag}</span>
+			<span class="close" onClick={e => removeTag(i)}>x</span>
+		</div>
+	})
+
+	return <Fragment>
+		<form onSubmit={addTag}>
+			<label for="add-tag">Tags <span class="subtle tiny">Enter to submit</span></label>
+			{tagElements}
+			<input type="text" id="add-tag" name="add-tag" ref={inputRef} placeholder="Enter a new tag"
+				pattern="[a-z\d\-_]+" title="only lower case letters, numbers, '-' and '_' are allowed"/>
+		</form>
+	</Fragment>
 }

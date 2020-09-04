@@ -15,8 +15,25 @@ export function StaticImageOptions({options, updateOptions}) {
 		}
 	}
 
+	const clearField = (e, field) => {
+		e.preventDefault();
+		let opts = {};
+		opts[field] = null;
+		updateOptions(opts);
+	}
+
+	const imgControls = (field) => {
+		if(options[field]) {
+			return <Fragment>
+				<a onClick={e => clearField(e, field)}>clear</a>&nbsp;
+				<a target="_blank" href={options[field]}>view</a>
+			</Fragment>
+		}
+		return null;
+	}
+
 	return <Fragment>
-		<label for="image">Image</label>
+		<label for="image">Image {imgControls('image')}</label>
 		<input id="image" name="image" type="file"
 			accept="image/*" onInput={handleImageUpload}/>
 	</Fragment>

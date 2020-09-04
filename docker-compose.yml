@@ -1,0 +1,12 @@
+version: '3.3'
+
+services:
+  meerkat:
+    image: hub.sol1.net/meerkat:latest
+    container_name: meerkat
+    volumes:
+      - ./config:/meerkat/config
+      - ./dashboards:/meerkat/dashboards
+      - ./dashboards-data:/meerkat/dashboards-data
+    ports:
+      - 8585:8585

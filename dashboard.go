@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"path/filepath"
 	"regexp"
 	"strings"
 
@@ -17,14 +18,17 @@ import (
 
 //Dashboard contains all information to render a dashboard
 type Dashboard struct {
-	Title      string   `json:"title"`
-	Background string   `json:"background"`
-	Tags       []string `json:"tags"`
-	Checks     []Check  `json:"checks"`
+	Title      string    `json:"title"`
+	Slug       string    `json:"slug"`
+	Background string    `json:"background"`
+	Tags       []string  `json:"tags"`
+	Elements   []Element `json:"elements"`
 }
 
-//Check contains any service/host information needed
-type Check struct {
+//Element contains any service/host information needed
+//This is an incomplete representation of the Element
+//options arn't included
+type Element struct {
 	Type  string `json:"type"`
 	Title string `json:"title"`
 	Rect  Rect   `json:"rect"`
@@ -58,6 +62,10 @@ func arrayContains(array []string, value string) bool {
 	return false
 }
 
+func slugFromFileName(fileName string) string {
+	return strings.TrimSuffix(fileName, filepath.Ext(fileName))
+}
+
 func handleListDashboards(w http.ResponseWriter, r *http.Request) {
 	files, err := ioutil.ReadDir("dashboards")
 	if err != nil {
@@ -85,10 +93,10 @@ func handleListDashboards(w http.ResponseWriter, r *http.Request) {
 				continue
 			}
 
-			tags := dashboard.Tags
+			dashboard.Slug = slugFromFileName(f.Name())
 
 			if tagParam != "" {
-				if arrayContains(tags, tagParam) {
+				if arrayContains(dashboard.Tags, tagParam) {
 					dashboards = append(dashboards, dashboard)
 				}
 			} else {
