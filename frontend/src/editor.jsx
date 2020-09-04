@@ -41,6 +41,8 @@ const dashboardReducer = (state, action) => {
 				...state,
 				elements: state.elements.concat(newElement)
 			};
+		case 'deleteElement':
+			console.log('Deleting element')
 		case 'updateElement':
 			console.log('Updating element')
 			const newState = {...state};
@@ -296,6 +298,15 @@ function SidePanelElements({dashboard, dashboardDispatch}) {
 		routeParam('selectedElementId', newId);
 	}
 
+	const deleteElement = (e, index) => {
+		e.preventDefault();
+		let elements = dashboard.elements;
+		elements.splice(index, 1)
+		dashboardDispatch({
+			type: 'deleteElement',
+		});
+	};
+
 	const handleDragStart = e => {
 		e.dataTransfer.setData("source-id", e.target.id);
 	}
@@ -313,13 +324,16 @@ function SidePanelElements({dashboard, dashboardDispatch}) {
 	}
 
 	let elementList = dashboard.elements.map((element, index) => (
-		<div class="element-item" draggable={true} id={index} onDragStart={handleDragStart}
-			onClick={ e => routeParam('selectedElementId', index.toString()) }>
-			<div class="element-title">{element.title}</div>
+		<div class="element-item" draggable={true} id={index} onDragStart={handleDragStart}>
+			<div onClick={ e => routeParam('selectedElementId', index.toString()) }>
+				<div class="element-title">{element.title}</div>
+			</div>
+				<button onClick={e => deleteElement(e,index)}>Delete</button>
 			<div class="drop-zone" onDrop={handleDrop} id={index}
-				onDragEnter={e => {e.preventDefault(); e.currentTarget.classList.add('active')}}
-				onDragOver={e => e.preventDefault()}
-				onDragExit={e => e.currentTarget.classList.remove('active')}></div>
+				 				   onDragEnter={e => {e.preventDefault(); e.currentTarget.classList.add('active')}}
+				 				   onDragOver={e => e.preventDefault()}
+				 				   onDragExit={e => e.currentTarget.classList.remove('active')}>
+			</div>
 		</div>
 	));
 

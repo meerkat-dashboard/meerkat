@@ -173,6 +173,10 @@ label {
 label~input, label~select, label~textarea {
 	margin-bottom: 15px;
 }
+.element-title {
+	display: inline-block;
+	padding-right: 6em;
+}
 
 button {
 	cursor: pointer;
