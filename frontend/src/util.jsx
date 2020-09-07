@@ -1,6 +1,7 @@
 import { h, Fragment, createRef } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
 import { route } from 'preact-router';
+import { Combobox } from 'react-widgets';
 
 import * as meerkat from './meerkat';
 
@@ -55,11 +56,11 @@ export function icingaResultCodeToCheckState(checkType, resultCode) {
 
 
 function sortHost(a, b) {
-	return a.displayName.toLowerCase() > b.displayName.toLowerCase() ? 1 : 0;
+	return a.hostName.toLowerCase() > b.hostName.toLowerCase() ? 1 : 0;
 }
 
 function sortService(a, b) {
-	return a.hostName.toLowerCase() > b.hostName.toLowerCase() ? 1 : 0;
+	return a.displayName.toLowerCase() > b.displayName.toLowerCase() ? 1 : 0;
 }
 
 export function IcingaCheckList({checkId, updateCheckId}) {
@@ -83,20 +84,15 @@ export function IcingaCheckList({checkId, updateCheckId}) {
 	}
 
 	const options = [];
-	options.push(<option value={null}></option>)
-	options.push(<option disabled><b>HOSTS</b></option>)
 	for(const host of hosts) {
-		options.push(<option value={host.id}>{host.displayName}</option>)
+		options.push(host.id)
 	}
 
-	options.push(<option disabled><b>SERVICES</b></option>)
 	for(const service of services) {
-		options.push(<option value={service.id}>{service.hostName} - {service.displayName}</option>)
+		options.push(service.id)
 	}
 
-	return <select value={checkId} onInput={e => updateCheckId(e.currentTarget.value)}>
-		{options}
-	</select>
+	return <Combobox filter='contains' data={options} onSelect={e => updateCheckId(e)} />
 }
 
 export function TagEditor({tags, updateTags}) {

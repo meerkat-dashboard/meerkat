@@ -80,8 +80,9 @@
 
 body {
 	margin: 0;
-	font-family: 'Nunito', sans-serif;
-	font-size: 20px;
+	/* font-family: 'Nunito', sans-serif; */
+	font-family: Arial, sans-serif;
+	font-size: 18px;
 	color: var(--color-black)
 }
 
@@ -252,6 +253,7 @@ input, select, textarea {
 	border-radius: 3px;
 	border: solid 1.5px var(--color-gray);
 	transition: 300ms border-color;
+	font-size: 13px;
 }
 
 textarea {
@@ -616,4 +618,8 @@ div.tag .close {
 
 .element-list > .element-item:hover {
 	color: var(--color-orange);
+}
+
+div.settings {
+	font-size: 13px;
 }

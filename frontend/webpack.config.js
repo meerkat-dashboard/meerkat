@@ -19,10 +19,15 @@ module.exports = {
           }
         }
       }
-    ]
+    ],
   },
   resolve: {
     extensions: [ '.jsx', '.ts', '.js' ],
+    alias: {
+      "react": "preact/compat",
+      "react-dom/test-utils": "preact/test-utils",
+      "react-dom": "preact/compat",
+    }
   },
   output: {
     filename: 'bundle.js',
