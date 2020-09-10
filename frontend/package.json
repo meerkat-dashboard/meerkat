@@ -12,12 +12,15 @@
   "dependencies": {
     "@babel/core": "^7.11.1",
     "@babel/plugin-transform-react-jsx": "^7.10.4",
+    "@videojs/http-streaming": "^1.13.3",
     "babel-loader": "^8.1.0",
     "dayjs": "^1.8.33",
     "preact": "^10.4.7",
     "preact-router": "^3.2.1",
+    "react-widgets": "4.4.4",
+    "video.js": "^7.0.0",
     "webpack": "^4.44.1",
-    "webpack-cli": "^3.3.12",
-    "react-widgets": "4.4.4"
-  }
+    "webpack-cli": "^3.3.12"
+  },
+  "devDependencies": {}
 }

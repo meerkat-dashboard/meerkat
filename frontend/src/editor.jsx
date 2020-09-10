@@ -11,6 +11,8 @@ import { CheckLine, CheckLineOptions, CheckLineDefaults } from './elements/line'
 import { StaticText, StaticTextOptions, StaticTextDefaults } from './statics/text';
 import { StaticSVG, StaticSVGOptions, StaticSVGDefaults } from './statics/svg';
 import { StaticImage, StaticImageOptions } from './statics/image';
+import { IframeVideo, IframeVideoOptions } from './elements/video';
+import { AudioStream, AudioOptions } from './elements/audio';
 
 //Manage dashboard state
 const dashboardReducer = (state, action) => {
@@ -282,12 +284,14 @@ function DashboardElements({dashboardDispatch, selectedElementId, elements, high
 		if(element.type === 'static-text') { ele = <StaticText options={element.options}/> }
 		if(element.type === 'static-svg') { ele = <StaticSVG options={element.options}/> }
 		if(element.type === 'static-image') { ele = <StaticImage options={element.options}/> }
+		if(element.type === 'iframe-video') { ele = <IframeVideo options={element.options}/> }
+		if(element.type === 'audio-stream') { ele = <AudioStream options={element.options}/> }
 
-		return <TransformableElement rect={element.rect} updateRect={updateRect}
-			glow={selectedElementId === index} highlight={highlightedElementId === index}
-			updateRotation={updateRotation} rotation={element.rotation}>
-			{ele}
-		</TransformableElement>
+		return  <TransformableElement rect={element.rect} updateRect={updateRect}
+					glow={selectedElementId === index} highlight={highlightedElementId === index}
+					updateRotation={updateRotation} rotation={element.rotation}>
+					{ele}
+			    </TransformableElement>
 	});
 }
 
@@ -427,7 +431,7 @@ export function ElementSettings({selectedElement, updateElement}) {
 		updateElement({...selectedElement, options: newOptions})
 	}
 
-	//sets good default values for each visial type when they're selected
+	//sets good default values for each visual type when they're selected
 	const updateType = e => {
 		const newType = e.currentTarget.value
 		let defaults = {};
@@ -453,6 +457,8 @@ export function ElementSettings({selectedElement, updateElement}) {
 	if(selectedElement.type === 'static-text') { ElementOptions = <StaticTextOptions updateOptions={updateElementOptions} options={selectedElement.options} /> }
 	if(selectedElement.type === 'static-svg') { ElementOptions = <StaticSVGOptions updateOptions={updateElementOptions} options={selectedElement.options}/> }
 	if(selectedElement.type === 'static-image') { ElementOptions = <StaticImageOptions updateOptions={updateElementOptions} options={selectedElement.options}/> }
+	if(selectedElement.type === 'iframe-video') { ElementOptions = <IframeVideoOptions updateOptions={updateElementOptions} options={selectedElement.options}/> }
+	if(selectedElement.type === 'audio-stream') { ElementOptions = <AudioOptions updateOptions={updateElementOptions} options={selectedElement.options}/>}
 
 	return <div class="editor settings-overlay">
 		<div class="options">
@@ -476,6 +482,8 @@ export function ElementSettings({selectedElement, updateElement}) {
 					<option value="static-text">Static Text</option>
 					<option value="static-svg">Static SVG</option>
 					<option value="static-image">Static Image</option>
+					<option value="iframe-video">HLS Stream</option>
+					<option value="audio-stream">Audio Stream</option>
 				</select>
 				<hr />
 
