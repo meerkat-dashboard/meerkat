@@ -284,7 +284,7 @@ function DashboardElements({dashboardDispatch, selectedElementId, elements, high
 		if(element.type === 'static-text') { ele = <StaticText options={element.options}/> }
 		if(element.type === 'static-svg') { ele = <StaticSVG options={element.options}/> }
 		if(element.type === 'static-image') { ele = <StaticImage options={element.options}/> }
-		if(element.type === 'iframe-video') { ele = <IframeVideo options={element.options}/> }
+		if(element.type === 'iframe-video') { ele = <div><IframeVideo options={element.options}/><div class="move-button">Move</div></div> }
 		if(element.type === 'audio-stream') { ele = <AudioStream options={element.options}/> }
 
 		return  <TransformableElement rect={element.rect} updateRect={updateRect}

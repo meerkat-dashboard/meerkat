@@ -54,7 +54,6 @@ export function IframeVideo({options}, props) {
         <div data-vjs-player>
           <video ref={playerRef} id="hls_stream" width="140" height="264" id='livestream' className="video-js vjs-16-9 vjs-big-play-centered" playsInline />
         </div> 
-        <div class="move-button">Move</div>
       </div>
     )
 };

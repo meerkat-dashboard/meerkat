@@ -7,6 +7,8 @@ import { CheckCard } from './elements/card';
 import { CheckImage } from './elements/image';
 import { CheckSVG } from './elements/svg';
 import { CheckLine } from './elements/line';
+import { AudioStream } from './elements/audio';
+import { IframeVideo } from './elements/video';
 
 import { StaticText } from './statics/text';
 import { StaticSVG } from './statics/svg';
@@ -40,6 +42,8 @@ export function Viewer({slug}) {
 		if(element.type === 'static-text') { ele = <StaticText options={element.options}/> }
 		if(element.type === 'static-svg') { ele = <StaticSVG options={element.options}/> }
 		if(element.type === 'static-image') { ele = <StaticImage options={element.options}/> }
+		if(element.type === 'iframe-video') { ele = <IframeVideo options={element.options}/> }
+		if(element.type === 'audio-stream') { ele = <AudioStream options={element.options}/> }
 
 		return <div class="check" style={{left: left, top: top, width: width, height: height, transform: rotation}}>
 			{ele}
