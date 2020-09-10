@@ -46,6 +46,8 @@ const dashboardReducer = (state, action) => {
 			};
 		case 'deleteElement':
 			console.log('Deleting element')
+		case 'duplicateElement':
+			console.log('Duplicating element')	
 		case 'updateElement':
 			console.log('Updating element')
 			const newState = {...state};
@@ -378,6 +380,15 @@ function SidePanelElements({dashboard, dashboardDispatch, setHighlightedElementI
 		});
 	};
 
+	const duplicateElement = (e, index) => {
+		e.preventDefault();
+		let elements = dashboard.elements;
+		elements.splice(index, 0, elements[index])
+		dashboardDispatch({
+			type: 'duplicateElement',
+		});
+	};
+	
 	const handleDragStart = e => {
 		e.dataTransfer.setData("source-id", e.target.id);
 	}
@@ -400,6 +411,7 @@ function SidePanelElements({dashboard, dashboardDispatch, setHighlightedElementI
 				<div class="element-title">{element.title}</div>
 			</div>
 				<button onClick={e => deleteElement(e,index)}>Delete</button>
+				<button onClick={e => duplicateElement(e,index)}>Duplicate</button>
 			<div class="drop-zone" onDrop={handleDrop} id={index}
 				 				   onDragEnter={e => {e.preventDefault(); e.currentTarget.classList.add('active')}}
 				 				   onDragOver={e => e.preventDefault()}

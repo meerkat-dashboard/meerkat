@@ -178,7 +178,7 @@ label~input, label~select, label~textarea {
 	margin-bottom: 15px;
 }
 .element-title {
-	display: inline-block;
+	/* display: inline-block; */
 	padding-right: 6em;
 }
 
@@ -190,6 +190,8 @@ button {
 	padding: 10px 20px;
 	font-size: 16px;
 	color: var(--color-white);
+	margin-right: 5px;
+	display: inline-block;
 }
 
 button:hover, button:focus {
