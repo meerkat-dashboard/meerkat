@@ -445,7 +445,9 @@ div.dashboard-wrap {
 }
 
 .dashboard-wrap .dashboard {
-	background-size: 100% 100%;
+	background-size: contain;
+	background-position: center;
+	background-repeat: no-repeat;
 	border: solid 1.5px var(--color-gray);
 	flex-grow: 1;
 	border-radius: 4px;
@@ -453,7 +455,9 @@ div.dashboard-wrap {
 }
 
 .dashboard.view-only {
-	background-size: 100% 100%;
+	background-size: contain;
+	background-position: center;
+	background-repeat: no-repeat;
 	width: 100vw;
 	height: 100vh;
 }
