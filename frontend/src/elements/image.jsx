@@ -35,19 +35,19 @@ export function CheckImageOptions({options, updateOptions}) {
 			updateCheckId={checkId => updateOptions({checkId: checkId})} />
 
 		<label for="ok-image">OK State Image {imgControls('okImage')}</label>
-		<input id="ok-image" name="ok-image" type="file"
+		<input class="form-control" id="ok-image" name="ok-image" type="file"
 			accept="image/*" onInput={e => handleImageUpload('okImage', e.target.files)}/>
 
 		<label for="warning-image">Warning State Image {imgControls('warningImage')}</label>
-		<input id="warning-image" name="warning-image" type="file"
+		<input class="form-control" id="warning-image" name="warning-image" type="file"
 			accept="image/*" onInput={e => handleImageUpload('warningImage', e.target.files)}/>
 
 		<label for="unknown-image">Unknown State Image {imgControls('unknownImage')}</label>
-		<input id="unknown-image" name="unknown-image" type="file"
+		<input class="form-control" id="unknown-image" name="unknown-image" type="file"
 			accept="image/*" onInput={e => handleImageUpload('unknownImage', e.target.files)}/>
 
 		<label for="critical-image">Critical State Image {imgControls('criticalImage')}</label>
-		<input id="critical-image" name="critical-image" type="file"
+		<input class="form-control" id="critical-image" name="critical-image" type="file"
 			accept="image/*" onInput={e => handleImageUpload('criticalImage', e.target.files)}/>
 	</Fragment>
 }

@@ -18,6 +18,10 @@
 	--color-icinga-yellow: #fa4;
 }
 
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
 @font-face {
 	font-family: 'Nunito';
 	font-style: normal;
@@ -177,9 +181,10 @@ label {
 label~input, label~select, label~textarea {
 	margin-bottom: 15px;
 }
+
 .element-title {
-	/* display: inline-block; */
-	padding-right: 6em;
+	display: inline-block;
+	padding-right: 2em;
 }
 
 button {
@@ -192,10 +197,6 @@ button {
 	color: var(--color-white);
 	margin-right: 5px;
 	display: inline-block;
-}
-
-button:hover, button:focus {
-	background-color: var(--color-orange);
 }
 
 button.loading, div.loading {
@@ -228,15 +229,10 @@ button.small {
 	text-transform: uppercase;
 }
 
-button.hollow {
-	border: solid 1px var(--color-dark-orange);
-	color: var(--color-orange);
-	background-color: transparent;
-}
-
-button.hollow:hover, button.hollow:focus {
-	color: var(--color-orange);
-	border-color: var(--color-orange);
+button.medium {
+	padding: 6px 10px;
+	font-size: 14px;
+	text-transform: uppercase;
 }
 
 div.small {
@@ -307,24 +303,24 @@ label~div.selection {
 div.selection > .selector {
 	padding: 4px 8px;
 	background-color: white;
-	border: solid 1.5px var(--color-gray);
+	border: solid 1.5px #ced4da;
 	border-left: 0;
 	cursor: pointer;
 	color: var(--color-black);
-	border-radius: 0;
+	border-radius: 1px;
 }
 
 div.selection > .selector:hover {
 	background-color: #eee;
 }
 div.selection > .selector.active {
-	background-color: var(--color-light-orange);
+	background-color: #007bff;
 	color: white;
 }
 
 div.selection > .selector:first-child {
 	border-radius: 3px 0 0 3px;
-	border: solid 1.5px var(--color-gray);
+	border: solid 1.5px #ced4da;
 }
 
 div.selection > .selector:last-child {
@@ -370,7 +366,7 @@ div.modal-wrap {
 	animation-duration: 300ms;
 }
 
-div.modal-wrap .modal {
+div.modal-wrap .modal-fixed {
 	position: fixed;
 	background-color: white;
 	padding: 20px;
@@ -411,7 +407,7 @@ div.home .filter-wrap #filter {
 }
 
 .filter-results .dashboard-listing {
-	border: solid 1px var(--color-light-gray);
+	border: solid 1px #ced4da;
 	padding: 10px;
 	margin-bottom: 10px;
 	border-radius: 4px;
@@ -450,7 +446,7 @@ div.dashboard-wrap {
 	background-size: contain;
 	background-position: center;
 	background-repeat: no-repeat;
-	border: solid 1.5px var(--color-gray);
+	border: 1.5px solid rgba(0, 0, 0, 0.2);;
 	flex-grow: 1;
 	border-radius: 4px;
 	position: relative;
@@ -487,7 +483,7 @@ div.editor {
 	top: 0;
 	bottom: 80px;
 	max-width: 200px;
-	background-color: var(--color-light-gray);
+	background-color: #F4F4F4;
 	min-width: 380px;
 	overflow-y: auto;
 }
@@ -510,23 +506,24 @@ div.side-bar-footer {
 	bottom: 0;
 	left: 0;
 	padding: 20px;
-	background-color: var(--color-light-gray);
+	background-color: #F4F4F4;
 	min-width: 380px;
-	border-top: solid 1px #aaa;
+	border-top: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 div.pill {
-	border-radius: 20px;
-	padding: 0 10px;
-	background-color: var(--color-orange);
+	border-radius: 5px;
+	padding: 0 5px;
+	background-color: #343a40;
 	color: white;
 	display: inline-flex;
 	align-items: center;
-	margin: 0 5px 5px 0;
-	font-size: 16px;
+	margin: 0 5px 5px 9px;
+	font-size: 10px;
+	text-transform: uppercase;
 }
 
-div.tag .close {
+div.tag .close-icon {
 	padding: 4px 0 4px 4px;
 	cursor: pointer;
 }
@@ -539,7 +536,7 @@ div.tag .close {
 }
 
 .check.glow {
-	outline: 3px solid #c700ff;
+	outline: 3px solid #0008ff;
 }
 
 .check > div.resize {
@@ -548,8 +545,9 @@ div.tag .close {
 	bottom: -4px;
 	width: 12px;
 	height: 12px;
-	background-color: var(--color-light-orange);
+	background-color: #007bff;
 	cursor: se-resize;
+	border-radius: 1px;
 }
 
 .check > div.rotate {
@@ -558,8 +556,9 @@ div.tag .close {
 	top: calc(50% - 6px);
 	width: 6px;
 	height: 12px;
-	background-color: var(--color-light-orange);
+	background-color: #007bff;
 	cursor: ns-resize;
+	border-radius: 1px;
 }
 
 .check > .check-content {
@@ -617,13 +616,13 @@ div.tag .close {
 }
 
 .element-list > .element-item > .drop-zone.active {
-	background-color: var(--color-light-orange);
+	background-color: #343a40;
 	opacity: 50%;
 	height: 20px;
 }
 
 .element-list > .element-item:hover {
-	color: var(--color-orange);
+	color: #343a40;
 }
 
 div.settings {
@@ -631,7 +630,7 @@ div.settings {
 }
 
 .move-button {
-	background-color: #f0570d;
+	background-color: #007bff;
 	color: white;
 	border-radius: 0px 0px 30px 30px;
 	height: 2em;

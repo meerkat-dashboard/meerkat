@@ -15,20 +15,20 @@ export function StaticSVGOptions({options, updateOptions}) {
 
 	return <Fragment>
 		<label for="svg">SVG</label>
-		<select id="svg" name="svg" value={options.svg}
+		<select class="form-control" id="svg" name="svg" value={options.svg}
 				onInput={e => updateOptions({svg: e.currentTarget.value})}>
 			{svgOptions}
 		</select>
 
 		<label for="stroke-color">Stroke color <a onClick={e => clearField(e, 'strokeColor')}>clear</a></label>
 		<div class="left spacer">
-			<input type="color" name="stroke-color" id="stroke-color" value={options.strokeColor}
+			<input class="form-control" type="color" name="stroke-color" id="stroke-color" value={options.strokeColor}
 				onInput={e => updateOptions({strokeColor: e.currentTarget.value})}/>
-			<input type="text" value={options.strokeColor} disabled />
+			<input class="form-control" type="text" value={options.strokeColor} disabled />
 		</div>
 
 		<label for="stroke-width">Stroke width</label>
-		<input id="stroke-width" name="stroke-width" type="number" min="0" step="any" value={options.strokeWidth}
+		<input class="form-control" id="stroke-width" name="stroke-width" type="number" min="0" step="any" value={options.strokeWidth}
 			onInput={e => updateOptions({strokeWidth: e.currentTarget.value})}/>
 	</Fragment>
 }

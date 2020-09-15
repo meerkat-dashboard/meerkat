@@ -34,7 +34,7 @@ export function StaticImageOptions({options, updateOptions}) {
 
 	return <Fragment>
 		<label for="image">Image {imgControls('image')}</label>
-		<input id="image" name="image" type="file"
+		<input class="form-control" id="image" name="image" type="file"
 			accept="image/*" onInput={handleImageUpload}/>
 	</Fragment>
 }

@@ -7,11 +7,11 @@ import * as meerkat from '../meerkat';
 export function IframeVideoOptions({options, updateOptions}) {
   return <Fragment>
     <label for="src">Source</label>
-    <input id="src" name="src" value={options.source}
+    <input class="form-control" id="src" name="src" value={options.source}
       onInput={e => updateOptions({source: e.currentTarget.value})}>
     </input>
     <div>
-      <button>Render</button>
+      <button class="rounded btn-primary btn-large">Render</button>
     </div>
   </Fragment>
 }

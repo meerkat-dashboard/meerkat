@@ -11,18 +11,18 @@ export function CheckLineOptions({options, updateOptions}) {
 			updateCheckId={checkId => updateOptions({checkId: checkId})} />
 
 		<label for="stroke-width">Stroke width</label>
-		<input id="stroke-width" name="stroke-width" type="number" min="0" step="any" value={options.strokeWidth}
+		<input class="form-control" id="stroke-width" name="stroke-width" type="number" min="0" step="any" value={options.strokeWidth}
 			onInput={e => updateOptions({strokeWidth: Number(e.currentTarget.value)})}/>
 
 
 		<label>Render Arrows</label>
 		<div class="left spacer">
-			<input id="left-arrow" type="checkbox" checked={options.leftArrow}
+			<input class="form-control" id="left-arrow" type="checkbox" checked={options.leftArrow}
 				onClick={e => updateOptions({leftArrow: e.currentTarget.checked})}/>
 			<label for="left-arrow" class="no-margin" style="font-weight: normal">Left</label>
 		</div>
 		<div class="left spacer">
-			<input id="right-arrow" type="checkbox" checked={options.rightArrow}
+			<input class="form-control" id="right-arrow" type="checkbox" checked={options.rightArrow}
 				onClick={e => updateOptions({rightArrow: e.currentTarget.checked})}/>
 			<label for="right-arrow" class="no-margin" style="font-weight: normal">Right</label>
 		</div>

@@ -11,12 +11,12 @@ export function StaticTextOptions({options, updateOptions}) {
 
 	return <Fragment>
 		<label for="text">Text</label>
-		<textarea id="text" name="text" value={options.text}
+		<textarea class="form-control" id="text" name="text" value={options.text}
 			onInput={e => updateOptions({text: e.currentTarget.value})}>
 		</textarea>
 			
 		<label for="font-size">Font Size</label>
-		<input id="font-size" name="font-size" type="number" min="0" value={options.fontSize}
+		<input class="form-control" id="font-size" name="font-size" type="number" min="0" value={options.fontSize}
 			onInput={e => updateOptions({fontSize: e.currentTarget.value})}/>
 
 		<label>Text Alignment</label>
@@ -41,16 +41,16 @@ export function StaticTextOptions({options, updateOptions}) {
 
 		<label for="font-color">Font Color <a onClick={e => clearField(e, 'fontColor')}>clear</a></label>
 		<div class="lefty-righty spacer">
-			<input id="font-color" name="font-color" type="color" value={options.fontColor}
+			<input class="form-control" id="font-color" name="font-color" type="color" value={options.fontColor}
 				onInput={e => updateOptions({fontColor: e.currentTarget.value})}/>
-			<input type="text" value={options.fontColor} disabled/>
+			<input class="form-control" type="text" value={options.fontColor} disabled/>
 		</div>
 
 		<label for="background-color">Background Color <a onClick={e => clearField(e, 'backgroundColor')}>clear</a></label>
 		<div class="lefty-righty spacer">
-			<input id="background-color" name="background-color" type="color" value={options.backgroundColor}
+			<input class="form-control" id="background-color" name="background-color" type="color" value={options.backgroundColor}
 				onInput={e => updateOptions({backgroundColor: e.currentTarget.value})}/>
-			<input type="text" value={options.backgroundColor} disabled/>
+			<input class="form-control" type="text" value={options.backgroundColor} disabled/>
 		</div>
 	</Fragment>
 }
@@ -86,5 +86,5 @@ export const StaticTextDefaults = {
 	fontColor: '#ffffff',
 	textAlign: 'center',
 	textVerticalAlign: 'center',
-	backgroundColor: '#ff5400'
+	backgroundColor: '#007bff'
 }

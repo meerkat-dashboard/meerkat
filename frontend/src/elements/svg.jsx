@@ -22,54 +22,54 @@ export function CheckSVGOptions({options, updateOptions}) {
 			updateCheckId={checkId => updateOptions({checkId: checkId})} />
 
 		<label for="okSvg">OK SVG</label>
-		<select id="okSvg" name="okSvg" value={options.okSvg}
+		<select class="form-control" id="okSvg" name="okSvg" value={options.okSvg}
 				onInput={e => updateOptions({okSvg: e.currentTarget.value})}>
 			{svgOptions}
 		</select>
 		<label for="ok-stroke-color">OK Stroke color <a onClick={e => clearField(e, 'okStrokeColor')}>clear</a></label>
 		<div class="left spacer">
-			<input type="color" name="ok-stroke-color" id="ok-stroke-color" value={options.okStrokeColor}
+			<input class="form-control" type="color" name="ok-stroke-color" id="ok-stroke-color" value={options.okStrokeColor}
 				onInput={e => updateOptions({okStrokeColor: e.currentTarget.value})}/>
-			<input type="text" value={options.okStrokeColor} disabled />
+			<input class="form-control" type="text" value={options.okStrokeColor} disabled />
 		</div>
 		<hr />
 
 		<label for="warningSvg">Warning SVG</label>
-		<select id="warningSvg" name="warningSvg" value={options.warningSvg}
+		<select class="form-control" id="warningSvg" name="warningSvg" value={options.warningSvg}
 				onInput={e => updateOptions({warningSvg: e.currentTarget.value})}>
 			{svgOptions}
 		</select>
 		<label for="warning-stroke-color">Warning Stroke color <a onClick={e => clearField(e, 'warningStrokeColor')}>clear</a></label>
 		<div class="left spacer">
-			<input type="color" name="warning-stroke-color" id="warning-stroke-color" value={options.warningStrokeColor}
+			<input class="form-control" type="color" name="warning-stroke-color" id="warning-stroke-color" value={options.warningStrokeColor}
 				onInput={e => updateOptions({warningStrokeColor: e.currentTarget.value})}/>
-			<input type="text" value={options.warningStrokeColor} disabled />
+			<input class="form-control" type="text" value={options.warningStrokeColor} disabled />
 		</div>
 		<hr />
 
 		<label for="unknownSvg">Unknown SVG</label>
-		<select id="unknownSvg" name="unknownSvg" value={options.unknownSvg}
+		<select class="form-control" id="unknownSvg" name="unknownSvg" value={options.unknownSvg}
 				onInput={e => updateOptions({unknownSvg: e.currentTarget.value})}>
 			{svgOptions}
 		</select>
 		<label for="unknown-stroke-color">Unknown Stroke color <a onClick={e => clearField(e, 'unknownStrokeColor')}>clear</a></label>
 		<div class="left spacer">
-			<input type="color" name="unknown-stroke-color" id="unknown-stroke-color" value={options.unknownStrokeColor}
+			<input class="form-control" type="color" name="unknown-stroke-color" id="unknown-stroke-color" value={options.unknownStrokeColor}
 				onInput={e => updateOptions({unknownStrokeColor: e.currentTarget.value})}/>
-			<input type="text" value={options.unknownStrokeColor} disabled />
+			<input class="form-control" type="text" value={options.unknownStrokeColor} disabled />
 		</div>
 		<hr />
 
 		<label for="criticalSvg">Critical SVG</label>
-		<select id="criticalSvg" name="criticalSvg" value={options.criticalSvg}
+		<select class="form-control" id="criticalSvg" name="criticalSvg" value={options.criticalSvg}
 				onInput={e => updateOptions({criticalSvg: e.currentTarget.value})}>
 			{svgOptions}
 		</select>
 		<label for="critical-stroke-color">Critical Stroke color <a onClick={e => clearField(e, 'criticalStrokeColor')}>clear</a></label>
 		<div class="left spacer">
-			<input type="color" name="critical-stroke-color" id="critical-stroke-color" value={options.criticalStrokeColor}
+			<input class="form-control" type="color" name="critical-stroke-color" id="critical-stroke-color" value={options.criticalStrokeColor}
 				onInput={e => updateOptions({criticalStrokeColor: e.currentTarget.value})}/>
-			<input type="text" value={options.criticalStrokeColor} disabled />
+			<input class="form-control" type="text" value={options.criticalStrokeColor} disabled />
 		</div>
 	</div>
 }

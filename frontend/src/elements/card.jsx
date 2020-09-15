@@ -40,7 +40,7 @@ export function CheckCardOptions({options, updateOptions}) {
 			updateCheckId={checkId => updateOptions({checkId: checkId})} />
 
 		<label for="status-font-size">Status Font Size</label>
-		<input id="status-font-size" name="status-font-size" type="number" min="0"
+		<input class="form-control" id="status-font-size" name="status-font-size" type="number" min="0"
 			value={options.statusFontSize}
 			onInput={e => updateOptions({statusFontSize: e.currentTarget.value})}/>
 	</div>

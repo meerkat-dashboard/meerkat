@@ -127,8 +127,8 @@ export function Editor({slug, selectedElementId}) {
 			</div>
 		</div>
 		<div class="side-bar-footer lefty-righty">
-			<button class="hollow" onClick={e => route('/')}>Home</button>
-			<button onClick={saveDashboard} class={ savingDashboard ? 'loading' : ''}>Save Dashboard</button>
+			<button class="btn btn-outline-primary " onClick={e => route('/')}>Home</button>
+			<button onClick={saveDashboard} class={ savingDashboard ? 'loading' : ''} class="rounded btn-primary btn-large">Save Dashboard</button>
 		</div>
 	</Fragment>
 }
@@ -353,13 +353,13 @@ function SidePanelSettings({dashboardDispatch, dashboard}) {
 
 	return <Fragment>
 		<label for="title">Title</label>
-		<input type="text" id="title" placeholder="Network Overview" value={dashboard.title}
+		<input class="form-control" type="text" id="title" placeholder="Network Overview" value={dashboard.title}
 			onInput={e => dashboardDispatch({type: 'setTitle', title: e.currentTarget.value})} />
 
 		<TagEditor tags={dashboard.tags} updateTags={tags => updateTags(tags)} />
-	
+		
 		<label for="background-image">Background Image {imgControls(dashboard.background)}</label>
-		<input id="background-image" type="file" placeholder="Upload a background image"
+		<input class="form-control" id="background-image" type="file" placeholder="Upload a background image"
 			accept="image/*" onChange={handleBackgroundImg}/>
 	</Fragment>
 }
@@ -409,9 +409,12 @@ function SidePanelElements({dashboard, dashboardDispatch, setHighlightedElementI
 		<div class="element-item" draggable={true} id={index} onDragStart={handleDragStart}>
 			<div onClick={ e => routeParam('selectedElementId', index.toString()) }>
 				<div class="element-title">{element.title}</div>
+				<span>
+					<button class="rounded btn-dark btn-sml m-1 medium" onClick={e => duplicateElement(e,index)}>Duplicate</button>
+					<button class="rounded btn-danger btn-sml m-1 medium" onClick={e => deleteElement(e,index)}>Delete</button>
+				</span>
+			
 			</div>
-				<button onClick={e => deleteElement(e,index)}>Delete</button>
-				<button onClick={e => duplicateElement(e,index)}>Duplicate</button>
 			<div class="drop-zone" onDrop={handleDrop} id={index}
 				 				   onDragEnter={e => {e.preventDefault(); e.currentTarget.classList.add('active')}}
 				 				   onDragOver={e => e.preventDefault()}
@@ -425,7 +428,7 @@ function SidePanelElements({dashboard, dashboardDispatch, setHighlightedElementI
 	return <Fragment>
 		<div class="lefty-righty spacer">
 			<h3>Elements</h3>
-			<button class="small hollow" onClick={addElement}>New</button>
+			<button class="small btn btn-outline-primary" onClick={addElement}>New</button>
 		</div>
 		<div class="element-list">
 			{elementList}
@@ -472,7 +475,8 @@ export function ElementSettings({selectedElement, updateElement}) {
 	if(selectedElement.type === 'iframe-video') { ElementOptions = <IframeVideoOptions updateOptions={updateElementOptions} options={selectedElement.options}/> }
 	if(selectedElement.type === 'audio-stream') { ElementOptions = <AudioOptions updateOptions={updateElementOptions} options={selectedElement.options}/>}
 
-	return <div class="editor settings-overlay">
+	return <div class="form-group">
+		<div class="editor settings-overlay">
 		<div class="options">
 			<div class="lefty-righty spacer">
 				<h3 class="no-margin">{selectedElement.title}</h3>
@@ -482,11 +486,11 @@ export function ElementSettings({selectedElement, updateElement}) {
 			</div>
 			<div class="settings">
 				<label for="name">Name</label>
-				<input id="name" type="text" placeholder="Cool Element" value={selectedElement.title}
+				<input class="form-control" id="name" type="text" placeholder="Cool Element" value={selectedElement.title}
 					onInput={e => updateElement({...selectedElement, title: e.currentTarget.value})} />
 
 				<label>Visual Type</label>
-				<select name="item-type" value={selectedElement.type} onInput={updateType}>
+				<select class="form-control" name="item-type" value={selectedElement.type} onInput={updateType}>
 					<option value="check-card">Icinga Card</option>
 					<option value="check-svg">Icinga SVG</option>
 					<option value="check-image">Icinga Image</option>
@@ -503,4 +507,5 @@ export function ElementSettings({selectedElement, updateElement}) {
 			</div>
 		</div>
 	</div>
+</div>
 }

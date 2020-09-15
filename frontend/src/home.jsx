@@ -15,7 +15,7 @@ function CopyTextBox({text}) {
 	}
 
 	return <div class="copy-box" onClick={handleClick}>
-			<input ref={ref} type="text" value={text} readOnly/>
+			<input class="form-control" ref={ref} type="text" value={text} readOnly/>
 			<svg class="feather">
 				<use xlinkHref={`/res/svgs/feather-sprite.svg#copy`}/>
 			</svg>
@@ -56,19 +56,19 @@ function CreateDashboardModal({hide}) {
 	}
 
 	return <div class="modal-wrap" onMouseDown={hide}>
-		<div class="modal" onMouseDown={e => e.stopPropagation()}>
+		<div class="modal-fixed" onMouseDown={e => e.stopPropagation()}>
 			<h3>Create Dashboard</h3>
 
 			<form onSubmit={createDashboard}>
 				<label for="title">Title</label>
-				<input id="title" name="title" type="text" placeholder="New Dashboard"
+				<input class="form-control" id="title" name="title" type="text" placeholder="New Dashboard"
 					value={title} onInput={e => setTitle(e.currentTarget.value)} />
 
 				<label>Result url</label>
 				<CopyTextBox text={window.location.host + '/view/' + titleToSlug(title)} />
 
 				<div class="right" style="margin-top: 20px">
-					<button type="submit">Create</button>
+					<button class="rounded btn-primary btn-large" type="submit">Create</button>
 				</div>
 			</form>
 		</div>
@@ -124,11 +124,11 @@ export function Home() {
 		<h1 class="title">Meerkat</h1>
 
 		<div class="center" style="margin: 20px 0 40px;">
-			<button onClick={e => setShowModal(true)}>Create New Dashboard</button>
+			<button class="rounded btn-primary btn-large" onClick={e => setShowModal(true)}>Create New Dashboard</button>
 		</div>
 
 		<div class="filter-wrap">
-			<input type="text" id="filter" onInput={e => setFilter(e.currentTarget.value)} placeholder="Filter dashboards" />
+			<input class="form-control" type="text" id="filter" onInput={e => setFilter(e.currentTarget.value)} placeholder="Filter dashboards" />
 		</div>
 
 		<div class="filter-results">
