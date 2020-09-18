@@ -11,7 +11,9 @@ import (
 	"path"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/go-chi/chi"
 )
@@ -21,6 +23,8 @@ type Dashboard struct {
 	Title      string    `json:"title"`
 	Slug       string    `json:"slug"`
 	Background string    `json:"background"`
+	Width      string    `json:"width"`
+	Height     string    `json:"height"`
 	Tags       []string  `json:"tags"`
 	Elements   []Element `json:"elements"`
 }
@@ -29,9 +33,35 @@ type Dashboard struct {
 //This is an incomplete representation of the Element
 //options arn't included
 type Element struct {
-	Type  string `json:"type"`
-	Title string `json:"title"`
-	Rect  Rect   `json:"rect"`
+	Type    string `json:"type"`
+	Title   string `json:"title"`
+	Rect    Rect   `json:"rect"`
+	Options Option `json:"options"`
+}
+
+//Option contains element options
+type Option struct {
+	CheckID             string `json:"checkId"`
+	NameFontSize        int    `json:"nameFontSize"`
+	StatusFontSize      int    `json:"statusFontSize"`
+	RightArrow          bool   `json:"rightArrow"`
+	LeftArrow           bool   `json:"leftArrow"`
+	StrokeWidth         int    `json:"strokeWidth"`
+	Image               string `json:"image"`
+	OKSvg               string `json:"checkSquare"`
+	OKStrokeColor       string `json:"okStrokeColor"`
+	WarningStrokeColor  string `json:"warningStrokeColor"`
+	WarningSvg          string `json:"warningSvg"`
+	UnknownStrokeColor  string `json:"unknownStrokeColor"`
+	UnknownSvg          string `json:"unknownSvg"`
+	CriticalStrokeColor string `json:"criticalStrokeColor"`
+	CriticalSvg         string `json:"criticalSvg"`
+	CriticalImage       string `json:"criticalImage"`
+	OkImage             string `json:"okImage"`
+	UnknownImage        string `json:"unknownImage"`
+	WarningImage        string `json:"warningImage"`
+	Svg                 string `json:"svg"`
+	StrokeColor         string `json:"strokeColor"`
 }
 
 //Rect helper struct for positions
@@ -177,6 +207,11 @@ func handleCreateDashboard(w http.ResponseWriter, r *http.Request) {
 	enc.Encode(SlugResponse{Slug: slug})
 }
 
+func trimFirstRune(s string) string {
+	_, i := utf8.DecodeRuneInString(s)
+	return s[i:]
+}
+
 func handleUpdateDashboard(w http.ResponseWriter, r *http.Request) {
 	slug := chi.URLParam(r, "slug")
 
@@ -186,6 +221,12 @@ func handleUpdateDashboard(w http.ResponseWriter, r *http.Request) {
 
 	var dashboard Dashboard
 	err := json.Unmarshal(buf.Bytes(), &dashboard)
+	width, height := getImageDimension(trimFirstRune(dashboard.Background))
+	dashboard.Height = strconv.Itoa(height)
+	dashboard.Width = strconv.Itoa(width)
+
+	// fmt.Println(width, height)
+
 	if err != nil {
 		http.Error(w, "Error decoding json body: "+err.Error(), http.StatusBadRequest)
 		return
@@ -204,8 +245,10 @@ func handleUpdateDashboard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	dashboardJSON, err := json.Marshal(dashboard)
+	// fmt.Println(dashboardJSON, err)
 	//Write updated file
-	err = ioutil.WriteFile(path.Join("dashboards", slugNew+".json"), buf.Bytes(), 0655)
+	err = ioutil.WriteFile(path.Join("dashboards", slugNew+".json"), dashboardJSON, 0655)
 	if err != nil {
 		http.Error(w, "Error writing file: "+err.Error(), http.StatusInternalServerError)
 		return

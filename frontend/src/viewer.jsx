@@ -1,6 +1,6 @@
 import { h } from 'preact';
 import { route } from 'preact-router';
-import { useState, useEffect } from 'preact/hooks';
+import { useState, useEffect, useRef } from 'preact/hooks';
 
 import * as meerkat from './meerkat';
 import { CheckCard } from './elements/card';
@@ -15,7 +15,7 @@ import { StaticSVG } from './statics/svg';
 import { StaticImage } from './statics/image';
 
 //Read only page
-export function Viewer({slug}) {
+export function Viewer({slug, dashboardReducer}) {
 	const [dashboard, setDashboard] =  useState(null);
 
 	useEffect(() => {
@@ -30,8 +30,8 @@ export function Viewer({slug}) {
 		const left = `${element.rect.x}%`;
 		const top = `${element.rect.y}%`;
 		const width = `${element.rect.w}%`;
-		const height = `${element.rect.h}%`;
-
+		const height = `${(element.rect.h / dashboard.height) + 11}%`;
+		console.log(height)
 		const rotation = element.rotation ? `rotate(${element.rotation}rad)` : `rotate(0rad)`;
 
 		let ele = null;
@@ -49,10 +49,12 @@ export function Viewer({slug}) {
 			{ele}
 		</div>
 	});
+	
+	// style={{Height: height, Width: width}}
+	const backgroundImage = dashboard.background ? dashboard.background : 'none';
 
-	const backgroundImage = dashboard.background ? `url(${dashboard.background})` : 'none';
-	return <div class="dashboard view-only" style={{backgroundImage: backgroundImage}}>
-		{elements}
-		{/* <button class="view-only-button" onClick={e => route('/')}>Home</button> */}
+	return <div class="dashboard view-only">
+			<img src={backgroundImage} id="dashboard-dimensions" style="height: 100%; width: 100%;"/>
+			{elements}
 	</div>
 }

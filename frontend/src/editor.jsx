@@ -1,6 +1,6 @@
 import { h, Fragment } from 'preact';
 import { route } from 'preact-router';
-import { useEffect, useReducer, useState } from 'preact/hooks';
+import { useEffect, useReducer, useState, useRef, useLayoutEffect } from 'preact/hooks';
 
 import * as meerkat from './meerkat'
 import { routeParam, removeParam, TagEditor } from './util';
@@ -47,7 +47,11 @@ const dashboardReducer = (state, action) => {
 		case 'deleteElement':
 			console.log('Deleting element')
 		case 'duplicateElement':
-			console.log('Duplicating element')	
+			console.log('Duplicating element')
+		case 'getDimensions' :
+			console.log('Getting Dimensions')
+			console.log({height: action.height, width: action.width })
+			return {...state, height: action.height, width: action.width};	
 		case 'updateElement':
 			console.log('Updating element')
 			const newState = {...state};
@@ -298,14 +302,16 @@ function DashboardElements({dashboardDispatch, selectedElementId, elements, high
 }
 
 //The actual dashboard being rendered
-function DashboardView({dashboard, dashboardDispatch, selectedElementId, highlightedElementId}) {
-	const backgroundImage = dashboard.background ? `url(${dashboard.background})` : 'none';
+export function DashboardView({dashboard, dashboardDispatch, selectedElementId, highlightedElementId}) {
+	const backgroundImage = dashboard.background ? dashboard.background : 'none';
 
-	return <div class="dashboard-wrap">
-		<div class="dashboard" style={{backgroundImage: backgroundImage}}>
+	return <div class="dashboard-wrap" style={{Height: dashboard.height, Width: dashboard.width}}>
+		<div class="dashboard" >
+		<img src={backgroundImage} style="height: 100%; width: 100%" id="dashboard-dimensions"/>
 			<DashboardElements elements={dashboard.elements} selectedElementId={selectedElementId}
 				dashboardDispatch={dashboardDispatch} highlightedElementId={highlightedElementId}/>
-		</div>
+			{console.log(dashboard.height)}
+    	</div>
 	</div>
 }
 
@@ -409,12 +415,9 @@ function SidePanelElements({dashboard, dashboardDispatch, setHighlightedElementI
 		<div class="element-item" draggable={true} id={index} onDragStart={handleDragStart}>
 			<div onClick={ e => routeParam('selectedElementId', index.toString()) }>
 				<div class="element-title">{element.title}</div>
-				<span>
-					<button class="rounded btn-dark btn-sml m-1 medium" onClick={e => duplicateElement(e,index)}>Duplicate</button>
-					<button class="rounded btn-danger btn-sml m-1 medium" onClick={e => deleteElement(e,index)}>Delete</button>
-				</span>
-			
 			</div>
+				<button class="rounded btn-dark btn-sml m-0 mr-1 mt-1 medium" onClick={e => duplicateElement(e,index)}>Duplicate</button>
+				<button class="rounded btn-danger btn-sml m-0 mr-1 mt-1 medium" onClick={e => deleteElement(e,index)}>Delete</button>
 			<div class="drop-zone" onDrop={handleDrop} id={index}
 				 				   onDragEnter={e => {e.preventDefault(); e.currentTarget.classList.add('active')}}
 				 				   onDragOver={e => e.preventDefault()}

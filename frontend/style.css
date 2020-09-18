@@ -443,9 +443,6 @@ div.dashboard-wrap {
 }
 
 .dashboard-wrap .dashboard {
-	background-size: contain;
-	background-position: center;
-	background-repeat: no-repeat;
 	border: 1.5px solid rgba(0, 0, 0, 0.2);;
 	flex-grow: 1;
 	border-radius: 4px;
@@ -453,11 +450,17 @@ div.dashboard-wrap {
 }
 
 .dashboard.view-only {
-	background-size: contain;
-	background-position: center;
-	background-repeat: no-repeat;
-	width: 100vw;
-	height: 100vh;
+	display: flex;
+	flex-direction: column;
+	position: relative;
+	flex-grow: 1;
+	min-height: calc(100vh - 40px);
+} 
+
+#dashboard-dimensions {
+	object-fit: contain;
+	/* min-height: calc(100vh - 40px); */
+
 }
 
 .dashboard.view-only .check {
