@@ -48,7 +48,7 @@ type Option struct {
 	LeftArrow           bool   `json:"leftArrow"`
 	StrokeWidth         int    `json:"strokeWidth"`
 	Image               string `json:"image"`
-	OKSvg               string `json:"checkSquare"`
+	OKSvg               string `json:"okSvg"`
 	OKStrokeColor       string `json:"okStrokeColor"`
 	WarningStrokeColor  string `json:"warningStrokeColor"`
 	WarningSvg          string `json:"warningSvg"`
