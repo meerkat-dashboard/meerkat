@@ -62,6 +62,7 @@ type Option struct {
 	WarningImage        string `json:"warningImage"`
 	Svg                 string `json:"svg"`
 	StrokeColor         string `json:"strokeColor"`
+	Source              string `json:"source"`
 }
 
 //Rect helper struct for positions
