@@ -6,8 +6,8 @@ import * as meerkat from '../meerkat';
 export function AudioOptions({options, updateOptions}) {
   return <Fragment>
     <label for="src">Source</label>
-    <input class="form-control" id="src" name="src" value={options.source}
-      onInput={e => updateOptions({source: e.currentTarget.value})}>
+    <input class="form-control" id="src" name="src" value={options.audioSource}
+      onInput={e => updateOptions({audioSource: e.currentTarget.value})}>
     </input>
     <div>
       <button class="rounded btn-primary btn-large">Render</button>
@@ -18,7 +18,7 @@ export function AudioOptions({options, updateOptions}) {
 export function AudioStream({options}, props) { 
     return (
         <div>
-            <audio controls src={options.source} type="audio/mpeg"></audio>
+            <audio controls src={options.audioSource} type="audio/mpeg"></audio>
         </div>
     );
 }

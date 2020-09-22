@@ -63,6 +63,7 @@ type Option struct {
 	Svg                 string `json:"svg"`
 	StrokeColor         string `json:"strokeColor"`
 	Source              string `json:"source"`
+	AudioSource         string `json:"audioSource"`
 }
 
 //Rect helper struct for positions
