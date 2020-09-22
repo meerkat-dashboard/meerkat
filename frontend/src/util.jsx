@@ -92,7 +92,7 @@ export function IcingaCheckList({checkId, updateCheckId}) {
 		options.push(service.id)
 	}
 
-	return <Combobox filter='contains' data={options} onSelect={e => updateCheckId(e)} />
+	return <Combobox filter='contains' value={checkId} data={options} onSelect={e => updateCheckId(e)} />
 }
 
 export function TagEditor({tags, updateTags}) {
