@@ -33,10 +33,11 @@ type Dashboard struct {
 //This is an incomplete representation of the Element
 //options arn't included
 type Element struct {
-	Type    string `json:"type"`
-	Title   string `json:"title"`
-	Rect    Rect   `json:"rect"`
-	Options Option `json:"options"`
+	Type     string  `json:"type"`
+	Title    string  `json:"title"`
+	Rect     Rect    `json:"rect"`
+	Options  Option  `json:"options"`
+	Rotation float64 `json:"rotation"`
 }
 
 //Option contains element options

@@ -46,11 +46,17 @@ const dashboardReducer = (state, action) => {
 			};
 		case 'deleteElement':
 			console.log('Deleting element')
+			const nstate = {...state};
+			nstate.elements.splice(action.index, 1);
+			return nstate;
 		case 'duplicateElement':
 			console.log('Duplicating element')
+			return {
+				...state,
+				elements: state.elements.concat(JSON.parse(JSON.stringify(action.element)))
+			};
 		case 'getDimensions' :
 			console.log('Getting Dimensions')
-			console.log({height: action.height, width: action.width })
 			return {...state, height: action.height, width: action.width};	
 		case 'updateElement':
 			console.log('Updating element')
@@ -91,7 +97,8 @@ export function Editor({slug, selectedElementId}) {
 		removeParam('selectedElementId');
 		return
 	}
-	const updateElement = element => {
+	const updateElement = (element, index) => {
+		// console.log(selectedElementId)
 		dashboardDispatch({
 			type: 'updateElement',
 			elementIndex: selectedElementId,
@@ -310,7 +317,6 @@ export function DashboardView({dashboard, dashboardDispatch, selectedElementId, 
 		<img src={backgroundImage} style="height: 100%; width: 100%" id="dashboard-dimensions"/>
 			<DashboardElements elements={dashboard.elements} selectedElementId={selectedElementId}
 				dashboardDispatch={dashboardDispatch} highlightedElementId={highlightedElementId}/>
-			{console.log(dashboard.height)}
     	</div>
 	</div>
 }
@@ -370,7 +376,7 @@ function SidePanelSettings({dashboardDispatch, dashboard}) {
 	</Fragment>
 }
 
-function SidePanelElements({dashboard, dashboardDispatch, setHighlightedElementId}) {
+function SidePanelElements({dashboard, dashboardDispatch, setHighlightedElementId, selectedElementId, state}) {
 	const addElement = e => {
 		const newId = dashboard.elements.length;
 		dashboardDispatch({type: 'addElement'});
@@ -380,19 +386,20 @@ function SidePanelElements({dashboard, dashboardDispatch, setHighlightedElementI
 	const deleteElement = (e, index) => {
 		e.preventDefault();
 		let elements = dashboard.elements;
-		elements.splice(index, 1)
 		dashboardDispatch({
 			type: 'deleteElement',
+			index: index,
 		});
 	};
 
 	const duplicateElement = (e, index) => {
 		e.preventDefault();
-		let elements = dashboard.elements;
-		elements.splice(index, 0, elements[index])
+		const newId = dashboard.elements.length;
 		dashboardDispatch({
 			type: 'duplicateElement',
+			element: dashboard.elements[index]
 		});
+		routeParam('selectedElementId', newId);
 	};
 	
 	const handleDragStart = e => {
