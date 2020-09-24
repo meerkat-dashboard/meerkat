@@ -61,7 +61,7 @@ const dashboardReducer = (state, action) => {
 		case 'updateElement':
 			console.log('Updating element')
 			const newState = {...state};
-			newState.elements[action.elementIndex] = action.element;
+			newState.elements[action.elementIndex] = JSON.parse(JSON.stringify(action.element));
 			return newState;
 		case 'reorderElements':
 			console.log('Reordering elements')
@@ -148,7 +148,12 @@ function TransformableElement({rect, updateRect, rotation, updateRotation, child
 	//Handle dragging elements
 	const handleMove = downEvent => {
 		const mousemove = moveEvent => {
-			const elementNode = downEvent.target;
+
+			let elementNode = downEvent.target;
+			if (elementNode.className === 'video-overlay') {
+				elementNode = elementNode.parentElement
+			}
+			// console.log(elementNode)
 			const dashboardNode = elementNode.parentElement;
 	
 			//Get max dimensions
@@ -156,7 +161,7 @@ function TransformableElement({rect, updateRect, rotation, updateRotation, child
 			let top = elementNode.offsetTop + moveEvent.movementY;
 			const maxLeft = dashboardNode.clientWidth - elementNode.clientWidth;
 			const maxTop = dashboardNode.clientHeight - elementNode.clientHeight;
-
+			// console.log(elementNode)
 			//limit movement to max dimensions
 			left = left < 0 ? 0 : left;
 			left = left > maxLeft ? maxLeft : left;
@@ -166,6 +171,8 @@ function TransformableElement({rect, updateRect, rotation, updateRotation, child
 			//convert dimensions to relative (px -> percentage based)
 			const relativeLeft = left / dashboardNode.clientWidth * 100;
 			const relativeTop = top / dashboardNode.clientHeight * 100;
+
+
 
 			//set position
 			updateRect({x: relativeLeft, y: relativeTop, w: rect.w, h: rect.h});
@@ -180,6 +187,7 @@ function TransformableElement({rect, updateRect, rotation, updateRotation, child
 		//Add movement and mouseup events
 		window.addEventListener('mouseup', mouseup);
 		window.addEventListener('mousemove', mousemove);
+		
 	}
 
 	const handleResize = downEvent => {
@@ -276,6 +284,8 @@ function DashboardElements({dashboardDispatch, selectedElementId, elements, high
 					rect: rect
 				}
 			});
+			// console.log(rect.x)
+
 		}
 
 		const updateRotation = radian => {
@@ -297,7 +307,7 @@ function DashboardElements({dashboardDispatch, selectedElementId, elements, high
 		if(element.type === 'static-text') { ele = <StaticText options={element.options}/> }
 		if(element.type === 'static-svg') { ele = <StaticSVG options={element.options}/> }
 		if(element.type === 'static-image') { ele = <StaticImage options={element.options}/> }
-		if(element.type === 'iframe-video') { ele = <div><IframeVideo options={element.options}/><div class="move-button">Move</div></div> }
+		if(element.type === 'iframe-video') { ele = <IframeVideo options={element.options}/> }
 		if(element.type === 'audio-stream') { ele = <AudioStream options={element.options}/> }
 
 		return  <TransformableElement rect={element.rect} updateRect={updateRect}
@@ -314,7 +324,7 @@ export function DashboardView({dashboard, dashboardDispatch, selectedElementId, 
 
 	return <div class="dashboard-wrap" style={{Height: dashboard.height, Width: dashboard.width}}>
 		<div class="dashboard" >
-		<img src={backgroundImage} style="height: 100%; width: 100%" id="dashboard-dimensions"/>
+		<img src={backgroundImage} class="noselect" style="height: 100%; width: 100%;" id="dashboard-dimensions"/>
 			<DashboardElements elements={dashboard.elements} selectedElementId={selectedElementId}
 				dashboardDispatch={dashboardDispatch} highlightedElementId={highlightedElementId}/>
     	</div>
@@ -385,7 +395,6 @@ function SidePanelElements({dashboard, dashboardDispatch, setHighlightedElementI
 
 	const deleteElement = (e, index) => {
 		e.preventDefault();
-		let elements = dashboard.elements;
 		dashboardDispatch({
 			type: 'deleteElement',
 			index: index,

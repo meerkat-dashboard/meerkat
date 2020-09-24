@@ -30,7 +30,7 @@ export function Viewer({slug, dashboardReducer}) {
 		const left = `${element.rect.x}%`;
 		const top = `${element.rect.y}%`;
 		const width = `${element.rect.w}%`;
-		const height = `${(element.rect.h / dashboard.height) + 11}%`;
+		const height = `${(element.rect.h / dashboard.height - 11)}%`;
 		console.log(height)
 		const rotation = element.rotation ? `rotate(${element.rotation}rad)` : `rotate(0rad)`;
 
@@ -54,7 +54,7 @@ export function Viewer({slug, dashboardReducer}) {
 	const backgroundImage = dashboard.background ? dashboard.background : 'none';
 
 	return <div class="dashboard view-only">
-			<img src={backgroundImage} id="dashboard-dimensions" style="height: 100%; width: 100%;"/>
+			<img src={backgroundImage} class="noselect" id="dashboard-dimensions" style="height: 100%; width: 100%;"/>
 			{elements}
 	</div>
 }

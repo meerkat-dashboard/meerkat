@@ -440,6 +440,7 @@ div.dashboard-wrap {
 	min-height: calc(100vh - 40px); /* margin * 2 */
 	display: flex;
 	flex-direction: column;
+	/* margin: auto; */
 }
 
 .dashboard-wrap .dashboard {
@@ -447,21 +448,55 @@ div.dashboard-wrap {
 	flex-grow: 1;
 	border-radius: 4px;
 	position: relative;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
 }
 
 .dashboard.view-only {
-	display: flex;
-	flex-direction: column;
+	/* flex-direction: column; */
 	position: relative;
 	flex-grow: 1;
-	min-height: calc(100vh - 40px);
+	min-height: calc(100vh - 20px);
+	display: flex;
+	justify-content: center;
+	align-items: center;
 } 
 
 #dashboard-dimensions {
 	object-fit: contain;
-	/* min-height: calc(100vh - 40px); */
-
+	min-height: 100vh;
 }
+
+.noselect {
+	-webkit-touch-callout: none; /* iOS Safari */
+	-webkit-user-select: none; /* Safari */
+	-khtml-user-select: none; /* Konqueror HTML */
+	-moz-user-select: none; /* Old versions of Firefox */
+	-ms-user-select: none; /* Internet Explorer/Edge */
+	user-select: none; /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */
+}
+
+.video-overlay {
+	pointer-events: none;
+}
+
+.video-player {
+	pointer-events: auto;
+}
+
+/* .video-overlay:after {
+	content: " ";
+	z-index: 10;
+	display: block;
+	position: absolute;
+	height: 100%;
+	top: 0;
+	left: 0;
+	right: 0;
+	background: rgba(0, 0, 0, 0.0);
+} */
 
 .dashboard.view-only .check {
 	cursor: default;
