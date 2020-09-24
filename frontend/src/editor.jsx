@@ -33,7 +33,7 @@ const dashboardReducer = (state, action) => {
 			const newElement = {
 				type: 'check-card',
 				title: 'New Element',
-				rect:{ x: 0, y: 0, w: 15, h: 15},
+				rect:{ x: 0, y: 0, w: 15, h: 12},
 				options: {
 					checkId: null,
 					nameFontSize: 40,
@@ -153,7 +153,10 @@ function TransformableElement({rect, updateRect, rotation, updateRotation, child
 			if (elementNode.className === 'video-overlay') {
 				elementNode = elementNode.parentElement
 			}
-			// console.log(elementNode)
+			if (elementNode.className === 'audio-container') {
+				elementNode = elementNode.parentElement
+			}
+
 			const dashboardNode = elementNode.parentElement;
 	
 			//Get max dimensions
@@ -161,7 +164,7 @@ function TransformableElement({rect, updateRect, rotation, updateRotation, child
 			let top = elementNode.offsetTop + moveEvent.movementY;
 			const maxLeft = dashboardNode.clientWidth - elementNode.clientWidth;
 			const maxTop = dashboardNode.clientHeight - elementNode.clientHeight;
-			// console.log(elementNode)
+
 			//limit movement to max dimensions
 			left = left < 0 ? 0 : left;
 			left = left > maxLeft ? maxLeft : left;
@@ -195,16 +198,26 @@ function TransformableElement({rect, updateRect, rotation, updateRotation, child
 
 		const mousemove = moveEvent => {
 			//Go up an element due to resize dot
-			const elementNode = downEvent.target.parentElement;
+			let elementNode = downEvent.target.parentElement;
+
+			console.log(elementNode.firstElementChild)
 			const dashboardNode = elementNode.parentElement;
-	
+
 			//Get max dimensions
 			let width = elementNode.clientWidth + moveEvent.movementX;
 			let height = elementNode.clientHeight + moveEvent.movementY;
 			let maxWidth = dashboardNode.clientWidth - elementNode.offsetLeft;
 			let maxHeight = dashboardNode.clientHeight - elementNode.offsetTop;
 
-			//limit minimun resize
+			// //get max video dimensions
+			// if (elementNode.firstElementChild === 'video-overlay') {
+			// 	width = elementNode.firstElementChild.clientWidth + moveEvent.movementX;
+			// 	height = elementNode.firstElementChild.clientHeight + moveEvent.movementY;	
+			// 	maxWidth = dashboardNode.clientWidth - elementNode.firstElementChild.offsetLeft;
+			// 	maxHeight = dashboardNode.clientHeight - elementNode.firstElementChild.offsetTop;
+			// }
+
+			//limit minimum resize
 			width = width < 40 ? 40 : width;
 			width = width < maxWidth ? width : maxWidth;
 			height = height < 40 ? 40 : height;

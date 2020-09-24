@@ -57,7 +57,7 @@ export function IframeVideo({options}, props) {
   	return (
   	  	<div class="video-overlay">
   	  	  	<div data-vjs-player>
-  	  	  	  <video onClick={e => noDefaultBehavior(e)} draggable={true} ref={playerRef} width="140" height="264" id='livestream' style="pointer-events: none" className="video-js vjs-16-9 vjs-big-play-centered video-player" playsInline />
+  	  	  	  <video onClick={e => noDefaultBehavior(e)} ref={playerRef} id='livestream' style="pointer-events: none" className="video-js vjs-16-9 vjs-big-play-centered video-player" playsInline />
   	  	  	</div> 
   	  	</div>
   	)

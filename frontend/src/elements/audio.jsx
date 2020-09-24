@@ -17,8 +17,8 @@ export function AudioOptions({options, updateOptions}) {
 
 export function AudioStream({options}, props) { 
 	return (
-		<div>
-			<audio controls src={options.audioSource} type="audio/mpeg"></audio>
+		<div class="audio-container">
+			<audio class="audio-player" controls src={options.audioSource} type="audio/mpeg"></audio>
 		</div>
 	);
 }

@@ -469,6 +469,28 @@ div.dashboard-wrap {
 	min-height: 100vh;
 }
 
+/* .audio-container {
+	position: relative;
+} */
+.audio-player {
+	width: 150px;
+}
+audio::-webkit-media-controls-overlay-play-button{
+    display: none;
+}
+audio::-webkit-media-controls-overlay-enclosure{
+	width: 25px;
+}
+audio::-webkit-media-controls-timeline {
+	display: none !important;
+}
+audio::-webkit-media-controls-current-time-display {
+	display: none;
+}
+audio::-webkit-media-controls-time-remaining-display {
+	display: none;
+}
+
 .noselect {
 	-webkit-touch-callout: none; /* iOS Safari */
 	-webkit-user-select: none; /* Safari */
