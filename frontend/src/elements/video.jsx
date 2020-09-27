@@ -10,9 +10,9 @@ export function IframeVideoOptions({options, updateOptions}) {
   		<input class="form-control" id="src" name="src" value={options.source}
 		  	   onInput={e => updateOptions({source: e.currentTarget.value})}>
   		</input>
-  		<div>
+  		{/* <div>
   		  	<button class="rounded btn-primary btn-large">Render</button>
-  		</div>
+  		</div> */}
   	</Fragment>
 }
 
