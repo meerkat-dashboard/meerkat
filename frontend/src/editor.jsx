@@ -86,7 +86,9 @@ export function Editor({slug, selectedElementId}) {
 		meerkat.getDashboard(slug).then(async d => {
 			dashboardDispatch({ type: 'setDashboard', dashboard: d });
 		});
+
 	}, [slug]);
+	console.log(dashboard)
 
 	if(dashboard === null) {
 		return <div class="loading center subtle">Loading dashboard</div>

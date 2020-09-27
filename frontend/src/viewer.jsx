@@ -30,7 +30,7 @@ export function Viewer({slug, dashboardReducer}) {
 		const left = `${element.rect.x}%`;
 		const top = `${element.rect.y}%`;
 		const width = `${element.rect.w}%`;
-		const height = `${(element.rect.h / dashboard.height - 11)}%`;
+		const height = `${element.rect.h}%`;
 		console.log(height)
 		const rotation = element.rotation ? `rotate(${element.rotation}rad)` : `rotate(0rad)`;
 
