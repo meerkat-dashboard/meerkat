@@ -533,7 +533,7 @@ input[type=checkbox].form-control.mute-sounds {
     float: right;
     margin-left: 11em;
     margin-top: -3em;
-    position: fixed;
+    position: absolute;
 }
 
 .dashboard.view-only .check {
