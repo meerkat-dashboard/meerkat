@@ -25,8 +25,8 @@ Meerkat will need a valid config file to start - the following is a sample:
 HTTPAddr = "[::]:8585"
 
 IcingaURL = "https://icinga.example.com:5665"
-IcingaUsername = "someuser"
-IcingaPassword = "somepassword"
+IcingaUsername = "meerkat"
+IcingaPassword = "meerkatpassword"
 IcingaInsecureTLS = true
 ```
 
