@@ -79,7 +79,20 @@ Useful for adding headings or labels.
 #### HLS and Audio Stream
 Embed video or audio streams in the dashboards in case staring at the dashboard is boring. (or you really care about the video!)
 
+### Sounds
+Meerkat allows you to specify a global sound scheme for state change, as well as upload custom sounds. Each check can also have different sounds triggered on state change. Yes you can have the sysadmin DJ soundboard of doom you always wanted!
 
+### Roadmap
+Work is underway on adding performance data, so you can pick a metric to display in a card contents.
+
+Future enhancements may include:
+* Authentication support (though it is meant to be displayed on a wall, without auth mostly)
+* Automation for creation of the dashboard config, allowing for easy mass creation of dashboards from Icinga data
+* Automation for export of Meerkat dashboards to Business Processes
+
+
+### Support
+Sol1 is an official Icinga Enterprise Partner, and can offer commercial support for Meerkat and Icinga and friends. We are a friendly bunch of people, so please don't hesitate to get in touch at http://sol1.com.au
 
 ### Contributing
 We welcome any contributions. Let us know via the issues here if there is something you need fixed up, or even better, a patch or PR would be most appreciated.
