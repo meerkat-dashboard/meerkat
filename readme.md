@@ -57,19 +57,27 @@ Once you have Meerkat up and running, you will want to create your first dashboa
 ### Element Types
 
 Meerkat supports various element types, some sourced from the Icinga API backend, and others static.
+Icinga type elements can select from the following sources: Hosts, Services, Host Groups, Service Groups, Host Filter, Service Filter and All Services on a Host.
+These sources are largely self-explanatory, however the filter language for the Filter sources is a little unintuitive. The base doco is here: https://icinga.com/docs/icinga2/latest/doc/12-icinga2-api/#advanced-filters and some hints are provided in the input dialog. You can also set a Linking URL for these elements which let you link to somewhere else, like another dashboard, or Icingaweb.
 
-##Icinga Card
 
-##Icinga SVG
+#### Icinga Card
+A simple rectangular card that displays the status of the check. You can adjust the font size. 
 
-##Icinga Image
+#### Icinga SVG
+You can select an SVG to toggle between for the various states. The default SVGs are sensible, however feel free to choose whatever makes sense to you. There isn't a way to change the global defaults just yet.
 
-##Icinga Line
+#### Icinga Image
+Select a set of images you want to toggle between on state change.
 
-##Static Text, SVG and Image
+#### Icinga Line
+Allows you to draw lines, you can rotate and resize them, and set the weight. They only toggle between OK, Warning, Critical, Unknown at present.
 
-##HLS and Audio Stream
+#### Static Text, SVG and Image
+Useful for adding headings or labels.
 
+#### HLS and Audio Stream
+Embed video or audio streams in the dashboards in case staring at the dashboard is boring. (or you really care about the video!)
 
 
 
