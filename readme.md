@@ -107,4 +107,6 @@ Sol1 is an official Icinga Enterprise Partner, and can offer commercial support 
 ### Contributing
 We welcome any contributions. Let us know via the issues here if there is something you need fixed up, or even better, a patch or PR would be most appreciated.
 
+[Sounds from Notification Sounds](https://www.notificationsounds.com)
+
 License is GNU Affero GPLv3.
