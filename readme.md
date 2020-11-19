@@ -12,21 +12,31 @@ Dashboards are saved as json files under the `dashboards` directory which get ge
 
 
 ### Quick Start
+Deploying from the docker hub image is the easiest way to get started.
 
-TODO include docker hub instructions
-The docker hub deployment is the easiest way to get started.
+Copy `config/meerkat.toml.example` to `config/meerkat.toml`, edit `config/meerkat.toml` using your favourite editor, then invoke your favourite composer:
+```
+docker-compose up
+```
+or
+```
+docker stack deploy -c docker-compose.yml meerkat
+```
 
-We have included a Dockerfile in case you want to build your own image.
+The default `docker-compose.yml` uses the directories `config/` `dashboards/` and `dashboards/` for data persistance.  Feel free to edit docker-compose.yml as you see fit though, of course.  
+
+We have also included a Dockerfile in case you want to build your own image.
 The Makefile also has a few very helpful options for developers.
 
 Meerkat will need a valid config file to start - the following is a sample:
 
+### Configuring Meerkat
 ```
 HTTPAddr = "[::]:8585"
 
 IcingaURL = "https://icinga.example.com:5665"
-IcingaUsername = "someuser"
-IcingaPassword = "somepassword"
+IcingaUsername = "meerkat"
+IcingaPassword = "meerkatpassword"
 IcingaInsecureTLS = true
 ```
 
@@ -57,25 +67,44 @@ Once you have Meerkat up and running, you will want to create your first dashboa
 ### Element Types
 
 Meerkat supports various element types, some sourced from the Icinga API backend, and others static.
-
-##Icinga Card
-
-##Icinga SVG
-
-##Icinga Image
-
-##Icinga Line
-
-##Static Text, SVG and Image
-
-##HLS and Audio Stream
+Icinga type elements can select from the following sources: Hosts, Services, Host Groups, Service Groups, Host Filter, Service Filter and All Services on a Host.
+These sources are largely self-explanatory, however the filter language for the Filter sources is a little unintuitive. The base doco is here: https://icinga.com/docs/icinga2/latest/doc/12-icinga2-api/#advanced-filters and some hints are provided in the input dialog. You can also set a Linking URL for these elements which let you link to somewhere else, like another dashboard, or Icingaweb.
 
 
+#### Icinga Card
+A simple rectangular card that displays the status of the check. You can adjust the font size. 
 
+#### Icinga SVG
+You can select an SVG to toggle between for the various states. The default SVGs are sensible, however feel free to choose whatever makes sense to you. There isn't a way to change the global defaults just yet.
+
+#### Icinga Image
+Select a set of images you want to toggle between on state change.
+
+#### Icinga Line
+Allows you to draw lines, you can rotate and resize them, and set the weight. They only toggle between OK, Warning, Critical, Unknown at present.
+
+#### Static Text, SVG and Image
+Useful for adding headings or labels.
+
+#### HLS and Audio Stream
+Embed video or audio streams in the dashboards in case staring at the dashboard is boring. (or you really care about the video!)
+
+### Sounds
+Meerkat allows you to specify a global sound scheme for state change, as well as upload custom sounds. Each check can also have different sounds triggered on state change. Yes you can have the sysadmin DJ soundboard of doom you always wanted!
+
+### Roadmap
+Work is underway on adding performance data, so you can pick a metric to display in a card contents.
+
+Future enhancements may include:
+* Authentication support (though it is meant to be displayed on a wall, without auth mostly)
+* Automation for creation of the dashboard config, allowing for easy mass creation of dashboards from Icinga data
+* Automation for export of Meerkat dashboards to Business Processes
+
+
+### Support
+Sol1 is an official Icinga Enterprise Partner, and can offer commercial support for Meerkat and Icinga and friends. We are a friendly bunch of people, so please don't hesitate to get in touch at http://sol1.com.au
 
 ### Contributing
 We welcome any contributions. Let us know via the issues here if there is something you need fixed up, or even better, a patch or PR would be most appreciated.
 
-License is GPLv3.
-
-
+License is GNU Affero GPLv3.
