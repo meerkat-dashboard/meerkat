@@ -1,0 +1,6 @@
+HTTPAddr = "localhost:8585"
+
+IcingaURL      = "https://icinga.example.com:5665"
+IcingaUsername = "api-user"
+IcingaPassword = "api-password"
+IcingaInsecureTLS = false
