@@ -531,8 +531,9 @@ audio::-webkit-media-controls-time-remaining-display {
 
 input[type=checkbox].form-control.mute-sounds {
     float: right;
-	margin-right: 11em;
-	margin-top: -0.8em;
+    margin-left: 11em;
+    margin-top: -3em;
+    position: fixed;
 }
 
 .dashboard.view-only .check {
