@@ -12,15 +12,25 @@ Dashboards are saved as json files under the `dashboards` directory which get ge
 
 
 ### Quick Start
+Deploying from the docker hub image is the easiest way to get started.
 
-TODO include docker hub instructions
-The docker hub deployment is the easiest way to get started.
+Copy `config/meerkat.toml.example` to `config/meerkat.toml`, edit `config/meerkat.toml` using your favourite editor, then invoke your favourite composer:
+```
+docker-compose up
+```
+or
+```
+docker stack deploy -c docker-compose.yml meerkat
+```
 
-We have included a Dockerfile in case you want to build your own image.
+The default `docker-compose.yml` uses the directories `config/` `dashboards/` and `dashboards/` for data persistance.  Feel free to edit docker-compose.yml as you see fit though, of course.  
+
+We have also included a Dockerfile in case you want to build your own image.
 The Makefile also has a few very helpful options for developers.
 
 Meerkat will need a valid config file to start - the following is a sample:
 
+### Configuring Meerkat
 ```
 HTTPAddr = "[::]:8585"
 
