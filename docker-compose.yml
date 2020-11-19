@@ -3,7 +3,7 @@ version: '3.3'
 services:
   meerkat:
     build: .
-    container_name: meerkat
+    image: sol1/meerkat:latest
     volumes:
       - ./config:/meerkat/config
       - ./dashboards:/meerkat/dashboards
