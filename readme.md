@@ -2,18 +2,24 @@
 
 A utility to create and share dashboards for icinga2 checks and hosts. Meerkat a lightweight service which only requires a Go server and a small amount of javascript (only 14KB gzipped) for the frontend. It's quick to setup and easy to use. There is an editor interface when you can set a background for a dashboard and start overlaying checks which update by polling the Icinga2 API via the Meerkat backend.
 
-**TODO include screenshot of a good/realistic dashboard**
+![Meerkat World Map](docs/meerkat_world_map.png)
+
+
 
 Dashboards are saved as json files under the `dashboards` directory which get generated on startup, so backing up or moving data is easy. The `dashboard-data` directory is for image/file data.
 
-**This tool is designed to be used internally, there is no user management and it has direct access to the Icinga2 API (with some minor filtering) I would not recommend putting this on the internet.**
+**This tool is designed to be used internally, there is no user management and it has direct access to the Icinga2 API (with some minor filtering) I would not recommend putting this on the internet. You can limit the API user using filters as per the Icinga docs here: https://icinga.com/docs/icinga2/latest/doc/12-icinga2-api/#icinga2-api-permissions **
 
 
-### Build / Run
+### Quick Start
 
-For dev, you will need Docker on your local machine, GNU Make, and a sol1 VPN.
+TODO include docker hub instructions
+The docker hub deployment is the easiest way to get started.
 
-Create `backend/meerkat.toml` with the following contents:
+We have included a Dockerfile in case you want to build your own image.
+The Makefile also has a few very helpful options for developers.
+
+Meerkat will need a valid config file to start - the following is a sample:
 
 ```
 HTTPAddr = "[::]:8585"
@@ -24,43 +30,52 @@ IcingaPassword = "somepassword"
 IcingaInsecureTLS = true
 ```
 
-Then start three terminal windows / tabs / whatever.
-
-In the first, run
+The username and password you will use should be configured in the Icinga2 api-users.conf. Here is an example:
 
 ```
-make backend-dev
+object ApiUser "meerkat" {
+  password = "meerkatpassword"
+
+permissions = [ "objects/query/Host", "objects/query/Service", "objects/query/ServiceGroup", "objects/query/HostGroup" ]
+}
 ```
 
-This will give you a shell prompt in a Docker container, from which you should
-be able to run
+And don't forget to restart Icinga2 after updating that config file.
 
-```
-go run .
-```
 
-Initially, this will download the Golang dependencies, build the code, and
-run it.  Every time you want to test updated backend code, hit `Ctrl-C` and
-then run `go run .` again (up-arrow is your friend).  If the build fails,
-you'll get errors and you can fix them.
+### Using Meerkat
 
-In the second terminal window / tab / whatever, run
+Once you have Meerkat up and running, you will want to create your first dashboard. Its probably best to have a sensible background first. The background needs to be a browser displayable image, even an animated gif is possible! We have used diagram tools for backgrounds, pictures of racks, world maps etc. It helps if you have thought about how you want the checks and background image to overlay together beforehand. You can author the Background Image in any program that can spit out image files that browsers can display, we have tested png, jpeg and webp. 
 
-```
-make frontend-dev
-```
+1) Make a new dashboard by clicking Create New Dashboard button and giving it a name. Dashboards can then be edited and viewed from the main page.
+2) Edit your dashboard and add a Background Image. 
+3) Add new Elements and pick the type of Element you want to add.
+4) Drag and drop your Element over the top of the map to somewhere that makes sense relative to the background. You can resize and rotate elements.
+5) Remember to click Save. Many times.
+6) Once done, click Home and then view your dashboard.
 
-This will start up a second Docker container, but this one will install
-NPM modules, build the frontend, and then wait for changes to the frontend
-source code and automatically recompile the `bundle.js` and friends.  All
-you need to do after saving changes to the frontend code, then, is wait
-a second or two and reload your browser tab.  The future: we are living in it.
+### Element Types
 
-The third terminal window / tab / whatever, run
+Meerkat supports various element types, some sourced from the Icinga API backend, and others static.
 
-```
-make browse-dev
-```
+##Icinga Card
 
-This should open up a new tab in your web browser, pointing at the dev
-copy of Meerkat.  It will only work if the backend dev container is running.
+##Icinga SVG
+
+##Icinga Image
+
+##Icinga Line
+
+##Static Text, SVG and Image
+
+##HLS and Audio Stream
+
+
+
+
+### Contributing
+We welcome any contributions. Let us know via the issues here if there is something you need fixed up, or even better, a patch or PR would be most appreciated.
+
+License is GPLv3.
+
+
