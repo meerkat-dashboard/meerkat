@@ -95,6 +95,17 @@ export function CheckSVG({options, dashboard, slug}) {
 	let unknown = false;
 	let dash = {};
 
+	const initState = async () => {
+		const res = await meerkat.getIcingaObjectState(options.objectType, options.filter);
+		const state = icingaResultCodeToCheckState(options.objectType, res);
+		if (state === 'ok') ok = true;
+		if (state === 'up') ok = true;
+		if (state === 'down') warning = true;
+		if (state === 'warning') warning = true;
+		if (state === 'critical') critical = true;
+		if (state === 'unknown') unknown = true;
+	}
+
 	//Handle state update
 	const updateState = async () => {
 		meerkat.getDashboard(slug).then(async d => {
@@ -104,15 +115,6 @@ export function CheckSVG({options, dashboard, slug}) {
 			const w = options.warningSound  ? new Audio(options.warningSound)  : new Audio(dash.warningSound);
 			const c = options.criticalSound ? new Audio(options.criticalSound) : new Audio(dash.criticalSound);
 			const u = options.unknownSound  ? new Audio(options.unknownSound)  : new Audio(dash.unknownSound);
-
-			const initState = async (state) => {
-				if (state === 'ok') ok = true;
-				if (state === 'up') ok = true;
-				if (state === 'down') warning = true;
-				if (state === 'warning') warning = true;
-				if (state === 'critical') critical = true;
-				if (state === 'unknown') unknown = true;
-			}
 
 			//get globalMute from dashboard JSON
 			const muteAlerts = () => {
@@ -128,24 +130,24 @@ export function CheckSVG({options, dashboard, slug}) {
 			const alertSound = (state) => {
 				if (options.objectType !== null) {
 					const resetState = (o, w, c ,u) => {
-						if (o === 1) ok = false;
-						if (w === 1) warning = false; 
-						if (c === 1) critical = false;
-						if (u === 1) unknown = false; 
+						if (o) ok = false;
+						if (w) warning = false; 
+						if (c) critical = false;
+						if (u) unknown = false; 
 					}
 					
 					if(options.objectType === 'service') {
 						switch(state){
-							case 'ok':       if (state === 'ok'       && !ok)       {o.play(); ok = true;       resetState(0,1,1,1)} break;
-							case 'warning':  if (state === 'warning'  && !warning)  {w.play(); warning = true;  resetState(0,1,1,1)} break;   
-							case 'critical': if (state === 'critical' && !critical) {c.play(); critical = true; resetState(1,1,0,1)} break;
-							case 'unknown':  if (state === 'unknown'  && !unknown)  {u.play(); unknown = true;  resetState(1,0,1,1)} break;
+							case 'ok':       if (!ok)       {o.play(); ok = true;       resetState(0,1,1,1)} break;
+							case 'warning':  if (!warning)  {w.play(); warning = true;  resetState(0,1,1,1)} break;   
+							case 'critical': if (!critical) {c.play(); critical = true; resetState(1,1,0,1)} break;
+							case 'unknown':  if (!unknown)  {u.play(); unknown = true;  resetState(1,0,1,1)} break;
 						}	
 					} else if(options.objectType === 'host') {
 						console.log(state);
 						switch(state){
-							case 'up':   if (state === 'up'   && !ok)      { o.play(); ok = true;      resetState(0,1,1,1)} break;
-							case 'down': if (state === 'down' && !warning) { w.play(); warning = true; resetState(0,1,1,1)} break;
+							case 'up':   if (!ok)      { o.play(); ok = true;      resetState(0,1,1,1)} break;
+							case 'down': if (!warning) { w.play(); warning = true; resetState(0,1,1,1)} break;
 						}
 					}
 				}
@@ -153,7 +155,6 @@ export function CheckSVG({options, dashboard, slug}) {
 			if (options.objectType !== null && options.filter !== null) {
 				const res = await meerkat.getIcingaObjectState(options.objectType, options.filter);
 				const state = icingaResultCodeToCheckState(options.objectType, res);
-				initState(state);
 				setCheckState(state);
 				muteAlerts();
 				alertSound(state);
@@ -164,6 +165,7 @@ export function CheckSVG({options, dashboard, slug}) {
 	//Setup check refresher
 	useEffect(() => {
 		if(options.objectType !== null && options.filter != null) {
+			initState();
 			updateState();
 			const intervalID = window.setInterval(updateState, 30*1000)
 			return () => window.clearInterval(intervalID);
