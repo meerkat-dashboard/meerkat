@@ -165,15 +165,15 @@ export function CheckLine({options, dashboard, slug}) {
 					if(options.objectType === 'service') {
 						switch(state){
 							case 'ok':       if (!ok)       {o.play(); ok = true;       resetState(0,1,1,1)} break;
-							case 'warning':  if (!warning)  {w.play(); warning = true;  resetState(0,1,1,1)} break;   
+							case 'warning':  if (!warning)  {w.play(); warning = true;  resetState(1,0,1,1)} break;   
 							case 'critical': if (!critical) {c.play(); critical = true; resetState(1,1,0,1)} break;
-							case 'unknown':  if (!unknown)  {u.play(); unknown = true;  resetState(1,0,1,1)} break;
+							case 'unknown':  if (!unknown)  {u.play(); unknown = true;  resetState(1,1,1,0)} break;
 						}	
 					} else if(options.objectType === 'host') {
 						console.log(state);
 						switch(state){
 							case 'up':   if (!ok)      { o.play(); ok = true;      resetState(0,1,1,1)} break;
-							case 'down': if (!warning) { w.play(); warning = true; resetState(0,1,1,1)} break;
+							case 'down': if (!warning) { w.play(); warning = true; resetState(1,0,1,1)} break;
 						}
 					}
 				}
