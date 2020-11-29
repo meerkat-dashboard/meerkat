@@ -93,6 +93,7 @@ func main() {
 	r.Get("/icinga/{check-type}/{object-id}", handleIcingaCheck)
 
 	r.Get("/icinga/check_state", handleIcingaCheckState)
+	r.Get("/icinga/check_result", handleCheckResult)
 
 	r.Post("/upload", handleUpload)
 	r.Handle("/dashboards-data/*", http.StripPrefix("/dashboards-data/", http.FileServer(http.Dir("./dashboards-data"))))

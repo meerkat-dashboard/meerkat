@@ -59,6 +59,132 @@ type icingaObject struct {
 	Groups      []string `json:"groups"`
 }
 
+type icingaAPILastCheckResults struct {
+	CheckResults []results `json:"results"`
+}
+
+type results struct {
+	Attributes icingaCheckAttributes `json:"attrs"`
+	Joins      joins                 `json:"joins,omitempty"`
+	Meta       types                 `json:"meta,omitempty"`
+	Name       string                `json:"name"`
+	Type       string                `json:"type"`
+}
+
+type joins struct {
+}
+
+type types struct {
+}
+
+type icingaCheckAttributes struct {
+	Attributes checkResult `json:"last_check_result"`
+}
+
+type checkResult struct {
+	Active          bool       `json:"active"`
+	CheckSource     string     `json:"check_source"`
+	Command         []string   `json:"command"`
+	ExecutionEnd    float64    `json:"execution_end"`
+	ExecutionStart  float64    `json:"execution_start"`
+	ExitStatus      float64    `json:"exit_status"`
+	Output          string     `json:"output"`
+	PerformanceData []string   `json:"performance_data"`
+	ScheduleEnd     float64    `json:"schedule_end"`
+	ScheduleStart   float64    `json:"schedule_start"`
+	State           float64    `json:"state"`
+	TTL             float64    `json:"ttl"`
+	Type            string     `json:"type"`
+	VarsAfter       varsAfter  `json:"vars_after"`
+	VarsBefore      varsBefore `json:"vars_before"`
+}
+
+type varsAfter struct {
+	Attempt   float64 `json:"attempt"`
+	Reachable bool    `json:"reachable"`
+	State     float64 `json:"state"`
+	StateType float64 `json:"state_type"`
+}
+
+type varsBefore struct {
+	Attempt   float64 `json:"attempt"`
+	Reachable bool    `json:"reachable"`
+	State     float64 `json:"state"`
+	StateType float64 `json:"state_type"`
+}
+
+func handleCheckResult(w http.ResponseWriter, r *http.Request) {
+
+	service := r.URL.Query().Get("service")
+	attrs := r.URL.Query().Get("attrs")
+
+	fmt.Println(service)
+
+	if service == "" {
+		http.Error(w, "No unique queue name specified", http.StatusBadRequest)
+		return
+	}
+
+	client := &http.Client{}
+	//Disable TLS verification if config says so
+	if config.IcingaInsecureTLS {
+		client.Transport = &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		}
+	}
+
+	//Create HTTP request
+	req_url, err := url.Parse(config.IcingaURL)
+	if err != nil {
+		log.Printf("Failed to parse IcingaURL: %w", err)
+		http.Error(w, "Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	req_url.Path = path.Join(req_url.Path, "/v1/objects/services", service)
+	req_url.RawQuery = strings.ReplaceAll(url.Values{"attrs": []string{attrs}}.Encode(), "+", "%20")
+
+	req, err := http.NewRequest("GET", req_url.String(), nil)
+	req.Header.Set("Accept", "application/json")
+	req.SetBasicAuth(config.IcingaUsername, config.IcingaPassword)
+
+	fmt.Println(req)
+
+	if err != nil {
+		fmt.Println("Failed to create HTTP request: %w", err)
+		http.Error(w, "Error creating http request: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	//Make request
+	res, err := client.Do(req)
+	if err != nil {
+		fmt.Println("Icinga2 API error: %w", err.Error())
+		http.Error(w, "Icinga2 API error: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	fmt.Println(res)
+	fmt.Println("Response status:", res.Status)
+
+	fmt.Println(res.Body)
+
+	defer res.Body.Close()
+
+	var checkResults icingaAPILastCheckResults
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&checkResults)
+
+	if err != nil {
+		log.Printf("Error decoding Icinga2 API response: %w", err)
+		http.Error(w, "Error decoding Icinga2 API response: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	enc := json.NewEncoder(w)
+	enc.Encode(checkResults)
+}
+
 func handleIcingaCheckState(w http.ResponseWriter, r *http.Request) {
 	object_type := r.URL.Query().Get("object_type")
 	filter := r.URL.Query().Get("filter")
@@ -95,7 +221,7 @@ func handleIcingaCheckState(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	req_url.Path = path.Join(req_url.Path, "/v1/objects", object_type + "s")
+	req_url.Path = path.Join(req_url.Path, "/v1/objects", object_type+"s")
 	req_url.RawQuery = strings.ReplaceAll(url.Values{"filter": []string{filter}}.Encode(), "+", "%20")
 
 	req, err := http.NewRequest("GET", req_url.String(), nil)
@@ -104,6 +230,8 @@ func handleIcingaCheckState(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Error creating http request: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
+
+	fmt.Println(req)
 
 	req.SetBasicAuth(config.IcingaUsername, config.IcingaPassword)
 
@@ -119,6 +247,7 @@ func handleIcingaCheckState(w http.ResponseWriter, r *http.Request) {
 	var results icingaAPIResults
 	dec := json.NewDecoder(res.Body)
 	err = dec.Decode(&results)
+
 	if err != nil {
 		log.Printf("Error decoding Icinga2 API response: %w", err)
 		http.Error(w, "Error decoding Icinga2 API response: "+err.Error(), http.StatusInternalServerError)

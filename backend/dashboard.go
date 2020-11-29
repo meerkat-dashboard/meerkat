@@ -81,6 +81,8 @@ type Option struct {
 	UnknownSound        string `json:"unknownSound"`
 	CriticalSound       string `json:"criticalSound"`
 	MuteAlerts          bool   `json:"muteAlerts"`
+	PerfDataMode        bool   `json:"perfDataMode"`
+	PerfDataSelection   string `json:"perfDataSelection"`
 }
 
 //Rect helper struct for positions

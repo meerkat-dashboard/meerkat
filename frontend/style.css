@@ -536,6 +536,13 @@ input[type=checkbox].form-control.mute-sounds {
     position: absolute;
 }
 
+input[type=checkbox].form-control.perf-data-mode {
+    float: right;
+    margin-left: 14em;
+    margin-top: -3em;
+    position: absolute;
+}
+
 .dashboard.view-only .check {
 	cursor: default;
 }
