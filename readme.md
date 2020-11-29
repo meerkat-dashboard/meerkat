@@ -28,6 +28,15 @@ The default `docker-compose.yml` uses the directories `config/` `dashboards/` an
 We have also included a Dockerfile in case you want to build your own image.
 The Makefile also has a few very helpful options for developers.
 
+### Build without Docker
+You will need an up to date go, and an up to date npm install to build Meerkat. The steps below aren't tested with each release, but should get you started.
+
+* ```go build``` in the root directory of this project to build the server
+* From the frontend directory run ```npm i``` which installs JS dependencies
+
+* ```npm run prod``` from the frontend directory which builds the frontend code (index.html loads this output (bundle.js))
+* You can then run ```./meerkat -config meerkat.toml``` after creating the config file above
+
 Meerkat will need a valid config file to start - the following is a sample:
 
 ### Configuring Meerkat
