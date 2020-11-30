@@ -29,15 +29,17 @@ export function CheckCard({options, slug, dashboard}) {
 	//Handle state update
 	const updateState = async () => {
 		meerkat.getCheckResult(options.objectType, options.id).then(async c => {
-			let perfData = c.results[0].attrs.last_check_result.performance_data.join().replace(',', ';').split(';');
+			console.log(c)
+			let perfData = c.results[0].attrs.last_check_result.performance_data;
 			if (typeof perfData !== "undefined" && perfData.length > 0) {
 				let arrPerf = [];
 				for( var i = 0; i < perfData.length; i++){ 
 					if (perfData[i].includes('=')) { 
-						arrPerf.push(perfData[i].replace(',', ''));
+						arrPerf.push(perfData[i].split(';')[0]);
 					}
 				}
 				let objPerf = Object.fromEntries(arrPerf.map(s => s.split('=')));
+				console.log(objPerf)
 				setPerfData(objPerf);
 				perfDataSelected(objPerf);
 			}
@@ -161,12 +163,13 @@ const PerfDataOptions = ({options, updateOptions}) => {
 		clearPerfData();
 		setShowPerf(false)
 		meerkat.getCheckResult(options.objectType, options.id).then(async c => {
-			let perfData = c.results[0].attrs.last_check_result.performance_data.join().replace(',', ';').split(';');
+			let perfData = c.results[0].attrs.last_check_result.performance_data;
+			console.log(perfData)
 			if (typeof perfData !== "undefined") {
 				let arrPerf = [];
 				for( var i = 0; i < perfData.length; i++){ 
 					if (perfData[i].includes('=')) { 
-						arrPerf.push(perfData[i].replace(',', ''));
+						arrPerf.push(perfData[i].split(';')[0]);
 					}
 				}
 				let objPerf = Object.fromEntries(arrPerf.map(s => s.split('=')));
