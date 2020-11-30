@@ -28,6 +28,20 @@ export function CheckCard({options, slug, dashboard}) {
 
 	//Handle state update
 	const updateState = async () => {
+		meerkat.getCheckResult(options.objectType, options.id).then(async c => {
+			let perfData = c.results[0].attrs.last_check_result.performance_data.join().replace(',', ';').split(';');
+			if (typeof perfData !== "undefined" && perfData.length > 0) {
+				let arrPerf = [];
+				for( var i = 0; i < perfData.length; i++){ 
+					if (perfData[i].includes('=')) { 
+						arrPerf.push(perfData[i].replace(',', ''));
+					}
+				}
+				let objPerf = Object.fromEntries(arrPerf.map(s => s.split('=')));
+				setPerfData(objPerf);
+				perfDataSelected(objPerf);
+			}
+		});
 		meerkat.getDashboard(slug).then(async d => {
 			dash = await d
 
@@ -94,22 +108,8 @@ export function CheckCard({options, slug, dashboard}) {
 
 	//Setup check refresher
 	useEffect(() => {
+		console.log("HI")
 		if(options.objectType !== null && options.filter !== null) {
-			meerkat.getCheckResult(options.id).then(async c => {
-				let perfData = c.results[0].attrs.last_check_result.performance_data.join().replace(',', ';').split(';');
-				if (typeof perfData !== "undefined") {
-					let arrPerf = [];
-					for( var i = 0; i < perfData.length; i++){ 
-						if (perfData[i].includes('=')) { 
-							arrPerf.push(perfData[i].replace(',', ''));
-						}
-					}
-					let objPerf = Object.fromEntries(arrPerf.map(s => s.split('=')));
-					setPerfData(objPerf);
-					perfDataSelected(objPerf);
-					console.log(objPerf)
-				}
-			});
 			initState();
 			updateState();
 			const intervalID = window.setInterval(updateState, 30*1000)
@@ -160,9 +160,7 @@ const PerfDataOptions = ({options, updateOptions}) => {
 		options.perfDataMode ? setShowPerf(true) : setShowPerf(false);
 		clearPerfData();
 		setShowPerf(false)
-		meerkat.getCheckResult(options.id).then(async c => {
-			let erfData = c.results[0].attrs.last_check_result.performance_data
-			console.log(erfData)
+		meerkat.getCheckResult(options.objectType, options.id).then(async c => {
 			let perfData = c.results[0].attrs.last_check_result.performance_data.join().replace(',', ';').split(';');
 			if (typeof perfData !== "undefined") {
 				let arrPerf = [];
@@ -185,21 +183,13 @@ const PerfDataOptions = ({options, updateOptions}) => {
 		}
 	}
 
-	const perfDataMode = (e) => {
-		let perfDataModeChecked = options.perfDataMode;
-		perfDataModeChecked = !perfDataModeChecked;
-		updateOptions({
-			perfDataMode: perfDataModeChecked
-		})
-	}
-
 	if(perfData === null) {
 		return <div><label>No Performance Data Available</label><br/></div>	
 	}
 
 	return <div>
-		<label class="status-font-size">Performance Data Mode</label>
-		<input type="checkbox" defaultChecked={options.perfDataMode} onChange={e => perfDataMode(e)} class="form-control perf-data-mode"/>
+		<label id="perf-mode" class="status-font-size">Performance Data Mode</label>
+		<input type="checkbox" defaultChecked={options.perfDataMode} onClick={e => updateOptions({perfDataMode: e.currentTarget.checked})} class="form-control perf-data-mode"/>
 		{options.perfDataMode || showPerfOptions ?
 			<select onInput={e => updateOptions({perfDataSelection: e.currentTarget.value})}>
 				<option value={null} selected disabled>Choose away...</option>

@@ -30,8 +30,8 @@ export async function getIcingaObjectState(objectType, filter) {
 	}
 }
 
-export async function getCheckResult(service, attrs="last_check_result") {
-	const res = await fetch(`/icinga/check_result?service=${encodeURIComponent(service)};attrs=${encodeURIComponent(attrs)}`);
+export async function getCheckResult(objType, object, attrs="last_check_result") {
+	const res = await fetch(`/icinga/check_result?objtype=${objType};object=${encodeURIComponent(object)};attrs=${encodeURIComponent(attrs)}`);
 
 	if (res.status !== 200) {
 		return console.log("query succesful");

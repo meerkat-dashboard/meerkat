@@ -1,4 +1,4 @@
-import { h, Fragment } from 'preact';
+import { h, Fragment, forceUpdate } from 'preact';
 import { route } from 'preact-router';
 import { useEffect, useReducer, useState, useRef, useLayoutEffect } from 'preact/hooks';
 
@@ -150,12 +150,12 @@ export function Editor({slug, selectedElementId}) {
 							setHighlightedElementId={setHighlightedElementId} />
 
 						<ElementSettings selectedElement={selectedElement} updateElement={updateElement} />
-					</div>
-				</div>
-				<div class="side-bar-footer lefty-righty">
-					<button class="btn btn-outline-primary " onClick={e => route('/')}>Home</button>
-					<button onClick={saveDashboard} class={ savingDashboard ? 'loading' : ''} class="rounded btn-primary btn-large">Save Dashboard</button>
-				</div>
+			</div>
+			</div>
+			<div class="side-bar-footer lefty-righty">
+				<button class="btn btn-outline-primary " onClick={e => route('/')}>Home</button>
+				<button onClick={saveDashboard} class={ savingDashboard ? 'loading' : ''} class="rounded btn-primary btn-large">Save Dashboard</button>
+			</div>
 		</header>
 	</Fragment>
 }

@@ -115,12 +115,13 @@ type varsBefore struct {
 
 func handleCheckResult(w http.ResponseWriter, r *http.Request) {
 
-	service := r.URL.Query().Get("service")
+	object := r.URL.Query().Get("object")
 	attrs := r.URL.Query().Get("attrs")
+	objType := r.URL.Query().Get("objtype")
 
-	fmt.Println(service)
+	fmt.Println(object)
 
-	if service == "" {
+	if object == "" {
 		http.Error(w, "No unique queue name specified", http.StatusBadRequest)
 		return
 	}
@@ -141,7 +142,12 @@ func handleCheckResult(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	req_url.Path = path.Join(req_url.Path, "/v1/objects/services", service)
+	if objType == "service" {
+		req_url.Path = path.Join(req_url.Path, "/v1/objects/services", object)
+	} else {
+		req_url.Path = path.Join(req_url.Path, "/v1/objects/hosts", object)
+	}
+
 	req_url.RawQuery = strings.ReplaceAll(url.Values{"attrs": []string{attrs}}.Encode(), "+", "%20")
 
 	req, err := http.NewRequest("GET", req_url.String(), nil)
