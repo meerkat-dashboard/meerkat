@@ -37,9 +37,9 @@ export function icingaResultCodeToCheckState(checkType, resultCode) {
 	} else if(checkType === 'host') {
 		switch(resultCode){
 			case 0: return 'up';
-			case 1: return 'up';
-			case 2: return 'down';
-			case 3: return 'down';
+			case 0: return 'up';
+			case 1: return 'down';
+			case 1: return 'down';
 		}
 	}
 
