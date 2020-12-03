@@ -270,6 +270,9 @@ func handleIcingaCheckState(w http.ResponseWriter, r *http.Request) {
 	for _, obj := range results.Results {
 		if int64(obj.Attributes.State) > max_state {
 			max_state = int64(obj.Attributes.State)
+			if int64(obj.Attributes.State) == 2 {
+				max_state = int64(obj.Attributes.State)
+			}
 		}
 	}
 
