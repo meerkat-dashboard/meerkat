@@ -46,7 +46,11 @@ export function Viewer({slug, dashboardReducer}) {
 		if(element.type === 'audio-stream') { ele = <AudioStream options={element.options}/> }
 
 		if (element.options.linkURL) {
-			ele = <a id="a-link" href={element.options.linkURL}>{ele}</a>
+			if (element.options.linkURL.includes('http') ) {
+				ele = <a id="a-link" href={element.options.linkURL}>{ele}</a>
+			} else {
+				ele = <a id="a-link" href={`https://${element.options.linkURL}`}>{ele}</a>
+			}
 		}
 
 		return <div class="check" style={{left: left, top: top, width: width, height: height, transform: rotation}}>
