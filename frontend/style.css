@@ -179,7 +179,7 @@ label {
 }
 
 label~input, label~select, label~textarea {
-	margin-bottom: 15px;
+	margin-bottom: 20px;
 }
 
 .element-title {
@@ -485,29 +485,26 @@ div.dashboard-wrap {
 	align-items: center;
 } 
 
-#dashboard-dimensions {
-
-	/* min-height: 100vh; */
-}
-
-/* .audio-container {
-	position: relative;
-} */
 .audio-player {
 	width: 150px;
 }
+
 audio::-webkit-media-controls-overlay-play-button{
     display: none;
 }
+
 audio::-webkit-media-controls-overlay-enclosure{
 	width: 25px;
 }
+
 audio::-webkit-media-controls-timeline {
 	display: none !important;
 }
+
 audio::-webkit-media-controls-current-time-display {
 	display: none;
 }
+
 audio::-webkit-media-controls-time-remaining-display {
 	display: none;
 }
@@ -537,10 +534,10 @@ input[type=checkbox].form-control.mute-sounds {
 }
 
 input[type=checkbox].form-control.perf-data-mode {
-    float: right;
     margin-left: 14em;
-    margin-top: -3em;
-    position: absolute;
+	margin-top: -2em;
+	height: 20px;
+	position: absolute;
 }
 
 .dashboard.view-only .check {

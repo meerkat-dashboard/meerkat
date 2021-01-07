@@ -112,7 +112,6 @@ export function Editor({slug, selectedElementId}) {
 		return
 	}
 	const updateElement = (element, index) => {
-		// console.log(selectedElementId)
 		dashboardDispatch({
 			type: 'updateElement',
 			elementIndex: selectedElementId,

@@ -16,6 +16,7 @@ export function CheckCard({options, slug, dashboard}) {
 	let dash = {};
 
 	const initState = async () => {
+		setPerfValue(null);
 		const res = await meerkat.getIcingaObjectState(options.objectType, options.filter);
 		const state = icingaResultCodeToCheckState(options.objectType, res);
 		if (state === 'ok') ok = true;
@@ -29,7 +30,6 @@ export function CheckCard({options, slug, dashboard}) {
 	//Handle state update
 	const updateState = async () => {
 		meerkat.getCheckResult(options.objectType, options.id).then(async c => {
-			console.log(c)
 			let perfData = c.results[0].attrs.last_check_result.performance_data;
 			if (typeof perfData !== "undefined" && perfData.length > 0) {
 				let arrPerf = [];
@@ -39,7 +39,6 @@ export function CheckCard({options, slug, dashboard}) {
 					}
 				}
 				let objPerf = Object.fromEntries(arrPerf.map(s => s.split('=')));
-				console.log(objPerf)
 				setPerfData(objPerf);
 				perfDataSelected(objPerf);
 			}
@@ -80,7 +79,6 @@ export function CheckCard({options, slug, dashboard}) {
 							case 'unknown':  if (!unknown)  {u.play(); unknown = true;  resetState(1,1,1,0)} break;
 						}	
 					} else if(options.objectType === 'host') {
-						console.log(state);
 						switch(state){
 							case 'up':   if (!ok)      { o.play(); ok = true;      resetState(0,1,1,1)} break;
 							case 'down': if (!warning) { w.play(); warning = true; resetState(1,0,1,1)} break;
@@ -110,22 +108,17 @@ export function CheckCard({options, slug, dashboard}) {
 
 	//Setup check refresher
 	useEffect(() => {
-		console.log("HI")
 		if(options.objectType !== null && options.filter !== null) {
 			initState();
 			updateState();
 			const intervalID = window.setInterval(updateState, 30*1000)
 			return () => window.clearInterval(intervalID);
 		}
-	}, [options.objectType, options.filter]);
+	}, [options.objectType, options.filter, options.perfDataSelection]);
 
 	return <div class={"check-content card " + checkState}>
 		<div class="check-state" style={`font-size: ${options.statusFontSize}px`}>
-			{/* {checkState === null ? 'Unconfigured' : checkState} */}
-			{/* {perfValue === null ? 'Unconfigured' : perfValue} */}
-			{/* {perfDataSelected()} */}
-			{/* <br/> */}
-			{perfValue ? perfValue : checkState}
+			{perfValue ? perfValue.replace(/[A-Za-z]/g, '') : checkState}
 		</div>
 	</div>
 }
@@ -145,11 +138,11 @@ export function CheckCardOptions({options, updateOptions}) {
 				onInput={e => updateOptions({linkURL: e.currentTarget.value})}>
 		</input>
 		<label for="status-font-size">Status Font Size</label>
-		<input class="form-control" id="status-font-size" name="status-font-size" type="number" min="0"
+		<input class="form-control" id="status-font-size" value={options.statusFontSize} name="status-font-size" type="number" min="0"
 			   onInput={e => updateOptions({statusFontSize: Number(e.currentTarget.value)})}/>
 		<PerfDataOptions options={options} updateOptions={updateOptions}/>
 		<br/>	   
-		<button class="rounded btn-primary btn-large" onClick={onClickAdvanced}>{showAdvanced ? 'Hide Options' : 'Advanced Options'}</button>
+		<button class="rounded btn-primary btn-large mt-2" onClick={onClickAdvanced}>{showAdvanced ? 'Hide Options' : 'Advanced Options'}</button>
 		<AdvancedCheckOptions options={options} updateOptions={updateOptions} display={showAdvanced}/>
 	</div>
 }
@@ -164,7 +157,6 @@ const PerfDataOptions = ({options, updateOptions}) => {
 		setShowPerf(false)
 		meerkat.getCheckResult(options.objectType, options.id).then(async c => {
 			let perfData = c.results[0].attrs.last_check_result.performance_data;
-			console.log(perfData)
 			if (typeof perfData !== "undefined") {
 				let arrPerf = [];
 				for( var i = 0; i < perfData.length; i++){ 
@@ -176,7 +168,7 @@ const PerfDataOptions = ({options, updateOptions}) => {
 				setPerfData(objPerf)
 			}
 		});
-	}, [options.perfDataMode])
+	}, [options.perfDataMode, options.perfDataSelection])
 
 	const clearPerfData = () => {
 		if (!options.perfDataMode) {
@@ -190,20 +182,20 @@ const PerfDataOptions = ({options, updateOptions}) => {
 		return <div><label>No Performance Data Available</label><br/></div>	
 	}
 
-	return <div>
+	return <Fragment>
 		<label id="perf-mode" class="status-font-size">Performance Data Mode</label>
 		<input type="checkbox" defaultChecked={options.perfDataMode} onClick={e => updateOptions({perfDataMode: e.currentTarget.checked})} class="form-control perf-data-mode"/>
 		{options.perfDataMode || showPerfOptions ?
-			<select onInput={e => updateOptions({perfDataSelection: e.currentTarget.value})}>
+			<select onInput={e => updateOptions({perfDataSelection: e.currentTarget.value})} value={options.perfDataSelection}>
 				<option value={null} selected disabled>Choose away...</option>
-				{Object.keys(perfData).map(perf => (
-					<option key={perf} value={perf}>
-					  {perf.toUpperCase()}
-					</option>
-				))} 
+					{Object.keys(perfData).map(perf => (
+						<option key={perf} value={perf}>
+							{perf.toUpperCase()}
+						</option>
+					))} 
 			</select>
 		: null}
-	</div>
+	</Fragment>
 }
 
 const AdvancedCheckOptions = ({options, updateOptions, display}) => {
@@ -211,7 +203,6 @@ const AdvancedCheckOptions = ({options, updateOptions, display}) => {
 		const res = await meerkat.uploadFile(files[0]);
 		const opts = {}
 		opts[fieldName] = res.url
-		console.log(opts);
 		updateOptions(opts);
 	}
 
