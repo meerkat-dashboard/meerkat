@@ -84,7 +84,6 @@
 
 body {
 	margin: 0;
-	/* font-family: 'Nunito', sans-serif; */
 	font-family: Arial, sans-serif;
 	font-size: 18px;
 	color: var(--color-black)
@@ -321,6 +320,7 @@ div.selection > .selector {
 div.selection > .selector:hover {
 	background-color: #eee;
 }
+
 div.selection > .selector.active {
 	background-color: #007bff;
 	color: white;
@@ -433,8 +433,6 @@ div.home .filter-wrap #filter {
 	border-radius: 4px;
 }
 
-
-
 .dashboard-listing h3 {
 	margin-bottom: 0;
 }
@@ -459,10 +457,7 @@ div.home .filter-wrap #filter {
 div.dashboard-wrap {
 	margin: 20px;
 	margin-left: 400px;
-	/* min-height: calc(100vh - 40px); margin * 2 */
 	display: flex;
-	/* flex-direction: column; */
-	/* margin: auto; */
 }
 
 .dashboard-wrap .dashboard {
@@ -476,10 +471,8 @@ div.dashboard-wrap {
 }
 
 .dashboard.view-only {
-	/* flex-direction: column; */
 	position: relative;
 	flex-grow: 1;
-	/* min-height: calc(100vh - 20px); */
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -570,7 +563,6 @@ div.editor {
 
 .editor .options {
 	padding: 20px;
-	/* flex-grow: 1; */
 	background-color: #333f46;
 	color: white;
 }
@@ -751,7 +743,6 @@ div.check-content.svg {
 	justify-content: center;
 	align-items: center;
 	display: block;
-	/* text-align: center; */
 	height: 100%;
 	width: 100%;
 }
@@ -773,7 +764,6 @@ a {
 }
 
 .element-list > .element-item > .drop-zone.active {
-	/* background-color: #797979; */
 	opacity: 50%;
 	height: 20px;
 }

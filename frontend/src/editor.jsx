@@ -32,7 +32,11 @@ const dashboardReducer = (state, action) => {
 		case 'setGlobalWarning':
 			return {...state, warningSound: action.warningSound};	
 		case 'setGlobalUnknown':
-			return {...state, unknownSound: action.unknownSound};	
+			return {...state, unknownSound: action.unknownSound};
+		case 'setGlobalUp':
+			return {...state, upSound: action.upSound};
+		case 'setGlobalDown':
+			return {...state, downSound: action.downSound};			
 		case 'setBackground':
 			console.log('Setting background to ' + action.background)
 			return {...state, background: action.background};
@@ -440,7 +444,7 @@ const AdvancedAlertOptions = ({dashboardDispatch, display, dashboard}) => {
 			});
 			console.log(res.url)
 		} catch (e) {
-			console.log('failed to upload image and set background');
+			console.log('failed to upload sound');
 			console.log(e);
 		}
 	}
@@ -453,7 +457,7 @@ const AdvancedAlertOptions = ({dashboardDispatch, display, dashboard}) => {
 				criticalSound: res.url
 			});
 		} catch (e) {
-			console.log('failed to upload image and set background');
+			console.log('failed to upload sound');
 			console.log(e);
 		}
 	}
@@ -466,7 +470,7 @@ const AdvancedAlertOptions = ({dashboardDispatch, display, dashboard}) => {
 				warningSound: res.url
 			});
 		} catch (e) {
-			console.log('failed to upload image and set background');
+			console.log('failed to upload sound');
 			console.log(e);
 		}
 	}
@@ -479,8 +483,33 @@ const AdvancedAlertOptions = ({dashboardDispatch, display, dashboard}) => {
 				unknownSound: res.url
 			});
 		} catch (e) {
-			//TODO improve
-			console.log('failed to upload image and set background');
+			console.log('failed to upload sound');
+			console.log(e);
+		}
+	}
+
+	const handleUpSound = async e => {
+		try {
+			const res = await meerkat.uploadFile(e.target.files[0]);
+			dashboardDispatch({
+				type: 'setGlobalUp',
+				upSound: res.url
+			});
+		} catch (e) {
+			console.log('failed to upload sound');
+			console.log(e);
+		}
+	}
+
+	const handleDownSound = async e => {
+		try {
+			const res = await meerkat.uploadFile(e.target.files[0]);
+			dashboardDispatch({
+				type: 'setGlobalDown',
+				downSound: res.url
+			});
+		} catch (e) {
+			console.log('failed to upload sound');
 			console.log(e);
 		}
 	}
@@ -488,7 +517,7 @@ const AdvancedAlertOptions = ({dashboardDispatch, display, dashboard}) => {
 	const audioControls = src => {
 		if(src) {
 			return <Fragment>
-				<a target="_blank" href={src}>view</a>&nbsp;
+				<a target="_blank" style="color: white" href={src}>view</a>&nbsp;
 			</Fragment>
 		}
 		return null;
@@ -503,11 +532,19 @@ const AdvancedAlertOptions = ({dashboardDispatch, display, dashboard}) => {
 	}
 
 	const resetWarning = () => {
-		dashboardDispatch({type: 'setGlobalWarning',warningSound: "/dashboards-data/warning.mp3"});
+		dashboardDispatch({type: 'setGlobalWarning', warningSound: "/dashboards-data/warning.mp3"});
 	}
 
 	const resetUnknown = () => {
-		dashboardDispatch({type: 'setGlobalUnknown',unknownSound: "/dashboards-data/unknown.mp3"});
+		dashboardDispatch({type: 'setGlobalUnknown', unknownSound: "/dashboards-data/unknown.mp3"});
+	}
+
+	const resetUp = () => {
+		dashboardDispatch({type: 'setGlobalup', upSound: "/dashboards-data/up.mp3"});
+	}
+
+	const resetDown = () => {
+		dashboardDispatch({type: 'setGlobaldown', downSound: "/dashboards-data/down.mp3"});
 	}
 
 	return <div style={{display: display ? '' : 'none'}}>
@@ -531,6 +568,16 @@ const AdvancedAlertOptions = ({dashboardDispatch, display, dashboard}) => {
 		<input type="file" id="unknownSound" accept="audio/*" 
 			   placeholder="Upload an audio file" 
 			   onInput={handleUnknownSound}>
+		</input>
+		<label for="soundFile">Up Alert Sound {audioControls(dashboard.upSound)} <a onClick={resetUp}>default</a></label>
+		<input type="file" id="upSound" accept="audio/*" 
+			   placeholder="Upload an audio file" 
+			   onInput={handleUpSound}>
+		</input>
+		<label for="soundFile">Down Alert Sound {audioControls(dashboard.downSound)} <a onClick={resetDown}>default</a></label>
+		<input type="file" id="downSound" accept="audio/*" 
+			   placeholder="Upload an audio file" 
+			   onInput={handleDownSound}>
 		</input>
 	</div>
 }

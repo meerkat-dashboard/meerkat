@@ -33,6 +33,8 @@ type Dashboard struct {
 	CriticalSound string    `json:"criticalSound"`
 	WarningSound  string    `json:"warningSound"`
 	UnknownSound  string    `json:"unknownSound"`
+	UpSound       string    `json:"upSound"`
+	DownSound     string    `json:"downSound"`
 }
 
 //Element contains any service/host information needed
@@ -80,6 +82,8 @@ type Option struct {
 	WarningSound        string `json:"warningSound"`
 	UnknownSound        string `json:"unknownSound"`
 	CriticalSound       string `json:"criticalSound"`
+	UpSound             string `json:"upSound"`
+	DownSound           string `json:"downSound"`
 	MuteAlerts          bool   `json:"muteAlerts"`
 	PerfDataMode        bool   `json:"perfDataMode"`
 	PerfDataSelection   string `json:"perfDataSelection"`

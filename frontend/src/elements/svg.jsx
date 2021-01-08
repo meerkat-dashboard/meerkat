@@ -93,13 +93,15 @@ export function CheckSVG({options, dashboard, slug}) {
 	let warning = false;
 	let critical = false;
 	let unknown = false;
+	let upp = false;
+	let down = false;
 	let dash = {};
 
 	const initState = async () => {
 		const res = await meerkat.getIcingaObjectState(options.objectType, options.filter);
 		const state = icingaResultCodeToCheckState(options.objectType, res);
 		if (state === 'ok') ok = true;
-		if (state === 'up') ok = true;
+		if (state === 'up') upp = true;
 		if (state === 'down') warning = true;
 		if (state === 'warning') warning = true;
 		if (state === 'critical') critical = true;
@@ -111,43 +113,47 @@ export function CheckSVG({options, dashboard, slug}) {
 		meerkat.getDashboard(slug).then(async d => {
 			dash = await d
 
-			const o = options.okSound       ? new Audio(options.okSound)       : new Audio(dash.okSound);
-			const w = options.warningSound  ? new Audio(options.warningSound)  : new Audio(dash.warningSound);
-			const c = options.criticalSound ? new Audio(options.criticalSound) : new Audio(dash.criticalSound);
-			const u = options.unknownSound  ? new Audio(options.unknownSound)  : new Audio(dash.unknownSound);
+			const o   = options.okSound       ? new Audio(options.okSound)       : new Audio(dash.okSound);
+			const w   = options.warningSound  ? new Audio(options.warningSound)  : new Audio(dash.warningSound);
+			const c   = options.criticalSound ? new Audio(options.criticalSound) : new Audio(dash.criticalSound);
+			const u   = options.unknownSound  ? new Audio(options.unknownSound)  : new Audio(dash.unknownSound);
+			const up  = options.upSound       ? new Audio(options.upSound)       : new Audio(dash.upSound);
+			const dow = options.downSound     ? new Audio(options.downSound)     : new Audio(dash.downSound);
 
 			//get globalMute from dashboard JSON
 			const muteAlerts = () => {
 				meerkat.getDashboard(slug).then(async d => {
 					if (options.muteAlerts || d.globalMute) {
-						o.volume = 0.0; w.volume = 0.0; c.volume = 0.0; u.volume = 0.0;
+						o.volume = 0.0; w.volume = 0.0; c.volume = 0.0; u.volume = 0.0; up.volume = 0.0; dow.volume = 0.0;
 					} else {
-						o.volume = 1.0; w.volume = 1.0; c.volume = 1.0; u.volume = 1.0;
+						o.volume = 1.0; w.volume = 1.0; c.volume = 1.0; u.volume = 1.0; up.volume = 1.0; dow.volume = 1.0;
 					}
 				});
 			}
 
 			const alertSound = (state) => {
 				if (options.objectType !== null) {
-					const resetState = (o, w, c ,u) => {
+					const resetState = (o, w, c, u, up, d) => {
 						if (o) ok = false;
 						if (w) warning = false; 
 						if (c) critical = false;
 						if (u) unknown = false; 
+						if (up) up = false;
+						if (d)  down = false; 
 					}
 					
 					if(options.objectType === 'service') {
 						switch(state){
-							case 'ok':       if (!ok)       {o.play(); ok = true;       resetState(0,1,1,1)} break;
-							case 'warning':  if (!warning)  {w.play(); warning = true;  resetState(1,0,1,1)} break;   
-							case 'critical': if (!critical) {c.play(); critical = true; resetState(1,1,0,1)} break;
-							case 'unknown':  if (!unknown)  {u.play(); unknown = true;  resetState(1,1,1,0)} break;
+							case 'ok':       if (!ok)       {o.play(); ok = true;       resetState(0,1,1,1,1,1)} break;
+							case 'warning':  if (!warning)  {w.play(); warning = true;  resetState(1,0,1,1,1,1)} break;
+							case 'critical': if (!critical) {c.play(); critical = true; resetState(1,1,0,1,1,1)} break;
+							case 'unknown':  if (!unknown)  {u.play(); unknown = true;  resetState(1,1,1,0,1,1)} break;
 						}	
 					} else if(options.objectType === 'host') {
 						console.log(state);
 						switch(state){
-							case 'up':   if (!ok)      { o.play(); ok = true;      resetState(0,1,1,1)} break;
-							case 'down': if (!warning) { w.play(); warning = true; resetState(1,0,1,1)} break;
+							case 'up':   if (!upp)  { o.play(); upp = true;  resetState(1,1,1,1,0,1)} break;
+							case 'down': if (!down) { w.play(); down = true; resetState(1,1,1,1,1,0)} break;
 						}
 					}
 				}
@@ -234,47 +240,65 @@ const AdvancedSVGOptions = ({options, updateOptions, display}) => {
 		return null;
 	}
 
-	const resetDefaultOk = (src) => {
-		updateOptions({
-			okSound: "/dashboards-data/ok.mp3"
-		})
+	const resetOk = () => {
+		updateOptions({okSound: ""});
 	}
 
-	const defaultAlerts = (src) => {
-		if(src) {
-			return <div>
-				<a onClick={resetDefaultOk()}>default</a>
-			</div>
-		}
-		return null;
-	} 
-	
+	const resetCritical = () => {
+		updateOptions({resetSound: ""});
+	}
+
+	const resetWarning = () => {
+		updateOptions({warningSound: ""});
+	}
+
+	const resetUnknown = () => {
+		updateOptions({unknownSound: ""});
+	}
+
+	const resetUp = () => {
+		updateOptions({upSound: ""});
+	}
+
+	const resetDown = () => {
+		updateOptions({downSound: ""});
+	}
 
 	return <div style={{display: display ? '' : 'none'}}>
-		<br/>
-		<label class="status-font-size">Mute SVG Alerts</label>
-    	<span><input type="checkbox" defaultChecked={options.muteAlerts} onChange={e => muteAlerts(e)} class="form-control mute-sounds"/></span>
-		<label for="soundFile">Ok Alert Sound {audioControls(options.okSound)}{defaultAlerts(options.okSound)} </label>
-		<input type="file" id="okSound" accept="audio/*" 
-			   placeholder="Upload an audio file" 
-			   onInput={e => handleAudioFile('okSound', e.target.files)}>
-		</input>
-		<label for="soundFile">Warning Alert Sound {audioControls(options.warningSound)}</label>
-		<input type="file" id="warningSound" accept="audio/*" 
-			   placeholder="Upload an audio file" 
-			   onInput={e => handleAudioFile('warningSound', e.target.files)}>
-		</input>
-		<label for="soundFile">Critical Alert Sound {audioControls(options.criticalSound)}</label>
-		<input type="file" id="criticalSound" accept="audio/*" 
-			   placeholder="Upload an audio file" 
-			   onInput={e => handleAudioFile('criticalSound', e.target.files)}>
-		</input>
-		<label for="soundFile">Unknown Alert Sound {audioControls(options.unknownSound)}</label>
-		<input type="file" id="unknownSound" accept="audio/*" 
-			   placeholder="Upload an audio file" 
-			   onInput={e => handleAudioFile('unknownSound', e.target.files)}>
-		</input>
-	</div>
+	<br/>
+	<label class="status-font-size">Mute Card Alerts</label>
+	<span><input type="checkbox" defaultChecked={options.muteAlerts} onChange={e => muteAlerts(e)} class="form-control mute-sounds"/></span><br/><br/>
+	<label for="soundFile">Ok Alert Sound {audioControls(options.okSound)} <a onClick={resetOk}>default</a></label>
+	<input type="file" id="okSound" accept="audio/*" 
+		   placeholder="Upload an audio file" 
+		   onInput={e => handleAudioFile('okSound', e.target.files)}>
+	</input>
+	<label for="soundFile">Warning Alert Sound {audioControls(options.warningSound)} <a onClick={resetCritical}>default</a></label>
+	<input type="file" id="warningSound" accept="audio/*" 
+		   placeholder="Upload an audio file" 
+		   onInput={e => handleAudioFile('warningSound', e.target.files)}>
+	</input>
+	<label for="soundFile">Critical Alert Sound {audioControls(options.criticalSound)} <a onClick={resetWarning}>default</a></label>
+	<input type="file" id="criticalSound" accept="audio/*" 
+		   placeholder="Upload an audio file" 
+		   onInput={e => handleAudioFile('criticalSound', e.target.files)}>
+	</input>
+	<label for="soundFile">Unknown Alert Sound {audioControls(options.unknownSound)} <a onClick={resetUnknown}>default</a></label>
+	<input type="file" id="unknownSound" accept="audio/*" 
+		   placeholder="Upload an audio file" 
+		   onInput={e => handleAudioFile('unknownSound', e.target.files)}>
+	</input>
+	<label for="soundFile">Up Alert Sound {audioControls(options.upSound)} <a onClick={resetUp}>default</a></label>
+	<input type="file" id="upSound" accept="audio/*" 
+		   placeholder="Upload an audio file" 
+		   onInput={e => handleAudioFile('upSound', e.target.files)}>
+	</input>
+	<label for="soundFile">Down Alert Sound {audioControls(options.downSound)} <a onClick={resetDown}>default</a></label>
+	<input type="file" id="downSound" accept="audio/*" 
+		   placeholder="Upload an audio file" 
+		   onInput={e => handleAudioFile('downSound', e.target.files)}>
+	</input>
+</div>
 }
   
 export const CheckSVGDefaults = {
