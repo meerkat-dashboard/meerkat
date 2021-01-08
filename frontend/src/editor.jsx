@@ -100,6 +100,7 @@ export function Editor({slug, selectedElementId}) {
 	const [highlightedElementId, setHighlightedElementId] = useState(null);
 
 	useEffect(() => {
+		console.log("HI");
 		meerkat.getDashboard(slug).then(async d => {
 			dashboardDispatch({ type: 'setDashboard', dashboard: d });
 		});
@@ -138,6 +139,14 @@ export function Editor({slug, selectedElementId}) {
 		setSavingDashboard(false);
 	}
 
+	const areYouSure = () => {
+		console.log(dashboard);
+		console.log(slug);
+
+		if (dashboard !== dashboard) alert("Are u sure");
+		route('/')
+	}
+
 	return <Fragment>
 		<header class="telstra-color-top-border">
 			<DashboardView dashboard={dashboard} slug={slug} dashboardDispatch={dashboardDispatch}
@@ -156,7 +165,7 @@ export function Editor({slug, selectedElementId}) {
 			</div>
 			</div>
 			<div class="side-bar-footer lefty-righty">
-				<button class="btn btn-outline-primary " onClick={e => route('/')}>Home</button>
+				<button class="btn btn-outline-primary " onClick={areYouSure}>Home</button>
 				<button onClick={saveDashboard} class={ savingDashboard ? 'loading' : ''} class="rounded btn-primary btn-large">Save Dashboard</button>
 			</div>
 		</header>

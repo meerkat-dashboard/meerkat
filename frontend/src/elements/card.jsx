@@ -157,39 +157,16 @@ export function CheckCardOptions({options, updateOptions}) {
 }
 
 const PerfDataOptions = ({options, updateOptions}) => {
-	const [showPerfOptions, setShowPerf] = useState(null)
 	const [perfData, setPerfData] = useState(null);
 	const [objID, setObjID] = useState(null);
 
 	useEffect(() => {
-		options.perfDataMode ? setShowPerf(true) : setShowPerf(false);
-		clearPerfData();
-		meerkat.getCheckResult(options.objectType, options.id).then(async c => {
-			let perfData = c.results ? c.results[0].attrs.last_check_result.performance_data : null;
-			if (perfData !== null) {
-				if (typeof perfData !== "undefined") {
-					let arrPerf = [];
-					for( var i = 0; i < perfData.length; i++){ 
-						if (perfData[i].includes('=')) { 
-							arrPerf.push(perfData[i].split(';')[0]);
-						}
-					}
-					let objPerf = Object.fromEntries(arrPerf.map(s => s.split('=')));
-					setPerfData(objPerf)
-				}
-			} else {
-				setPerfData(null)
-			}
-		});
-	}, [options.perfDataMode, options.perfDataSelection])
-
-	const clearPerfData = () => {
 		if (!options.perfDataMode) {
 			updateOptions({
 				perfDataSelection: ''
 			})
 		}
-	}
+	}, [options.perfDataMode, options.perfDataSelection])
 
 	setObjID(options.id);
 
@@ -220,7 +197,7 @@ const PerfDataOptions = ({options, updateOptions}) => {
 	return <Fragment>
 		<label id="perf-mode" class="status-font-size">Performance Data Mode</label>
 		<input type="checkbox" defaultChecked={options.perfDataMode} onClick={e => updateOptions({perfDataMode: e.currentTarget.checked})} class="form-control perf-data-mode"/>
-		{options.perfDataMode || showPerfOptions ?
+		{options.perfDataMode ?
 			<select onInput={e => updateOptions({perfDataSelection: e.currentTarget.value})} value={options.perfDataSelection}>
 				<option value={null} selected disabled>Choose away...</option>
 					{Object.keys(perfData).map(perf => (
