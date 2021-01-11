@@ -128,7 +128,7 @@ export function CheckCard({options, slug, dashboard}) {
 
 	return <div class={"check-content card " + checkState}>
 		<div class="check-state" style={`font-size: ${options.statusFontSize}px`}>
-			{perfValue ? perfValue.replace(/[A-Za-z]/g, '') : checkState}
+			{perfValue ? Number(perfValue.replace(/[^\d.-]/g, '')) : checkState}
 		</div>
 	</div>
 }
