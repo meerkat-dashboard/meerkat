@@ -25,8 +25,8 @@ export function StaticTextOptions({options, updateOptions}) {
 				onClick={e => updateOptions({textAlign: 'start'})}>Left</button>
 			<button class={`selector ${options.textAlign === 'center' ? 'active' : ''}`} 
 				onClick={e => updateOptions({textAlign: 'center'})}>Center</button>
-			<button class={`selector ${options.textAlign === 'end' ? 'active' : ''}`} 
-				onClick={e => updateOptions({textAlign: 'end'})}>Right</button>
+			<button class={`selector ${options.textAlign === 'flex-end' ? 'active' : ''}`} 
+				onClick={e => updateOptions({textAlign: 'flex-end'})}>Right</button>
 		</div>
 
 		<div class="selection spacer">
