@@ -35,7 +35,7 @@ export function CheckLineOptions({options, updateOptions}) {
 				onClick={e => updateOptions({rightArrow: e.currentTarget.checked})}/>
 			<label for="right-arrow" class="no-margin" style="font-weight: normal">Right</label>
 		</div>
-		<br/>	   
+		<br/>
 		<button class="rounded btn-primary btn-large" onClick={onClickAdvanced}>{showAdvanced ? 'Hide Options' : 'Advanced Options'}</button>
 		<AdvancedLineOptions options={options} updateOptions={updateOptions} display={showAdvanced}/>
 	</div>
@@ -97,33 +97,33 @@ const AdvancedLineOptions = ({options, updateOptions, display}) => {
     	<span><input type="checkbox" defaultChecked={options.muteAlerts} onChange={e => muteAlerts(e)} class="form-control mute-sounds"/></span>
 		<br/><br/>
 		<label for="soundFile">Ok Alert Sound {audioControls(options.okSound)} <a onClick={resetOk}>default</a></label>
-		<input type="file" id="okSound" accept="audio/*" 
-			   placeholder="Upload an audio file" 
+		<input type="file" id="okSound" accept="audio/*"
+			   placeholder="Upload an audio file"
 			   onInput={e => handleAudioFile('okSound', e.target.files)}>
 		</input>
 		<label for="soundFile">Warning Alert Sound {audioControls(options.warningSound)} <a onClick={resetCritical}>default</a></label>
-		<input type="file" id="warningSound" accept="audio/*" 
-			   placeholder="Upload an audio file" 
+		<input type="file" id="warningSound" accept="audio/*"
+			   placeholder="Upload an audio file"
 			   onInput={e => handleAudioFile('warningSound', e.target.files)}>
 		</input>
 		<label for="soundFile">Critical Alert Sound {audioControls(options.criticalSound)} <a onClick={resetWarning}>default</a></label>
-		<input type="file" id="criticalSound" accept="audio/*" 
-			   placeholder="Upload an audio file" 
+		<input type="file" id="criticalSound" accept="audio/*"
+			   placeholder="Upload an audio file"
 			   onInput={e => handleAudioFile('criticalSound', e.target.files)}>
 		</input>
 		<label for="soundFile">Unknown Alert Sound {audioControls(options.unknownSound)} <a onClick={resetUnknown}>default</a></label>
-		<input type="file" id="unknownSound" accept="audio/*" 
-			   placeholder="Upload an audio file" 
+		<input type="file" id="unknownSound" accept="audio/*"
+			   placeholder="Upload an audio file"
 			   onInput={e => handleAudioFile('unknownSound', e.target.files)}>
 		</input>
 		<label for="soundFile">Up Alert Sound {audioControls(options.upSound)} <a onClick={resetUp}>default</a></label>
-		<input type="file" id="upSound" accept="audio/*" 
-			   placeholder="Upload an audio file" 
+		<input type="file" id="upSound" accept="audio/*"
+			   placeholder="Upload an audio file"
 			   onInput={e => handleAudioFile('upSound', e.target.files)}>
 		</input>
 		<label for="soundFile">Down Alert Sound {audioControls(options.downSound)} <a onClick={resetDown}>default</a></label>
-		<input type="file" id="downSound" accept="audio/*" 
-			   placeholder="Upload an audio file" 
+		<input type="file" id="downSound" accept="audio/*"
+			   placeholder="Upload an audio file"
 			   onInput={e => handleAudioFile('downSound', e.target.files)}>
 		</input>
 	</div>
@@ -133,6 +133,7 @@ const AdvancedLineOptions = ({options, updateOptions, display}) => {
 export function CheckLine({options, dashboard, slug}) {
 	const svgRef = useRef({clientWidth: 100, clientHeight: 40});
 	const [checkState, setCheckState] = useState(null);
+	const [acknowledged, setAcknowledged] = useState("");
 
 	let ok = false;
 	let warning = false;
@@ -144,7 +145,8 @@ export function CheckLine({options, dashboard, slug}) {
 
 	const initState = async () => {
 		const res = await meerkat.getIcingaObjectState(options.objectType, options.filter);
-		const state = icingaResultCodeToCheckState(options.objectType, res);
+		const state = icingaResultCodeToCheckState(options.objectType, res.MaxState);
+		res.Acknowledged ? setAcknowledged("ack") : setAcknowledged("");
 		if (state === 'ok') ok = true;
 		if (state === 'up') upp = true;
 		if (state === 'down') down = true;
@@ -180,19 +182,19 @@ export function CheckLine({options, dashboard, slug}) {
 				if (options.objectType !== null) {
 					const resetState = (o, w, c, u, up, d) => {
 						if (o) ok = false;
-						if (w) warning = false; 
+						if (w) warning = false;
 						if (c) critical = false;
-						if (u) unknown = false; 
+						if (u) unknown = false;
 						if (up) up = false;
-						if (d)  down = false; 
+						if (d)  down = false;
 					}
-					
+
 					if(options.objectType === 'service') {
 						switch(state){
 							case 'ok':       if (!ok)       {o.play(); ok = true;       resetState(0,1,1,1,1,1)} break;
 							case 'warning':  if (!warning)  {w.play(); warning = true;  resetState(1,0,1,1,1,1)} break;
 							case 'critical': if (!critical) {c.play(); critical = true; resetState(1,1,0,1,1,1)} break;
-							case 'unknown':  if (!unknown)  {u.play(); unknown = true;  resetState(1,1,1,0,1,1)} break;						}	
+							case 'unknown':  if (!unknown)  {u.play(); unknown = true;  resetState(1,1,1,0,1,1)} break;						}
 					} else if(options.objectType === 'host') {
 						console.log(state);
 						switch(state){
@@ -202,10 +204,11 @@ export function CheckLine({options, dashboard, slug}) {
 					}
 				}
 			}
-			
+
 			if (options.objectType !== null && options.filter !== null) {
 				const res = await meerkat.getIcingaObjectState(options.objectType, options.filter);
-				const state = icingaResultCodeToCheckState(options.objectType, res);
+				const state = icingaResultCodeToCheckState(options.objectType, res.MaxState);
+				res.Acknowledged ? setAcknowledged("ack") : setAcknowledged("");
 				setCheckState(state);
 				muteAlerts();
 				alertSound(state);
@@ -215,7 +218,7 @@ export function CheckLine({options, dashboard, slug}) {
 
 	//Setup check refresher
 	useEffect(() => {
-		if(options.objectType !== null && options.filter !== null) {		
+		if(options.objectType !== null && options.filter !== null) {
 			initState();
 			updateState();
 			const intervalID = window.setInterval(updateState, 30*1000)
@@ -231,13 +234,13 @@ export function CheckLine({options, dashboard, slug}) {
 		strokeColor = `var(--color-icinga-green)`
 	}
 	if(checkState === 'warning') {
-		strokeColor = `var(--color-icinga-yellow)`
+		strokeColor = acknowledged ? `#ffca39` : `var(--color-icinga-yellow)`
 	}
 	if(checkState === 'unknown') {
-		strokeColor = `var(--color-icinga-purple)`
+		strokeColor = acknowledged ? `#b594b5` : `var(--color-icinga-purple)`
 	}
 	if(checkState === 'critical' || checkState === 'down') {
-		strokeColor = `var(--color-icinga-red)`
+		strokeColor = acknowledged ? `#de5e84` : `var(--color-icinga-red)`
 	}
 
 	return <div class="check-content svg" ref={svgRef}>

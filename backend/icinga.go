@@ -24,13 +24,14 @@ type icingaAPIResult struct {
 }
 
 type icingaAttributes struct {
-	Name        string   `json:"name"`
-	HostName    string   `json:"host_name"`
-	DisplayName string   `json:"display_name"`
-	Command     string   `json:"check_command"`
-	State       float32  `json:"state"`
-	Interval    float32  `json:"check_interval"`
-	Groups      []string `json:"groups"`
+	Acknowledgement float64  `json:"acknowledgement"`
+	Name            string   `json:"name"`
+	HostName        string   `json:"host_name"`
+	DisplayName     string   `json:"display_name"`
+	Command         string   `json:"check_command"`
+	State           float32  `json:"state"`
+	Interval        float32  `json:"check_interval"`
+	Groups          []string `json:"groups"`
 }
 
 func (ir *icingaAPIResult) toIcingaObject() icingaObject {
@@ -111,6 +112,11 @@ type varsBefore struct {
 	Reachable bool    `json:"reachable"`
 	State     float64 `json:"state"`
 	StateType float64 `json:"state_type"`
+}
+
+type together struct {
+	MaxState     int64
+	Acknowledged int64
 }
 
 func handleCheckResult(w http.ResponseWriter, r *http.Request) {
@@ -237,8 +243,6 @@ func handleIcingaCheckState(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println(req)
-
 	req.SetBasicAuth(config.IcingaUsername, config.IcingaPassword)
 
 	//Make request
@@ -248,6 +252,7 @@ func handleIcingaCheckState(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Icinga2 API error: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
+
 	defer res.Body.Close()
 
 	var results icingaAPIResults
@@ -266,8 +271,12 @@ func handleIcingaCheckState(w http.ResponseWriter, r *http.Request) {
 	}
 
 	max_state := int64(0)
+	acknowledged := int64(0)
+
+	fmt.Println(results)
 
 	for _, obj := range results.Results {
+		acknowledged = int64(obj.Attributes.Acknowledgement)
 		if int64(obj.Attributes.State) > max_state {
 			max_state = int64(obj.Attributes.State)
 			if int64(obj.Attributes.State) == 2 {
@@ -276,8 +285,11 @@ func handleIcingaCheckState(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	t := together{MaxState: max_state}
+	t.Acknowledged = acknowledged
+
 	enc := json.NewEncoder(w)
-	enc.Encode(max_state)
+	enc.Encode(&t)
 }
 
 func handleIcingaCheck(w http.ResponseWriter, r *http.Request) {

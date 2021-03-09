@@ -53,6 +53,12 @@ export function CheckSVGOptions({options, updateOptions}) {
 				onInput={e => updateOptions({warningStrokeColor: e.currentTarget.value})}/>
 			<input class="form-control" type="text" value={options.warningStrokeColor} disabled />
 		</div>
+		<label for="warning-stroke-color">Warning Acknowledged Stroke color <a onClick={e => clearField(e, 'warningStrokeColor')}>clear</a></label>
+		<div class="left spacer">
+			<input type="color" name="warning-stroke-color" id="warning-stroke-color" value={options.warningAcknowledgedStrokeColor}
+				onInput={e => updateOptions({warningAcknowledgedStrokeColor: e.currentTarget.value})}/>
+			<input class="form-control" type="text" value={options.warningAcknowledgedStrokeColor} disabled />
+		</div>
 		<hr />
 
 		<label for="unknownSvg">Unknown SVG</label>
@@ -65,6 +71,12 @@ export function CheckSVGOptions({options, updateOptions}) {
 			<input type="color" name="unknown-stroke-color" id="unknown-stroke-color" value={options.unknownStrokeColor}
 				onInput={e => updateOptions({unknownStrokeColor: e.currentTarget.value})}/>
 			<input class="form-control" type="text" value={options.unknownStrokeColor} disabled />
+		</div>
+		<label for="unknown-stroke-color">Unknown Acknowledged Stroke color <a onClick={e => clearField(e, 'unknownStrokeColor')}>clear</a></label>
+		<div class="left spacer">
+			<input type="color" name="unknown-stroke-color" id="unknown-stroke-color" value={options.unknownAcknowledgedStrokeColor}
+				onInput={e => updateOptions({unknownAcknowledgedStrokeColor: e.currentTarget.value})}/>
+			<input class="form-control" type="text" value={options.unknownAcknowledgedStrokeColor} disabled />
 		</div>
 		<hr />
 
@@ -79,6 +91,12 @@ export function CheckSVGOptions({options, updateOptions}) {
 				onInput={e => updateOptions({criticalStrokeColor: e.currentTarget.value})}/>
 			<input class="form-control" type="text" value={options.criticalStrokeColor} disabled />
 		</div>
+		<label for="critical-stroke-color">Critical Acknowledged Stroke color <a onClick={e => clearField(e, 'criticalStrokeColor')}>clear</a></label>
+		<div class="left spacer">
+			<input type="color" name="critical-stroke-color" id="critical-stroke-color" value={options.criticalAcknowledgedStrokeColor}
+				onInput={e => updateOptions({criticalAcknowledgedStrokeColor: e.currentTarget.value})}/>
+			<input class="form-control" type="text" value={options.criticalAcknowledgedStrokeColor} disabled />
+		</div>
 		<br/>
 		<button class="rounded btn-primary btn-large" onClick={onClickAdvanced}>{showAdvanced ? 'Hide Options' : 'Advanced Options'}</button>
 		<AdvancedSVGOptions options={options} updateOptions={updateOptions} display={showAdvanced}/>
@@ -88,6 +106,7 @@ export function CheckSVGOptions({options, updateOptions}) {
 //The rendered view (in the actual dashboard) of the Check SVG
 export function CheckSVG({options, dashboard, slug}) {
 	const [checkState, setCheckState] = useState(null);
+	const [acknowledged, setAcknowledged] = useState("");
 
 	let ok = false;
 	let warning = false;
@@ -99,7 +118,8 @@ export function CheckSVG({options, dashboard, slug}) {
 
 	const initState = async () => {
 		const res = await meerkat.getIcingaObjectState(options.objectType, options.filter);
-		const state = icingaResultCodeToCheckState(options.objectType, res);
+		const state = icingaResultCodeToCheckState(options.objectType, res.MaxState);
+		res.Acknowledged ? setAcknowledged("ack") : setAcknowledged("");
 		if (state === 'ok') ok = true;
 		if (state === 'up') upp = true;
 		if (state === 'down') warning = true;
@@ -135,20 +155,20 @@ export function CheckSVG({options, dashboard, slug}) {
 				if (options.objectType !== null) {
 					const resetState = (o, w, c, u, up, d) => {
 						if (o) ok = false;
-						if (w) warning = false; 
+						if (w) warning = false;
 						if (c) critical = false;
-						if (u) unknown = false; 
+						if (u) unknown = false;
 						if (up) up = false;
-						if (d)  down = false; 
+						if (d)  down = false;
 					}
-					
+
 					if(options.objectType === 'service') {
 						switch(state){
 							case 'ok':       if (!ok)       {o.play(); ok = true;       resetState(0,1,1,1,1,1)} break;
 							case 'warning':  if (!warning)  {w.play(); warning = true;  resetState(1,0,1,1,1,1)} break;
 							case 'critical': if (!critical) {c.play(); critical = true; resetState(1,1,0,1,1,1)} break;
 							case 'unknown':  if (!unknown)  {u.play(); unknown = true;  resetState(1,1,1,0,1,1)} break;
-						}	
+						}
 					} else if(options.objectType === 'host') {
 						console.log(state);
 						switch(state){
@@ -160,7 +180,8 @@ export function CheckSVG({options, dashboard, slug}) {
 			}
 			if (options.objectType !== null && options.filter !== null) {
 				const res = await meerkat.getIcingaObjectState(options.objectType, options.filter);
-				const state = icingaResultCodeToCheckState(options.objectType, res);
+				const state = icingaResultCodeToCheckState(options.objectType, res.MaxState);
+				res.Acknowledged ? setAcknowledged("ack") : setAcknowledged("");
 				setCheckState(state);
 				muteAlerts();
 				alertSound(state);
@@ -187,15 +208,18 @@ export function CheckSVG({options, dashboard, slug}) {
 		svgName = options.okSvg;
 	}
 	if(checkState === 'warning') {
-		styles = options.warningStrokeColor ? `stroke: ${options.warningStrokeColor}` : '';
+		let warningStroke = acknowledged !== "" ? options.warningAcknowledgedStrokeColor : options.warningStrokeColor;
+		styles = options.warningStrokeColor ? `stroke: ${warningStroke}` : '';
 		svgName = options.warningSvg;
 	}
 	if(checkState === 'unknown') {
-		styles = options.unknownStrokeColor ? `stroke: ${options.unknownStrokeColor}` : '';
+		let unknownStroke = acknowledged !== "" ? options.unknownAcknowledgedStrokeColor : options.unknownStrokeColor;
+		styles = options.unknownStrokeColor ? `stroke: ${unknownStroke}` : '';
 		svgName = options.unknownSvg;
 	}
 	if(checkState === 'critical' || checkState === 'down') {
-		styles = options.criticalStrokeColor ? `stroke: ${options.criticalStrokeColor}` : '';
+		let criticalStroke = acknowledged !== "" ? options.criticalAcknowledgedStrokeColor : options.criticalStrokeColor;
+		styles = options.criticalStrokeColor ? `stroke: ${criticalStroke}` : '';
 		svgName = options.criticalSvg;
 	}
 
@@ -269,46 +293,49 @@ const AdvancedSVGOptions = ({options, updateOptions, display}) => {
 	<label class="status-font-size">Mute Card Alerts</label>
 	<span><input type="checkbox" defaultChecked={options.muteAlerts} onChange={e => muteAlerts(e)} class="form-control mute-sounds"/></span><br/><br/>
 	<label for="soundFile">Ok Alert Sound {audioControls(options.okSound)} <a onClick={resetOk}>default</a></label>
-	<input type="file" id="okSound" accept="audio/*" 
-		   placeholder="Upload an audio file" 
+	<input type="file" id="okSound" accept="audio/*"
+		   placeholder="Upload an audio file"
 		   onInput={e => handleAudioFile('okSound', e.target.files)}>
 	</input>
 	<label for="soundFile">Warning Alert Sound {audioControls(options.warningSound)} <a onClick={resetCritical}>default</a></label>
-	<input type="file" id="warningSound" accept="audio/*" 
-		   placeholder="Upload an audio file" 
+	<input type="file" id="warningSound" accept="audio/*"
+		   placeholder="Upload an audio file"
 		   onInput={e => handleAudioFile('warningSound', e.target.files)}>
 	</input>
 	<label for="soundFile">Critical Alert Sound {audioControls(options.criticalSound)} <a onClick={resetWarning}>default</a></label>
-	<input type="file" id="criticalSound" accept="audio/*" 
-		   placeholder="Upload an audio file" 
+	<input type="file" id="criticalSound" accept="audio/*"
+		   placeholder="Upload an audio file"
 		   onInput={e => handleAudioFile('criticalSound', e.target.files)}>
 	</input>
 	<label for="soundFile">Unknown Alert Sound {audioControls(options.unknownSound)} <a onClick={resetUnknown}>default</a></label>
-	<input type="file" id="unknownSound" accept="audio/*" 
-		   placeholder="Upload an audio file" 
+	<input type="file" id="unknownSound" accept="audio/*"
+		   placeholder="Upload an audio file"
 		   onInput={e => handleAudioFile('unknownSound', e.target.files)}>
 	</input>
 	<label for="soundFile">Up Alert Sound {audioControls(options.upSound)} <a onClick={resetUp}>default</a></label>
-	<input type="file" id="upSound" accept="audio/*" 
-		   placeholder="Upload an audio file" 
+	<input type="file" id="upSound" accept="audio/*"
+		   placeholder="Upload an audio file"
 		   onInput={e => handleAudioFile('upSound', e.target.files)}>
 	</input>
 	<label for="soundFile">Down Alert Sound {audioControls(options.downSound)} <a onClick={resetDown}>default</a></label>
-	<input type="file" id="downSound" accept="audio/*" 
-		   placeholder="Upload an audio file" 
+	<input type="file" id="downSound" accept="audio/*"
+		   placeholder="Upload an audio file"
 		   onInput={e => handleAudioFile('downSound', e.target.files)}>
 	</input>
 </div>
 }
-  
+
 export const CheckSVGDefaults = {
 	okSvg: 'check-circle',
 	okStrokeColor: '#0ee16a',
 	warningSvg: 'alert-triangle',
 	warningStrokeColor: '#ff9000',
+	warningAcknowledgedStrokeColor: '#ffca39',
 	unknownSvg: 'help-circle',
 	unknownStrokeColor: '#970ee1',
+	unknownAcknowledgedStrokeColor: '#b594b5',
 	criticalSvg: 'alert-octagon',
 	criticalStrokeColor: '#ff0019',
+	criticalAcknowledgedStrokeColor: '#de5e84',
 	muteAlerts: false,
 }

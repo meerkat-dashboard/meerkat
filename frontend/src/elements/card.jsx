@@ -8,6 +8,7 @@ export function CheckCard({options, slug, dashboard}) {
 	const [checkState, setCheckState] = useState(false);
 	const [perfData, setPerfData] = useState(null);
 	const [perfValue, setPerfValue] = useState(null);
+	const [acknowledged, setAcknowledged] = useState("");
 
 	let ok = false;
 	let warning = false;
@@ -20,7 +21,8 @@ export function CheckCard({options, slug, dashboard}) {
 	const initState = async () => {
 		setPerfValue(null);
 		const res = await meerkat.getIcingaObjectState(options.objectType, options.filter);
-		const state = icingaResultCodeToCheckState(options.objectType, res);
+		const state = icingaResultCodeToCheckState(options.objectType, res.MaxState);
+		res.Acknowledged ? setAcknowledged('ack') : setAcknowledged("");
 		if (state === 'ok') ok = true;
 		if (state === 'warning') warning = true;
 		if (state === 'critical') critical = true;
@@ -36,8 +38,8 @@ export function CheckCard({options, slug, dashboard}) {
 			if (perfData !== null) {
 				if (typeof perfData !== "undefined" && perfData.length > 0) {
 					let arrPerf = [];
-					for( var i = 0; i < perfData.length; i++){ 
-						if (perfData[i].includes('=')) { 
+					for( var i = 0; i < perfData.length; i++){
+						if (perfData[i].includes('=')) {
 							arrPerf.push(perfData[i].split(';')[0]);
 						}
 					}
@@ -74,20 +76,20 @@ export function CheckCard({options, slug, dashboard}) {
 				if (options.objectType !== null) {
 					const resetState = (o, w, c, u, up, d) => {
 						if (o)  ok       = false;
-						if (w)  warning  = false; 
+						if (w)  warning  = false;
 						if (c)  critical = false;
-						if (u)  unknown  = false; 
+						if (u)  unknown  = false;
 						if (up) up       = false;
-						if (d)  down     = false; 
+						if (d)  down     = false;
 					}
-					
+
 					if(options.objectType === 'service') {
 						switch(state){
 							case 'ok':       if (!ok)       {o.play(); ok = true;       resetState(0,1,1,1,1,1)} break;
 							case 'warning':  if (!warning)  {w.play(); warning = true;  resetState(1,0,1,1,1,1)} break;
 							case 'critical': if (!critical) {c.play(); critical = true; resetState(1,1,0,1,1,1)} break;
-							case 'unknown':  if (!unknown)  {u.play(); unknown = true;  resetState(1,1,1,0,1,1)} break;						
-						}	
+							case 'unknown':  if (!unknown)  {u.play(); unknown = true;  resetState(1,1,1,0,1,1)} break;
+						}
 					} else if(options.objectType === 'host') {
 						switch(state){
 							case 'up':   if (!upp)  { o.play(); upp = true;   resetState(1,1,1,1,0,1)} break;
@@ -99,7 +101,8 @@ export function CheckCard({options, slug, dashboard}) {
 
 			if (options.objectType !== null && options.filter !== null) {
 				const res = await meerkat.getIcingaObjectState(options.objectType, options.filter);
-				const state = icingaResultCodeToCheckState(options.objectType, res);
+				const state = icingaResultCodeToCheckState(options.objectType, res.MaxState);
+				res.Acknowledged ? setAcknowledged('ack') : setAcknowledged("");
 				setCheckState(state);
 				muteAlerts();
 				alertSound(state);
@@ -126,9 +129,10 @@ export function CheckCard({options, slug, dashboard}) {
 		}
 	}, [options.objectType, options.filter, options.perfDataSelection]);
 
-	return <div class={"check-content card " + checkState}>
-		<div class="check-state" style={`font-size: ${options.statusFontSize}px`}>
+	return <div class={"check-content card " + checkState + " " + `${checkState}-${acknowledged}`}>
+		<div class="check-state" style={`font-size: ${options.statusFontSize}px;` + `line-height: 1.1;`}>
 			{perfValue ? Number(perfValue.replace(/[^\d.-]/g, '')) : checkState}
+			{acknowledged ? <span><br/><span style="margin-left: 50px;">{acknowledged ? "(ACK)" : ""}</span></span> : ""}
 		</div>
 	</div>
 }
@@ -177,8 +181,8 @@ const PerfDataOptions = ({options, updateOptions}) => {
 			if (perfData !== null) {
 				if (typeof perfData !== "undefined") {
 					let arrPerf = [];
-					for( var i = 0; i < perfData.length; i++){ 
-						if (perfData[i].includes('=')) { 
+					for( var i = 0; i < perfData.length; i++){
+						if (perfData[i].includes('=')) {
 							arrPerf.push(perfData[i].split(';')[0]);
 						}
 					}
@@ -192,7 +196,7 @@ const PerfDataOptions = ({options, updateOptions}) => {
 	}
 
 	if(perfData === null) {
-		return <div><label>No Performance Data Available</label><br/></div>	
+		return <div><label>No Performance Data Available</label><br/></div>
 	}
 
 	return <Fragment>
@@ -205,7 +209,7 @@ const PerfDataOptions = ({options, updateOptions}) => {
 						<option key={perf} value={perf}>
 							{perf.toUpperCase()}
 						</option>
-					))} 
+					))}
 			</select>
 		: null}
 	</Fragment>
@@ -266,33 +270,33 @@ const AdvancedCheckOptions = ({options, updateOptions, display}) => {
     	<span><input type="checkbox" defaultChecked={options.muteAlerts} onChange={e => muteAlerts(e)} class="form-control mute-sounds"/></span>
 		<br/><br/>
 		<label for="soundFile">Ok Alert Sound {audioControls(options.okSound)} <a onClick={resetOk}>default</a></label>
-		<input type="file" id="okSound" accept="audio/*" 
-			   placeholder="Upload an audio file" 
+		<input type="file" id="okSound" accept="audio/*"
+			   placeholder="Upload an audio file"
 			   onInput={e => handleAudioFile('okSound', e.target.files)}>
 		</input>
 		<label for="soundFile">Warning Alert Sound {audioControls(options.warningSound)} <a onClick={resetCritical}>default</a></label>
-		<input type="file" id="warningSound" accept="audio/*" 
-			   placeholder="Upload an audio file" 
+		<input type="file" id="warningSound" accept="audio/*"
+			   placeholder="Upload an audio file"
 			   onInput={e => handleAudioFile('warningSound', e.target.files)}>
 		</input>
 		<label for="soundFile">Critical Alert Sound {audioControls(options.criticalSound)} <a onClick={resetWarning}>default</a></label>
-		<input type="file" id="criticalSound" accept="audio/*" 
-			   placeholder="Upload an audio file" 
+		<input type="file" id="criticalSound" accept="audio/*"
+			   placeholder="Upload an audio file"
 			   onInput={e => handleAudioFile('criticalSound', e.target.files)}>
 		</input>
 		<label for="soundFile">Unknown Alert Sound {audioControls(options.unknownSound)} <a onClick={resetUnknown}>default</a></label>
-		<input type="file" id="unknownSound" accept="audio/*" 
-			   placeholder="Upload an audio file" 
+		<input type="file" id="unknownSound" accept="audio/*"
+			   placeholder="Upload an audio file"
 			   onInput={e => handleAudioFile('unknownSound', e.target.files)}>
 		</input>
 		<label for="soundFile">Up Alert Sound {audioControls(options.upSound)} <a onClick={resetUp}>default</a></label>
-		<input type="file" id="upSound" accept="audio/*" 
-			   placeholder="Upload an audio file" 
+		<input type="file" id="upSound" accept="audio/*"
+			   placeholder="Upload an audio file"
 			   onInput={e => handleAudioFile('upSound', e.target.files)}>
 		</input>
 		<label for="soundFile">Down Alert Sound {audioControls(options.downSound)} <a onClick={resetDown}>default</a></label>
-		<input type="file" id="downSound" accept="audio/*" 
-			   placeholder="Upload an audio file" 
+		<input type="file" id="downSound" accept="audio/*"
+			   placeholder="Upload an audio file"
 			   onInput={e => handleAudioFile('downSound', e.target.files)}>
 		</input>
 	</div>

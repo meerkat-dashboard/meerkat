@@ -51,13 +51,25 @@ export function CheckImageOptions({options, updateOptions}) {
 		<input class="form-control" id="warning-image" name="warning-image" type="file"
 			accept="image/*" onInput={e => handleImageUpload('warningImage', e.target.files)}/>
 
+		<label for="warning-image">Warning Acknowledged State Image {imgControls('warningAcknowledgedImage')}</label>
+		<input class="form-control" id="warning-image" name="warning-image" type="file"
+			accept="image/*" onInput={e => handleImageUpload('warningAcknowledgedImage', e.target.files)}/>
+
 		<label for="unknown-image">Unknown State Image {imgControls('unknownImage')}</label>
 		<input class="form-control" id="unknown-image" name="unknown-image" type="file"
 			accept="image/*" onInput={e => handleImageUpload('unknownImage', e.target.files)}/>
-				
+
+		<label for="unknown-image">Unknown Acknowledged State Image {imgControls('unknownAcknowledgedImage')}</label>
+		<input class="form-control" id="unknown-image" name="unknown-image" type="file"
+			accept="image/*" onInput={e => handleImageUpload('unknownAcknowledgedImage', e.target.files)}/>
+
 		<label for="critical-image">Critical State Image {imgControls('criticalImage')}</label>
 		<input class="form-control" id="critical-image" name="critical-image" type="file"
 			accept="image/*" onInput={e => handleImageUpload('criticalImage', e.target.files)}/>
+
+		<label for="critical-image">Critical Acknowledged State Image {imgControls('criticalAcknowledgedImage')}</label>
+		<input class="form-control" id="critical-image" name="critical-image" type="file"
+			accept="image/*" onInput={e => handleImageUpload('criticalAcknowledgedImage', e.target.files)}/>
 		<br/>
 		<button class="rounded btn-primary btn-large" onClick={onClickAdvanced}>{showAdvanced ? 'Hide Options' : 'Advanced Options'}</button>
 		<AdvancedImageOptions options={options} updateOptions={updateOptions} display={showAdvanced}/>
@@ -112,6 +124,14 @@ const AdvancedImageOptions = ({options, updateOptions, display}) => {
 		updateOptions({downSound: ""});
 	}
 
+	const audioControls = (src) => {
+		if(src) {
+			return <Fragment>
+				<a target="_blank" href={src}>view</a>
+			</Fragment>
+		}
+		return null;
+	}
 
 	return <div style={{display: display ? '' : 'none'}}>
 		<br/>
@@ -119,42 +139,43 @@ const AdvancedImageOptions = ({options, updateOptions, display}) => {
     	<span><input type="checkbox" defaultChecked={options.muteAlerts} onChange={e => muteAlerts(e)} class="form-control mute-sounds"/></span>
 		<br/><br/>
 		<label for="soundFile">Ok Alert Sound {audioControls(options.okSound)} <a onClick={resetOk}>default</a></label>
-		<input type="file" id="okSound" accept="audio/*" 
-			   placeholder="Upload an audio file" 
+		<input type="file" id="okSound" accept="audio/*"
+			   placeholder="Upload an audio file"
 			   onInput={e => handleAudioFile('okSound', e.target.files)}>
 		</input>
 		<label for="soundFile">Warning Alert Sound {audioControls(options.warningSound)} <a onClick={resetCritical}>default</a></label>
-		<input type="file" id="warningSound" accept="audio/*" 
-			   placeholder="Upload an audio file" 
+		<input type="file" id="warningSound" accept="audio/*"
+			   placeholder="Upload an audio file"
 			   onInput={e => handleAudioFile('warningSound', e.target.files)}>
 		</input>
 		<label for="soundFile">Critical Alert Sound {audioControls(options.criticalSound)} <a onClick={resetWarning}>default</a></label>
-		<input type="file" id="criticalSound" accept="audio/*" 
-			   placeholder="Upload an audio file" 
+		<input type="file" id="criticalSound" accept="audio/*"
+			   placeholder="Upload an audio file"
 			   onInput={e => handleAudioFile('criticalSound', e.target.files)}>
 		</input>
 		<label for="soundFile">Unknown Alert Sound {audioControls(options.unknownSound)} <a onClick={resetUnknown}>default</a></label>
-		<input type="file" id="unknownSound" accept="audio/*" 
-			   placeholder="Upload an audio file" 
+		<input type="file" id="unknownSound" accept="audio/*"
+			   placeholder="Upload an audio file"
 			   onInput={e => handleAudioFile('unknownSound', e.target.files)}>
 		</input>
 		<label for="soundFile">Up Alert Sound {audioControls(options.upSound)} <a onClick={resetUp}>default</a></label>
-		<input type="file" id="upSound" accept="audio/*" 
-			   placeholder="Upload an audio file" 
+		<input type="file" id="upSound" accept="audio/*"
+			   placeholder="Upload an audio file"
 			   onInput={e => handleAudioFile('upSound', e.target.files)}>
 		</input>
 		<label for="soundFile">Down Alert Sound {audioControls(options.downSound)} <a onClick={resetDown}>default</a></label>
-		<input type="file" id="downSound" accept="audio/*" 
-			   placeholder="Upload an audio file" 
+		<input type="file" id="downSound" accept="audio/*"
+			   placeholder="Upload an audio file"
 			   onInput={e => handleAudioFile('downSound', e.target.files)}>
 		</input>
 	</div>
 }
-  
+
 
 //The rendered view (in the actual dashboard) of the Check Image
 export function CheckImage({options, dashboard, slug}) {
 	const [checkState, setCheckState] = useState(null);
+	const [acknowledged, setAcknowledged] = useState("");
 
 	let ok = false;
 	let warning = false;
@@ -166,7 +187,8 @@ export function CheckImage({options, dashboard, slug}) {
 
 	const initState = async () => {
 		const res = await meerkat.getIcingaObjectState(options.objectType, options.filter);
-		const state = icingaResultCodeToCheckState(options.objectType, res);
+		const state = icingaResultCodeToCheckState(options.objectType, res.MaxState);
+		res.Acknowledged ? setAcknowledged('ack') : setAcknowledged("");
 		if (state === 'ok') ok = true;
 		if (state === 'up') upp = true;
 		if (state === 'down') down = true;
@@ -202,20 +224,20 @@ export function CheckImage({options, dashboard, slug}) {
 				if (options.objectType !== null) {
 					const resetState = (o, w, c, u, up, d) => {
 						if (o) ok = false;
-						if (w) warning = false; 
+						if (w) warning = false;
 						if (c) critical = false;
-						if (u) unknown = false; 
+						if (u) unknown = false;
 						if (up) up = false;
-						if (d)  down = false; 
+						if (d)  down = false;
 					}
-					
+
 					if(options.objectType === 'service') {
 						switch(state){
 							case 'ok':       if (!ok)       {o.play(); ok = true;       resetState(0,1,1,1,1,1)} break;
 							case 'warning':  if (!warning)  {w.play(); warning = true;  resetState(1,0,1,1,1,1)} break;
 							case 'critical': if (!critical) {c.play(); critical = true; resetState(1,1,0,1,1,1)} break;
 							case 'unknown':  if (!unknown)  {u.play(); unknown = true;  resetState(1,1,1,0,1,1)} break;
-						}	
+						}
 					} else if(options.objectType === 'host') {
 						console.log(state);
 						switch(state){
@@ -227,7 +249,8 @@ export function CheckImage({options, dashboard, slug}) {
 			}
 			if (options.objectType !== null && options.filter !== null) {
 				const res = await meerkat.getIcingaObjectState(options.objectType, options.filter);
-				const state = icingaResultCodeToCheckState(options.objectType, res);
+				const state = icingaResultCodeToCheckState(options.objectType, res.MaxState);
+				res.Acknowledged ? setAcknowledged('ack') : setAcknowledged("");
 				setCheckState(state);
 				muteAlerts();
 				alertSound(state);
@@ -247,9 +270,9 @@ export function CheckImage({options, dashboard, slug}) {
 
 	let source = null;
 	if(checkState === 'ok' || checkState === 'up') {source = options.okImage}
-	if(checkState === 'warning') {source = options.warningImage}
-	if(checkState === 'unknown') {source = options.unknownImage}
-	if(checkState === 'critical' || checkState === 'down') {source = options.criticalImage}
+	if(checkState === 'warning') {source = acknowledged ? options.warningAcknowledgedImage : options.warningImage}
+	if(checkState === 'unknown') {source = acknowledged ? options.unknownAcknowledgedImage : options.unknownImage}
+	if(checkState === 'critical' || checkState === 'down') {source = acknowledged ? options.criticalAcknowledgedImage : options.criticalImage}
 
 	return <div class="check-content image">
 		<img src={source} />
