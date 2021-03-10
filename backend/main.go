@@ -86,6 +86,10 @@ func main() {
 	r.Get("/dashboard", handleListDashboards)
 	r.Get("/dashboard/{slug}", handleListDashboard)
 	r.Post("/dashboard", handleCreateDashboard)
+
+	r.Post("/settings", handleChangeSettings)
+	r.Get("/settings", handleGetSettings)
+
 	r.Post("/dashboard/{slug}", handleUpdateDashboard)
 	r.Delete("/dashboard/{slug}", handleDeleteDashboard)
 
