@@ -44,13 +44,13 @@ cp frontend /usr/local/meerkat/frontend -av
 
 chown nagios:nagios /usr/local/meerkat/ -R
 
-echo "installing meerkat service
+echo "installing meerkat service"
 cp contrib/meerkat.service /etc/systemd/system/meerkat.service
 systemctl daemon-reload
 systemctl restart meerkat
 
 echo "you need to fix the meerkat config file before it will work in /etc/meerkat.toml"
-echo " its currently like this:"
+echo "its currently like this""
 cat /etc/meerkat.toml
 
 
