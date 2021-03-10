@@ -10,6 +10,7 @@ echo "You need nodejs 12+ - attempting to install it for you"
 
 echo "press any key to continue or ctrl+c to abort"
 read
+apt install curl
 
 curl -sL https://deb.nodesource.com/setup_12.x -o nodesource_setup.sh
 
