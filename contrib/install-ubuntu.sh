@@ -33,7 +33,7 @@ cd ..
 cp -av dashboards-data /usr/local/meerkat/
 cp -av dashboards /usr/local/meerkat/
 
-cp config/meerkat.toml.example /etc/meerkat/meerkat.toml
+cp config/meerkat.toml.example /etc/meerkat.toml
 
 cd frontend/
 npm i
