@@ -6,15 +6,16 @@ echo "run this script from the git repo like ./contrib/install-ubuntu.sh, as it 
 GOVERSION=`go version |awk '{print $3}'|sed 's/go//'`
 
 echo "You need go version 1.15 or greater to run meerkat. You have version $GOVERSION."
-echo "You need nodejs 12+ - attempting to install it for you"
+echo "You need nodejs 15+ - attempting to install it for you"
 
 echo "press any key to continue or ctrl+c to abort"
 read
 apt install curl libcurl4
 
-curl -sL https://deb.nodesource.com/setup_12.x -o nodesource_setup.sh
+curl -sL https://deb.nodesource.com/setup_15.x -o nodesource_setup.sh
 
 bash nodesource_setup.sh
+
 apt install nodejs npm
 
 echo "installing meerkat"
