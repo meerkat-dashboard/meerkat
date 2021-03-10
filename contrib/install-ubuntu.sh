@@ -16,7 +16,7 @@ curl -sL https://deb.nodesource.com/setup_15.x -o nodesource_setup.sh
 
 bash nodesource_setup.sh
 
-apt install nodejs npm
+apt install nodejs 
 
 echo "installing meerkat"
 
