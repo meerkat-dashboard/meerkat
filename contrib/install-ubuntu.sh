@@ -51,7 +51,7 @@ systemctl daemon-reload
 systemctl restart meerkat
 
 echo "you need to fix the meerkat config file before it will work in /etc/meerkat.toml"
-echo "its currently like this""
+echo "its currently like this"
 cat /etc/meerkat.toml
 
 
