@@ -45,6 +45,7 @@ function CreateDashboardModal({ hide }) {
 				background: null,
 				elements: [],
 				globalMute: true,
+				variables: {},
 				okSound: "/dashboards-data/ok.mp3",
 				criticalSound: "/dashboards-data/critical.mp3",
 				warningSound: "/dashboards-data/warning.mp3",
@@ -82,166 +83,168 @@ function CreateDashboardModal({ hide }) {
 	</div>
 }
 
-function TemplateModal({hide, dashboard}) {
-	const [input, setInput] = useState(null)
-	const [index, setIndex] = useState(0);
-	const [dash, setDash] = useState(null);
-	const [uniqueDash, setUniqueDash] = useState(null);
-	const [title, setTitle] = useState(null);
-	const [matchAll, setMatchAll] = useState(true);
-	const [optionValue, setOptionValue] = useState('');
-	const [uniqueIndex, setUniqueIndex] = useState(0);
+// function TemplateModal({hide, dashboard}) {
+// 	const [input, setInput] = useState(null)
+// 	const [index, setIndex] = useState(0);
+// 	const [dash, setDash] = useState(null);
+// 	const [uniqueDash, setUniqueDash] = useState(null);
+// 	const [title, setTitle] = useState(null);
+// 	const [matchAll, setMatchAll] = useState(true);
+// 	const [optionValue, setOptionValue] = useState('');
+// 	const [uniqueIndex, setUniqueIndex] = useState(0);
 
-	const reg = /~(.*?)~/;
+// 	// const reg = /~~[a-Z,0-9]*~~/;
 
-	useEffect(() => {
-		setDash(dashboard);
-		setUniqueDash([...new Set(dashboard.elements.map(ele => ele.options.filter.match(reg) ? ele.options.filter.match(reg)[1] : null))])
-	}, []);
+// 	const reg = /~(.*?)~/;
 
-	const updateTitle = (dashboardIn, value) => {
-		let newDashboard = JSON.parse(JSON.stringify(dashboardIn));;
-		newDashboard.title = value;
-		setDash(newDashboard);
-		setTitle(value);
-	}
+// 	useEffect(() => {
+// 		setDash(dashboard);
+// 		setUniqueDash([...new Set(dashboard.elements.map(ele => ele.options.filter.match(reg) ? ele.options.filter.match(reg)[1] : null))])
+// 	}, []);
 
-	const updateFilter = (dashboardIn, value, index) => {
-		let newDashboard = JSON.parse(JSON.stringify(dashboardIn));
-		newDashboard.elements[index].options.filter = `~${newDashboard.elements[index].options.filter.replace(reg, value)}~`;
-		setDash(newDashboard);
-	}
+// 	const updateTitle = (dashboardIn, value) => {
+// 		let newDashboard = JSON.parse(JSON.stringify(dashboardIn));;
+// 		newDashboard.title = value;
+// 		setDash(newDashboard);
+// 		setTitle(value);
+// 	}
 
-	const updateFilterMA = (dashboardIn, value) => {
-		let newDashboard = JSON.parse(JSON.stringify(dashboardIn));
-		let selectedOption = `~${document.getElementById("variablesMA").value}~`;
-		dashboard.elements.forEach(function(ele) {
-			if (ele.options.filter.includes(selectedOption)) {
-				newDashboard.elements.forEach(function (newEle) {
-					if (newEle.options.filter.match(reg) && newEle.options.filter.includes(optionValue)) {
-						newEle.options.filter = newEle.options.filter.replace(reg, `~${value}~`);
-						setOptionValue(`~${value}~`);
-					}
-				})
-			}
-		});
-		setDash(newDashboard);
-	}
+// 	const updateFilter = (dashboardIn, value, index) => {
+// 		let newDashboard = JSON.parse(JSON.stringify(dashboardIn));
+// 		newDashboard.elements[index].options.filter = `~${newDashboard.elements[index].options.filter.replace(reg, value)}~`;
+// 		setDash(newDashboard);
+// 	}
 
-	const updateInput = (dashboardIn, index) => {
-		let newDashboard = JSON.parse(JSON.stringify(dashboardIn));;
-		document.getElementById('variable').value = "";
-		newDashboard.elements[index].options.filter.match(reg)[1];
-		document.getElementById('variable').value = newDashboard.elements[index].options.filter.match(reg)[1];
-		setInput(newDashboard.elements[index].options.filter.match(reg)[1]);
-		setDash(newDashboard);
-		setIndex(index);
-	}
+// 	const updateFilterMA = (dashboardIn, value) => {
+// 		let newDashboard = JSON.parse(JSON.stringify(dashboardIn));
+// 		let selectedOption = `~${document.getElementById("variablesMA").value}~`;
+// 		dashboard.elements.forEach(function(ele) {
+// 			if (ele.options.filter.includes(selectedOption)) {
+// 				newDashboard.elements.forEach(function (newEle) {
+// 					if (newEle.options.filter.match(reg) && newEle.options.filter.includes(optionValue)) {
+// 						newEle.options.filter = newEle.options.filter.replace(reg, `~${value}~`);
+// 						setOptionValue(`~${value}~`);
+// 					}
+// 				})
+// 			}
+// 		});
+// 		setDash(newDashboard);
+// 	}
 
-	const updateInputMA = (dashboardIn, value) => {
-		let newDashboard = JSON.parse(JSON.stringify(dashboardIn));
-		document.getElementById('variableMA').value = "";
-		dashboard.elements.forEach(function(ele, index) {
-			if (ele.options.filter.includes(`~${value}~`)) {
-				document.getElementById('variableMA').value = newDashboard.elements[index].options.filter.match(reg)[1];
-			}
-		});
-		setDash(newDashboard);
-		setInput(value);
-	}
+// 	const updateInput = (dashboardIn, index) => {
+// 		let newDashboard = JSON.parse(JSON.stringify(dashboardIn));;
+// 		document.getElementById('variable').value = "";
+// 		newDashboard.elements[index].options.filter.match(reg)[1];
+// 		document.getElementById('variable').value = newDashboard.elements[index].options.filter.match(reg)[1];
+// 		setInput(newDashboard.elements[index].options.filter.match(reg)[1]);
+// 		setDash(newDashboard);
+// 		setIndex(index);
+// 	}
 
-	const createFromTemplate = async e => {
-		e.preventDefault();
-		try {
-			const res = await meerkat.createDashboard(dash);
-			console.log(res.slug)
-			route(`/view/${res.slug}`);
-		} catch (e) {
-			console.log("Failed to create template")
-			console.log(e)
-		}
-	}
+// 	const updateInputMA = (dashboardIn, value) => {
+// 		let newDashboard = JSON.parse(JSON.stringify(dashboardIn));
+// 		document.getElementById('variableMA').value = "";
+// 		dashboard.elements.forEach(function(ele, index) {
+// 			if (ele.options.filter.includes(`~${value}~`)) {
+// 				document.getElementById('variableMA').value = newDashboard.elements[index].options.filter.match(reg)[1];
+// 			}
+// 		});
+// 		setDash(newDashboard);
+// 		setInput(value);
+// 	}
 
-	if ((dash || uniqueDash) === null) {
-		return <div class="modal-wrap">
-			<div class="modal-fixed">
-				<h3>Template Settings</h3>
-				<br />
-				<div class="subtle loading">Loading Template Vars</div>
-			</div>
-		</div>
-	}
+// 	const createFromTemplate = async e => {
+// 		e.preventDefault();
+// 		try {
+// 			const res = await meerkat.createDashboard(dash);
+// 			console.log(res.slug)
+// 			route(`/view/${res.slug}`);
+// 		} catch (e) {
+// 			console.log("Failed to create template")
+// 			console.log(e)
+// 		}
+// 	}
 
-	return <div class="modal-wrap" onMouseDown={hide}>
-		<div class="modal-fixed" onMouseDown={e => e.stopPropagation()}>
-			<h3>Template Settings</h3>
-			<br/>
-			<form onSubmit={createFromTemplate}>
-				<label for="siteID">Title</label>
-				<input class="form-control" id="title" name="title" type="text" placeholder="title"
-					onChange={e => updateTitle(dashboard, e.currentTarget.value)} defaultValue={dashboard.title}/>
+// 	if ((dash || uniqueDash) === null) {
+// 		return <div class="modal-wrap">
+// 			<div class="modal-fixed">
+// 				<h3>Template Settings</h3>
+// 				<br />
+// 				<div class="subtle loading">Loading Template Vars</div>
+// 			</div>
+// 		</div>
+// 	}
 
-				<label class="checkbox-inline">
-					Match All Occurrences <input type="checkbox" checked data-toggle="toggle" onChange={e => setMatchAll(e.currentTarget.checked)}/>
-				</label><br/>
+// 	return <div class="modal-wrap" id="" onMouseDown={hide}>
+// 		<div class="modal-fixed" onMouseDown={e => e.stopPropagation()}>
+// 			<h3>Template Settings</h3>
+// 			<br/>
+// 			<form onSubmit={createFromTemplate}>
+// 				<label for="siteID">Title</label>
+// 				<input class="form-control" id="title" name="title" type="text" placeholder="title"
+// 					onChange={e => updateTitle(dashboard, e.currentTarget.value)} defaultValue={dashboard.title}/>
 
-				<label for="variables">Variables</label>
-				{matchAll ?
-					<select class="form-control" name="variablesMA" id="variablesMA" onChange={e => {
-						setOptionValue(`~${e.currentTarget.value}~`);
-						updateInputMA(dash, e.currentTarget.value);
-					}}>
-					<option disabled selected value>Choose..</option>
-					{uniqueDash.map((element, index) => {
-						if (element !== null) {
-							return <option value={element}>
-								{element}
-							</option>
-						}
-					})}
-					</select>
-				:
-					<select class="form-control" name="variables" id="variables" onChange={e => updateInput(dash, e.currentTarget.value)}>
-					<option disabled selected value>Choose..</option>
-					{dash.elements.map((element, index) => {
-						if (element.options.filter.match(reg)) {
-							return <option value={index}>
-								{(element.options.objectType.charAt(0).toUpperCase() + element.options.objectType.slice(1)) + ' variable' + ' - ' + dashboard.elements[index].options.filter.match(reg)[1]}
-							</option>
-						}
-					})}
-					</select>
-				}
+// 				<label class="checkbox-inline">
+// 					Match All Occurrences <input type="checkbox" checked data-toggle="toggle" onChange={e => setMatchAll(e.currentTarget.checked)}/>
+// 				</label><br/>
 
-				{matchAll ?
-					<input class="form-control" id="variableMA" name={"variableMA-" + index} type="text" placeholder="Waiting for selection..."
-						defaultValue={input} onChange={e => updateFilterMA(dash, e.currentTarget.value)} disabled={input ? false : true} />
-				:
-					<input class="form-control" id="variable" name={"variable-" + index} type="text" placeholder="Waiting for selection..."
-						defaultValue={input} onChange={e => updateFilter(dash, e.currentTarget.value, index)} disabled={input ? false : true} />
-				}
- 
-				<div style="font-size: 12px; max-height: 75px; overflow-y: scroll;">
-					{dash.elements.map((element, index) => {
-						if (element.options.filter !== dashboard.elements[index].options.filter) {
-							return <div class="text-success">
-								&#10004;  {dashboard.elements[index].options.filter.match(reg)[1] + " changed to " + dash.elements[index].options.filter.match(reg)[1]}
-							</div>
-						}
-					})}
-				</div>
+// 				<label for="variables">Variables</label>
+// 				{matchAll ?
+// 					<select class="form-control" name="variablesMA" id="variablesMA" onChange={e => {
+// 						setOptionValue(`~${e.currentTarget.value}~`);
+// 						updateInputMA(dash, e.currentTarget.value);
+// 					}}>
+// 					<option disabled selected value>Choose..</option>
+// 					{uniqueDash.map((element, index) => {
+// 						if (element !== null) {
+// 							return <option value={element}>
+// 								{element}
+// 							</option>
+// 						}
+// 					})}
+// 					</select>
+// 				:
+// 					<select class="form-control" name="variables" id="variables" onChange={e => updateInput(dash, e.currentTarget.value)}>
+// 					<option disabled selected value>Choose..</option>
+// 					{dash.elements.map((element, index) => {
+// 						if (element.options.filter.match(reg)) {
+// 							return <option value={index}>
+// 								{(element.options.objectType.charAt(0).toUpperCase() + element.options.objectType.slice(1)) + ' variable' + ' - ' + dashboard.elements[index].options.filter.match(reg)[1]}
+// 							</option>
+// 						}
+// 					})}
+// 					</select>
+// 				}
 
-				<div class="right" style="margin-top: 20px">
-					<button class="rounded btn-primary btn-large" type="submit">Create From Template</button>
-				</div>
-			</form>
-		</div>
-	</div>
-}
+// 				{matchAll ?
+// 					<input class="form-control" id="variableMA" name={"variableMA-" + index} type="text" placeholder="Waiting for selection..."
+// 						defaultValue={input} onChange={e => updateFilterMA(dash, e.currentTarget.value)} disabled={input ? false : true} />
+// 				:
+// 					<input class="form-control" id="variable" name={"variable-" + index} type="text" placeholder="Waiting for selection..."
+// 						defaultValue={input} onChange={e => updateFilter(dash, e.currentTarget.value, index)} disabled={input ? false : true} />
+// 				}
+//  
+// 				<div style="font-size: 12px; max-height: 75px; overflow-y: scroll;">
+// 					{dash.elements.map((element, index) => {
+// 						if (element.options.filter !== dashboard.elements[index].options.filter) {
+// 							return <div class="text-success">
+// 								&#10004;  {dashboard.elements[index].options.filter.match(reg)[1] + " changed to " + dash.elements[index].options.filter.match(reg)[1]}
+// 							</div>
+// 						}
+// 					})}
+// 				</div>
+
+// 				<div class="right" style="margin-top: 20px">
+// 					<button class="rounded btn-primary btn-large" type="submit">Create From Template</button>
+// 				</div>
+// 			</form>
+// 		</div>
+// 	</div>
+// }
 
 function DashboardList({ dashboards, loadDashboards, filter }) {
 	const deleteDashboard = slug => meerkat.deleteDashboard(slug).then(loadDashboards);
-	const [showTemplate, setShowTemplate] = useState(false);
+	// const [showTemplate, setShowTemplate] = useState(false);
 
 	if (dashboards === null) {
 		return <div class="subtle loading">Loading Dashboards</div>
@@ -267,8 +270,8 @@ function DashboardList({ dashboards, loadDashboards, filter }) {
 				<a onClick={e => route(`/view/${slug}`)}>view</a>
 				<a onClick={e => route(`/edit/${slug}`)}>edit</a>
 				<a onClick={e => deleteDashboard(slug)}>delete</a>
-				<a onClick={e => setShowTemplate(true)}>template</a>
-				{showTemplate ? <TemplateModal key={`edit-modal-{dashboard.slug}`} hide={() => setShowTemplate(false)} dashboard={dashboard} /> : null}
+				{/* <a onClick={e => setShowTemplate(true)}>template</a> */}
+				{/* {showTemplate ? <TemplateModal key={`edit-modal-{dashboard.slug}`} hide={() => setShowTemplate(false)} dashboard={dashboard} /> : null} */}
 			</div>
 		</div>
 	});

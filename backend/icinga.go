@@ -235,6 +235,7 @@ func handleIcingaCheckState(w http.ResponseWriter, r *http.Request) {
 
 	req_url.Path = path.Join(req_url.Path, "/v1/objects", object_type+"s")
 	req_url.RawQuery = strings.ReplaceAll(url.Values{"filter": []string{filter}}.Encode(), "+", "%20")
+	// req_url.RawQuery = strings.ReplaceAll(url.Values{"filter": []string{filter}}.Encode(), "~", "")
 
 	req, err := http.NewRequest("GET", req_url.String(), nil)
 	if err != nil {
@@ -276,7 +277,9 @@ func handleIcingaCheckState(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(results)
 
 	for _, obj := range results.Results {
-		acknowledged = int64(obj.Attributes.Acknowledgement)
+		if int64(obj.Attributes.Acknowledgement) == 1 {
+			acknowledged = int64(obj.Attributes.Acknowledgement)
+		}
 		if int64(obj.Attributes.State) > max_state {
 			max_state = int64(obj.Attributes.State)
 			if int64(obj.Attributes.State) == 2 {
@@ -325,6 +328,7 @@ func handleIcingaCheck(w http.ResponseWriter, r *http.Request) {
 
 	if filter := r.URL.Query().Get("filter"); filter != "" {
 		req_url.RawQuery = strings.ReplaceAll(url.Values{"filter": []string{filter}}.Encode(), "+", "%20")
+		// req_url.RawQuery = strings.ReplaceAll(url.Values{"filter": []string{filter}}.Encode(), "~", "")
 	}
 
 	log.Printf("Requesting %s", req_url.String())
