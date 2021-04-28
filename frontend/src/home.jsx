@@ -109,6 +109,25 @@ function TemplateModal({slug, dashboards, dashboardX}) {
 
 			const params = new URLSearchParams(vars).toString();
 
+			// let matched = []
+
+			// inputs.forEach(changed => {
+			// 	if (changed.key !== changed.ori	) {
+			// 		matched.push(changed);
+			// 	}
+			// });
+
+			// dash.elements.forEach(ele => {
+			// 	matched.forEach(key => {
+			// 		if (ele.options.filter !== null) {
+			// 			if (ele.options.filter.includes(`~${key.ori}~`)) {
+			// 				let reg = new RegExp('~(' + key.ori + ')~', 'g');
+			// 				ele.options.filter = ele.options.filter.replaceAll(reg, `~${key.key}~`);
+			// 			}
+			// 		}
+			// 	})
+			// })
+
 			try {
 				route(`/view/${slug}?${params}`);
 			} catch (e) {
@@ -118,39 +137,39 @@ function TemplateModal({slug, dashboards, dashboardX}) {
 		}
 	}
 
-	const createFromTemplate = async e => {
-		e.preventDefault();
+	// const createFromTemplate = async e => {
+	// 	e.preventDefault();
 
-		let Break = false;
-		dashboards.forEach(board => {
-			if (board.title === title) {
-				alert("title must be unique");
-				Break = true;
-			}
-		});
+	// 	let Break = false;
+	// 	dashboards.forEach(board => {
+	// 		if (board.title === title) {
+	// 			alert("title must be unique");
+	// 			Break = true;
+	// 		}
+	// 	});
 
-		if (Break) return;
+	// 	if (Break) return;
 
-		if (dashboard.hasOwnProperty('variables')) {
-			delete dashboard['variables'];
-		}
+	// 	if (dashboard.hasOwnProperty('variables')) {
+	// 		delete dashboard['variables'];
+	// 	}
 
-		let vars = {};
+	// 	let vars = {};
 
-		for (const [_, property] of Object.entries(inputs)) {
-			vars[property.key] = property.val;
-		}
+	// 	for (const [_, property] of Object.entries(inputs)) {
+	// 		vars[property.key] = property.val;
+	// 	}
 
-		const dash = ({...dashboard, "title": title, "variables": vars})
+	// 	const dash = ({...dashboard, "title": title, "variables": vars})
 
-		try {
-			const res = await meerkat.createDashboard(dash);
-			route(`/view/${res.slug}`);
-		} catch (e) {
-			console.log("Failed to create dashboard from template");
-			console.log(e);
-		}
-	}
+	// 	try {
+	// 		const res = await meerkat.createDashboard(dash);
+	// 		route(`/view/${res.slug}`);
+	// 	} catch (e) {
+	// 		console.log("Failed to create dashboard from template");
+	// 		console.log(e);
+	// 	}
+	// }
 
 	const populateInputs = (board) => {
 		let exist = [];
@@ -209,21 +228,23 @@ function TemplateModal({slug, dashboards, dashboardX}) {
 					<div class="modal-wrap" id={`id-${slug}`}>
 						<div class="modal-fixed" onMouseDown={e => e.stopPropagation()}>
 
-	 						<label class="template-label-title checkbox-inline">Template Settings
+							<label class="template-label">Template Settings</label>
+
+	 						{/* <label class="template-label-title checkbox-inline">Template Settings
 							 <label class="template-toggle-switch">
 								 		<input type="checkbox" class="template-toggle-switch" checked={viewMode} onChange={e => setViewMode(e.currentTarget.checked)}/>
 										<div></div>
 								</label>
 								<label class="view-save">{viewMode ? "save" : "view"}</label>
-							</label>
+							</label> */}
 
-	 						<form onSubmit={createFromTemplate}>
-								{!viewMode
+	 						<form>
+								{/* {!viewMode
 									? null
 									: <div>
 										<label for={`title-${slug}`} class="template-label">Title</label>
 									 	<input class="form-control h-30p" id={`title-${slug}`} name="title" type="text" placeholder="title" onChange={e => setTitle(e.currentTarget.value)} defaultValue={title}/>
-									  </div>}
+									  </div>} */}
 
 								<label for="variables" class="template-label">Variables</label>
 								<div class="form-row">
@@ -254,8 +275,9 @@ function TemplateModal({slug, dashboards, dashboardX}) {
 								</div>
 								<div class="right mt-2">
 									<button class="rounded btn-primary btn-large mr-2" type="submit" onClick={e => closeModal(e)}>Close</button>
-									{!viewMode ? <button class="rounded btn-primary btn-large" type="submit" onClick={e => viewFromTemplate(e)}>View</button>
-											   : <button class="rounded btn-primary btn-large" type="submit" disabled={disabled} onClick={e => createFromTemplate(e)}>Save</button>}
+									<button class="rounded btn-primary btn-large" type="submit" onClick={e => viewFromTemplate(e)}>View</button>
+									{/* {!viewMode ? <button class="rounded btn-primary btn-large" type="submit" onClick={e => viewFromTemplate(e)}>View</button>
+											   : <button class="rounded btn-primary btn-large" type="submit" disabled={disabled} onClick={e => createFromTemplate(e)}>Save</button>} */}
 								</div>
 							</form>
 						</div>

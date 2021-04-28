@@ -579,9 +579,10 @@ function VariablesModal({hide, dashboard, slug}) {
 		if (dashboard.hasOwnProperty("variables")) {
 			let i = 0;
 			for (const [key, value] of Object.entries(dashboard.variables)) {
-				exist.push({['id']: i++, ['key']: key, ['val']: value});
+				exist.push({['id']: i++, ['key']: key, ["ori"]: key, ['val']: value});
 			}
 		}
+
 		setInputs(exist);
 	}, []);
 
@@ -593,13 +594,32 @@ function VariablesModal({hide, dashboard, slug}) {
 		let vars = {};
 
 		for (const [key, property] of Object.entries(inputs)) {
-			vars[property.key] = property.value;
+			vars[property.key] = property.val;
 		}
 
-		dashboard['variables'] = vars;
+		let dash = ({...dashboard, "variables": vars});
+
+		let matched = []
+
+		inputs.forEach(changed => {
+			if (changed.key !== changed.ori	) {
+				matched.push(changed);
+			}
+		});
+
+		dash.elements.forEach(ele => {
+			matched.forEach(key => {
+				if (ele.options.filter !== null) {
+					if (ele.options.filter.includes(`~${key.ori}~`)) {
+						let reg = new RegExp('~(' + key.ori + ')~', 'g');
+						ele.options.filter = ele.options.filter.replaceAll(reg, `~${key.key}~`);
+					}
+				}
+			})
+		})
 
 		try {
-			await meerkat.saveDashboard(slug, dashboard);
+			await meerkat.saveDashboard(slug, dash);
 		} catch (e) {
 			console.log("Failed to change variables");
 			console.log(e);
@@ -614,7 +634,7 @@ function VariablesModal({hide, dashboard, slug}) {
 			return;
 		}
 
-		const newObj = [...inputs, {"id": inputs.length + 1, "key": "", "value": ""}];
+		const newObj = [...inputs, {"id": inputs.length + 1, "key": "", "val": ""}];
 		setInputs(newObj);
 	}
 
@@ -649,7 +669,7 @@ function VariablesModal({hide, dashboard, slug}) {
 				<div class="col-sm-4">
 				</div>
 			</div>
-			<form onSubmit={changeVariables}>
+			<form>
 				<div class="form-row">
 					{inputs.map((entry, i) => (
 						<div class="form-row" key={entry.id}>
@@ -658,7 +678,7 @@ function VariablesModal({hide, dashboard, slug}) {
           					  	<input
 									style="h-30p"
 									value={entry.key}
-									id={`var${i}_val`}
+									id={`var${i}_key`}
 									name={`var${i}_key`}
           					  	  	onChange={ent => updateKey(i, ent)}
           					  	/>
@@ -679,7 +699,7 @@ function VariablesModal({hide, dashboard, slug}) {
 				</div>
 				<div class="right mt-2">
 					<button class="rounded btn-primary btn-large mr-2" onClick={e => addInputs(e)}>Add</button>
-					<button class="rounded btn-primary btn-large" type="submit">Save</button>
+					<button class="rounded btn-primary btn-large" type="submit" onClick={e => changeVariables(e)}>Save</button>
 				</div>
 			</form>
 		</div>
