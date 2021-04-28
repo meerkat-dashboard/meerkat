@@ -215,7 +215,7 @@ function TemplateModal({slug, dashboards, dashboardX}) {
 	}
 
 	const isTemplate = () => {
-		if (Object.keys(dashboard.variables).length) {
+		if (dashboard.hasOwnProperty("variables") && Object.keys(dashboard.variables).length) {
 			return <a onClick={e => setShowTemplate(true)}>template</a>
 		}
 
