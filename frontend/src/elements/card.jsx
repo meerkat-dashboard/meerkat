@@ -20,7 +20,7 @@ export function CheckCard({options, slug, dashboard}) {
 
 	const initState = async () => {
 		setPerfValue(null);
-		const res = await meerkat.getIcingaObjectState(options.objectType, options.filter);
+		const res = await meerkat.getIcingaObjectState(options.objectType, options.filter, dashboard);
 		const state = icingaResultCodeToCheckState(options.objectType, res.MaxState);
 		res.Acknowledged ? setAcknowledged('ack') : setAcknowledged("");
 		if (state === 'ok') ok = true;
@@ -100,7 +100,7 @@ export function CheckCard({options, slug, dashboard}) {
 			}
 
 			if (options.objectType !== null && options.filter !== null) {
-				const res = await meerkat.getIcingaObjectState(options.objectType, options.filter);
+				const res = await meerkat.getIcingaObjectState(options.objectType, options.filter, dashboard);
 				const state = icingaResultCodeToCheckState(options.objectType, res.MaxState);
 				res.Acknowledged ? setAcknowledged('ack') : setAcknowledged("");
 				setCheckState(state);

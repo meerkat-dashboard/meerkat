@@ -23,7 +23,7 @@ or
 docker stack deploy -c docker-compose.yml meerkat
 ```
 
-The default `docker-compose.yml` uses the directories `config/` `dashboards/` and `dashboards/` for data persistance.  Feel free to edit docker-compose.yml as you see fit though, of course.  
+The default `docker-compose.yml` uses the directories `config/` `dashboards/` and `dashboards/` for data persistance.  Feel free to edit docker-compose.yml as you see fit though, of course.
 
 We have also included a Dockerfile in case you want to build your own image.
 The Makefile also has a few very helpful options for developers.
@@ -64,10 +64,10 @@ And don't forget to restart Icinga2 after updating that config file.
 
 ### Using Meerkat
 
-Once you have Meerkat up and running, you will want to create your first dashboard. Its probably best to have a sensible background first. The background needs to be a browser displayable image, even an animated gif is possible! We have used diagram tools for backgrounds, pictures of racks, world maps etc. It helps if you have thought about how you want the checks and background image to overlay together beforehand. You can author the Background Image in any program that can spit out image files that browsers can display, we have tested png, jpeg and webp. 
+Once you have Meerkat up and running, you will want to create your first dashboard. Its probably best to have a sensible background first. The background needs to be a browser displayable image, even an animated gif is possible! We have used diagram tools for backgrounds, pictures of racks, world maps etc. It helps if you have thought about how you want the checks and background image to overlay together beforehand. You can author the Background Image in any program that can spit out image files that browsers can display, we have tested png, jpeg and webp.
 
 1) Make a new dashboard by clicking Create New Dashboard button and giving it a name. Dashboards can then be edited and viewed from the main page.
-2) Edit your dashboard and add a Background Image. 
+2) Edit your dashboard and add a Background Image.
 3) Add new Elements and pick the type of Element you want to add.
 4) Drag and drop your Element over the top of the map to somewhere that makes sense relative to the background. You can resize and rotate elements.
 5) Remember to click Save. Many times.
@@ -81,7 +81,7 @@ These sources are largely self-explanatory, however the filter language for the 
 
 
 #### Icinga Card
-A simple rectangular card that displays the status of the check. You can adjust the font size. 
+A simple rectangular card that displays the status of the check. You can adjust the font size.
 
 #### Icinga SVG
 You can select an SVG to toggle between for the various states. The default SVGs are sensible, however feel free to choose whatever makes sense to you. There isn't a way to change the global defaults just yet.
@@ -101,8 +101,6 @@ Embed video or audio streams in the dashboards in case staring at the dashboard 
 ### Sounds
 Meerkat allows you to specify a global sound scheme for state change, as well as upload custom sounds. Each check can also have different sounds triggered on state change. Yes you can have the sysadmin DJ soundboard of doom you always wanted!
 
-### Roadmap
-Work is underway on adding performance data, so you can pick a metric to display in a card contents.
 
 Future enhancements may include:
 * Authentication support (though it is meant to be displayed on a wall, without auth mostly)

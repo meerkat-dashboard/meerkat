@@ -48,6 +48,9 @@ type Element struct {
 
 //Option contains element options
 type Option struct {
+	Filter                          string `json:"filter"`
+	ObjectType                      string `json:"objectType"`
+	Selection                       string `json:"selection"`
 	CheckID                         string `json:"checkId"`
 	NameFontSize                    int    `json:"nameFontSize"`
 	StatusFontSize                  int    `json:"statusFontSize"`
@@ -92,6 +95,7 @@ type Option struct {
 	MuteAlerts                      bool   `json:"muteAlerts"`
 	PerfDataMode                    bool   `json:"perfDataMode"`
 	PerfDataSelection               string `json:"perfDataSelection"`
+	Dynamic                         bool   `json:"dynamic"`
 }
 
 //Rect helper struct for positions
@@ -262,8 +266,6 @@ func handleUpdateDashboard(w http.ResponseWriter, r *http.Request) {
 	width, height := getImageDimension(trimFirstRune(dashboard.Background))
 	dashboard.Height = strconv.Itoa(height)
 	dashboard.Width = strconv.Itoa(width)
-
-	// fmt.Println(width, height)
 
 	if err != nil {
 		log.Printf("JSON decode failure: %w", err.Error())

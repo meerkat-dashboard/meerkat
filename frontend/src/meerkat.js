@@ -21,7 +21,20 @@ export async function getIcingaServiceGroups() {
 	return res.json();
 }
 
-export async function getIcingaObjectState(objectType, filter) {
+function filterReplace(filter, dashboard) {
+	if (dashboard.hasOwnProperty('variables')) {
+		for (const [key, value] of Object.entries(dashboard.variables)) {
+			if (filter.includes(`~${key}~`)) {
+				let reg = new RegExp('~(' + key + ')~', 'g');
+				filter = filter.replaceAll(reg, `~${value}~`);
+			}
+		}
+	}
+	return filter;
+}
+
+export async function getIcingaObjectState(objectType, filter, dashboard) {
+	filter = filterReplace(filter, dashboard);
 	const res = await fetch(`/icinga/check_state?object_type=${encodeURIComponent(objectType)};filter=${encodeURIComponent(filter)}`);
 	if (res.status !== 200) {
 		return 3;
@@ -85,6 +98,13 @@ export async function saveDashboard(slug, dashboard) {
 	const res = await fetch(`/dashboard/${slug}`, {
 		method: 'POST',
 		body: JSON.stringify(dashboard)
+	})
+	return res.json();
+}
+
+export async function getTemplate(slug, params) {
+	const res = await fetch(`/template?templateid=${slug}&${params}`, {
+		method: 'GET',
 	})
 	return res.json();
 }

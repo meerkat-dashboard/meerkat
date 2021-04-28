@@ -17,10 +17,23 @@ import { StaticImage } from './statics/image';
 
 //Read only page
 export function Viewer({slug, dashboardReducer}) {
-	const [dashboard, setDashboard] =  useState(null);
+	let [dashboard, setDashboard] = useState(null);
+	let [vars, setVars] = useState(null);
+
+	const isQuery = () => window.location.search ? true : false;
 
 	useEffect(() => {
-		meerkat.getDashboard(slug).then(board => setDashboard(board));
+		if (isQuery()) {
+			meerkat.getDashboard(slug).then(function(dashboard) {
+				if (dashboard.hasOwnProperty("variables")) {
+					setVars(dashboard.variables);
+					const params = window.location.search.substr(1);
+					meerkat.getTemplate(slug, params).then(board => setDashboard(board));
+				}
+			});
+		} else {
+			meerkat.getDashboard(slug).then(board => setDashboard(board));
+		}
 	}, [slug]);
 
 	if(dashboard === null) {
@@ -35,6 +48,8 @@ export function Viewer({slug, dashboardReducer}) {
 		const rotation = element.rotation ? `rotate(${element.rotation}rad)` : `rotate(0rad)`;
 
 		let ele = null;
+
+		if (vars) dashboard['variables'] = vars;
 		if(element.type === 'check-card') { ele = <CheckCard options={element.options} dashboard={dashboard} slug={slug}/> }
 		if(element.type === 'check-svg') { ele = <CheckSVG options={element.options} dashboard={dashboard} slug={slug}/> }
 		if(element.type === 'check-image') { ele = <CheckImage options={element.options} dashboard={dashboard} slug={slug}/> }
@@ -58,11 +73,10 @@ export function Viewer({slug, dashboardReducer}) {
 		</div>
 	});
 
-	// style={{Height: height, Width: width}}
 	const backgroundImage = dashboard.background ? dashboard.background : null;
 
 	return <div class="dashboard view-only">
-		{backgroundImage ? <img src={backgroundImage} class="noselect" style="height: 100%; width: 100%;" id="dashboard-dimensions"/> 
+		{backgroundImage ? <img src={backgroundImage} class="noselect" style="height: 100%; width: 100%;" id="dashboard-dimensions"/>
 						 : <div class="noselect" style="height: 100vh; width: 100vw"></div>}
 		{elements}
 	</div>

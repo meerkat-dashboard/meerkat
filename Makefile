@@ -35,7 +35,7 @@ backend-dev:
 .PHONY: frontend-dev
 frontend-dev:
 	docker rm -f ${PROJECT_NAME}-frontend-dev || true
-	docker run --rm -it --name ${PROJECT_NAME}-frontend-dev -v $$(pwd)/frontend:/tmp/frontend --workdir /tmp/frontend -u $$(id -u) -e HOME=/tmp node:lts /bin/sh -c 'npm install && npm run dev'
+	docker run --rm -it --name ${PROJECT_NAME}-frontend-dev -v $$(pwd)/frontend:/tmp/frontend --workdir /tmp/frontend -u $$(id -u) -e HOME=/tmp node:lts /bin/sh -c 'npm install && npm run dev -- --watch'
 
 .PHONY: frontend-shell
 frontend-shell:

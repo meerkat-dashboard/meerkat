@@ -30,13 +30,13 @@ const dashboardReducer = (state, action) => {
 		case 'setGlobalCritical':
 			return {...state, criticalSound: action.criticalSound};
 		case 'setGlobalWarning':
-			return {...state, warningSound: action.warningSound};	
+			return {...state, warningSound: action.warningSound};
 		case 'setGlobalUnknown':
 			return {...state, unknownSound: action.unknownSound};
 		case 'setGlobalUp':
 			return {...state, upSound: action.upSound};
 		case 'setGlobalDown':
-			return {...state, downSound: action.downSound};			
+			return {...state, downSound: action.downSound};
 		case 'setBackground':
 			console.log('Setting background to ' + action.background)
 			return {...state, background: action.background};
@@ -100,7 +100,6 @@ export function Editor({slug, selectedElementId}) {
 	const [highlightedElementId, setHighlightedElementId] = useState(null);
 
 	useEffect(() => {
-		console.log("HI");
 		meerkat.getDashboard(slug).then(async d => {
 			dashboardDispatch({ type: 'setDashboard', dashboard: d });
 		});
@@ -125,7 +124,6 @@ export function Editor({slug, selectedElementId}) {
 
 	const saveDashboard = async e => {
 		setSavingDashboard(true);
-		console.log(dashboard);
 		try {
 			const data = await meerkat.saveDashboard(slug, dashboard);
 			route(`/edit/${(JSON.parse(JSON.stringify(data.slug)))}${window.location.search}`)
@@ -149,7 +147,7 @@ export function Editor({slug, selectedElementId}) {
 						<h3>{dashboard.title}</h3>
 						<SidePanelSettings dashboard={dashboard} dashboardDispatch={dashboardDispatch} />
 						<hr />
-						<SidePanelElements dashboard={dashboard} dashboardDispatch={dashboardDispatch}
+						<SidePanelElements dashboard={dashboard} dashboardDispatch={dashboardDispatch} slug={slug}
 							setHighlightedElementId={setHighlightedElementId} />
 
 						<ElementSettings selectedElement={selectedElement} updateElement={updateElement} />
@@ -219,7 +217,6 @@ function TransformableElement({rect, updateRect, rotation, updateRotation, child
 			//Go up an element due to resize dot
 			let elementNode = downEvent.target.parentElement;
 
-			console.log(elementNode.firstElementChild)
 			const dashboardNode = elementNode.parentElement;
 
 			//Get max dimensions
@@ -227,14 +224,6 @@ function TransformableElement({rect, updateRect, rotation, updateRotation, child
 			let height = elementNode.clientHeight + moveEvent.movementY;
 			let maxWidth = dashboardNode.clientWidth - elementNode.offsetLeft;
 			let maxHeight = dashboardNode.clientHeight - elementNode.offsetTop;
-
-			// //get max video dimensions
-			// if (elementNode.firstElementChild === 'video-overlay') {
-			// 	width = elementNode.firstElementChild.clientWidth + moveEvent.movementX;
-			// 	height = elementNode.firstElementChild.clientHeight + moveEvent.movementY;
-			// 	maxWidth = dashboardNode.clientWidth - elementNode.firstElementChild.offsetLeft;
-			// 	maxHeight = dashboardNode.clientHeight - elementNode.firstElementChild.offsetTop;
-			// }
 
 			//limit minimum resize
 			width = width < 40 ? 40 : width;
@@ -355,7 +344,7 @@ export function DashboardView({dashboard, dashboardDispatch, selectedElementId, 
 	return <div class="dashboard-wrap" style={{ Height: backgroundImage ? dashboard.height : '100vh', Width: backgroundImage ? dashboard.width : '100vw'}}>
 		<div class="dashboard" style={{ Height: backgroundImage ? dashboard.height : '100%', Width: backgroundImage ? dashboard.width : '100%'}}>
 			{backgroundImage ? <img src={backgroundImage} class="noselect" style="height: 100%; width: 100%;" id="dashboard-dimensions"/> : <div class="noselect" style="height: 95vh; width: 70vh"></div>}
-			
+
 			<DashboardElements slug={slug} elements={dashboard.elements} dashboard={dashboard} selectedElementId={selectedElementId}
 				dashboardDispatch={dashboardDispatch} highlightedElementId={highlightedElementId}/>
     	</div>
@@ -550,39 +539,156 @@ const AdvancedAlertOptions = ({dashboardDispatch, display, dashboard}) => {
 	return <div style={{display: display ? '' : 'none'}}>
 		<br/>
 		<label for="soundFile">Ok Alert Sound {audioControls(dashboard.okSound)} <a onClick={resetOk}>default</a></label>
-		<input type="file" id="okSound" accept="audio/*" 
-			   placeholder="Upload an audio file" 
+		<input type="file" id="okSound" accept="audio/*"
+			   placeholder="Upload an audio file"
 			   onInput={handleOkSound}>
 		</input>
 		<label for="soundFile">Warning Alert Sound {audioControls(dashboard.warningSound)} <a onClick={resetWarning}>default</a></label>
-		<input type="file" id="warningSound" accept="audio/*" 
-			   placeholder="Upload an audio file" 
+		<input type="file" id="warningSound" accept="audio/*"
+			   placeholder="Upload an audio file"
 			   onInput={handleWarningSound}>
 		</input>
 		<label for="soundFile">Critical Alert Sound {audioControls(dashboard.criticalSound)} <a onClick={resetCritical}>default</a></label>
-		<input type="file" id="criticalSound" accept="audio/*" 
-			   placeholder="Upload an audio file" 
+		<input type="file" id="criticalSound" accept="audio/*"
+			   placeholder="Upload an audio file"
 			   onInput={handleCriticalSound}>
 		</input>
 		<label for="soundFile">Unknown Alert Sound {audioControls(dashboard.unknownSound)} <a onClick={resetUnknown}>default</a></label>
-		<input type="file" id="unknownSound" accept="audio/*" 
-			   placeholder="Upload an audio file" 
+		<input type="file" id="unknownSound" accept="audio/*"
+			   placeholder="Upload an audio file"
 			   onInput={handleUnknownSound}>
 		</input>
 		<label for="soundFile">Up Alert Sound {audioControls(dashboard.upSound)} <a onClick={resetUp}>default</a></label>
-		<input type="file" id="upSound" accept="audio/*" 
-			   placeholder="Upload an audio file" 
+		<input type="file" id="upSound" accept="audio/*"
+			   placeholder="Upload an audio file"
 			   onInput={handleUpSound}>
 		</input>
 		<label for="soundFile">Down Alert Sound {audioControls(dashboard.downSound)} <a onClick={resetDown}>default</a></label>
-		<input type="file" id="downSound" accept="audio/*" 
-			   placeholder="Upload an audio file" 
+		<input type="file" id="downSound" accept="audio/*"
+			   placeholder="Upload an audio file"
 			   onInput={handleDownSound}>
 		</input>
 	</div>
 }
 
-function SidePanelElements({dashboard, dashboardDispatch, setHighlightedElementId, selectedElementId, state}) {
+function VariablesModal({hide, dashboard, slug}) {
+	let [inputs, setInputs] = useState([]);
+
+	useEffect(() => {
+		let exist = [];
+		if (dashboard.hasOwnProperty("variables")) {
+			let i = 0;
+			for (const [key, value] of Object.entries(dashboard.variables)) {
+				exist.push({['id']: i++, ['key']: key, ['val']: value});
+			}
+		}
+		setInputs(exist);
+	}, []);
+
+	const changeVariables = async e => {
+		if (dashboard.hasOwnProperty('variables')) {
+			delete dashboard['variables'];
+		}
+
+		let vars = {};
+
+		for (const [key, property] of Object.entries(inputs)) {
+			vars[property.key] = property.value;
+		}
+
+		dashboard['variables'] = vars;
+
+		try {
+			await meerkat.saveDashboard(slug, dashboard);
+		} catch (e) {
+			console.log("Failed to change variables");
+			console.log(e);
+		}
+	}
+
+	const addInputs = (e) => {
+		e.preventDefault();
+
+		if (inputs.length > 4) {
+			alert("Max allowed variables reached");
+			return;
+		}
+
+		const newObj = [...inputs, {"id": inputs.length + 1, "key": "", "value": ""}];
+		setInputs(newObj);
+	}
+
+	const removeInputs = (e, id) => {
+		e.preventDefault();
+		const newInputs = inputs.filter((entry) => entry.id !== id);
+		setInputs(newInputs);
+	};
+
+	const updateKey = (id, ent) => {
+		const key = ent.target.value;
+		const updatedInputs = inputs.map((ent, index) =>
+		  	index === id ? { ...ent, key: key } : ent
+		);
+		setInputs(updatedInputs);
+	}
+
+	const updateValue = (id, ent) => {
+		const val = ent.target.value;
+		const updatedInputs = inputs.map((ent, index) =>
+		  	index === id ? { ...ent, val: val } : ent
+		);
+		setInputs(updatedInputs);
+	}
+
+	return <div class="modal-wrap" onMouseDown={hide}>
+		<div class="modal-fixed" onMouseDown={e => e.stopPropagation()}>
+			<div class="row">
+				<div class="col-md-4">
+					<h3>Variables</h3>
+				</div>
+				<div class="col-sm-4">
+				</div>
+			</div>
+			<form onSubmit={changeVariables}>
+				<div class="form-row">
+					{inputs.map((entry, i) => (
+						<div class="form-row" key={entry.id}>
+          					<div class="col-md-5" key={i}>
+          					  	<label for={`var${i}_key`}>Name</label>
+          					  	<input
+									style="h-30p"
+									value={entry.key}
+									id={`var${i}_val`}
+									name={`var${i}_key`}
+          					  	  	onChange={ent => updateKey(i, ent)}
+          					  	/>
+          					</div>
+							<div class="col-md-5" key={i}>
+								<label for={`var${i}_val`}>Value</label>
+								<input
+									style="h-30p"
+									value={entry.val}
+									id={`var${i}_val`}
+									name={`var${i}_val`}
+									onChange={ent => updateValue(i, ent)}
+								/>
+							</div>
+							<button class="col-md-2 btn btn-danger btn-sm" style="margin-top: 32px !important; height: 37%;" onClick={(e) => removeInputs(e, entry.id)}>remove</button>
+						</div>
+					))}
+				</div>
+				<div class="right mt-2">
+					<button class="rounded btn-primary btn-large mr-2" onClick={e => addInputs(e)}>Add</button>
+					<button class="rounded btn-primary btn-large" type="submit">Save</button>
+				</div>
+			</form>
+		</div>
+	</div>
+}
+
+function SidePanelElements({dashboard, dashboardDispatch, setHighlightedElementId, selectedElementId, state, slug}) {
+	const [showVars, setShowVars] = useState(false);
+
 	const addElement = e => {
 		const newId = dashboard.elements.length;
 		dashboardDispatch({type: 'addElement'});
@@ -607,7 +713,7 @@ function SidePanelElements({dashboard, dashboardDispatch, setHighlightedElementI
 		routeParam('selectedElementId', newId);
 	};
 
-	const handleDragStart = e => {
+	const handleDragStart = (e) => {
 		e.dataTransfer.setData("source-id", e.target.id);
 	}
 
@@ -643,11 +749,16 @@ function SidePanelElements({dashboard, dashboardDispatch, setHighlightedElementI
 	return <Fragment>
 		<div class="lefty-righty spacer">
 			<h3>Elements</h3>
-			<button class="small btn btn-outline-primary" onClick={addElement}>New</button>
+			<span style="display: inline;float: right;">
+				<button class="small btn btn-outline-primary" onClick={addElement}>New</button>
+				<button style="margin-left: 5px" class="small btn btn-outline-primary" onClick={e => setShowVars(true)}>Vars</button>
+			</span>
 		</div>
 		<div class="element-list">
 			{elementList}
 		</div>
+
+		{showVars ? <VariablesModal hide={() => setShowVars(false)} dashboard={dashboard} slug={slug}/> : null}
 	</Fragment>
 }
 

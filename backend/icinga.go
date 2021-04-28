@@ -125,8 +125,6 @@ func handleCheckResult(w http.ResponseWriter, r *http.Request) {
 	attrs := r.URL.Query().Get("attrs")
 	objType := r.URL.Query().Get("objtype")
 
-	fmt.Println(object)
-
 	if object == "" {
 		http.Error(w, "No unique queue name specified", http.StatusBadRequest)
 		return
@@ -160,8 +158,6 @@ func handleCheckResult(w http.ResponseWriter, r *http.Request) {
 	req.Header.Set("Accept", "application/json")
 	req.SetBasicAuth(config.IcingaUsername, config.IcingaPassword)
 
-	fmt.Println(req)
-
 	if err != nil {
 		fmt.Println("Failed to create HTTP request: %w", err)
 		http.Error(w, "Error creating http request: "+err.Error(), http.StatusInternalServerError)
@@ -176,10 +172,7 @@ func handleCheckResult(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println(res)
 	fmt.Println("Response status:", res.Status)
-
-	fmt.Println(res.Body)
 
 	defer res.Body.Close()
 
@@ -235,7 +228,7 @@ func handleIcingaCheckState(w http.ResponseWriter, r *http.Request) {
 
 	req_url.Path = path.Join(req_url.Path, "/v1/objects", object_type+"s")
 	req_url.RawQuery = strings.ReplaceAll(url.Values{"filter": []string{filter}}.Encode(), "+", "%20")
-	// req_url.RawQuery = strings.ReplaceAll(url.Values{"filter": []string{filter}}.Encode(), "~", "")
+	req_url.RawQuery = strings.ReplaceAll(url.Values{"filter": []string{filter}}.Encode(), "~", "")
 
 	req, err := http.NewRequest("GET", req_url.String(), nil)
 	if err != nil {
@@ -273,8 +266,6 @@ func handleIcingaCheckState(w http.ResponseWriter, r *http.Request) {
 
 	max_state := int64(0)
 	acknowledged := int64(0)
-
-	fmt.Println(results)
 
 	for _, obj := range results.Results {
 		if int64(obj.Attributes.Acknowledgement) == 1 {

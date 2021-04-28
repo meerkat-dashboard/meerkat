@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
@@ -28,8 +27,6 @@ func handleChangeSettings(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Error decoding json body: "+err.Error(), http.StatusBadRequest)
 		return
 	}
-
-	fmt.Println(settings)
 
 	outputFile := path.Join("config", "settings.json")
 

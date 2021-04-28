@@ -117,7 +117,7 @@ export function CheckSVG({options, dashboard, slug}) {
 	let dash = {};
 
 	const initState = async () => {
-		const res = await meerkat.getIcingaObjectState(options.objectType, options.filter);
+		const res = await meerkat.getIcingaObjectState(options.objectType, options.filter, dashboard);
 		const state = icingaResultCodeToCheckState(options.objectType, res.MaxState);
 		res.Acknowledged ? setAcknowledged("ack") : setAcknowledged("");
 		if (state === 'ok') ok = true;
@@ -170,7 +170,6 @@ export function CheckSVG({options, dashboard, slug}) {
 							case 'unknown':  if (!unknown)  {u.play(); unknown = true;  resetState(1,1,1,0,1,1)} break;
 						}
 					} else if(options.objectType === 'host') {
-						console.log(state);
 						switch(state){
 							case 'up':   if (!upp)  { o.play(); upp = true;  resetState(1,1,1,1,0,1)} break;
 							case 'down': if (!down) { w.play(); down = true; resetState(1,1,1,1,1,0)} break;
@@ -179,7 +178,7 @@ export function CheckSVG({options, dashboard, slug}) {
 				}
 			}
 			if (options.objectType !== null && options.filter !== null) {
-				const res = await meerkat.getIcingaObjectState(options.objectType, options.filter);
+				const res = await meerkat.getIcingaObjectState(options.objectType, options.filter, dashboard);
 				const state = icingaResultCodeToCheckState(options.objectType, res.MaxState);
 				res.Acknowledged ? setAcknowledged("ack") : setAcknowledged("");
 				setCheckState(state);
@@ -235,7 +234,6 @@ const AdvancedSVGOptions = ({options, updateOptions, display}) => {
 		const res = await meerkat.uploadFile(files[0]);
 		const opts = {}
 		opts[fieldName] = res.url
-		console.log(opts);
 		updateOptions(opts);
 	}
 
