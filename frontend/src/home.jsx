@@ -199,6 +199,11 @@ function TemplateModal({slug, dashboards, dashboardX}) {
 		setInputs(updatedInputs);
 	}
 
+	const closeModal = (e) => {
+		e.preventDefault();
+		setShowTemplate(false);
+	}
+
 	if (!dashboard) {
 		return <div class="modal-wrap">
 			<div class="modal-fixed">
@@ -207,11 +212,6 @@ function TemplateModal({slug, dashboards, dashboardX}) {
 				<div class="subtle loading">Loading Template Vars</div>
 			</div>
 		</div>
-	}
-
-	const closeModal = (e) => {
-		e.preventDefault();
-		setShowTemplate(false);
 	}
 
 	const isTemplate = () => {
@@ -258,6 +258,7 @@ function TemplateModal({slug, dashboards, dashboardX}) {
 													name={`var${i}_key`}
 													class="form-control h-30p"
 													onChange={ent => updateKey(i, ent)}
+													readonly
         				  					  	/>
         				  					</div>
 											<div class="col-md-6" key={i}>
