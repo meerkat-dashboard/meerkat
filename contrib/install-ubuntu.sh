@@ -20,6 +20,9 @@ apt install nodejs
 
 echo "installing meerkat"
 
+echo "stopping meerkat first!"
+systemctl stop meerkat
+
 mkdir /usr/local/meerkat -p
 
 echo "Building meerkat"
