@@ -26,7 +26,7 @@ function filterReplace(filter, dashboard) {
 		for (const [key, value] of Object.entries(dashboard.variables)) {
 			if (filter.includes(`~${key}~`)) {
 				let reg = new RegExp('~(' + key + ')~', 'g');
-				filter = filter.replaceAll(reg, `~${value}~`);
+				filter = filter.replaceAll(reg, value);
 			}
 		}
 	}

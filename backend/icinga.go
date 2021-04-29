@@ -228,7 +228,6 @@ func handleIcingaCheckState(w http.ResponseWriter, r *http.Request) {
 
 	req_url.Path = path.Join(req_url.Path, "/v1/objects", object_type+"s")
 	req_url.RawQuery = strings.ReplaceAll(url.Values{"filter": []string{filter}}.Encode(), "+", "%20")
-	req_url.RawQuery = strings.ReplaceAll(url.Values{"filter": []string{filter}}.Encode(), "~", "")
 
 	req, err := http.NewRequest("GET", req_url.String(), nil)
 	if err != nil {

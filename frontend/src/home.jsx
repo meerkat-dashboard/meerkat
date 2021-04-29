@@ -219,76 +219,116 @@ function TemplateModal({slug, dashboards, dashboardX}) {
 			return <a onClick={e => setShowTemplate(true)}>template</a>
 		}
 
-		return <div></div>;
+		return "";
 	}
 
 	return <Fragment>
 				{isTemplate()}
-				<Modal key={`template-modal-${slug}`} show={showTemplate} onClose={e => closeModal(e)}>
-					<div class="modal-wrap" id={`id-${slug}`}>
-						<div class="modal-fixed" onMouseDown={e => e.stopPropagation()}>
+				{showTemplate
+					?
+					<Modal key={`template-modal-${slug}`} show={showTemplate} onClose={e => closeModal(e)}>
+						<div class="modal-wrap" id={`id-${slug}`}>
+							<div class="modal-fixed" onMouseDown={e => e.stopPropagation()}>
 
-							<label class="template-label">Template Settings</label>
+								<label class="template-label">Template Settings</label>
 
-	 						{/* <label class="template-label-title checkbox-inline">Template Settings
-							 <label class="template-toggle-switch">
-								 		<input type="checkbox" class="template-toggle-switch" checked={viewMode} onChange={e => setViewMode(e.currentTarget.checked)}/>
-										<div></div>
-								</label>
-								<label class="view-save">{viewMode ? "save" : "view"}</label>
-							</label> */}
+	 							{/* <label class="template-label-title checkbox-inline">Template Settings
+								 <label class="template-toggle-switch">
+									 		<input type="checkbox" class="template-toggle-switch" checked={viewMode} onChange={e => setViewMode(e.currentTarget.checked)}/>
+											<div></div>
+									</label>
+									<label class="view-save">{viewMode ? "save" : "view"}</label>
+								</label> */}
 
-	 						<form>
-								{/* {!viewMode
-									? null
-									: <div>
-										<label for={`title-${slug}`} class="template-label">Title</label>
-									 	<input class="form-control h-30p" id={`title-${slug}`} name="title" type="text" placeholder="title" onChange={e => setTitle(e.currentTarget.value)} defaultValue={title}/>
-									  </div>} */}
+	 							<form>
+									{/* {!viewMode
+										? null
+										: <div>
+											<label for={`title-${slug}`} class="template-label">Title</label>
+										 	<input class="form-control h-30p" id={`title-${slug}`} name="title" type="text" placeholder="title" onChange={e => setTitle(e.currentTarget.value)} defaultValue={title}/>
+										  </div>} */}
 
-								<label for="variables" class="template-label">Variables</label>
-								<div class="form-row">
-									{inputs.map((entry, i) => (
-										<div class="form-row" key={entry.id}>
-        				  					<div class="col-md-6" key={i}>
-        				  					  	<label for={`var${i}_key`} class="label-reset">Name</label>
-        				  					  	<input
-													value={entry.key}
-													id={`var${i}_key`}
-													name={`var${i}_key`}
-													class="form-control h-30p"
-													onChange={ent => updateKey(i, ent)}
-													readonly
-        				  					  	/>
-        				  					</div>
-											<div class="col-md-6" key={i}>
-												<label for={`var${i}_val`} class="label-reset">Value</label>
-												<input
-													value={entry.val}
-													id={`var${i}_val`}
-													name={`var${i}_val`}
-													class="form-control h-30p"
-													onChange={ent => updateValue(i, ent)}
-												/>
+									<label for="variables" class="template-label">Variables</label>
+									<div class="form-row">
+										{inputs.map((entry, i) => (
+											<div class="form-row" key={entry.id}>
+        					  					<div class="col-md-6" key={i}>
+        					  					  	<label for={`var${i}_key`} class="label-reset">Name</label>
+        					  					  	<input
+														value={entry.key}
+														id={`var${i}_key`}
+														name={`var${i}_key`}
+														class="form-control h-30p"
+														onChange={ent => updateKey(i, ent)}
+														readonly
+        					  					  	/>
+        					  					</div>
+												<div class="col-md-6" key={i}>
+													<label for={`var${i}_val`} class="label-reset">Value</label>
+													<input
+														value={entry.val}
+														id={`var${i}_val`}
+														name={`var${i}_val`}
+														class="form-control h-30p"
+														onChange={ent => updateValue(i, ent)}
+													/>
+												</div>
 											</div>
-										</div>
-									))}
-								</div>
-								<div class="right mt-2">
-									<button class="rounded btn-primary btn-large mr-2" type="submit" onClick={e => closeModal(e)}>Close</button>
-									<button class="rounded btn-primary btn-large" type="submit" onClick={e => viewFromTemplate(e)}>View</button>
-									{/* {!viewMode ? <button class="rounded btn-primary btn-large" type="submit" onClick={e => viewFromTemplate(e)}>View</button>
-											   : <button class="rounded btn-primary btn-large" type="submit" disabled={disabled} onClick={e => createFromTemplate(e)}>Save</button>} */}
-								</div>
-							</form>
+										))}
+									</div>
+									<div class="right mt-2">
+										<button class="rounded btn-primary btn-large mr-2" type="submit" onClick={e => closeModal(e)}>Close</button>
+										<button class="rounded btn-primary btn-large" type="submit" onClick={e => viewFromTemplate(e)}>View</button>
+										{/* {!viewMode ? <button class="rounded btn-primary btn-large" type="submit" onClick={e => viewFromTemplate(e)}>View</button>
+												   : <button class="rounded btn-primary btn-large" type="submit" disabled={disabled} onClick={e => createFromTemplate(e)}>Save</button>} */}
+									</div>
+								</form>
+							</div>
 						</div>
-					</div>
-				</Modal>
+					</Modal>
+				:
+				""
+			}
+	</Fragment>
+}
+
+
+function DeleteConfirmation({ slug, loadDashboards }) {
+	const [showConfirmation, setShowConfirmation] = useState(false);
+
+	const closeModal = (e) => {
+		e.preventDefault();
+		setShowConfirmation(false)
+	};
+
+	const deleteDashboard = (e, slug) => {
+		e.preventDefault();
+		meerkat.deleteDashboard(slug).then(loadDashboards);
+		setShowConfirmation(false)
+	};
+
+	return <Fragment>
+				<a onClick={e => setShowConfirmation(true)}>delete</a>
+				{showConfirmation
+					?
+					<Modal key={`template-modal-${slug}`} show={showConfirmation} onClose={e => closeModal(e)}>
+						<div class="modal-wrap" id={`id-${slug}`}>
+							<div class="modal-fixed" onMouseDown={e => e.stopPropagation()}>
+
+								<label class="template-label">Are you sure you want to delete this dashboard?</label>
+								<br/>
+								<button class="rounded btn-primary btn-large mr-2" type="submit" onClick={e => closeModal(e)}>No</button>
+								<button class="rounded btn-primary btn-large" type="submit" onClick={e => deleteDashboard(e, slug)}>Yes</button>
+							</div>
+						</div>
+					</Modal>
+					:
+					""
+				}
 	</Fragment>
 }
 
 function DashboardList({ dashboards, loadDashboards, filter }) {
-	const deleteDashboard = slug => meerkat.deleteDashboard(slug).then(loadDashboards);
 
 	if (dashboards === null) {
 		return <div class="subtle loading">Loading Dashboards</div>
@@ -313,8 +353,8 @@ function DashboardList({ dashboards, loadDashboards, filter }) {
 			<div class="timestamps">
 				<a onClick={e => route(`/view/${slug}`)}>view</a>
 				<a onClick={e => route(`/edit/${slug}`)}>edit</a>
-				<a onClick={e => deleteDashboard(slug)}>delete</a>
 				<TemplateModal key={dashboard.slug} dashboards={dashboards} dashboardX={dashboard} slug={slug} />
+				<DeleteConfirmation slug={slug} loadDashboards={loadDashboards}/>
 			</div>
 		</div>
 	});
