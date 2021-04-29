@@ -16,9 +16,12 @@ curl -sL https://deb.nodesource.com/setup_15.x -o nodesource_setup.sh
 
 bash nodesource_setup.sh
 
-apt install nodejs 
+apt install nodejs
 
 echo "installing meerkat"
+
+echo "stopping meerkat first!"
+systemctl stop meerkat
 
 mkdir /usr/local/meerkat -p
 
@@ -33,7 +36,11 @@ cd ..
 cp -av dashboards-data /usr/local/meerkat/
 cp -av dashboards /usr/local/meerkat/
 
-cp config/meerkat.toml.example /etc/meerkat.toml
+if [ ! -f /etc/meerkat.toml ]; then
+        cp config/meerkat.toml.example /etc/meerkat.toml
+else
+    echo "config already in place at /etc/meerkat.toml"
+fi
 
 cd frontend/
 npm i
@@ -41,6 +48,7 @@ npm run prod
 
 cd ..
 
+rm -rf /usr/local/meerkat/frontend
 cp frontend /usr/local/meerkat/frontend -av
 
 chown nagios:nagios /usr/local/meerkat/ -R
