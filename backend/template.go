@@ -57,9 +57,16 @@ func handleCreateTemplate(w http.ResponseWriter, r *http.Request) {
 					log.Printf("Error compiling regex: %w", err.Error())
 				}
 
+				regID, err := regexp.Compile(`"([^"]*)"`)
+
+				if err != nil {
+					log.Printf("Error compiling regex: %w", err.Error())
+				}
+
 				if r.URL.Query().Get(sqs) != "" {
 					dashboardX.Elements[i].Options.Filter = reg.ReplaceAllString(dashboardX.Elements[i].Options.Filter, r.URL.Query().Get(sqs))
-					dashboardX.Elements[i].Options.ID = reg.ReplaceAllString(dashboardX.Elements[i].Options.ID, r.URL.Query().Get(sqs))
+
+					dashboardX.Elements[i].Options.ID = strings.Trim(regID.FindString(dashboardX.Elements[i].Options.Filter), "\"")
 				}
 			}
 		}

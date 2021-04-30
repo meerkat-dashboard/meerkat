@@ -51,6 +51,7 @@ export function CheckCard({options, slug, dashboard}) {
 				setPerfData(null);
 			}
 		});
+
 		meerkat.getDashboard(slug).then(async d => {
 			dash = await d
 
