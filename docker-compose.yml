@@ -3,10 +3,12 @@ version: '3.3'
 services:
   app:
     build: .
-    image: sol1/meerkat:latest
+    image: hub.sol1.net/meerkat:latest
     volumes:
       - ./config:/meerkat/config
       - ./dashboards:/meerkat/dashboards
       - ./dashboards-data:/meerkat/dashboards-data
     ports:
       - 8585:8585
+
+#update
