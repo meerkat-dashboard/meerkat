@@ -58,7 +58,8 @@ func handleCreateTemplate(w http.ResponseWriter, r *http.Request) {
 				}
 
 				if r.URL.Query().Get(sqs) != "" {
-					dashboardX.Elements[i].Options.Filter = reg.ReplaceAllString(dashboardX.Elements[i].Options.Filter, fmt.Sprint(r.URL.Query().Get(sqs)))
+					dashboardX.Elements[i].Options.Filter = reg.ReplaceAllString(dashboardX.Elements[i].Options.Filter, r.URL.Query().Get(sqs))
+					dashboardX.Elements[i].Options.ID = reg.ReplaceAllString(dashboardX.Elements[i].Options.ID, r.URL.Query().Get(sqs))
 				}
 			}
 		}
