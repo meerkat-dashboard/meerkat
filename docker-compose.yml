@@ -10,5 +10,3 @@ services:
       - ./dashboards-data:/meerkat/dashboards-data
     ports:
       - 8585:8585
-
-#update

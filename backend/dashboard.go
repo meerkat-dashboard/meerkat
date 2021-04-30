@@ -96,6 +96,7 @@ type Option struct {
 	PerfDataMode                    bool   `json:"perfDataMode"`
 	PerfDataSelection               string `json:"perfDataSelection"`
 	Dynamic                         bool   `json:"dynamic"`
+	ID                              string `json:"id"`
 }
 
 //Rect helper struct for positions
