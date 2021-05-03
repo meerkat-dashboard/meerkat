@@ -1,4 +1,4 @@
-import { h } from 'preact';
+import { h, options } from 'preact';
 import { route } from 'preact-router';
 import { useState, useEffect, useRef } from 'preact/hooks';
 import { Link } from 'preact-router/match';
@@ -60,7 +60,14 @@ export function Viewer({slug, dashboardReducer}) {
 		if(element.type === 'iframe-video') { ele = <IframeVideo options={element.options}/> }
 		if(element.type === 'audio-stream') { ele = <AudioStream options={element.options}/> }
 
-		if (element.options.linkURL) {
+
+		if (element.options.linkURL && element.type === 'static-text') {
+			if (element.options.linkURL.includes('http') ) {
+				ele = <a id="text-link" href={element.options.linkURL}>{ele}</a>
+			} else {
+				ele = <a id="text-link" href={`https://${element.options.linkURL}`}>{ele}</a>
+			}
+		} else if (element.options.linkURL) {
 			if (element.options.linkURL.includes('http') ) {
 				ele = <a id="a-link" href={element.options.linkURL}>{ele}</a>
 			} else {

@@ -892,6 +892,20 @@ a#a-link {
 	height: 100% !important;
 }
 
+a#text-link {
+	position: relative;
+	display: block;
+	line-height: 5vh;
+	height: 100%;
+}
+
+.check > a#text-link > div.check-content.text {
+	line-height: 470%;
+	text-align: center;
+	height: 100% !important;
+	vertical-align: middle;
+}
+
 div.check-content.svg {
 	display: block;
 	line-height: 0;
