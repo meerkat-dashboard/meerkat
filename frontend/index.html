@@ -11,9 +11,18 @@
 	<link rel="stylesheet" href="/react-widgets.css">
 	<script src="/dist/bundle.js" defer></script>
 
-	<title>Meerkat</title>
+	<title id="app_name">Meerkat</title>
 </head>
 <body>
 	<div id="app"></div>
 </body>
 </html>
+<script>
+	async function getSettings() {
+		const res = await fetch('/settings')
+		const data = await res.json();
+		return data;
+	}
+
+	getSettings().then(settings => document.getElementById("app_name").innerHTML = settings.appName);
+</script>
