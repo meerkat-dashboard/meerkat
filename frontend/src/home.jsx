@@ -86,10 +86,7 @@ function CreateDashboardModal({ hide }) {
 
 function TemplateModal({slug, dashboards, dashboardX}) {
 	const [showTemplate, setShowTemplate] = useState(false);
-	const [title, setTitle] = useState(dashboardX.title);
 	const [dashboard, setDashboard] = useState(null);
-	const [viewMode, setViewMode] = useState(false);
-	const [disabled, setDisabled] = useState(false);
 	const [inputs, setInputs] = useState([]);
 
 	useEffect(() => {
@@ -109,25 +106,6 @@ function TemplateModal({slug, dashboards, dashboardX}) {
 
 			const params = new URLSearchParams(vars).toString();
 
-			// let matched = []
-
-			// inputs.forEach(changed => {
-			// 	if (changed.key !== changed.ori	) {
-			// 		matched.push(changed);
-			// 	}
-			// });
-
-			// dash.elements.forEach(ele => {
-			// 	matched.forEach(key => {
-			// 		if (ele.options.filter !== null) {
-			// 			if (ele.options.filter.includes(`~${key.ori}~`)) {
-			// 				let reg = new RegExp('~(' + key.ori + ')~', 'g');
-			// 				ele.options.filter = ele.options.filter.replaceAll(reg, `~${key.key}~`);
-			// 			}
-			// 		}
-			// 	})
-			// })
-
 			try {
 				route(`/view/${slug}?${params}`);
 			} catch (e) {
@@ -136,40 +114,6 @@ function TemplateModal({slug, dashboards, dashboardX}) {
 			}
 		}
 	}
-
-	// const createFromTemplate = async e => {
-	// 	e.preventDefault();
-
-	// 	let Break = false;
-	// 	dashboards.forEach(board => {
-	// 		if (board.title === title) {
-	// 			alert("title must be unique");
-	// 			Break = true;
-	// 		}
-	// 	});
-
-	// 	if (Break) return;
-
-	// 	if (dashboard.hasOwnProperty('variables')) {
-	// 		delete dashboard['variables'];
-	// 	}
-
-	// 	let vars = {};
-
-	// 	for (const [_, property] of Object.entries(inputs)) {
-	// 		vars[property.key] = property.val;
-	// 	}
-
-	// 	const dash = ({...dashboard, "title": title, "variables": vars})
-
-	// 	try {
-	// 		const res = await meerkat.createDashboard(dash);
-	// 		route(`/view/${res.slug}`);
-	// 	} catch (e) {
-	// 		console.log("Failed to create dashboard from template");
-	// 		console.log(e);
-	// 	}
-	// }
 
 	const populateInputs = (board) => {
 		let exist = [];
@@ -232,22 +176,7 @@ function TemplateModal({slug, dashboards, dashboardX}) {
 
 								<label class="template-label">Template Settings</label>
 
-	 							{/* <label class="template-label-title checkbox-inline">Template Settings
-								 <label class="template-toggle-switch">
-									 		<input type="checkbox" class="template-toggle-switch" checked={viewMode} onChange={e => setViewMode(e.currentTarget.checked)}/>
-											<div></div>
-									</label>
-									<label class="view-save">{viewMode ? "save" : "view"}</label>
-								</label> */}
-
 	 							<form>
-									{/* {!viewMode
-										? null
-										: <div>
-											<label for={`title-${slug}`} class="template-label">Title</label>
-										 	<input class="form-control h-30p" id={`title-${slug}`} name="title" type="text" placeholder="title" onChange={e => setTitle(e.currentTarget.value)} defaultValue={title}/>
-										  </div>} */}
-
 									<label for="variables" class="template-label">Variables</label>
 									<div class="form-row">
 										{inputs.map((entry, i) => (
@@ -279,8 +208,6 @@ function TemplateModal({slug, dashboards, dashboardX}) {
 									<div class="right mt-2">
 										<button class="rounded btn-primary btn-large mr-2" type="submit" onClick={e => closeModal(e)}>Close</button>
 										<button class="rounded btn-primary btn-large" type="submit" onClick={e => viewFromTemplate(e)}>View</button>
-										{/* {!viewMode ? <button class="rounded btn-primary btn-large" type="submit" onClick={e => viewFromTemplate(e)}>View</button>
-												   : <button class="rounded btn-primary btn-large" type="submit" disabled={disabled} onClick={e => createFromTemplate(e)}>Save</button>} */}
 									</div>
 								</form>
 							</div>
@@ -328,6 +255,29 @@ function DeleteConfirmation({ slug, loadDashboards }) {
 	</Fragment>
 }
 
+function CloneDashboard({dashboard, dashboards}) {
+
+	const clone = async (e) => {
+		e.preventDefault();
+
+		dashboards.forEach(board => {
+			if (board.title === dashboard.title) {
+				dashboard.title += ' clone';
+				return;
+			}
+		});
+
+		try {
+			const res = await meerkat.createDashboard(dashboard);
+			route(`/edit/${res.slug}`);
+		} catch (e) {
+			console.log(`Failed to clone dashboard: ${e}`);
+		}
+	}
+
+	return <Fragment><a onClick={e => clone(e)}>clone</a></Fragment>
+}
+
 function DashboardList({ dashboards, loadDashboards, filter }) {
 
 	if (dashboards === null) {
@@ -353,8 +303,9 @@ function DashboardList({ dashboards, loadDashboards, filter }) {
 			<div class="timestamps">
 				<a onClick={e => route(`/view/${slug}`)}>view</a>
 				<a onClick={e => route(`/edit/${slug}`)}>edit</a>
+				<CloneDashboard dashboard={dashboard} dashboards={dashboards} />
 				<TemplateModal key={dashboard.slug} dashboards={dashboards} dashboardX={dashboard} slug={slug} />
-				<DeleteConfirmation slug={slug} loadDashboards={loadDashboards}/>
+				<DeleteConfirmation slug={slug} loadDashboards={loadDashboards} />
 			</div>
 		</div>
 	});
