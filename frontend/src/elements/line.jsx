@@ -205,12 +205,16 @@ export function CheckLine({options, dashboard, slug}) {
 			}
 
 			if (options.objectType !== null && options.filter !== null) {
-				const res = await meerkat.getIcingaObjectState(options.objectType, options.filter, dashboard);
-				const state = icingaResultCodeToCheckState(options.objectType, res.MaxState);
-				res.Acknowledged ? setAcknowledged("ack") : setAcknowledged("");
-				setCheckState(state);
-				muteAlerts();
-				alertSound(state);
+				try {
+					const res = await meerkat.getIcingaObjectState(options.objectType, options.filter, dashboard);
+					const state = icingaResultCodeToCheckState(options.objectType, res.MaxState);
+					res.Acknowledged ? setAcknowledged('ack') : setAcknowledged("");
+					setCheckState(state);
+					muteAlerts();
+					alertSound(state);
+				} catch (error) {
+					window.flash("This dashboard isn't updating", 'error')
+				}
 			}
 		});
 	}
