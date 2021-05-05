@@ -34,11 +34,19 @@ function filterReplace(filter, dashboard) {
 }
 
 export async function getIcingaObjectState(objectType, filter, dashboard) {
+	let failed = 0;
 	filter = filterReplace(filter, dashboard);
 	const res = await fetch(`/icinga/check_state?object_type=${encodeURIComponent(objectType)};filter=${encodeURIComponent(filter)}`);
+
 	if (res.status !== 200) {
+		failed++;
+		if (failed > 2) {
+			window.flash(`This dashboard isn't updating`, 'error');
+			return;
+		}
 		return 3;
 	} else {
+		failed = 0;
 		return res.json();
 	}
 }
@@ -47,7 +55,7 @@ export async function getCheckResult(objType, object, attrs="last_check_result")
 	const res = await fetch(`/icinga/check_result?objtype=${objType};object=${encodeURIComponent(object)};attrs=${encodeURIComponent(attrs)}`);
 
 	if (res.status !== 200) {
-		return console.log("query succesful");
+		return console.log("query unsuccesful");
 	} else {
 		return res.json();
 	}
