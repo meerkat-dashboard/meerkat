@@ -63,15 +63,15 @@ export function Viewer({slug, dashboardReducer}) {
 
 		if (element.options.linkURL && element.type === 'static-text') {
 			if (element.options.linkURL.includes('http') ) {
-				ele = <a id="text-link" href={element.options.linkURL}>{ele}</a>
+				ele = <a id="text-link" href={element.options.linkURL} target="_blank">{ele}</a>
 			} else {
-				ele = <a id="text-link" href={`https://${element.options.linkURL}`}>{ele}</a>
+				ele = <a id="text-link" href={`https://${element.options.linkURL}`} target="_blank">{ele}</a>
 			}
 		} else if (element.options.linkURL) {
 			if (element.options.linkURL.includes('http') ) {
-				ele = <a id="a-link" href={element.options.linkURL}>{ele}</a>
+				ele = <a id="a-link" href={element.options.linkURL} target="_blank">{ele}</a>
 			} else {
-				ele = <a id="a-link" href={`https://${element.options.linkURL}`}>{ele}</a>
+				ele = <a id="a-link" href={`https://${element.options.linkURL}`} target="_blank">{ele}</a>
 			}
 		}
 
