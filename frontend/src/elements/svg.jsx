@@ -118,6 +118,9 @@ export function CheckSVG({options, dashboard, slug}) {
 
 	const initState = async () => {
 		const res = await meerkat.getIcingaObjectState(options.objectType, options.filter, dashboard);
+		if (res === false) {
+			window.flash('This dashbaord isnt updating', 'error');
+		}
 		const state = icingaResultCodeToCheckState(options.objectType, res.MaxState);
 		res.Acknowledged ? setAcknowledged("ack") : setAcknowledged("");
 		if (state === 'ok') ok = true;
@@ -131,6 +134,9 @@ export function CheckSVG({options, dashboard, slug}) {
 	//Handle state update
 	const updateState = async () => {
 		meerkat.getDashboard(slug).then(async d => {
+			if (d === false) {
+				window.flash('This dashbaord isnt updating', 'error');
+			}
 			dash = await d
 
 			const o   = options.okSound       ? new Audio(options.okSound)       : new Audio(dash.okSound);
@@ -143,6 +149,9 @@ export function CheckSVG({options, dashboard, slug}) {
 			//get globalMute from dashboard JSON
 			const muteAlerts = () => {
 				meerkat.getDashboard(slug).then(async d => {
+					if (d === false) {
+						window.flash('This dashbaord isnt updating', 'error');
+					}
 					if (options.muteAlerts || d.globalMute) {
 						o.volume = 0.0; w.volume = 0.0; c.volume = 0.0; u.volume = 0.0; up.volume = 0.0; dow.volume = 0.0;
 					} else {
@@ -180,6 +189,9 @@ export function CheckSVG({options, dashboard, slug}) {
 			if (options.objectType !== null && options.filter !== null) {
 				try {
 					const res = await meerkat.getIcingaObjectState(options.objectType, options.filter, dashboard);
+					if (res === false) {
+						window.flash(`This dashboard isn't updating`, 'error')
+					}
 					const state = icingaResultCodeToCheckState(options.objectType, res.MaxState);
 					res.Acknowledged ? setAcknowledged('ack') : setAcknowledged("");
 					setCheckState(state);

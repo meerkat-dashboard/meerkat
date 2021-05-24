@@ -21,6 +21,9 @@ export function CheckCard({options, slug, dashboard}) {
 	const initState = async () => {
 		setPerfValue(null);
 		const res = await meerkat.getIcingaObjectState(options.objectType, options.filter, dashboard);
+		if (res === false) {
+			window.flash(`This dashboard isn't updating`, 'error')
+		}
 		const state = icingaResultCodeToCheckState(options.objectType, res.MaxState);
 		res.Acknowledged ? setAcknowledged('ack') : setAcknowledged("");
 		if (state === 'ok') ok = true;
@@ -34,6 +37,9 @@ export function CheckCard({options, slug, dashboard}) {
 	//Handle state update
 	const updateState = async () => {
 		meerkat.getCheckResult(options.objectType, options.id).then(async c => {
+			if (c === false) {
+				window.flash(`This dashboard isn't updating`, 'error')
+			}
 			let perfData = c.results ? c.results[0].attrs.last_check_result.performance_data : null;
 			if (perfData !== null) {
 				if (typeof perfData !== "undefined" && perfData.length > 0) {
@@ -53,6 +59,10 @@ export function CheckCard({options, slug, dashboard}) {
 		});
 
 		meerkat.getDashboard(slug).then(async d => {
+			if (d === false) {
+				window.flash(`This dashboard isn't updating`, 'error')
+			}
+
 			dash = await d
 
 			const o   =  options.okSound       ? new Audio(options.okSound)       : new Audio(dash.okSound);
@@ -101,16 +111,15 @@ export function CheckCard({options, slug, dashboard}) {
 			}
 
 			if (options.objectType !== null && options.filter !== null) {
-				try {
 					const res = await meerkat.getIcingaObjectState(options.objectType, options.filter, dashboard);
+					if (res === false) {
+						window.flash(`This dashboard isn't updating`, 'error')
+					}
 					const state = icingaResultCodeToCheckState(options.objectType, res.MaxState);
 					res.Acknowledged ? setAcknowledged('ack') : setAcknowledged("");
 					setCheckState(state);
 					muteAlerts();
 					alertSound(state);
-				} catch (error) {
-					window.flash(`This dashboard isn't updating: ${error}`, 'error')
-				}
 			}
 		});
 	}
@@ -129,7 +138,7 @@ export function CheckCard({options, slug, dashboard}) {
 		if(options.objectType !== null && options.filter !== null) {
 			initState();
 			updateState();
-			const intervalID = window.setInterval(updateState, 30*1000)
+			const intervalID = window.setInterval(updateState, 5*1000)
 			return () => window.clearInterval(intervalID);
 		}
 	}, [options.objectType, options.filter, options.perfDataSelection]);

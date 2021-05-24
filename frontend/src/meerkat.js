@@ -1,5 +1,34 @@
 //TODO error handling in here
 
+function filterReplace(filter, dashboard) {
+	if (dashboard.hasOwnProperty('variables')) {
+		for (const [key, value] of Object.entries(dashboard.variables)) {
+			if (filter.includes(`~${key}~`)) {
+				let reg = new RegExp('~(' + key + ')~', 'g');
+				filter = filter.replaceAll(reg, value);
+			}
+		}
+	}
+	return filter;
+}
+
+async function fetchHandler(string) {
+	if (navigator.onLine) {
+		try {
+			const res = await fetch(string);
+			if (res.status !== 200) {
+				return false;
+			}
+
+			return res.json();
+		} catch (e) {
+			return false;
+		}
+	} else {
+		return false;
+	}
+}
+
 export async function getIcingaHosts() {
 	const res = await fetch(`/icinga/hosts`)
 	return res.json();
@@ -21,44 +50,16 @@ export async function getIcingaServiceGroups() {
 	return res.json();
 }
 
-function filterReplace(filter, dashboard) {
-	if (dashboard.hasOwnProperty('variables')) {
-		for (const [key, value] of Object.entries(dashboard.variables)) {
-			if (filter.includes(`~${key}~`)) {
-				let reg = new RegExp('~(' + key + ')~', 'g');
-				filter = filter.replaceAll(reg, value);
-			}
-		}
-	}
-	return filter;
-}
-
 export async function getIcingaObjectState(objectType, filter, dashboard) {
-	let failed = 0;
-	filter = filterReplace(filter, dashboard);
-	const res = await fetch(`/icinga/check_state?object_type=${encodeURIComponent(objectType)};filter=${encodeURIComponent(filter)}`);
-
-	if (res.status !== 200) {
-		failed++;
-		if (failed > 2) {
-			window.flash(`This dashboard isn't updating`, 'error');
-			return;
-		}
-		return 3;
-	} else {
-		failed = 0;
-		return res.json();
-	}
+	return fetchHandler(`/icinga/check_state?object_type=${encodeURIComponent(objectType)};filter=${encodeURIComponent(filterReplace(filter, dashboard))}`);
 }
 
 export async function getCheckResult(objType, object, attrs="last_check_result") {
-	const res = await fetch(`/icinga/check_result?objtype=${objType};object=${encodeURIComponent(object)};attrs=${encodeURIComponent(attrs)}`);
+	return fetchHandler(`/icinga/check_result?objtype=${objType};object=${encodeURIComponent(object)};attrs=${encodeURIComponent(attrs)}`);
+}
 
-	if (res.status !== 200) {
-		return console.log("query unsuccesful");
-	} else {
-		return res.json();
-	}
+export async function getDashboard(slug) {
+	return fetchHandler(`/dashboard/${slug}`);
 }
 
 export async function getAllDashboards() {
@@ -66,11 +67,6 @@ export async function getAllDashboards() {
 	const data = await res.json();
 
 	return data;
-}
-
-export async function getDashboard(slug) {
-	const res = await fetch(`/dashboard/${slug}`);
-	return res.json();
 }
 
 export async function createDashboard(dashboard) {
