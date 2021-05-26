@@ -145,7 +145,7 @@ export function CheckLine({options, dashboard, slug}) {
 	const initState = async () => {
 		const res = await meerkat.getIcingaObjectState(options.objectType, options.filter, dashboard);
 		if (res === false) {
-			window.flash('This dashboard isn't updating', 'error');
+			window.flash(`This dashboard isn't updating`, 'error');
 		}
 		const state = icingaResultCodeToCheckState(options.objectType, res.MaxState);
 		res.Acknowledged ? setAcknowledged("ack") : setAcknowledged("");
@@ -161,7 +161,7 @@ export function CheckLine({options, dashboard, slug}) {
 	const updateState = async () => {
 		meerkat.getDashboard(slug).then(async d => {
 			if (d === false) {
-				window.flash('This dashboard isn't updating', 'error');
+				window.flash(`This dashboard isn't updating`, 'error');
 			}
 			dash = await d
 
@@ -176,7 +176,7 @@ export function CheckLine({options, dashboard, slug}) {
 			const muteAlerts = () => {
 				meerkat.getDashboard(slug).then(async d => {
 					if (d === false) {
-						window.flash('This dashboard isn't updating', 'error');
+						window.flash(`This dashboard isn't updating`, 'error');
 					}
 					if (options.muteAlerts || d.globalMute) {
 						o.volume = 0.0; w.volume = 0.0; c.volume = 0.0; u.volume = 0.0; up.volume = 0.0; dow.volume = 0.0;
