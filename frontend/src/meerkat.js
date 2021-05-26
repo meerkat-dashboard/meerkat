@@ -17,9 +17,8 @@ async function fetchHandler(string) {
 		try {
 			const res = await fetch(string);
 			if (res.status !== 200) {
-				return false;
+				return 3;
 			}
-
 			return res.json();
 		} catch (e) {
 			return false;
