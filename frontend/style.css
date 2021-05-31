@@ -45,6 +45,14 @@
 	font-display: swap;
 	src: local('Nunito Bold'), local('Nunito-Bold'), url(/res/fonts/nunito-bold.woff2) format('woff2');
 }
+@keyframes marqueeX {
+	0% {
+	  transform: translateX(30%);
+	}
+	100% {
+	  transform: translateX(-100%);
+	}
+  }
 
 * {
 	box-sizing: border-box;
@@ -789,6 +797,9 @@ div.tag .close-icon {
 	height: 100%;
 }
 
+
+
+
 .check > .text {
 	white-space: pre;
 	display: flex;
@@ -905,6 +916,54 @@ a#text-link {
 	height: 100% !important;
 	vertical-align: middle;
 }
+
+.ticker {
+	cursor: move;
+	position: absolute;
+	overflow: hidden;
+	width: 100vw;
+	/* animation: marqueeX 10s linear infinite; */
+}
+
+.ticker > .check-content {
+	pointer-events: none;
+	user-select: none;
+	width: 100%;
+	/* height: 100%; */
+	/* animation: marqueeX 10s linear infinite; */
+}
+
+.ticker > div.resize {
+	position: absolute;
+	right: 50%;
+	top: -50;
+	width: 10px;
+	height: 10px;
+	background-color: #00ff40;
+	cursor: ns-resize;
+	border-radius: 3px;
+}
+
+
+.view-ticker {
+	cursor: move;
+	position: absolute;
+	overflow: hidden;
+	width: 100vw;
+	animation: marqueeX 10s linear infinite;
+}
+
+.view-ticker > .check-content {
+	pointer-events: none;
+	user-select: none;
+	width: 100%;
+	height: 100%;
+	animation: marqueeX 10s linear infinite;
+}
+
+
+
+
 
 div.check-content.svg {
 	display: block;

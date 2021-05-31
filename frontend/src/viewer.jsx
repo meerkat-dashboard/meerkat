@@ -12,8 +12,10 @@ import { AudioStream } from './elements/audio';
 import { IframeVideo } from './elements/video';
 
 import { StaticText } from './statics/text';
+import { StaticTicker } from './statics/ticker';
 import { StaticSVG } from './statics/svg';
 import { StaticImage } from './statics/image';
+import { getDerivedStateFromProps } from 'react-widgets/lib/SelectList';
 
 //Read only page
 export function Viewer({slug, dashboardReducer}) {
@@ -43,6 +45,7 @@ export function Viewer({slug, dashboardReducer}) {
 	const elements = dashboard.elements.map(element => {
 		const left = `${element.rect.x}%`;
 		const top = `${element.rect.y}%`;
+		const bottom = `${element.rect.y}%`;
 		const width = `${element.rect.w}%`;
 		const height = `${element.rect.h}%`;
 		const rotation = element.rotation ? `rotate(${element.rotation}rad)` : `rotate(0rad)`;
@@ -55,6 +58,7 @@ export function Viewer({slug, dashboardReducer}) {
 		if(element.type === 'check-image') { ele = <CheckImage options={element.options} dashboard={dashboard} slug={slug}/> }
 		if(element.type === 'check-line') { ele = <CheckLine options={element.options} dashboard={dashboard} slug={slug}/> }
 		if(element.type === 'static-text') { ele = <StaticText options={element.options}/> }
+		if(element.type === 'static-ticker') { ele = <StaticTicker options={element.options}/> }	
 		if(element.type === 'static-svg') { ele = <StaticSVG options={element.options}/> }
 		if(element.type === 'static-image') { ele = <StaticImage options={element.options}/> }
 		if(element.type === 'iframe-video') { ele = <IframeVideo options={element.options}/> }
@@ -73,6 +77,13 @@ export function Viewer({slug, dashboardReducer}) {
 			} else {
 				ele = <a id="a-link" href={`https://${element.options.linkURL}`} target="_blank">{ele}</a>
 			}
+		}
+		console.log(element.type)
+
+		if (element.type === 'static-ticker'){
+			return <div class="view-ticker" style={{left: 0, bottom: bottom, width: "100vw" , height: height, transform: rotation}}>
+			{ele}
+		</div>
 		}
 
 		return <div class="check" style={{left: left, top: top, width: width, height: height, transform: rotation}}>

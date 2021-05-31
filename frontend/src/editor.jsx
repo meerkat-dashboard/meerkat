@@ -9,6 +9,7 @@ import { CheckSVG, CheckSVGOptions, CheckSVGDefaults } from './elements/svg';
 import { CheckImage, CheckImageOptions } from './elements/image';
 import { CheckLine, CheckLineOptions, CheckLineDefaults } from './elements/line';
 import { StaticText, StaticTextOptions, StaticTextDefaults } from './statics/text';
+import { StaticTicker, StaticTickerOptions, StaticTickerDefaults } from './statics/ticker';
 import { StaticSVG, StaticSVGOptions, StaticSVGDefaults } from './statics/svg';
 import { StaticImage, StaticImageOptions } from './statics/image';
 import { IframeVideo, IframeVideoOptions } from './elements/video';
@@ -61,6 +62,7 @@ const dashboardReducer = (state, action) => {
 				...state,
 				elements: state.elements.concat(newElement)
 			};
+
 		case 'deleteElement':
 			console.log('Deleting element')
 			const nstate = {...state};
@@ -76,7 +78,10 @@ const dashboardReducer = (state, action) => {
 			console.log('Getting Dimensions')
 			return {...state, height: action.height, width: action.width};
 		case 'updateElement':
-			console.log(`Updating element: ${JSON.stringify([action.elementIndex, action.element])}`)
+			// console.log(`Updating element: ${JSON.stringify([action.elementIndex, action.element])}`)
+			console.log(action);
+			console.log(action.element);
+			// console.log(state);
 			const newState = {...state};
 			newState.elements[action.elementIndex] = JSON.parse(JSON.stringify(action.element));
 			return newState;
@@ -148,7 +153,7 @@ export function Editor({slug, selectedElementId}) {
 						<SidePanelSettings dashboard={dashboard} dashboardDispatch={dashboardDispatch} />
 						<hr />
 						<SidePanelElements dashboard={dashboard} dashboardDispatch={dashboardDispatch} slug={slug}
-							setHighlightedElementId={setHighlightedElementId} />
+							setHighlightedElementId={setHighlightedElementId}/>
 
 						<ElementSettings selectedElement={selectedElement} updateElement={updateElement} />
 			</div>
@@ -161,7 +166,7 @@ export function Editor({slug, selectedElementId}) {
 	</Fragment>
 }
 
-function TransformableElement({rect, updateRect, rotation, updateRotation, children, glow, highlight}) {
+function TransformableElement({rect, updateRect, checkType, rotation, updateRotation, children, glow, highlight}) {
 	//Handle dragging elements
 	const handleMove = downEvent => {
 		const mousemove = moveEvent => {
@@ -195,8 +200,11 @@ function TransformableElement({rect, updateRect, rotation, updateRotation, child
 
 
 			//set position
-			updateRect({x: relativeLeft, y: relativeTop, w: rect.w, h: rect.h});
+			
+				updateRect({x: relativeLeft, y: relativeTop, w: rect.w, h: rect.h});
+			
 		}
+
 
 		//Remove listeners on mouse button up
 		const mouseup = () => {
@@ -209,6 +217,42 @@ function TransformableElement({rect, updateRect, rotation, updateRotation, child
 		window.addEventListener('mousemove', mousemove);
 
 	}
+
+	const handleTickerMove = downEvent => {
+		const mousemove = moveEvent => {
+
+			let elementNode = downEvent.target;
+
+			const dashboardNode = elementNode.parentElement;
+			
+			//Get max dimensions
+			let top = elementNode.offsetTop - moveEvent.movementY;
+			const maxTop = dashboardNode.clientHeight - elementNode.clientHeight;//this is how far it can go at max down the bottom
+
+			//limit movement to max dimensions
+			top = top < 0 ? 0 : top;
+			top = top > maxTop ? maxTop : top;
+
+			//convert dimensions to relative (px -> percentage based)
+			const relativeTop = top / dashboardNode.clientHeight * 100;
+			console.log("RelTop Currently is ", relativeTop, "and top is", top)
+			//set position			
+				updateRect({x: 0, y: relativeTop, w: rect.w, h: rect.h});
+		}
+
+
+		//Remove listeners on mouse button up
+		const mouseup = () => {
+			window.removeEventListener('mousemove', mousemove);
+			window.removeEventListener('mouseup', mouseup);
+		}
+
+		//Add movement and mouseup events
+		window.addEventListener('mouseup', mouseup);
+		window.addEventListener('mousemove', mousemove);
+
+	}
+
 
 	const handleResize = downEvent => {
 		downEvent.stopPropagation();
@@ -237,6 +281,41 @@ function TransformableElement({rect, updateRect, rotation, updateRotation, child
 
 			//set position
 			updateRect({x: rect.x, y: rect.y, w: relativeWidth, h: relativeHeight});
+		}
+
+		//Remove listeners on mouse button up
+		const mouseup = () => {
+			window.removeEventListener('mousemove', mousemove);
+			window.removeEventListener('mouseup', mouseup);
+		}
+
+		//Add movement and mouseup events
+		window.addEventListener('mouseup', mouseup);
+		window.addEventListener('mousemove', mousemove);
+	}
+
+	const handleTickerResize = downEvent => {
+		downEvent.stopPropagation();
+
+		const mousemove = moveEvent => {
+			//Go up an element due to resize dot
+			let elementNode = downEvent.target.parentElement;
+
+			const dashboardNode = elementNode.parentElement;
+
+			//Get max dimensions
+			let height = elementNode.clientHeight - moveEvent.movementY;
+			let maxHeight = dashboardNode.clientHeight - elementNode.offsetTop;
+
+			//limit minimum resize
+			height = height < 40 ? 40 : height;
+			height = height < maxHeight ? height : maxHeight;
+
+			//convert dimensions to relative (px -> percentage based)
+			const relativeHeight = height / dashboardNode.clientHeight * 100;
+
+			//set position
+			updateRect({x: rect.x, y: rect.y, w: "100vw", h: relativeHeight});
 		}
 
 		//Remove listeners on mouse button up
@@ -280,10 +359,23 @@ function TransformableElement({rect, updateRect, rotation, updateRotation, child
 
 	const left = `${rect.x}%`;
 	const top = `${rect.y}%`;
+	//Only used for Tickers
+	const bottom = `${rect.y}%`;
 	const width = `${rect.w}%`;
 	const height = `${rect.h}%`;
 
 	const _rotation = rotation ? `rotate(${rotation}rad)` : `rotate(0rad)`;
+
+	//needs to be changed to tickermove and tickerResize later
+	// console.log("Bottom Currently is ", bottom, "and top is", top)
+	if (checkType === 'static-ticker'){
+		return <div class={`ticker ${glow || highlight ? 'glow' : ''}`}
+		style={{left: left, bottom: bottom, width: "100vw", height: height}}
+		onMouseDown={handleTickerMove}>
+			{children}
+			<div class="resize" onMouseDown={handleTickerResize}></div>
+		</div>
+	}
 
 	return <div class={`check ${glow || highlight ? 'glow' : ''}`}
 		style={{left: left, top: top, width: width, height: height, transform: _rotation}}
@@ -297,6 +389,7 @@ function TransformableElement({rect, updateRect, rotation, updateRotation, child
 function DashboardElements({dashboardDispatch, selectedElementId, elements, highlightedElementId, dashboard, slug}) {
 	return elements.map((element, index) => {
 		const updateRect = rect => {
+			console.log(rect)
 			dashboardDispatch({
 				type: 'updateElement',
 				elementIndex: index,
@@ -324,12 +417,14 @@ function DashboardElements({dashboardDispatch, selectedElementId, elements, high
 		if(element.type === 'check-image') { ele = <CheckImage options={element.options} slug={slug} dashboard={dashboard}/> }
 		if(element.type === 'check-line') { ele = <CheckLine options={element.options} slug={slug} dashboard={dashboard}/> }
 		if(element.type === 'static-text') { ele = <StaticText options={element.options}/> }
+		if(element.type === 'static-ticker') { ele = <StaticTicker options={element.options}/> }		
 		if(element.type === 'static-svg') { ele = <StaticSVG options={element.options}/> }
 		if(element.type === 'static-image') { ele = <StaticImage options={element.options}/> }
 		if(element.type === 'iframe-video') { ele = <IframeVideo options={element.options}/> }
 		if(element.type === 'audio-stream') { ele = <AudioStream options={element.options}/> }
 
 		return  <TransformableElement rect={element.rect} updateRect={updateRect}
+					checkType={element.type}
 					glow={selectedElementId === index} highlight={highlightedElementId === index}
 					updateRotation={updateRotation} rotation={element.rotation}>
 					{ele}
@@ -415,7 +510,7 @@ function SidePanelSettings({dashboardDispatch, dashboard}) {
 		<label for="background-image">Background Image {imgControls(dashboard.background)}</label>
 		<input class="form-control" id="background-image" type="file" placeholder="Upload a background image"
 			accept="image/*" onChange={handleBackgroundImg}/>
-		<label class="status-font-size">Mute Status Alerts</label>
+		<label class="status-font-size">Mute Status Alerts!</label>
     	<input type="checkbox" defaultChecked={dashboard.globalMute} onChange={e => muteAlerts(e)} class="form-control mute-sounds"/>
 		<br/>
 		<button class="rounded btn-primary btn-large" onClick={onClickAdvanced}>{showAdvanced ? 'Hide Options' : 'Global Alert Options'}</button>
@@ -715,6 +810,7 @@ function SidePanelElements({dashboard, dashboardDispatch, setHighlightedElementI
 		routeParam('selectedElementId', newId);
 	}
 
+
 	const deleteElement = (e, index) => {
 		e.preventDefault();
 		dashboardDispatch({
@@ -800,6 +896,7 @@ export function ElementSettings({selectedElement, updateElement}) {
 			case 'check-svg': defaults = CheckSVGDefaults; break;
 			case 'check-line': defaults = CheckLineDefaults; break;
 			case 'static-text': defaults = StaticTextDefaults; break;
+			case 'static-ticker' : defaults = StaticTickerDefaults; break;
 			case 'static-svg': defaults = StaticSVGDefaults; break;
 		}
 
@@ -820,6 +917,7 @@ export function ElementSettings({selectedElement, updateElement}) {
 	if (selectedElement.type === 'static-image') { ElementOptions = <StaticImageOptions updateOptions={updateElementOptions} options={selectedElement.options} /> }
 	if (selectedElement.type === 'iframe-video') { ElementOptions = <IframeVideoOptions updateOptions={updateElementOptions} options={selectedElement.options} /> }
 	if (selectedElement.type === 'audio-stream') { ElementOptions = <AudioOptions       updateOptions={updateElementOptions} options={selectedElement.options} /> }
+	if (selectedElement.type === 'static-ticker')  { ElementOptions = <StaticTickerOptions  updateOptions={updateElementOptions} options={selectedElement.options} /> }
 
 	return <div class="form-group">
 		<div class="editor settings-overlay">
@@ -844,6 +942,7 @@ export function ElementSettings({selectedElement, updateElement}) {
 					<option value="static-text">Static Text</option>
 					<option value="static-svg">Static SVG</option>
 					<option value="static-image">Static Image</option>
+					<option value="static-ticker">Static Ticker</option>
 					<option value="iframe-video">HLS Stream</option>
 					<option value="audio-stream">Audio Stream</option>
 				</select>

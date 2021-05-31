@@ -34,7 +34,7 @@ type icingaAttributes struct {
 	Groups          []string `json:"groups"`
 }
 
-func (ir *icingaAPIResult) toIcingaObject() icingaObject {
+func (ir *icingaAPIResult) ostsObject() icingaObject {
 	return icingaObject{
 		ID:          ir.Name,
 		Type:        ir.Type,
@@ -352,7 +352,7 @@ func handleIcingaCheck(w http.ResponseWriter, r *http.Request) {
 	//Convert to our type
 	var objs []icingaObject
 	for _, check := range results.Results {
-		objs = append(objs, check.toIcingaObject())
+		objs = append(objs, check.ostsObject())
 	}
 
 	enc := json.NewEncoder(w)
