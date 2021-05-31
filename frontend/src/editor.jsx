@@ -78,10 +78,7 @@ const dashboardReducer = (state, action) => {
 			console.log('Getting Dimensions')
 			return {...state, height: action.height, width: action.width};
 		case 'updateElement':
-			// console.log(`Updating element: ${JSON.stringify([action.elementIndex, action.element])}`)
-			console.log(action);
-			console.log(action.element);
-			// console.log(state);
+			console.log(`Updating element: ${JSON.stringify([action.elementIndex, action.element])}`)
 			const newState = {...state};
 			newState.elements[action.elementIndex] = JSON.parse(JSON.stringify(action.element));
 			return newState;
@@ -197,12 +194,8 @@ function TransformableElement({rect, updateRect, checkType, rotation, updateRota
 			const relativeLeft = left / dashboardNode.clientWidth * 100;
 			const relativeTop = top / dashboardNode.clientHeight * 100;
 
-
-
 			//set position
-			
-				updateRect({x: relativeLeft, y: relativeTop, w: rect.w, h: rect.h});
-			
+			updateRect({x: relativeLeft, y: relativeTop, w: rect.w, h: rect.h});
 		}
 
 
@@ -217,42 +210,6 @@ function TransformableElement({rect, updateRect, checkType, rotation, updateRota
 		window.addEventListener('mousemove', mousemove);
 
 	}
-
-	const handleTickerMove = downEvent => {
-		const mousemove = moveEvent => {
-
-			let elementNode = downEvent.target;
-
-			const dashboardNode = elementNode.parentElement;
-			
-			//Get max dimensions
-			let top = elementNode.offsetTop + moveEvent.movementY;
-			const maxTop = dashboardNode.clientHeight - elementNode.clientHeight;//this is how far it can go at max down the bottom
-
-			//limit movement to max dimensions
-			top = top < 0 ? 0 : top;
-			top = top > maxTop ? maxTop : top;
-
-			//convert dimensions to relative (px -> percentage based)
-			const relativeTop = top / dashboardNode.clientHeight * 100;
-			console.log("RelTop Currently is ", relativeTop, "and top is", top)
-			//set position			
-				updateRect({x: 0, y: relativeTop, w: rect.w, h: rect.h});
-		}
-
-
-		//Remove listeners on mouse button up
-		const mouseup = () => {
-			window.removeEventListener('mousemove', mousemove);
-			window.removeEventListener('mouseup', mouseup);
-		}
-
-		//Add movement and mouseup events
-		window.addEventListener('mouseup', mouseup);
-		window.addEventListener('mousemove', mousemove);
-
-	}
-
 
 	const handleResize = downEvent => {
 		downEvent.stopPropagation();
@@ -277,43 +234,6 @@ function TransformableElement({rect, updateRect, checkType, rotation, updateRota
 
 			//convert dimensions to relative (px -> percentage based)
 			const relativeWidth = width / dashboardNode.clientWidth * 100;
-			const relativeHeight = height / dashboardNode.clientHeight * 100;
-
-			//set position
-			updateRect({x: rect.x, y: rect.y, w: relativeWidth, h: relativeHeight});
-		}
-
-		//Remove listeners on mouse button up
-		const mouseup = () => {
-			window.removeEventListener('mousemove', mousemove);
-			window.removeEventListener('mouseup', mouseup);
-		}
-
-		//Add movement and mouseup events
-		window.addEventListener('mouseup', mouseup);
-		window.addEventListener('mousemove', mousemove);
-	}
-
-	const handleTickerResize = downEvent => {
-		downEvent.stopPropagation();
-
-		const mousemove = moveEvent => {
-			//Go up an element due to resize dot
-			let elementNode = downEvent.target.parentElement;
-			console.log(elementNode)
-
-			const dashboardNode = elementNode.parentElement;
-
-			//Get max dimensions
-			let height = elementNode.clientHeight - moveEvent.movementY;
-			let maxHeight = elementNode.offsetTop;
-
-			//limit minimum resize
-			height = height < 40 ? 40 : height;
-			height = height < maxHeight ? height : maxHeight;
-
-
-			//convert dimensions to relative (px -> percentage based)
 			const relativeHeight = height / dashboardNode.clientHeight * 100;
 
 			//set position
@@ -361,21 +281,17 @@ function TransformableElement({rect, updateRect, checkType, rotation, updateRota
 
 	const left = `${rect.x}%`;
 	const top = `${rect.y}%`;
-	//Only used for Tickers
-	const bottom = `${rect.y}%`;
 	const width = `${rect.w}%`;
 	const height = `${rect.h}%`;
 
 	const _rotation = rotation ? `rotate(${rotation}rad)` : `rotate(0rad)`;
 
-	//needs to be changed to tickermove and tickerResize later
-	// console.log("Bottom Currently is ", bottom, "and top is", top)
 	if (checkType === 'static-ticker'){
 		return <div class={`ticker ${glow || highlight ? 'glow' : ''}`}
-		style={{left: left, bottom: bottom, width: "100vw", height: height}}
-		onMouseDown={handleMove}>
-			{children}
-			<div class="resize" onMouseDown={handleTickerResize}></div>
+			style={{left: left, top: top, width: "100%", height: height}}
+			onMouseDown={handleMove}>
+				{children}
+			<div class="resize" onMouseDown={handleResize}></div>
 		</div>
 	}
 
@@ -391,7 +307,6 @@ function TransformableElement({rect, updateRect, checkType, rotation, updateRota
 function DashboardElements({dashboardDispatch, selectedElementId, elements, highlightedElementId, dashboard, slug}) {
 	return elements.map((element, index) => {
 		const updateRect = rect => {
-			console.log(rect)
 			dashboardDispatch({
 				type: 'updateElement',
 				elementIndex: index,
@@ -419,7 +334,7 @@ function DashboardElements({dashboardDispatch, selectedElementId, elements, high
 		if(element.type === 'check-image') { ele = <CheckImage options={element.options} slug={slug} dashboard={dashboard}/> }
 		if(element.type === 'check-line') { ele = <CheckLine options={element.options} slug={slug} dashboard={dashboard}/> }
 		if(element.type === 'static-text') { ele = <StaticText options={element.options}/> }
-		if(element.type === 'static-ticker') { ele = <StaticTicker options={element.options}/> }		
+		if(element.type === 'static-ticker') { ele = <StaticTicker options={element.options}/> }
 		if(element.type === 'static-svg') { ele = <StaticSVG options={element.options}/> }
 		if(element.type === 'static-image') { ele = <StaticImage options={element.options}/> }
 		if(element.type === 'iframe-video') { ele = <IframeVideo options={element.options}/> }
@@ -892,14 +807,32 @@ export function ElementSettings({selectedElement, updateElement}) {
 
 	//sets good default values for each visual type when they're selected
 	const updateType = e => {
-		const newType = e.currentTarget.value
+		const newType = e.currentTarget.value;
 		let defaults = {};
+
 		switch(newType) {
 			case 'check-svg': defaults = CheckSVGDefaults; break;
 			case 'check-line': defaults = CheckLineDefaults; break;
 			case 'static-text': defaults = StaticTextDefaults; break;
 			case 'static-ticker' : defaults = StaticTickerDefaults; break;
 			case 'static-svg': defaults = StaticSVGDefaults; break;
+		}
+
+		const tickerRect = {
+			x: 0,
+			y: 82.84371327849588,
+			w: 100,
+			h: 16
+		}
+
+		if (newType == 'static-ticker') {
+			updateElement({
+				...selectedElement,
+				type: newType,
+				rect: tickerRect,
+				options: Object.assign(selectedElement.options, defaults)
+			});
+			return;
 		}
 
 		updateElement({

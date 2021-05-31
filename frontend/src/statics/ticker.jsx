@@ -19,9 +19,6 @@ export function StaticTickerOptions({options, updateOptions}) {
 		<input class="form-control" id="font-size" name="font-size" type="number" min="0" value={options.fontSize}
 			onInput={e => updateOptions({fontSize: e.currentTarget.value})}/>
 
-
-
-
 		<label for="font-color">Font Color <a onClick={e => clearField(e, 'fontColor')}>clear</a></label>
 		<div class="lefty-righty spacer">
 			<input class="form-control" id="font-color" name="font-color" type="color" value={options.fontColor}

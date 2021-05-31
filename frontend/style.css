@@ -936,14 +936,13 @@ a#text-link {
 .ticker > div.resize {
 	position: absolute;
 	right: 50%;
-	top: -50;
+	bottom: 0;
 	width: 10px;
 	height: 10px;
-	background-color: #00ff40;
+	background-color: #2196F3;
 	cursor: ns-resize;
 	border-radius: 3px;
 }
-
 
 .view-ticker {
 	cursor: move;
@@ -960,10 +959,6 @@ a#text-link {
 	height: 100%;
 	animation: marqueeX 10s linear infinite;
 }
-
-
-
-
 
 div.check-content.svg {
 	display: block;
