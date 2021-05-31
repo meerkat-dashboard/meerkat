@@ -226,7 +226,7 @@ function TransformableElement({rect, updateRect, checkType, rotation, updateRota
 			const dashboardNode = elementNode.parentElement;
 			
 			//Get max dimensions
-			let top = elementNode.offsetTop - moveEvent.movementY;
+			let top = elementNode.offsetTop + moveEvent.movementY;
 			const maxTop = dashboardNode.clientHeight - elementNode.clientHeight;//this is how far it can go at max down the bottom
 
 			//limit movement to max dimensions
@@ -300,22 +300,24 @@ function TransformableElement({rect, updateRect, checkType, rotation, updateRota
 		const mousemove = moveEvent => {
 			//Go up an element due to resize dot
 			let elementNode = downEvent.target.parentElement;
+			console.log(elementNode)
 
 			const dashboardNode = elementNode.parentElement;
 
 			//Get max dimensions
 			let height = elementNode.clientHeight - moveEvent.movementY;
-			let maxHeight = dashboardNode.clientHeight - elementNode.offsetTop;
+			let maxHeight = elementNode.offsetTop;
 
 			//limit minimum resize
 			height = height < 40 ? 40 : height;
 			height = height < maxHeight ? height : maxHeight;
 
+
 			//convert dimensions to relative (px -> percentage based)
 			const relativeHeight = height / dashboardNode.clientHeight * 100;
 
 			//set position
-			updateRect({x: rect.x, y: rect.y, w: "100vw", h: relativeHeight});
+			updateRect({x: rect.x, y: rect.y, w: relativeWidth, h: relativeHeight});
 		}
 
 		//Remove listeners on mouse button up
@@ -371,7 +373,7 @@ function TransformableElement({rect, updateRect, checkType, rotation, updateRota
 	if (checkType === 'static-ticker'){
 		return <div class={`ticker ${glow || highlight ? 'glow' : ''}`}
 		style={{left: left, bottom: bottom, width: "100vw", height: height}}
-		onMouseDown={handleTickerMove}>
+		onMouseDown={handleMove}>
 			{children}
 			<div class="resize" onMouseDown={handleTickerResize}></div>
 		</div>
