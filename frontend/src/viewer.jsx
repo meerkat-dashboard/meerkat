@@ -45,7 +45,6 @@ export function Viewer({slug, dashboardReducer}) {
 	const elements = dashboard.elements.map(element => {
 		const left = `${element.rect.x}%`;
 		const top = `${element.rect.y}%`;
-		const bottom = `${element.rect.y}%`;
 		const width = `${element.rect.w}%`;
 		const height = `${element.rect.h}%`;
 		const rotation = element.rotation ? `rotate(${element.rotation}rad)` : `rotate(0rad)`;
@@ -81,8 +80,11 @@ export function Viewer({slug, dashboardReducer}) {
 		console.log(element.type)
 
 		if (element.type === 'static-ticker'){
-			return <div class="view-ticker" style={{left: 0, bottom: bottom, width: "100vw" , height: height, transform: rotation}}>
+
+			return <div class="view-ticker" style={{left: 0, top: top, width: "100vw" , height: height, transform: rotation}}>
+			{/* {console.log(ele)} */}
 			{ele}
+
 		</div>
 		}
 

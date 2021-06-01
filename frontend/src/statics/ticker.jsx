@@ -37,20 +37,21 @@ export function StaticTickerOptions({options, updateOptions}) {
 
 export function StaticTicker({options}) {
 	let styles = '';
+	let textStyles ='';
 
 	if(typeof options.fontSize !== 'undefined') {
-		styles += `font-size: ${options.fontSize}px; `;
+		textStyles += `font-size: ${options.fontSize}px; `;
 	}
 	if(typeof options.backgroundColor !== 'undefined') {
 		styles += `background-color: ${options.backgroundColor}; `;
 	}
 	if(typeof options.fontColor !== 'undefined') {
-		styles += `color: ${options.fontColor}; `;
+		textStyles += `color: ${options.fontColor}; `;
 	}
 
 
 	return <div class="check-content ticker" style={styles}>
-		{options.text}
+		 <div class ="scrolling-text" style={textStyles}>{options.text}</div>
 	</div>
 }
 
