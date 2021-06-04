@@ -37,7 +37,7 @@ export function CheckCard({options, slug, dashboard}) {
 		if (options.objectType !== null && options.filter !== null) {
 			setPerfValue(null);
 			updateState();
-			const intervalID = window.setInterval(updateState, 5*1000)
+			const intervalID = window.setInterval(updateState, 30*1000)
 			return () => window.clearInterval(intervalID);
 		}
 	}, [options.objectType, options.filter, options.perfDataSelection]);

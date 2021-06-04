@@ -124,7 +124,7 @@ export function CheckSVG({options, dashboard}) {
 	useEffect(() => {
 		if(options.objectType !== null && options.filter != null) {
 			updateState();
-			const intervalID = window.setInterval(updateState, 5*1000)
+			const intervalID = window.setInterval(updateState, 30*1000)
 			return () => window.clearInterval(intervalID);
 		}
 	}, [options.objectType, options.filter]);
