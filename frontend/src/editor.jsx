@@ -8,6 +8,7 @@ import { CheckCard, CheckCardOptions } from './elements/card';
 import { CheckSVG, CheckSVGOptions, CheckSVGDefaults } from './elements/svg';
 import { CheckImage, CheckImageOptions } from './elements/image';
 import { CheckLine, CheckLineOptions, CheckLineDefaults } from './elements/line';
+import { DynamicText, DynamicTextOptions, DynamicTextDefaults } from './elements/text';
 import { StaticText, StaticTextOptions, StaticTextDefaults } from './statics/text';
 import { StaticSVG, StaticSVGOptions, StaticSVGDefaults } from './statics/svg';
 import { StaticImage, StaticImageOptions } from './statics/image';
@@ -324,6 +325,7 @@ function DashboardElements({dashboardDispatch, selectedElementId, elements, high
 		if(element.type === 'check-image') { ele = <CheckImage options={element.options} slug={slug} dashboard={dashboard}/> }
 		if(element.type === 'check-line') { ele = <CheckLine options={element.options} slug={slug} dashboard={dashboard}/> }
 		if(element.type === 'static-text') { ele = <StaticText options={element.options}/> }
+		if(element.type === 'dynamic-text') { ele = <DynamicText options={element.options}/> }
 		if(element.type === 'static-svg') { ele = <StaticSVG options={element.options}/> }
 		if(element.type === 'static-image') { ele = <StaticImage options={element.options}/> }
 		if(element.type === 'iframe-video') { ele = <IframeVideo options={element.options}/> }
@@ -424,78 +426,13 @@ function SidePanelSettings({dashboardDispatch, dashboard}) {
 }
 
 const AdvancedAlertOptions = ({dashboardDispatch, display, dashboard}) => {
-	const handleOkSound = async e => {
-		try {
-			const res = await meerkat.uploadFile(e.target.files[0]);
-			dashboardDispatch({
-				type: 'setGlobalOk',
-				okSound: res.url
-			});
-			console.log(res.url)
-		} catch (e) {
-			console.log('failed to upload sound');
-			console.log(e);
-		}
-	}
 
-	const handleCriticalSound = async e => {
+	const handleAlertSound = async (e, action, sound) => {
 		try {
 			const res = await meerkat.uploadFile(e.target.files[0]);
 			dashboardDispatch({
-				type: 'setGlobalCritical',
-				criticalSound: res.url
-			});
-		} catch (e) {
-			console.log('failed to upload sound');
-			console.log(e);
-		}
-	}
-
-	const handleWarningSound = async e => {
-		try {
-			const res = await meerkat.uploadFile(e.target.files[0]);
-			dashboardDispatch({
-				type: 'setGlobalWarning',
-				warningSound: res.url
-			});
-		} catch (e) {
-			console.log('failed to upload sound');
-			console.log(e);
-		}
-	}
-
-	const handleUnknownSound = async e => {
-		try {
-			const res = await meerkat.uploadFile(e.target.files[0]);
-			dashboardDispatch({
-				type: 'setGlobalUnknown',
-				unknownSound: res.url
-			});
-		} catch (e) {
-			console.log('failed to upload sound');
-			console.log(e);
-		}
-	}
-
-	const handleUpSound = async e => {
-		try {
-			const res = await meerkat.uploadFile(e.target.files[0]);
-			dashboardDispatch({
-				type: 'setGlobalUp',
-				upSound: res.url
-			});
-		} catch (e) {
-			console.log('failed to upload sound');
-			console.log(e);
-		}
-	}
-
-	const handleDownSound = async e => {
-		try {
-			const res = await meerkat.uploadFile(e.target.files[0]);
-			dashboardDispatch({
-				type: 'setGlobalDown',
-				downSound: res.url
+				type: action,
+				[sound]: res.url
 			});
 		} catch (e) {
 			console.log('failed to upload sound');
@@ -512,61 +449,47 @@ const AdvancedAlertOptions = ({dashboardDispatch, display, dashboard}) => {
 		return null;
 	}
 
-	const resetOk = () => {
-		dashboardDispatch({type: 'setGlobalOk', okSound: "/dashboards-data/ok.mp3"});
-	}
-
-	const resetCritical = () => {
-		dashboardDispatch({type: 'setGlobalCritical', criticalSound: "/dashboards-data/critical.mp3"});
-	}
-
-	const resetWarning = () => {
-		dashboardDispatch({type: 'setGlobalWarning', warningSound: "/dashboards-data/warning.mp3"});
-	}
-
-	const resetUnknown = () => {
-		dashboardDispatch({type: 'setGlobalUnknown', unknownSound: "/dashboards-data/unknown.mp3"});
-	}
-
-	const resetUp = () => {
-		dashboardDispatch({type: 'setGlobalup', upSound: "/dashboards-data/up.mp3"});
-	}
-
-	const resetDown = () => {
-		dashboardDispatch({type: 'setGlobaldown', downSound: "/dashboards-data/down.mp3"});
-	}
-
 	return <div style={{display: display ? '' : 'none'}}>
 		<br/>
-		<label for="soundFile">Ok Alert Sound {audioControls(dashboard.okSound)} <a onClick={resetOk}>default</a></label>
+		<label for="soundFile">Ok Alert Sound {audioControls(dashboard.okSound)}
+			<a onClick={e => dashboardDispatch({type: 'setGlobalOk', okSound: "/dashboards-data/ok.mp3"})}>default</a>
+		</label>
 		<input type="file" id="okSound" accept="audio/*"
 			   placeholder="Upload an audio file"
-			   onInput={handleOkSound}>
+			   onInput={e => handleAlertSound(e, 'setGlobalOk', 'okSound')}>
 		</input>
-		<label for="soundFile">Warning Alert Sound {audioControls(dashboard.warningSound)} <a onClick={resetWarning}>default</a></label>
+		<label for="soundFile">Warning Alert Sound {audioControls(dashboard.warningSound)}
+			<a onClick={e => dashboardDispatch({type: 'setGlobalUnknown', unknownSound: "/dashboards-data/unknown.mp3"})}>default</a>
+		</label>
 		<input type="file" id="warningSound" accept="audio/*"
 			   placeholder="Upload an audio file"
-			   onInput={handleWarningSound}>
+			   onInput={e => handleAlertSound(e, 'setGlobalWarning', 'warningSound')}>
 		</input>
-		<label for="soundFile">Critical Alert Sound {audioControls(dashboard.criticalSound)} <a onClick={resetCritical}>default</a></label>
+		<label for="soundFile">Critical Alert Sound {audioControls(dashboard.criticalSound)}
+			<a onClick={e => dashboardDispatch({type: 'setGlobalCritical', criticalSound: "/dashboards-data/critical.mp3"})}>default</a>
+		</label>
 		<input type="file" id="criticalSound" accept="audio/*"
 			   placeholder="Upload an audio file"
-			   onInput={handleCriticalSound}>
+			   onInput={e => handleAlertSound(e, 'setGlobalCritical', 'criticalSound')}>
 		</input>
-		<label for="soundFile">Unknown Alert Sound {audioControls(dashboard.unknownSound)} <a onClick={resetUnknown}>default</a></label>
+		<label for="soundFile">Unknown Alert Sound {audioControls(dashboard.unknownSound)}
+			<a onClick={e => dashboardDispatch({type: 'setGlobalUnknown', unknownSound: "/dashboards-data/unknown.mp3"})}>default</a>
+		</label>
 		<input type="file" id="unknownSound" accept="audio/*"
 			   placeholder="Upload an audio file"
-			   onInput={handleUnknownSound}>
+			   onInput={e => handleAlertSound(e, 'setGlobalUnknown', 'unknownSound')}>
 		</input>
-		<label for="soundFile">Up Alert Sound {audioControls(dashboard.upSound)} <a onClick={resetUp}>default</a></label>
+		<label for="soundFile">Up Alert Sound {audioControls(dashboard.upSound)}
+			<a onClick={e => dashboardDispatch({type: 'setGlobalup', upSound: "/dashboards-data/up.mp3"})}>default</a></label>
 		<input type="file" id="upSound" accept="audio/*"
 			   placeholder="Upload an audio file"
-			   onInput={handleUpSound}>
+			   onInput={e => handleAlertSound(e, 'setGlobalUp', 'upSound')}>
 		</input>
-		<label for="soundFile">Down Alert Sound {audioControls(dashboard.downSound)} <a onClick={resetDown}>default</a></label>
+		<label for="soundFile">Down Alert Sound {audioControls(dashboard.downSound)}
+			<a onClick={e => dashboardDispatch({type: 'setGlobaldown', downSound: "/dashboards-data/down.mp3"})}>default</a></label>
 		<input type="file" id="downSound" accept="audio/*"
 			   placeholder="Upload an audio file"
-			   onInput={handleDownSound}>
+			   onInput={e => handleAlertSound(e, 'setGlobalDown', 'downSound')}>
 		</input>
 	</div>
 }
@@ -799,6 +722,7 @@ export function ElementSettings({selectedElement, updateElement}) {
 		switch(newType) {
 			case 'check-svg': defaults = CheckSVGDefaults; break;
 			case 'check-line': defaults = CheckLineDefaults; break;
+			case 'dynamic-text': defaults = DynamicTextDefaults; break;
 			case 'static-text': defaults = StaticTextDefaults; break;
 			case 'static-svg': defaults = StaticSVGDefaults; break;
 		}
@@ -811,15 +735,16 @@ export function ElementSettings({selectedElement, updateElement}) {
 	}
 
 	let ElementOptions = null;
-	if (selectedElement.type === 'check-card')   { ElementOptions = <CheckCardOptions   updateOptions={updateElementOptions} options={selectedElement.options} /> }
-	if (selectedElement.type === 'check-svg')    { ElementOptions = <CheckSVGOptions    updateOptions={updateElementOptions} options={selectedElement.options} /> }
-	if (selectedElement.type === 'check-image')  { ElementOptions = <CheckImageOptions  updateOptions={updateElementOptions} options={selectedElement.options} /> }
-	if (selectedElement.type === 'check-line')   { ElementOptions = <CheckLineOptions   updateOptions={updateElementOptions} options={selectedElement.options} /> }
-	if (selectedElement.type === 'static-text')  { ElementOptions = <StaticTextOptions  updateOptions={updateElementOptions} options={selectedElement.options} /> }
-	if (selectedElement.type === 'static-svg')   { ElementOptions = <StaticSVGOptions   updateOptions={updateElementOptions} options={selectedElement.options} /> }
-	if (selectedElement.type === 'static-image') { ElementOptions = <StaticImageOptions updateOptions={updateElementOptions} options={selectedElement.options} /> }
-	if (selectedElement.type === 'iframe-video') { ElementOptions = <IframeVideoOptions updateOptions={updateElementOptions} options={selectedElement.options} /> }
-	if (selectedElement.type === 'audio-stream') { ElementOptions = <AudioOptions       updateOptions={updateElementOptions} options={selectedElement.options} /> }
+	if (selectedElement.type === 'check-card')   { ElementOptions = <CheckCardOptions     updateOptions={updateElementOptions} options={selectedElement.options} /> }
+	if (selectedElement.type === 'check-svg')    { ElementOptions = <CheckSVGOptions      updateOptions={updateElementOptions} options={selectedElement.options} /> }
+	if (selectedElement.type === 'check-image')  { ElementOptions = <CheckImageOptions    updateOptions={updateElementOptions} options={selectedElement.options} /> }
+	if (selectedElement.type === 'check-line')   { ElementOptions = <CheckLineOptions     updateOptions={updateElementOptions} options={selectedElement.options} /> }
+	if (selectedElement.type === 'static-text')  { ElementOptions = <StaticTextOptions    updateOptions={updateElementOptions} options={selectedElement.options} /> }
+	if (selectedElement.type === 'dynamic-text')  { ElementOptions = <DynamicTextOptions  updateOptions={updateElementOptions} options={selectedElement.options} /> }
+	if (selectedElement.type === 'static-svg')   { ElementOptions = <StaticSVGOptions     updateOptions={updateElementOptions} options={selectedElement.options} /> }
+	if (selectedElement.type === 'static-image') { ElementOptions = <StaticImageOptions   updateOptions={updateElementOptions} options={selectedElement.options} /> }
+	if (selectedElement.type === 'iframe-video') { ElementOptions = <IframeVideoOptions   updateOptions={updateElementOptions} options={selectedElement.options} /> }
+	if (selectedElement.type === 'audio-stream') { ElementOptions = <AudioOptions         updateOptions={updateElementOptions} options={selectedElement.options} /> }
 
 	return <div class="form-group">
 		<div class="editor settings-overlay">
@@ -841,6 +766,7 @@ export function ElementSettings({selectedElement, updateElement}) {
 					<option value="check-svg">Icinga SVG</option>
 					<option value="check-image">Icinga Image</option>
 					<option value="check-line">Icinga Line</option>
+					<option value="dynamic-text">Dynamic Text</option>
 					<option value="static-text">Static Text</option>
 					<option value="static-svg">Static SVG</option>
 					<option value="static-image">Static Image</option>

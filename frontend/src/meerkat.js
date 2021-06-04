@@ -33,6 +33,11 @@ export async function getIcingaHosts() {
 	return res.json();
 }
 
+export async function getIcingaHostInfo(host) {
+	const res = await fetch(`/icinga/one_host/${encodeURIComponent(host)}`)
+	return res.json();
+}
+
 export async function getIcingaServices() {
 	const res = await fetch(`/icinga/services`)
 	return res.json();

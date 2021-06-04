@@ -84,8 +84,8 @@ function CreateDashboardModal({ hide }) {
 	</div>
 }
 
-function TemplateModal({slug, dashboards, dashboardX}) {
-	const [showTemplate, setShowTemplate] = useState(false);
+function TemplateModal({slug}) {
+	const [showTemplate, setShowTemplate] = useState(null);
 	const [dashboard, setDashboard] = useState(null);
 	const [inputs, setInputs] = useState([]);
 
@@ -148,7 +148,7 @@ function TemplateModal({slug, dashboards, dashboardX}) {
 		setShowTemplate(false);
 	}
 
-	if (!dashboard) {
+	if (showTemplate && typeof dashboard === 'undefined') {
 		return <div class="modal-wrap">
 			<div class="modal-fixed">
 				<h3>Template Settings</h3>
@@ -159,7 +159,7 @@ function TemplateModal({slug, dashboards, dashboardX}) {
 	}
 
 	const isTemplate = () => {
-		if (dashboard.hasOwnProperty("variables") && Object.keys(dashboard.variables).length) {
+		if (dashboard && dashboard.hasOwnProperty("variables") && Object.keys(dashboard.variables).length) {
 			return <a onClick={e => setShowTemplate(true)}>template</a>
 		}
 
@@ -304,8 +304,8 @@ function DashboardList({ dashboards, loadDashboards, filter }) {
 				<a onClick={e => route(`/view/${slug}`)}>view</a>
 				<a onClick={e => route(`/edit/${slug}`)}>edit</a>
 				<CloneDashboard dashboard={dashboard} dashboards={dashboards} />
-				<TemplateModal key={dashboard.slug} dashboards={dashboards} dashboardX={dashboard} slug={slug} />
 				<DeleteConfirmation slug={slug} loadDashboards={loadDashboards} />
+				<TemplateModal slug={slug} />
 			</div>
 		</div>
 	});

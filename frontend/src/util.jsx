@@ -1,5 +1,5 @@
-import { h, Fragment, createRef } from 'preact';
-import { useState, useEffect } from 'preact/hooks';
+import { h, Fragment, createRef, options } from 'preact';
+import { useState, useEffect, useRef } from 'preact/hooks';
 import { route } from 'preact-router';
 import { Combobox } from 'react-widgets';
 
@@ -148,6 +148,216 @@ export function IcingaCheckList({currentCheckopts, updateOptions}) {
 		{typeOptions}
 	</div>
 }
+
+
+export function IcingaHostVars({optionsID, updateOptions}) {
+	const [hosts, setHosts] = useState("");
+	const [hostInfo, setHostInfo] = useState("");
+	const [hostInfoSelection, setHostInfoSelection] = useState("");
+
+	const searchHosts = async () => {
+		setHosts(<Combobox placeholder="Loading..." busy value="" data={[]} busySpinner={<div class="loading" style="width: 14px; height: 14px; margin-left: 10px" />} />);
+
+		let opts = null;
+		let input = "";
+		let input2 = "";
+		opts = [];
+
+		let hosts = await meerkat.getIcingaHosts();
+		hosts.sort(sortHost);
+
+		for (const host of hosts) {
+			opts.push({id: host.id, selection: "hosts", objectType: "host", filter: `host.name=="${host.id}"`})
+		}
+
+		if (opts !== null) {
+			input = <Combobox filter='contains' placeholder="Choose away..." textField='id' valueField='id' defaultValue={optionsID} data={opts} onSelect={updateOptions}/>
+		}
+
+		if (input !== null) {
+			setHosts(input);
+		}
+
+		let hostInfo = await meerkat.getIcingaHostInfo(optionsID)
+		let hInfo = [];
+
+		for (const [key, value] of Object.entries(hostInfo.results[0].attrs)) {
+			hInfo.push({id: key, [key]: value});
+		}
+
+		const handleComboboxChange = (value) => {
+			updateOptions({text: value[value.id]})
+		};
+
+		if (hInfo !== null) {
+			input2 = <Combobox filter='contains' placeholder="Choose away..." textField='id' valueField='id' data={hInfo} onSelect={value => handleComboboxChange(value)}/>
+		}
+
+		if (input2 !== null) {
+			setHostInfo(input2)
+		}
+	}
+
+	useEffect(searchHosts, [optionsID])
+
+	return <div>
+		{hosts}
+		<br/>
+		{hostInfo}
+	</div>
+}
+
+
+export function getPerfData(options, setPerfData) {
+	meerkat.getCheckResult(options.objectType, options.id).then(async c => {
+		let perfData = c.results ? c.results[0].attrs.last_check_result.performance_data : null;
+		if (perfData !== null) {
+			if (typeof perfData !== "undefined" && perfData.length > 0) {
+				let arrPerf = [];
+				for (var i = 0; i < perfData.length; i++){
+					if (perfData[i].includes('=')) {
+						arrPerf.push(perfData[i].split(';')[0]);
+					}
+				}
+				let objPerf = Object.fromEntries(arrPerf.map(s => s.split('=')));
+				setPerfData(objPerf);
+			}
+		}
+	});
+}
+
+
+export function usePrevious(value) {
+	const ref = useRef();
+	useEffect(() => {ref.current = value});
+	return ref.current;
+}
+
+
+let okAudio = null;
+let warningAudio = null;
+let criticalAudio = null;
+let unknownAudio = null;
+let upAudio = null;
+let downAudio = null;
+
+export function alertSounds (checkState, options, dashboard) {
+	const oldCheckState = usePrevious(checkState);
+
+	if ((checkState !== null && oldCheckState !== null) && (checkState !== oldCheckState)) {
+		switch(checkState){
+			case 'ok':
+				let oldDashOk = usePrevious(dashboard.okSound);
+
+				if (options.okSound) {
+					let oldOptionsOk = usePrevious(options.okSound);
+
+					if (!okAudio || (options.okSound !== oldOptionsOk)) {
+						okAudio = new Audio(options.okSound);
+					}
+
+				} else if (!okAudio || (dashboard.okSound !== oldDashOk)) {
+					okAudio = new Audio(dashboard.okSound);
+				}
+
+				if ((dashboard.globalMute || options.muteAlerts) === false) {
+					okAudio.play();
+				}
+			break;
+			case 'warning':
+				let oldDashWarning = usePrevious(dashboard.warningSound);
+
+				if (options.warningSound) {
+					let oldOptionsWarning = usePrevious(options.warningSound);
+
+					if (!warningAudio || (options.warningSound !== oldOptionsWarning)) {
+						warningAudio = new Audio(options.warningSound);
+					}
+
+				} else if (!warningAudio || (dashboard.warningSound !== oldDashWarning)) {
+					warningAudio = new Audio(dashboard.warningSound);
+				}
+
+				if ((dashboard.globalMute || options.muteAlerts) === false) {
+					warningAudio.play();
+				}
+			break;
+			case 'critical':
+				let oldDashCritical = usePrevious(dashboard.criticalSound);
+
+				if (options.criticalSound) {
+					let oldOptionsCritical = usePrevious(options.criticalSound);
+
+					if (!criticalAudio || (options.criticalSound !== oldOptionsCritical)) {
+						criticalAudio = new Audio(options.criticalSound);
+					}
+
+				} else if (!criticalAudio || (dashboard.criticalSound !== oldDashCritical)) {
+					criticalAudio = new Audio(dashboard.criticalSound);
+				}
+
+				if ((dashboard.globalMute || options.muteAlerts) === false) {
+					criticalAudio.play();
+				}
+			break;
+			case 'unknown':
+				let oldDashUnknown = usePrevious(dashboard.unknownSound);
+
+				if (options.unknownSound) {
+					let oldOptionsUnknown = usePrevious(options.unknownSound);
+
+					if (!unknownAudio || (options.unknownSound !== oldOptionsUnknown)) {
+						unknownAudio = new Audio(options.unknownSound);
+					}
+
+				} else if (!unknownAudio || (dashboard.unknownSound !== oldDashUnknown)) {
+					unknownAudio = new Audio(dashboard.unknownSound);
+				}
+
+				if ((dashboard.globalMute || options.muteAlerts) === false) {
+					unknownAudio.play();
+				}
+			break;
+			case 'up':
+				let oldDashUp = usePrevious(dashboard.upSound);
+
+				if (options.upSound) {
+					let oldOptionsUp = usePrevious(options.upSound);
+
+					if (!upAudio || (options.upSound !== oldOptionsUp)) {
+						upAudio = new Audio(options.upSound);
+					}
+
+				} else if (!upAudio || (dashboard.upSound !== oldDashUp)) {
+					upAudio = new Audio(dashboard.upSound);
+				}
+
+				if ((dashboard.globalMute || options.muteAlerts) === false) {
+					upAudio.play();
+				}
+			break;
+			case 'down':
+				let oldDashDown = usePrevious(dashboard.downSound);
+
+				if (options.downSound) {
+					let oldOptionsDown = usePrevious(options.downSound);
+
+					if (!downAudio || (options.downSound !== oldOptionsDown)) {
+						downAudio = new Audio(options.downSound);
+					}
+
+				} else if (!downAudio || (dashboard.downSound !== oldDashDown)) {
+					downAudio = new Audio(dashboard.downSound);
+				}
+
+				if ((dashboard.globalMute || options.muteAlerts) === false) {
+					downAudio.play();
+				}
+			break;
+		}
+	}
+}
+
 
 export function TagEditor({tags, updateTags}) {
 	const inputRef = createRef();

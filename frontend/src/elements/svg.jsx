@@ -2,7 +2,7 @@ import { h, Fragment, options } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
 
 import * as meerkat from '../meerkat';
-import { icingaResultCodeToCheckState, icingaCheckTypeFromId, IcingaCheckList } from '../util'
+import { icingaResultCodeToCheckState, icingaCheckTypeFromId, IcingaCheckList, alertSounds } from '../util';
 
 import { svgList } from '../svg-list'
 import { DashboardView } from '../editor';
@@ -104,134 +104,53 @@ export function CheckSVGOptions({options, updateOptions}) {
 }
 
 //The rendered view (in the actual dashboard) of the Check SVG
-export function CheckSVG({options, dashboard, slug}) {
+export function CheckSVG({options, dashboard}) {
 	const [checkState, setCheckState] = useState(null);
 	const [acknowledged, setAcknowledged] = useState("");
 
-	let ok = false;
-	let warning = false;
-	let critical = false;
-	let unknown = false;
-	let upp = false;
-	let down = false;
-	let dash = {};
-
-	const initState = async () => {
-		const res = await meerkat.getIcingaObjectState(options.objectType, options.filter, dashboard);
-		if (res === false) {
-			window.flash(`This dashboard isn't updating`, 'error');
-		}
-		const state = icingaResultCodeToCheckState(options.objectType, res.MaxState);
-		res.Acknowledged ? setAcknowledged("ack") : setAcknowledged("");
-		if (state === 'ok') ok = true;
-		if (state === 'up') upp = true;
-		if (state === 'down') warning = true;
-		if (state === 'warning') warning = true;
-		if (state === 'critical') critical = true;
-		if (state === 'unknown') unknown = true;
-	}
-
-	//Handle state update
 	const updateState = async () => {
-		meerkat.getDashboard(slug).then(async d => {
-			if (d === false) {
-				window.flash(`This dashboard isn't updating`, 'error');
+		if (options.objectType !== null && options.filter !== null) {
+			try {
+				const res = await meerkat.getIcingaObjectState(options.objectType, options.filter, dashboard);
+				if (res === false) window.flash(`This dashboard isn't updating`, 'error')
+				res.Acknowledged ? setAcknowledged('ack') : setAcknowledged("");
+				setCheckState(icingaResultCodeToCheckState(options.objectType, res.MaxState));
+			} catch (error) {
+				window.flash("This dashboard isn't updating", 'error')
 			}
-			dash = await d
-
-			const o   = options.okSound       ? new Audio(options.okSound)       : new Audio(dash.okSound);
-			const w   = options.warningSound  ? new Audio(options.warningSound)  : new Audio(dash.warningSound);
-			const c   = options.criticalSound ? new Audio(options.criticalSound) : new Audio(dash.criticalSound);
-			const u   = options.unknownSound  ? new Audio(options.unknownSound)  : new Audio(dash.unknownSound);
-			const up  = options.upSound       ? new Audio(options.upSound)       : new Audio(dash.upSound);
-			const dow = options.downSound     ? new Audio(options.downSound)     : new Audio(dash.downSound);
-
-			//get globalMute from dashboard JSON
-			const muteAlerts = () => {
-				meerkat.getDashboard(slug).then(async d => {
-					if (d === false) {
-						window.flash(`This dashboard isn't updating`, 'error');
-					}
-					if (options.muteAlerts || d.globalMute) {
-						o.volume = 0.0; w.volume = 0.0; c.volume = 0.0; u.volume = 0.0; up.volume = 0.0; dow.volume = 0.0;
-					} else {
-						o.volume = 1.0; w.volume = 1.0; c.volume = 1.0; u.volume = 1.0; up.volume = 1.0; dow.volume = 1.0;
-					}
-				});
-			}
-
-			const alertSound = (state) => {
-				if (options.objectType !== null) {
-					const resetState = (o, w, c, u, up, d) => {
-						if (o) ok = false;
-						if (w) warning = false;
-						if (c) critical = false;
-						if (u) unknown = false;
-						if (up) up = false;
-						if (d)  down = false;
-					}
-
-					if(options.objectType === 'service') {
-						switch(state){
-							case 'ok':       if (!ok)       {o.play(); ok = true;       resetState(0,1,1,1,1,1)} break;
-							case 'warning':  if (!warning)  {w.play(); warning = true;  resetState(1,0,1,1,1,1)} break;
-							case 'critical': if (!critical) {c.play(); critical = true; resetState(1,1,0,1,1,1)} break;
-							case 'unknown':  if (!unknown)  {u.play(); unknown = true;  resetState(1,1,1,0,1,1)} break;
-						}
-					} else if(options.objectType === 'host') {
-						switch(state){
-							case 'up':   if (!upp)  { o.play(); upp = true;  resetState(1,1,1,1,0,1)} break;
-							case 'down': if (!down) { w.play(); down = true; resetState(1,1,1,1,1,0)} break;
-						}
-					}
-				}
-			}
-			if (options.objectType !== null && options.filter !== null) {
-				try {
-					const res = await meerkat.getIcingaObjectState(options.objectType, options.filter, dashboard);
-					if (res === false) {
-						window.flash(`This dashboard isn't updating`, 'error')
-					}
-					const state = icingaResultCodeToCheckState(options.objectType, res.MaxState);
-					res.Acknowledged ? setAcknowledged('ack') : setAcknowledged("");
-					setCheckState(state);
-					muteAlerts();
-					alertSound(state);
-				} catch (error) {
-					window.flash("This dashboard isn't updating", 'error')
-				}
-			}
-		});
+		}
 	}
 
-	//Setup check refresher
 	useEffect(() => {
 		if(options.objectType !== null && options.filter != null) {
-			initState();
 			updateState();
-			const intervalID = window.setInterval(updateState, 30*1000)
+			const intervalID = window.setInterval(updateState, 5*1000)
 			return () => window.clearInterval(intervalID);
 		}
 	}, [options.objectType, options.filter]);
 
-	//SVG stroke color and icons to the correct version based
-	//on the current check state
+	alertSounds(checkState, options, dashboard);
+
 	let styles = '';
 	let svgName = '';
+
 	if(checkState === 'ok' || checkState === 'up') {
 		styles = options.okStrokeColor ? `stroke: ${options.okStrokeColor}` : '';
 		svgName = options.okSvg;
 	}
+
 	if(checkState === 'warning') {
 		let warningStroke = acknowledged !== "" ? options.warningAcknowledgedStrokeColor : options.warningStrokeColor;
 		styles = options.warningStrokeColor ? `stroke: ${warningStroke}` : '';
 		svgName = options.warningSvg;
 	}
+
 	if(checkState === 'unknown') {
 		let unknownStroke = acknowledged !== "" ? options.unknownAcknowledgedStrokeColor : options.unknownStrokeColor;
 		styles = options.unknownStrokeColor ? `stroke: ${unknownStroke}` : '';
 		svgName = options.unknownSvg;
 	}
+
 	if(checkState === 'critical' || checkState === 'down') {
 		let criticalStroke = acknowledged !== "" ? options.criticalAcknowledgedStrokeColor : options.criticalStrokeColor;
 		styles = options.criticalStrokeColor ? `stroke: ${criticalStroke}` : '';
@@ -271,67 +190,43 @@ const AdvancedSVGOptions = ({options, updateOptions, display}) => {
 	const audioControls = src => {
 		if(src) {
 			return <Fragment>
-				<a onClick={e => clearAudioFile(e, field)}>clear</a>&nbsp;
+				{/* <a onClick={e => clearAudioFile(e, field)}>clear</a>&nbsp; */}
 				<a target="_blank" href={src}>view</a>&nbsp;
 			</Fragment>
 		}
 		return null;
 	}
 
-	const resetOk = () => {
-		updateOptions({okSound: ""});
-	}
-
-	const resetCritical = () => {
-		updateOptions({resetSound: ""});
-	}
-
-	const resetWarning = () => {
-		updateOptions({warningSound: ""});
-	}
-
-	const resetUnknown = () => {
-		updateOptions({unknownSound: ""});
-	}
-
-	const resetUp = () => {
-		updateOptions({upSound: ""});
-	}
-
-	const resetDown = () => {
-		updateOptions({downSound: ""});
-	}
-
 	return <div style={{display: display ? '' : 'none'}}>
 	<br/>
 	<label class="status-font-size">Mute Card Alerts</label>
 	<span><input type="checkbox" defaultChecked={options.muteAlerts} onChange={e => muteAlerts(e)} class="form-control mute-sounds"/></span><br/><br/>
-	<label for="soundFile">Ok Alert Sound {audioControls(options.okSound)} <a onClick={resetOk}>default</a></label>
+	<label for="soundFile">Ok Alert Sound {audioControls(options.okSound)} <a onClick={e => updateOptions({okSound: ""})}>default</a></label>
 	<input type="file" id="okSound" accept="audio/*"
 		   placeholder="Upload an audio file"
 		   onInput={e => handleAudioFile('okSound', e.target.files)}>
 	</input>
-	<label for="soundFile">Warning Alert Sound {audioControls(options.warningSound)} <a onClick={resetCritical}>default</a></label>
+	<label for="soundFile">Warning Alert Sound {audioControls(options.warningSound)} <a onClick={e => updateOptions({warningSound: ""})}>default</a></label>
 	<input type="file" id="warningSound" accept="audio/*"
 		   placeholder="Upload an audio file"
 		   onInput={e => handleAudioFile('warningSound', e.target.files)}>
 	</input>
-	<label for="soundFile">Critical Alert Sound {audioControls(options.criticalSound)} <a onClick={resetWarning}>default</a></label>
+	<label for="soundFile">Critical Alert Sound {audioControls(options.criticalSound)} <a onClick={e => updateOptions({criticalSound: ""})}>default</a></label>
 	<input type="file" id="criticalSound" accept="audio/*"
 		   placeholder="Upload an audio file"
 		   onInput={e => handleAudioFile('criticalSound', e.target.files)}>
 	</input>
-	<label for="soundFile">Unknown Alert Sound {audioControls(options.unknownSound)} <a onClick={resetUnknown}>default</a></label>
+	<label for="soundFile">Unknown Alert Sound {audioControls(options.unknownSound)} <a onClick={e => updateOptions({unknownSound: ""})}>default</a></label>
 	<input type="file" id="unknownSound" accept="audio/*"
 		   placeholder="Upload an audio file"
 		   onInput={e => handleAudioFile('unknownSound', e.target.files)}>
 	</input>
-	<label for="soundFile">Up Alert Sound {audioControls(options.upSound)} <a onClick={resetUp}>default</a></label>
+	<label for="soundFile">Up Alert Sound {audioControls(options.upSound)} <a onClick={e => updateOptions({upSound: ""})}>default</a></label>
 	<input type="file" id="upSound" accept="audio/*"
 		   placeholder="Upload an audio file"
 		   onInput={e => handleAudioFile('upSound', e.target.files)}>
 	</input>
-	<label for="soundFile">Down Alert Sound {audioControls(options.downSound)} <a onClick={resetDown}>default</a></label>
+	<label for="soundFile">Down Alert Sound {audioControls(options.downSound)} <a onClick={e => updateOptions({downSound: ""})}>default</a></label>
 	<input type="file" id="downSound" accept="audio/*"
 		   placeholder="Upload an audio file"
 		   onInput={e => handleAudioFile('downSound', e.target.files)}>
