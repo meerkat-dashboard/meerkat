@@ -301,8 +301,8 @@ function DashboardList({ dashboards, loadDashboards, filter }) {
 		return <div class="dashboard-listing">
 			<h3>{dashboard.title}</h3>
 			<div class="timestamps">
-				<a onClick={e => route(`/view/${slug}`)}>view</a>
-				<a onClick={e => route(`/edit/${slug}`)}>edit</a>
+				<a href={`/view/${slug}`}>view</a>
+				<a href={`/edit/${slug}`}>edit</a>
 				<CloneDashboard dashboard={dashboard} dashboards={dashboards} />
 				<DeleteConfirmation slug={slug} loadDashboards={loadDashboards} />
 				<TemplateModal slug={slug} />
