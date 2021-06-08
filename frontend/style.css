@@ -892,6 +892,10 @@ a#a-link {
 	height: 100% !important;
 }
 
+.align-center {
+	text-align: center;
+}
+
 a#text-link {
 	position: relative;
 	display: block;

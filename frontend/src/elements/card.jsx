@@ -42,9 +42,9 @@ export function CheckCard({options, slug, dashboard}) {
 	}, [options.objectType, options.filter, options.perfDataSelection]);
 
 	return <div class={"check-content card " + checkState + " " + `${checkState}-${acknowledged}`}>
-		<div class="check-state" style={`font-size: ${options.statusFontSize}px;` + `line-height: 1.1;`}>
-			{perfValue ? Number(perfValue.replace(/[^\d.-]/g, '')) : checkState}
-			{acknowledged ? <span><br/><span style="margin-left: 50px;">{acknowledged ? "(ACK)" : ""}</span></span> : ""}
+		<div class="check-state" style={`font-size: ${options.statusFontSize}px; line-height: 1.1;`}>
+			{perfValue ? Number(perfValue.replace(/[^\d.-]/g, '')) : <div class="align-center">{checkState}</div>}
+			{acknowledged ? <span>(ACK)</span> : ""}
 		</div>
 	</div>
 }
