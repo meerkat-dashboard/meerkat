@@ -6,4 +6,5 @@
 /frontend/node_modules
 /frontend/dist
 /config/meerkat.toml
-max.txt
+deploy.txt
+/dashboards
