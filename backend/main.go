@@ -94,7 +94,7 @@ func main() {
 	r.Delete("/dashboard/{slug}", handleDeleteDashboard)
 
 	r.Get("/icinga/{check-type}", handleIcingaCheck)
-	r.Get("/icinga/one_host/{host-name}", handleIcingaVars)
+	r.Get("/icinga/dynamic_text/{host-name}", handleIcingaVars)
 	r.Get("/icinga/{check-type}/{object-id}", handleIcingaCheck)
 
 	r.Get("/icinga/check_state", handleIcingaCheckState)

@@ -1,6 +1,6 @@
 import { h, Fragment } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
-import { IcingaHostVars } from '../util'
+import { IcingaHostVars, dynamicTextHelper, flattenObject } from '../util'
 import * as meerkat from '../meerkat'
 
 
@@ -16,7 +16,7 @@ export function DynamicTextOptions({options, updateOptions}) {
 	return <Fragment>
 		<label>Icinga Host</label>
 		<br/>
-		<IcingaHostVars optionsID={options.id} updateOptions={updateOptions} />
+		<IcingaHostVars optionsID={options.id} updateOptions={updateOptions} options={options}/>
 		<br/>
 
 		<label for="font-size">Font Size</label>
@@ -64,6 +64,29 @@ export function DynamicTextOptions({options, updateOptions}) {
 }
 
 export function DynamicText({options}) {
+	const [info, setInfo] = useState('');
+
+	const updateValues = async () => {
+		let hostInfo = await meerkat.getIcingaHostInfo(options.id)
+		let attributes = hostInfo.results[0].attrs;
+
+		console.log(attributes);
+
+		let flat = flattenObject(attributes[options.dynamicText]);
+
+		if (options.dynamicText2Structure && flat[options.dynamicText2]) {
+			setInfo(dynamicTextHelper(flat[options.dynamicText2]));
+		} else {
+			setInfo(dynamicTextHelper(attributes[options.dynamicText]))
+		}
+	}
+
+	useEffect(() => {
+		updateValues();
+		const intervalID = window.setInterval(updateValues, 30*1000)
+		return () => window.clearInterval(intervalID);
+	}, [options.id, options.dynamicText, options.dynamicText2]);
+
 	let styles = '';
 
 	if(typeof options.fontSize !== 'undefined') {
@@ -82,9 +105,8 @@ export function DynamicText({options}) {
 		styles += `align-items: ${options.textVerticalAlign}; `;
 	}
 
-
 	return <div class="check-content text" style={styles}>
-		{options.text}
+		{info}
 	</div>
 }
 
@@ -93,5 +115,8 @@ export const DynamicTextDefaults = {
 	fontColor: '#ffffff',
 	textAlign: 'center',
 	textVerticalAlign: 'center',
-	backgroundColor: '#007bff'
+	backgroundColor: '#007bff',
+	dynamicText: '',
+	dynamicText2: '',
+	dynamicText2Structure: false
 }

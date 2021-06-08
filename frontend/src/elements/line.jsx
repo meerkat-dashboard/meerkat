@@ -1,8 +1,8 @@
-import { h, Fragment, options } from 'preact';
+import { h, Fragment } from 'preact';
 import { useState, useEffect, useRef } from 'preact/hooks';
 
 import * as meerkat from '../meerkat';
-import { icingaResultCodeToCheckState, icingaCheckTypeFromId, IcingaCheckList } from '../util'
+import { icingaResultCodeToCheckState, IcingaCheckList } from '../util'
 
 export function CheckLineOptions({options, updateOptions}) {
 	const [showAdvanced, setAdvanced] = useState(false);
@@ -49,14 +49,6 @@ const AdvancedLineOptions = ({options, updateOptions, display}) => {
 		updateOptions(opts);
 	}
 
-	const muteAlerts = (e) => {
-		let volumeChecked = options.muteAlerts;
-		volumeChecked = !volumeChecked;
-		updateOptions({
-			muteAlerts: volumeChecked
-		})
-	}
-
 	const audioControls = (src) => {
 		if(src) {
 			return <Fragment>
@@ -69,7 +61,7 @@ const AdvancedLineOptions = ({options, updateOptions, display}) => {
 	return <div style={{display: display ? '' : 'none'}}>
 		<br/>
 		<label class="status-font-size">Mute Card Alerts</label>
-    	<span><input type="checkbox" defaultChecked={options.muteAlerts} onChange={e => muteAlerts(e)} class="form-control mute-sounds"/></span>
+    	<span><input type="checkbox" defaultChecked={options.muteAlerts} onChange={e => updateOptions({muteAlerts: e.target.checked})} class="form-control mute-sounds"/></span>
 		<br/><br/>
 		<label for="soundFile">Ok Alert Sound {audioControls(options.okSound)} <a onClick={e => updateOptions({okSound: ""})}>default</a></label>
 		<input type="file" id="okSound" accept="audio/*"

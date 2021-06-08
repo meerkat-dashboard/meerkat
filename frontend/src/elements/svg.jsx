@@ -1,14 +1,12 @@
-import { h, Fragment, options } from 'preact';
+import { h, Fragment } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
 
 import * as meerkat from '../meerkat';
-import { icingaResultCodeToCheckState, icingaCheckTypeFromId, IcingaCheckList, alertSounds } from '../util';
-
+import { icingaResultCodeToCheckState, IcingaCheckList, alertSounds } from '../util';
 import { svgList } from '../svg-list'
-import { DashboardView } from '../editor';
 
 export function CheckSVGOptions({options, updateOptions}) {
-	const svgOptions = svgList.map(svgName => <option value={svgName}>{svgName}</option>)
+	const svgOptions = svgList.map(svgName => <option value={svgName}>{svgName}</option>);
 	const [showAdvanced, setAdvanced] = useState(false);
 	const onClickAdvanced = () => showAdvanced ? setAdvanced(false) : setAdvanced(true);
 
@@ -103,7 +101,6 @@ export function CheckSVGOptions({options, updateOptions}) {
 	</div>
 }
 
-//The rendered view (in the actual dashboard) of the Check SVG
 export function CheckSVG({options, dashboard}) {
 	const [checkState, setCheckState] = useState(null);
 	const [acknowledged, setAcknowledged] = useState("");
@@ -172,25 +169,9 @@ const AdvancedSVGOptions = ({options, updateOptions, display}) => {
 		updateOptions(opts);
 	}
 
-	const clearAudioFile = (e, field) => {
-		e.preventDefault();
-		let opts = {};
-		opts[field] = null;
-		updateOptions(opts);
-	}
-
-	const muteAlerts = (e) => {
-		let volumeChecked = options.muteAlerts;
-		volumeChecked = !volumeChecked;
-		updateOptions({
-			muteAlerts: volumeChecked
-		})
-	}
-
 	const audioControls = src => {
 		if(src) {
 			return <Fragment>
-				{/* <a onClick={e => clearAudioFile(e, field)}>clear</a>&nbsp; */}
 				<a target="_blank" href={src}>view</a>&nbsp;
 			</Fragment>
 		}

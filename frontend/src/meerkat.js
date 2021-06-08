@@ -1,32 +1,4 @@
-//TODO error handling in here
-
-function filterReplace(filter, dashboard) {
-	if (dashboard.hasOwnProperty('variables')) {
-		for (const [key, value] of Object.entries(dashboard.variables)) {
-			if (filter.includes(`~${key}~`)) {
-				let reg = new RegExp('~(' + key + ')~', 'g');
-				filter = filter.replaceAll(reg, value);
-			}
-		}
-	}
-	return filter;
-}
-
-async function fetchHandler(string) {
-	if (navigator.onLine) {
-		try {
-			const res = await fetch(string);
-			if (res.status !== 200) {
-				return 3;
-			}
-			return res.json();
-		} catch (e) {
-			return false;
-		}
-	} else {
-		return false;
-	}
-}
+import { fetchHandler, filterReplace } from './util';
 
 export async function getIcingaHosts() {
 	const res = await fetch(`/icinga/hosts`)
@@ -34,7 +6,7 @@ export async function getIcingaHosts() {
 }
 
 export async function getIcingaHostInfo(host) {
-	const res = await fetch(`/icinga/one_host/${encodeURIComponent(host)}`)
+	const res = await fetch(`/icinga/dynamic_text/${encodeURIComponent(host)}`)
 	return res.json();
 }
 
@@ -83,9 +55,7 @@ export async function createDashboard(dashboard) {
 }
 
 export async function changeSettings(settings) {
-	const settingsProcessed = {
-		appName: settings
-	};
+	const settingsProcessed = { appName: settings };
 
 	const res = await fetch(`/settings`, {
 		method: 'POST',

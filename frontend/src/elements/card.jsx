@@ -1,9 +1,8 @@
 import { h, Fragment } from 'preact';
 import { useState, useEffect} from 'preact/hooks';
 import * as meerkat from '../meerkat';
-import { icingaResultCodeToCheckState, icingaCheckTypeFromId, IcingaCheckList, getPerfData, alertSounds } from '../util';
+import { icingaResultCodeToCheckState, IcingaCheckList, getPerfData, alertSounds } from '../util';
 
-//The rendered view (in the actual dashboard) of the Card Element
 export function CheckCard({options, slug, dashboard}) {
 	const [checkState, setCheckState] = useState(null);
 	const [perfValue, setPerfValue] = useState(null);
@@ -50,7 +49,6 @@ export function CheckCard({options, slug, dashboard}) {
 	</div>
 }
 
-//Card options, displayed in the sidebar
 export function CheckCardOptions({options, updateOptions}) {
 	const [showAdvanced, setAdvanced] = useState(false);
 	const onClickAdvanced = () => showAdvanced ? setAdvanced(false) : setAdvanced(true);
@@ -118,17 +116,9 @@ const AdvancedCheckOptions = ({options, updateOptions, display}) => {
 		updateOptions(opts);
 	}
 
-	const muteAlerts = (e) => {
-		let volumeChecked = options.muteAlerts;
-		volumeChecked = !volumeChecked;
-		updateOptions({
-			muteAlerts: volumeChecked
-		})
-	}
-
 	const audioControls = (src) => {
 		if(src) {
-			return <Fragment>
+			return <Fragment>]
 				<a target="_blank" href={src}>view</a>
 			</Fragment>
 		}
@@ -138,7 +128,7 @@ const AdvancedCheckOptions = ({options, updateOptions, display}) => {
 	return <div style={{display: display ? '' : 'none'}}>
 		<br/>
 		<label class="status-font-size">Mute Card Alerts</label>
-    	<span><input type="checkbox" defaultChecked={options.muteAlerts} onChange={e => muteAlerts(e)} class="form-control mute-sounds"/></span>
+    	<span><input type="checkbox" defaultChecked={options.muteAlerts} onChange={e => updateOptions({muteAlerts: e.target.checked})} class="form-control mute-sounds"/></span>
 		<br/><br/>
 		<label for="soundFile">Ok Alert Sound {audioControls(options.okSound)} <a onClick={e => updateOptions({okSound: ""})}>default</a></label>
 		<input type="file" id="okSound" accept="audio/*"

@@ -1,4 +1,4 @@
-import { h, Fragment, createRef, options } from 'preact';
+import { h, Fragment, createRef } from 'preact';
 import { useState, useEffect, useRef } from 'preact/hooks';
 import { route } from 'preact-router';
 import { Combobox } from 'react-widgets';
@@ -14,17 +14,18 @@ export function routeParam(name, value) {
 	route(`${window.location.pathname}?${params}`);
 }
 
+
 export function removeParam(name) {
 	const params = new URLSearchParams(window.location.search);
 	params.delete(name);
 
 	if(params.keys.length < 1) {
-		//Don't include the '?' if there are no params
 		route(window.location.pathname);
 	} else {
 		route(`${window.location.pathname}?${params}`);
 	}
 }
+
 
 export function icingaResultCodeToCheckState(checkType, resultCode) {
 	if(checkType === 'service') {
@@ -51,17 +52,21 @@ function sortHost(a, b) {
 	return a.hostName.toLowerCase() > b.hostName.toLowerCase() ? 1 : 0;
 }
 
+
 function sortService(a, b) {
 	return a.displayName.toLowerCase() > b.displayName.toLowerCase() ? 1 : 0;
 }
+
 
 function sortHostGroups(a, b) {
 	return a.hostName.toLowerCase() > b.hostName.toLowerCase() ? 1 : 0;
 }
 
+
 function sortServiceGroups(a, b) {
 	return a.displayName.toLowerCase() > b.displayName.toLowerCase() ? 1 : 0;
 }
+
 
 export function IcingaCheckList({currentCheckopts, updateOptions}) {
 	const [typeOptions, setTypeOptions] = useState("");
@@ -150,10 +155,33 @@ export function IcingaCheckList({currentCheckopts, updateOptions}) {
 }
 
 
-export function IcingaHostVars({optionsID, updateOptions}) {
+export function flattenObject(obj, prefix=false, result=null) {
+	result = result || {};
+
+	if (prefix && typeof obj === 'object' && obj !== null && Object.keys(obj).length === 0) {
+	  	result[prefix] = Array.isArray(obj) ? [] : {};
+	  	return result;
+	}
+
+	prefix = prefix ? prefix + '.' : '';
+
+	for (const key in obj) {
+	  	if (Object.prototype.hasOwnProperty.call(obj, key)) {
+			if (typeof obj[key] === 'object' && obj[key] !== null) {
+			  	flattenObject(obj[key], prefix + key, result);
+			} else {
+			  	result[prefix + key] = obj[key];
+			}
+	  	}
+	}
+	return result;
+}
+
+
+export function IcingaHostVars({optionsID, updateOptions, options}) {
 	const [hosts, setHosts] = useState("");
 	const [hostInfo, setHostInfo] = useState("");
-	const [hostInfoSelection, setHostInfoSelection] = useState("");
+	const [hostInfoKeys, setHostInfoKeys] = useState("");
 
 	const searchHosts = async () => {
 		setHosts(<Combobox placeholder="Loading..." busy value="" data={[]} busySpinner={<div class="loading" style="width: 14px; height: 14px; margin-left: 10px" />} />);
@@ -161,6 +189,8 @@ export function IcingaHostVars({optionsID, updateOptions}) {
 		let opts = null;
 		let input = "";
 		let input2 = "";
+		let input3 = "";
+
 		opts = [];
 
 		let hosts = await meerkat.getIcingaHosts();
@@ -179,32 +209,71 @@ export function IcingaHostVars({optionsID, updateOptions}) {
 		}
 
 		let hostInfo = await meerkat.getIcingaHostInfo(optionsID)
+		let attrs = hostInfo.results[0].attrs;
 		let hInfo = [];
 
-		for (const [key, value] of Object.entries(hostInfo.results[0].attrs)) {
-			hInfo.push({id: key, [key]: value});
+		for (const [key, value] of Object.entries(attrs)) {
+			hInfo.push({id: key});
 		}
 
-		const handleComboboxChange = (value) => {
-			updateOptions({text: value[value.id]})
-		};
-
 		if (hInfo !== null) {
-			input2 = <Combobox filter='contains' placeholder="Choose away..." textField='id' valueField='id' data={hInfo} onSelect={value => handleComboboxChange(value)}/>
+			input2 = <Combobox filter='contains' placeholder="Choose away..." textField='id' valueField='id' defaultValue={options.dynamicText} data={hInfo} onSelect={value => updateOptions({dynamicText: value.id, dynamicText2: ''})}/>
 		}
 
 		if (input2 !== null) {
 			setHostInfo(input2)
 		}
+
+		let hInfo2 = [];
+
+		if (attrs[options.dynamicText] && (Array.isArray(attrs) || typeof attrs[options.dynamicText] === 'object')) {
+			updateOptions({dynamicText2Structure: true});
+
+			let flat = flattenObject(attrs[options.dynamicText]);
+
+			for (const [key, value] of Object.entries(flat)) {
+				hInfo2.push({id: key});
+			}
+
+			if (hInfo2 !== null) {
+				input3 = <Combobox filter='contains' placeholder="Choose away..." textField='id' valueField='id' defaultValue={options.dynamicText2} data={hInfo2} onSelect={value => updateOptions({dynamicText2: value.id})}/>
+			}
+
+		} else {
+			updateOptions({dynamicText2Structure: false});
+		}
+
+		if (input3 !== null) {
+			setHostInfoKeys(input3)
+		}
 	}
 
-	useEffect(searchHosts, [optionsID])
+	useEffect(searchHosts, [optionsID, options.dynamicText])
 
 	return <div>
 		{hosts}
 		<br/>
 		{hostInfo}
+		<br/>
+		{hostInfoKeys}
 	</div>
+}
+
+
+export function dynamicTextHelper(attribute) {
+	if (typeof attribute === 'boolean') {
+		if (attribute !== false) {
+			attribute = 'true';
+		} else {
+			attribute = 'false';
+		}
+	} else if (typeof attribute === 'number') {
+		return attribute;
+	} else if (!attribute) {
+		attribute = "No Data"
+	}
+
+	return attribute;
 }
 
 
@@ -242,7 +311,7 @@ let upAudio = null;
 let downAudio = null;
 
 
-export function alertSounds (checkState, options, dashboard) {
+export function alertSounds(checkState, options, dashboard) {
 	const oldCheckState = usePrevious(checkState);
 
 	if ((checkState !== null && oldCheckState !== null) && (checkState !== oldCheckState)) {
@@ -357,6 +426,53 @@ export function alertSounds (checkState, options, dashboard) {
 			break;
 		}
 	}
+}
+
+
+export function linkHelper(element, ele){
+	if (element.options.linkURL && element.type === 'static-text') {
+		if (element.options.linkURL.includes('http') ) {
+			ele = <a id="text-link" href={element.options.linkURL} target="_blank">{ele}</a>
+		} else {
+			ele = <a id="text-link" href={`https://${element.options.linkURL}`} target="_blank">{ele}</a>
+		}
+	} else if (element.options.linkURL) {
+		if (element.options.linkURL.includes('http') ) {
+			ele = <a id="a-link" href={element.options.linkURL} target="_blank">{ele}</a>
+		} else {
+			ele = <a id="a-link" href={`https://${element.options.linkURL}`} target="_blank">{ele}</a>
+		}
+	}
+}
+
+
+export async function fetchHandler(string) {
+	if (navigator.onLine) {
+		try {
+			const res = await fetch(string);
+			if (res.status !== 200) {
+				return 3;
+			}
+			return res.json();
+		} catch (e) {
+			return false;
+		}
+	} else {
+		return false;
+	}
+}
+
+
+export function filterReplace(filter, dashboard) {
+	if (dashboard.hasOwnProperty('variables')) {
+		for (const [key, value] of Object.entries(dashboard.variables)) {
+			if (filter.includes(`~${key}~`)) {
+				let reg = new RegExp('~(' + key + ')~', 'g');
+				filter = filter.replaceAll(reg, value);
+			}
+		}
+	}
+	return filter;
 }
 
 

@@ -1,6 +1,6 @@
 import { h, Fragment, createRef } from 'preact';
 import { route } from 'preact-router';
-import { useState, useEffect, useRef } from 'preact/hooks';
+import { useState, useEffect} from 'preact/hooks';
 import { Modal } from './modal';
 
 import * as meerkat from './meerkat';
@@ -12,7 +12,6 @@ function CopyTextBox({ text }) {
 		ref.current.focus();
 		ref.current.select();
 		document.execCommand('copy');
-		//TODO notification copied!
 	}
 
 	return <div class="copy-box" onClick={handleClick}>
@@ -25,10 +24,10 @@ function CopyTextBox({ text }) {
 
 const titleToSlug = (title) => {
 	let result = title;
-	result = result.toLowerCase(); //convert upper case to lower case
-	result = result.trim() //remove preceeding and trailing whitespace
-	result = result.replace(/[_\s]/g, '-'); //convert spaces and underscores to dashes
-	result = result.replace(/[^a-z0-9\-]/g, ''); //Remove any other characters
+	result = result.toLowerCase();
+	result = result.trim()
+	result = result.replace(/[_\s]/g, '-');
+	result = result.replace(/[^a-z0-9\-]/g, '');
 
 	return result;
 }
@@ -58,7 +57,6 @@ function CreateDashboardModal({ hide }) {
 			const res = await meerkat.createDashboard(newDashboard);
 			route(`/edit/${res.slug}`);
 		} catch (e) {
-			//TODO
 			console.log("Failed to create modal")
 			console.log(e)
 		}
@@ -129,16 +127,15 @@ function TemplateModal({slug}) {
 	const updateKey = (id, ent) => {
 		const key = ent.target.value;
 		const updatedInputs = inputs.map((ent, index) =>
-		  	index === id ? { ...ent, key: key } : ent
+		  	index === id ? {...ent, key: key} : ent
 		);
 		setInputs(updatedInputs);
 	}
 
 	const updateValue = (id, ent) => {
-		console.log({ent})
 		const val = ent.target.value;
 		const updatedInputs = inputs.map((ent, index) =>
-		  	index === id ? { ...ent, val: val } : ent
+		  	index === id ? {...ent, val: val} : ent
 		);
 		setInputs(updatedInputs);
 	}
@@ -218,7 +215,6 @@ function TemplateModal({slug}) {
 			}
 	</Fragment>
 }
-
 
 function DeleteConfirmation({ slug, loadDashboards }) {
 	const [showConfirmation, setShowConfirmation] = useState(false);

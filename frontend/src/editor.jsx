@@ -1,6 +1,6 @@
-import { h, Fragment, forceUpdate } from 'preact';
+import { h, Fragment } from 'preact';
 import { route } from 'preact-router';
-import { useEffect, useReducer, useState, useRef, useLayoutEffect } from 'preact/hooks';
+import { useEffect, useReducer, useState } from 'preact/hooks';
 
 import * as meerkat from './meerkat'
 import { routeParam, removeParam, TagEditor } from './util';
@@ -128,9 +128,7 @@ export function Editor({slug, selectedElementId}) {
 		try {
 			const data = await meerkat.saveDashboard(slug, dashboard);
 			route(`/edit/${(JSON.parse(JSON.stringify(data.slug)))}${window.location.search}`)
-			//TODO show success
 		} catch (e) {
-			//TODO improve
 			console.log('error saving dashboard:');
 			console.log(e);
 		}
@@ -339,7 +337,6 @@ function DashboardElements({dashboardDispatch, selectedElementId, elements, high
 	});
 }
 
-//The actual dashboard being rendered
 export function DashboardView({dashboard, dashboardDispatch, selectedElementId, highlightedElementId, slug}) {
 	const backgroundImage = dashboard.background ? dashboard.background : null;
 
@@ -353,7 +350,6 @@ export function DashboardView({dashboard, dashboardDispatch, selectedElementId, 
 	</div>
 }
 
-//Settings view for the sidebar
 function SidePanelSettings({dashboardDispatch, dashboard}) {
 	const [showAdvanced, setAdvanced] = useState(false);
 	const onClickAdvanced = () => showAdvanced ? setAdvanced(false) : setAdvanced(true);
@@ -367,7 +363,6 @@ function SidePanelSettings({dashboardDispatch, dashboard}) {
 				background: res.url
 			});
 		} catch (e) {
-			//TODO improve
 			console.log('failed to upload image and set background');
 			console.log(e);
 		}
@@ -399,11 +394,9 @@ function SidePanelSettings({dashboardDispatch, dashboard}) {
 	}
 
 	const muteAlerts = (e) => {
-		let volumeChecked = dashboard.globalMute;
-		volumeChecked = !volumeChecked;
 		dashboardDispatch({
 			type: 'setGlobalMute',
-			globalMute: volumeChecked
+			globalMute: e.target.checked
 		});
 	}
 
