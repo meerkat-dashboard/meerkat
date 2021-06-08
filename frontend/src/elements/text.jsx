@@ -69,9 +69,6 @@ export function DynamicText({options}) {
 	const updateValues = async () => {
 		let hostInfo = await meerkat.getIcingaHostInfo(options.id)
 		let attributes = hostInfo.results[0].attrs;
-
-		console.log(attributes);
-
 		let flat = flattenObject(attributes[options.dynamicText]);
 
 		if (options.dynamicText2Structure && flat[options.dynamicText2]) {
