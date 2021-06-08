@@ -12,8 +12,10 @@ import { AudioStream } from './elements/audio';
 import { IframeVideo } from './elements/video';
 
 import { StaticText } from './statics/text';
+import { StaticTicker } from './statics/ticker';
 import { StaticSVG } from './statics/svg';
 import { StaticImage } from './statics/image';
+import { getDerivedStateFromProps } from 'react-widgets/lib/SelectList';
 
 //Read only page
 export function Viewer({slug, dashboardReducer}) {
@@ -55,6 +57,7 @@ export function Viewer({slug, dashboardReducer}) {
 		if(element.type === 'check-image') { ele = <CheckImage options={element.options} dashboard={dashboard} slug={slug}/> }
 		if(element.type === 'check-line') { ele = <CheckLine options={element.options} dashboard={dashboard} slug={slug}/> }
 		if(element.type === 'static-text') { ele = <StaticText options={element.options}/> }
+		if(element.type === 'static-ticker') { ele = <StaticTicker options={element.options}/> }
 		if(element.type === 'static-svg') { ele = <StaticSVG options={element.options}/> }
 		if(element.type === 'static-image') { ele = <StaticImage options={element.options}/> }
 		if(element.type === 'iframe-video') { ele = <IframeVideo options={element.options}/> }

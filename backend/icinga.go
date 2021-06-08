@@ -355,7 +355,7 @@ func handleIcingaCheck(w http.ResponseWriter, r *http.Request) {
 	//Convert to our type
 	var objs []icingaObject
 	for _, check := range results.Results {
-		objs = append(objs, check.toIcingaObject())
+		objs = append(objs, check.ostsObject())
 	}
 
 	enc := json.NewEncoder(w)

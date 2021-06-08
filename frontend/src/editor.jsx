@@ -10,6 +10,7 @@ import { CheckImage, CheckImageOptions } from './elements/image';
 import { CheckLine, CheckLineOptions, CheckLineDefaults } from './elements/line';
 import { DynamicText, DynamicTextOptions, DynamicTextDefaults } from './elements/text';
 import { StaticText, StaticTextOptions, StaticTextDefaults } from './statics/text';
+import { StaticTicker, StaticTickerOptions, StaticTickerDefaults } from './statics/ticker';
 import { StaticSVG, StaticSVGOptions, StaticSVGDefaults } from './statics/svg';
 import { StaticImage, StaticImageOptions } from './statics/image';
 import { IframeVideo, IframeVideoOptions } from './elements/video';
@@ -62,6 +63,7 @@ const dashboardReducer = (state, action) => {
 				...state,
 				elements: state.elements.concat(newElement)
 			};
+
 		case 'deleteElement':
 			console.log('Deleting element')
 			const nstate = {...state};
@@ -147,7 +149,7 @@ export function Editor({slug, selectedElementId}) {
 						<SidePanelSettings dashboard={dashboard} dashboardDispatch={dashboardDispatch} />
 						<hr />
 						<SidePanelElements dashboard={dashboard} dashboardDispatch={dashboardDispatch} slug={slug}
-							setHighlightedElementId={setHighlightedElementId} />
+							setHighlightedElementId={setHighlightedElementId}/>
 
 						<ElementSettings selectedElement={selectedElement} updateElement={updateElement} />
 			</div>
@@ -160,7 +162,7 @@ export function Editor({slug, selectedElementId}) {
 	</Fragment>
 }
 
-function TransformableElement({rect, updateRect, rotation, updateRotation, children, glow, highlight}) {
+function TransformableElement({rect, updateRect, checkType, rotation, updateRotation, children, glow, highlight}) {
 	//Handle dragging elements
 	const handleMove = downEvent => {
 		const mousemove = moveEvent => {
@@ -191,11 +193,10 @@ function TransformableElement({rect, updateRect, rotation, updateRotation, child
 			const relativeLeft = left / dashboardNode.clientWidth * 100;
 			const relativeTop = top / dashboardNode.clientHeight * 100;
 
-
-
 			//set position
 			updateRect({x: relativeLeft, y: relativeTop, w: rect.w, h: rect.h});
 		}
+
 
 		//Remove listeners on mouse button up
 		const mouseup = () => {
@@ -284,6 +285,15 @@ function TransformableElement({rect, updateRect, rotation, updateRotation, child
 
 	const _rotation = rotation ? `rotate(${rotation}rad)` : `rotate(0rad)`;
 
+	if (checkType === 'static-ticker'){
+		return <div class={`ticker ${glow || highlight ? 'glow' : ''}`}
+			style={{left: left, top: top, width: "100%", height: height}}
+			onMouseDown={handleMove}>
+				{children}
+			<div class="resize" onMouseDown={handleResize}></div>
+		</div>
+	}
+
 	return <div class={`check ${glow || highlight ? 'glow' : ''}`}
 		style={{left: left, top: top, width: width, height: height, transform: _rotation}}
 		onMouseDown={handleMove}>
@@ -324,12 +334,14 @@ function DashboardElements({dashboardDispatch, selectedElementId, elements, high
 		if(element.type === 'check-line') { ele = <CheckLine options={element.options} slug={slug} dashboard={dashboard}/> }
 		if(element.type === 'static-text') { ele = <StaticText options={element.options}/> }
 		if(element.type === 'dynamic-text') { ele = <DynamicText options={element.options}/> }
+		if(element.type === 'static-ticker') { ele = <StaticTicker options={element.options}/> }
 		if(element.type === 'static-svg') { ele = <StaticSVG options={element.options}/> }
 		if(element.type === 'static-image') { ele = <StaticImage options={element.options}/> }
 		if(element.type === 'iframe-video') { ele = <IframeVideo options={element.options}/> }
 		if(element.type === 'audio-stream') { ele = <AudioStream options={element.options}/> }
 
 		return  <TransformableElement rect={element.rect} updateRect={updateRect}
+					checkType={element.type}
 					glow={selectedElementId === index} highlight={highlightedElementId === index}
 					updateRotation={updateRotation} rotation={element.rotation}>
 					{ele}
@@ -410,7 +422,7 @@ function SidePanelSettings({dashboardDispatch, dashboard}) {
 		<label for="background-image">Background Image {imgControls(dashboard.background)}</label>
 		<input class="form-control" id="background-image" type="file" placeholder="Upload a background image"
 			accept="image/*" onChange={handleBackgroundImg}/>
-		<label class="status-font-size">Mute Status Alerts</label>
+		<label class="status-font-size">Mute Status Alerts!</label>
     	<input type="checkbox" defaultChecked={dashboard.globalMute} onChange={e => muteAlerts(e)} class="form-control mute-sounds"/>
 		<br/>
 		<button class="rounded btn-primary btn-large" onClick={onClickAdvanced}>{showAdvanced ? 'Hide Options' : 'Global Alert Options'}</button>
@@ -631,6 +643,7 @@ function SidePanelElements({dashboard, dashboardDispatch, setHighlightedElementI
 		routeParam('selectedElementId', newId);
 	}
 
+
 	const deleteElement = (e, index) => {
 		e.preventDefault();
 		dashboardDispatch({
@@ -710,14 +723,33 @@ export function ElementSettings({selectedElement, updateElement}) {
 
 	//sets good default values for each visual type when they're selected
 	const updateType = e => {
-		const newType = e.currentTarget.value
+		const newType = e.currentTarget.value;
 		let defaults = {};
+
 		switch(newType) {
 			case 'check-svg': defaults = CheckSVGDefaults; break;
 			case 'check-line': defaults = CheckLineDefaults; break;
 			case 'dynamic-text': defaults = DynamicTextDefaults; break;
 			case 'static-text': defaults = StaticTextDefaults; break;
+			case 'static-ticker' : defaults = StaticTickerDefaults; break;
 			case 'static-svg': defaults = StaticSVGDefaults; break;
+		}
+
+		const tickerRect = {
+			x: 0,
+			y: 82.84371327849588,
+			w: 100,
+			h: 16
+		}
+
+		if (newType == 'static-ticker') {
+			updateElement({
+				...selectedElement,
+				type: newType,
+				rect: tickerRect,
+				options: Object.assign(selectedElement.options, defaults)
+			});
+			return;
 		}
 
 		updateElement({
@@ -728,16 +760,17 @@ export function ElementSettings({selectedElement, updateElement}) {
 	}
 
 	let ElementOptions = null;
-	if (selectedElement.type === 'check-card')   { ElementOptions = <CheckCardOptions     updateOptions={updateElementOptions} options={selectedElement.options} /> }
-	if (selectedElement.type === 'check-svg')    { ElementOptions = <CheckSVGOptions      updateOptions={updateElementOptions} options={selectedElement.options} /> }
-	if (selectedElement.type === 'check-image')  { ElementOptions = <CheckImageOptions    updateOptions={updateElementOptions} options={selectedElement.options} /> }
-	if (selectedElement.type === 'check-line')   { ElementOptions = <CheckLineOptions     updateOptions={updateElementOptions} options={selectedElement.options} /> }
-	if (selectedElement.type === 'static-text')  { ElementOptions = <StaticTextOptions    updateOptions={updateElementOptions} options={selectedElement.options} /> }
-	if (selectedElement.type === 'dynamic-text')  { ElementOptions = <DynamicTextOptions  updateOptions={updateElementOptions} options={selectedElement.options} /> }
-	if (selectedElement.type === 'static-svg')   { ElementOptions = <StaticSVGOptions     updateOptions={updateElementOptions} options={selectedElement.options} /> }
-	if (selectedElement.type === 'static-image') { ElementOptions = <StaticImageOptions   updateOptions={updateElementOptions} options={selectedElement.options} /> }
-	if (selectedElement.type === 'iframe-video') { ElementOptions = <IframeVideoOptions   updateOptions={updateElementOptions} options={selectedElement.options} /> }
-	if (selectedElement.type === 'audio-stream') { ElementOptions = <AudioOptions         updateOptions={updateElementOptions} options={selectedElement.options} /> }
+	if (selectedElement.type === 'check-card')    { ElementOptions = <CheckCardOptions     updateOptions={updateElementOptions} options={selectedElement.options} /> }
+	if (selectedElement.type === 'check-svg')     { ElementOptions = <CheckSVGOptions      updateOptions={updateElementOptions} options={selectedElement.options} /> }
+	if (selectedElement.type === 'check-image')   { ElementOptions = <CheckImageOptions    updateOptions={updateElementOptions} options={selectedElement.options} /> }
+	if (selectedElement.type === 'check-line')    { ElementOptions = <CheckLineOptions     updateOptions={updateElementOptions} options={selectedElement.options} /> }
+	if (selectedElement.type === 'static-text')   { ElementOptions = <StaticTextOptions    updateOptions={updateElementOptions} options={selectedElement.options} /> }
+	if (selectedElement.type === 'dynamic-text')  { ElementOptions = <DynamicTextOptions   updateOptions={updateElementOptions} options={selectedElement.options} /> }
+	if (selectedElement.type === 'static-svg')    { ElementOptions = <StaticSVGOptions     updateOptions={updateElementOptions} options={selectedElement.options} /> }
+	if (selectedElement.type === 'static-image')  { ElementOptions = <StaticImageOptions   updateOptions={updateElementOptions} options={selectedElement.options} /> }
+	if (selectedElement.type === 'iframe-video')  { ElementOptions = <IframeVideoOptions   updateOptions={updateElementOptions} options={selectedElement.options} /> }
+	if (selectedElement.type === 'audio-stream')  { ElementOptions = <AudioOptions         updateOptions={updateElementOptions} options={selectedElement.options} /> }
+	if (selectedElement.type === 'static-ticker') { ElementOptions = <StaticTickerOptions  updateOptions={updateElementOptions} options={selectedElement.options} /> }
 
 	return <div class="form-group">
 		<div class="editor settings-overlay">
@@ -763,6 +796,7 @@ export function ElementSettings({selectedElement, updateElement}) {
 					<option value="static-text">Static Text</option>
 					<option value="static-svg">Static SVG</option>
 					<option value="static-image">Static Image</option>
+					<option value="static-ticker">Static Ticker</option>
 					<option value="iframe-video">HLS Stream</option>
 					<option value="audio-stream">Audio Stream</option>
 				</select>
