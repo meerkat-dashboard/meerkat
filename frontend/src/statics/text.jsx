@@ -78,9 +78,8 @@ export function StaticText({options}) {
 		styles += `align-items: ${options.textVerticalAlign}; `;
 	}
 
-
-	return <div class="check-content text" style={styles}>
-		{options.text}
+	return <div class="check-content text">
+		<div class ="inner-text" style={styles}>{options.text}</div>
 	</div>
 }
 
