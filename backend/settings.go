@@ -28,7 +28,7 @@ func handleChangeSettings(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	outputFile := path.Join("config", "settings.json")
+	outputFile := path.Join("settings.json")
 
 	//Check settings exists
 	if _, err := os.Stat(outputFile); os.IsNotExist(err) {
@@ -56,7 +56,7 @@ func handleChangeSettings(w http.ResponseWriter, r *http.Request) {
 
 func handleGetSettings(w http.ResponseWriter, r *http.Request) {
 	//Check Settings exists
-	if f, err := os.Open(path.Join("config", "settings.json")); os.IsNotExist(err) {
+	if f, err := os.Open("settings.json"); os.IsNotExist(err) {
 		http.Error(w, "Not found", http.StatusNotFound)
 		return
 	} else if err != nil {

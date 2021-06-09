@@ -862,6 +862,7 @@ div.tag .close-icon {
 	align-items: center;
 
 }
+
 .check > a > .card.ok, .check  > .card.up, .check  > a >.card.up, .check > .card.ok {
 	display: block;
 	background-color: var(--color-icinga-green);
@@ -870,6 +871,7 @@ div.tag .close-icon {
 	height: 100%;
 	align-items: center;
 }
+
 .check > a > .card.unknown, .check > .card.unknown {
 	display: block;
 	background-color: var(--color-icinga-purple);
