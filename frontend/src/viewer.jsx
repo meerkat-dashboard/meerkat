@@ -10,7 +10,7 @@ import { CheckSVG } from './elements/svg';
 import { CheckLine } from './elements/line';
 import { AudioStream } from './elements/audio';
 import { IframeVideo } from './elements/video';
-
+import { DynamicText } from './elements/text';
 import { StaticText } from './statics/text';
 import { StaticTicker } from './statics/ticker';
 import { StaticSVG } from './statics/svg';
@@ -57,6 +57,7 @@ export function Viewer({slug, dashboardReducer}) {
 		if(element.type === 'check-image') { ele = <CheckImage options={element.options} dashboard={dashboard} slug={slug}/> }
 		if(element.type === 'check-line') { ele = <CheckLine options={element.options} dashboard={dashboard} slug={slug}/> }
 		if(element.type === 'static-text') { ele = <StaticText options={element.options}/> }
+		if(element.type === 'dynamic-text') { ele = <DynamicText options={element.options}/> }
 		if(element.type === 'static-ticker') { ele = <StaticTicker options={element.options}/> }
 		if(element.type === 'static-svg') { ele = <StaticSVG options={element.options}/> }
 		if(element.type === 'static-image') { ele = <StaticImage options={element.options}/> }
