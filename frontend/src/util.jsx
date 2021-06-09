@@ -443,6 +443,8 @@ export function linkHelper(element, ele){
 			ele = <a id="a-link" href={`https://${element.options.linkURL}`} target="_blank">{ele}</a>
 		}
 	}
+
+	return ele;
 }
 
 

@@ -64,7 +64,7 @@ export function Viewer({slug, dashboardReducer}) {
 		if(element.type === 'iframe-video') { ele = <IframeVideo options={element.options}/> }
 		if(element.type === 'audio-stream') { ele = <AudioStream options={element.options}/> }
 
-		linkHelper(element, ele);
+		ele = linkHelper(element, ele);
 
 		return <div class="check" style={{left: left, top: top, width: width, height: height, transform: rotation}}>
 			{ele}
