@@ -64,7 +64,13 @@ export function Viewer({slug, dashboardReducer}) {
 		if(element.type === 'iframe-video') { ele = <IframeVideo options={element.options}/> }
 		if(element.type === 'audio-stream') { ele = <AudioStream options={element.options}/> }
 
-		if (element.options.linkURL && (element.type === 'static-text' || element.type === 'dynamic-text')) {
+		if (element.options.linkURL && element.type === 'static-text') {
+			if (element.options.linkURL.includes('http') ) {
+				ele = <a id="text-link" href={element.options.linkURL} target="_blank">{ele}</a>
+			} else {
+				ele = <a id="text-link" href={`https://${element.options.linkURL}`} target="_blank">{ele}</a>
+			}
+		} if (element.options.linkURL && element.type === 'dynamic-text') {
 			if (element.options.linkURL.includes('http') ) {
 				ele = <a id="text-link" href={element.options.linkURL} target="_blank">{ele}</a>
 			} else {
