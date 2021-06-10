@@ -66,6 +66,12 @@ export function Viewer({slug, dashboardReducer}) {
 
 		ele = linkHelper(element, ele);
 
+		if (element.type === 'static-ticker'){
+			return <div class="view-ticker" style={{left: 0, top: top, width: "100vw" , height: height, transform: rotation}}>
+			{ele}
+		</div>
+		}
+		
 		return <div class="check" style={{left: left, top: top, width: width, height: height, transform: rotation}}>
 			{ele}
 		</div>
