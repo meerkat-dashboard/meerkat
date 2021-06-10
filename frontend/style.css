@@ -976,7 +976,7 @@ a#text-link {
 
 
 .view-ticker {
-	cursor: move;
+	cursor: default;
 	position: absolute;
 	overflow: hidden;
 	width: 100vw;
@@ -998,6 +998,7 @@ a#text-link {
 
 
 .scrolling-text {
+	cursor: default;
 	display: flex;
 	justify-content: center;
 	align-items: center;
