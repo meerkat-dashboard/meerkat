@@ -86,6 +86,9 @@ export function StaticText({options}) {
 	if(typeof options.boldText !== 'undefined' && options.boldText) {
 		styles += `font-weight: bold; `;
 	}
+	if(typeof options.linkURL !== 'undefined' && options.linkURL){
+		styles += `text-align: center; line-height: 470%; `;
+	}
 
 	return <div class="check-content text" style={styles}>{options.text}</div>
 }
