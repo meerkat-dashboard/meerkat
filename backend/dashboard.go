@@ -100,6 +100,7 @@ type Option struct {
 	DynamicText                     string `json:"dynamicText"`
 	DynamicText2                    string `json:"dynamicText2"`
 	DynamicText2Structure           bool   `json:"dynamicText2Structure"`
+	BoldText                        bool   `json:"boldText"`
 }
 
 //Rect helper struct for positions

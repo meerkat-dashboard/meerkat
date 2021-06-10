@@ -430,7 +430,13 @@ export function alertSounds(checkState, options, dashboard) {
 
 
 export function linkHelper(element, ele){
-	if (element.options.linkURL && (element.type === 'static-text' || element.type === 'dynamic-text')) {
+	if (element.options.linkURL && element.type === 'static-text') {
+		if (element.options.linkURL.includes('http') ) {
+			ele = <a id="text-link" href={element.options.linkURL} target="_blank">{ele}</a>
+		} else {
+			ele = <a id="text-link" href={`https://${element.options.linkURL}`} target="_blank">{ele}</a>
+		}
+	} if (element.options.linkURL && element.type === 'dynamic-text') {
 		if (element.options.linkURL.includes('http') ) {
 			ele = <a id="text-link" href={element.options.linkURL} target="_blank">{ele}</a>
 		} else {

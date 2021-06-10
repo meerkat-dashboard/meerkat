@@ -422,7 +422,7 @@ function SidePanelSettings({dashboardDispatch, dashboard}) {
 		<label for="background-image">Background Image {imgControls(dashboard.background)}</label>
 		<input class="form-control" id="background-image" type="file" placeholder="Upload a background image"
 			accept="image/*" onChange={handleBackgroundImg}/>
-		<label class="status-font-size">Mute Status Alerts!</label>
+		<label class="status-font-size">Mute Status Alerts</label>
     	<input type="checkbox" defaultChecked={dashboard.globalMute} onChange={e => muteAlerts(e)} class="form-control mute-sounds"/>
 		<br/>
 		<button class="rounded btn-primary btn-large" onClick={onClickAdvanced}>{showAdvanced ? 'Hide Options' : 'Global Alert Options'}</button>

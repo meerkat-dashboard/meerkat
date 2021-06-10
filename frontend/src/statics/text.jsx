@@ -19,6 +19,12 @@ export function StaticTextOptions({options, updateOptions}) {
 		<input class="form-control" id="font-size" name="font-size" type="number" min="0" value={options.fontSize}
 			onInput={e => updateOptions({fontSize: e.currentTarget.value})}/>
 
+		<label class="font-size">Bold Text</label>
+    	<span>
+			<input type="checkbox" defaultChecked={options.boldText} onChange={e => updateOptions({boldText: e.target.checked})} class="form-control bold-static-text"/>
+		</span>
+		<br/>
+
 		<label>Text Alignment</label>
 		<div class="selection" style="margin-bottom: 5px;">
 			<button class={`selector ${options.textAlign === 'start' ? 'active' : ''}`}
@@ -60,7 +66,7 @@ export function StaticTextOptions({options, updateOptions}) {
 }
 
 export function StaticText({options}) {
-	let styles = '';
+	let styles = 'height: 100%; ';
 
 	if(typeof options.fontSize !== 'undefined') {
 		styles += `font-size: ${options.fontSize}px; `;
@@ -77,10 +83,11 @@ export function StaticText({options}) {
 	if(typeof options.textVerticalAlign !== 'undefined') {
 		styles += `align-items: ${options.textVerticalAlign}; `;
 	}
+	if(typeof options.boldText !== 'undefined' && options.boldText) {
+		styles += `font-weight: bold; `;
+	}
 
-	return <div class="check-content text">
-		<div class ="inner-text" style={styles}>{options.text}</div>
-	</div>
+	return <div class="check-content text" style={styles}>{options.text}</div>
 }
 
 export const StaticTextDefaults = {

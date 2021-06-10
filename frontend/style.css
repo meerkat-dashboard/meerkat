@@ -680,6 +680,13 @@ input[type=checkbox].form-control.mute-sounds {
     position: absolute;
 }
 
+input[type=checkbox].form-control.bold-static-text {
+	float: right;
+    margin-left: 6em;
+    margin-top: -2.9em;
+    position: absolute;
+}
+
 input[type=checkbox].form-control.perf-data-mode {
     margin-left: 14em;
 	margin-top: -2em;
@@ -797,12 +804,14 @@ div.tag .close-icon {
 	height: 100%;
 }
 
-
-
-
 .check > .text {
 	white-space: pre;
 	display: flex;
+}
+
+.text {
+	text-transform: none !important;
+	word-wrap: break-word;
 }
 
 .check > .svg > svg {
@@ -979,6 +988,7 @@ a#text-link {
 	width: 100%;
 	height: 100%;
 }
+
 .view-ticker > .check-content.ticker {
 	display: flex;
 	justify-content: center;
