@@ -15,9 +15,15 @@ export function StaticTickerOptions({options, updateOptions}) {
 			onInput={e => updateOptions({text: e.currentTarget.value})}>
 		</textarea>
 
+
+		<label for="scroll-period">Scroll Period</label>
+		<input class="form-control" id="scroll-period" name="scroll-period" type="number" min="1" max="200" value={options.scrollPeriod}
+			onInput={e => updateOptions({scrollPeriod: e.currentTarget.value})}/>
+
 		<label for="font-size">Font Size</label>
 		<input class="form-control" id="font-size" name="font-size" type="number" min="0" value={options.fontSize}
 			onInput={e => updateOptions({fontSize: e.currentTarget.value})}/>
+			
 
 		<label for="font-color">Font Color <a onClick={e => clearField(e, 'fontColor')}>clear</a></label>
 		<div class="lefty-righty spacer">
@@ -48,7 +54,9 @@ export function StaticTicker({options}) {
 	if(typeof options.fontColor !== 'undefined') {
 		textStyles += `color: ${options.fontColor}; `;
 	}
-
+	if(typeof options.scrollPeriod !== 'undefined') {
+		textStyles += `animation: marqueeX ${options.scrollPeriod}s linear infinite;`;
+	}
 
 	return <div class="check-content ticker" style={styles}>
 		 <div class ="scrolling-text" style={textStyles}>{options.text}</div>
@@ -59,5 +67,6 @@ export const StaticTickerDefaults = {
 	text: 'sample message',
 	fontSize: '22',
 	fontColor: '#ffffff',
-	backgroundColor: '#007bff'
+	backgroundColor: '#007bff',
+	scrollPeriod: '15'
 }

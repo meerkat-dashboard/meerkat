@@ -85,6 +85,7 @@ type Option struct {
 	TextVerticalAlign               string `json:"textVerticalAlign"`
 	FontColor                       string `json:"fontColor"`
 	FontSize                        string `json:"fontSize"`
+	ScrollPeriod                    string `json:"scrollPeriod"`
 	LinkURL                         string `json:"linkURL"`
 	OkSound                         string `json:"okSound"`
 	WarningSound                    string `json:"warningSound"`
