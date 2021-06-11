@@ -429,24 +429,30 @@ export function alertSounds(checkState, options, dashboard) {
 }
 
 
-export function linkHelper(element, ele){
+export function linkHelper(element, ele, dashboard){
+	let target = null;
+
+	if (dashboard.tabLink) {
+		target = 'blank';
+	}
+
 	if (element.options.linkURL && element.type === 'static-text') {
 		if (element.options.linkURL.includes('http') ) {
-			ele = <a id="text-link" href={element.options.linkURL} target="_blank">{ele}</a>
+			ele = <a id="text-link" href={element.options.linkURL} target={target}>{ele}</a>
 		} else {
-			ele = <a id="text-link" href={`https://${element.options.linkURL}`} target="_blank">{ele}</a>
+			ele = <a id="text-link" href={`https://${element.options.linkURL}`} target={target}>{ele}</a>
 		}
 	} if (element.options.linkURL && element.type === 'dynamic-text') {
 		if (element.options.linkURL.includes('http') ) {
-			ele = <a id="text-link" href={element.options.linkURL} target="_blank">{ele}</a>
+			ele = <a id="text-link" href={element.options.linkURL} target={target}>{ele}</a>
 		} else {
-			ele = <a id="text-link" href={`https://${element.options.linkURL}`} target="_blank">{ele}</a>
+			ele = <a id="text-link" href={`https://${element.options.linkURL}`} target={target}>{ele}</a>
 		}
 	} else if (element.options.linkURL) {
 		if (element.options.linkURL.includes('http') ) {
-			ele = <a id="a-link" href={element.options.linkURL} target="_blank">{ele}</a>
+			ele = <a id="a-link" href={element.options.linkURL} target={target}>{ele}</a>
 		} else {
-			ele = <a id="a-link" href={`https://${element.options.linkURL}`} target="_blank">{ele}</a>
+			ele = <a id="a-link" href={`https://${element.options.linkURL}`} target={target}>{ele}</a>
 		}
 	}
 

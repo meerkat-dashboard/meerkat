@@ -64,14 +64,14 @@ export function Viewer({slug, dashboardReducer}) {
 		if(element.type === 'iframe-video') { ele = <IframeVideo options={element.options}/> }
 		if(element.type === 'audio-stream') { ele = <AudioStream options={element.options}/> }
 
-		ele = linkHelper(element, ele);
+		ele = linkHelper(element, ele, dashboard);
 
 		if (element.type === 'static-ticker'){
 			return <div class="view-ticker" style={{left: 0, top: top, width: "100vw" , height: height, transform: rotation}}>
-			{ele}
-		</div>
+				{ele}
+			</div>
 		}
-		
+
 		return <div class="check" style={{left: left, top: top, width: width, height: height, transform: rotation}}>
 			{ele}
 		</div>

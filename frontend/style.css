@@ -687,6 +687,13 @@ input[type=checkbox].form-control.bold-static-text {
     position: absolute;
 }
 
+input[type=checkbox].form-control.new-tab{
+	float: right;
+    margin-left: 12em;
+    margin-top: -2.9em;
+    position: absolute;
+}
+
 input[type=checkbox].form-control.perf-data-mode {
     margin-left: 14em;
 	margin-top: -2em;

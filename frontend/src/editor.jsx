@@ -44,6 +44,13 @@ const dashboardReducer = (state, action) => {
 			return {...state, background: action.background};
 		case 'setGlobalMute':
 			return {...state, globalMute: action.globalMute};
+		case 'setGlobalTabLink':
+			if (state.hasOwnProperty('tabLink')){
+				return {...state, tabLink: action.tabLink};
+			} else {
+				Object.assign(state, {tabLink: action.tabLink});
+				return state;
+			}
 		case 'addElement':
 			console.log('Adding new element')
 			const newElement = {
@@ -425,7 +432,7 @@ function SidePanelSettings({dashboardDispatch, dashboard}) {
 		<label class="status-font-size">Mute Status Alerts</label>
     	<input type="checkbox" defaultChecked={dashboard.globalMute} onChange={e => muteAlerts(e)} class="form-control mute-sounds"/>
 		<br/>
-		<button class="rounded btn-primary btn-large" onClick={onClickAdvanced}>{showAdvanced ? 'Hide Options' : 'Global Alert Options'}</button>
+		<button class="rounded btn-primary btn-large" onClick={onClickAdvanced}>{showAdvanced ? 'Hide Options' : 'Global Options'}</button>
 		<AdvancedAlertOptions dashboardDispatch={dashboardDispatch} display={showAdvanced} dashboard={dashboard}/>
 	</Fragment>
 }
@@ -445,6 +452,7 @@ const AdvancedAlertOptions = ({dashboardDispatch, display, dashboard}) => {
 		}
 	}
 
+
 	const audioControls = src => {
 		if(src) {
 			return <Fragment>
@@ -455,6 +463,9 @@ const AdvancedAlertOptions = ({dashboardDispatch, display, dashboard}) => {
 	}
 
 	return <div style={{display: display ? '' : 'none'}}>
+		<br/>
+		<label class="new-tab">Open links in new tab</label>
+    	<input type="checkbox" defaultChecked={dashboard.tabLink} onChange={e => dashboardDispatch({type: 'setGlobalTabLink', tabLink: e.target.checked})} class="form-control new-tab"/>
 		<br/>
 		<label for="soundFile">Ok Alert Sound {audioControls(dashboard.okSound)}
 			<a onClick={e => dashboardDispatch({type: 'setGlobalOk', okSound: "/dashboards-data/ok.mp3"})}>default</a>
