@@ -15,6 +15,7 @@ import (
 	"github.com/BurntSushi/toml"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
+	"github.com/mailgun/groupcache/v2"
 )
 
 func initDirs() error {
@@ -52,6 +53,9 @@ type Config struct {
 	IcingaUsername    string
 	IcingaPassword    string
 	IcingaInsecureTLS bool
+
+	CacheExpiryDurationSeconds int64
+	CacheSizeBytes             int64
 }
 
 var config Config
@@ -68,11 +72,23 @@ func main() {
 		log.Fatalf("Error reading config - %s\n", err)
 	}
 
+	if config.CacheExpiryDurationSeconds == 0 {
+		config.CacheExpiryDurationSeconds = 10
+	}
+	if config.CacheSizeBytes == 0 {
+		config.CacheSizeBytes = 1048576
+	}
+
+	initialiseIcingaCaches()
+
 	//Initialize directories
 	err = initDirs()
 	if err != nil {
 		log.Fatalf("Error initializing dashboards directory - %s\n", err)
 	}
+
+	cachepool := groupcache.NewHTTPPool("http://localhost:8585")
+	cachepool.Set("http://localhost:8585")
 
 	//Web server setup
 	r := chi.NewRouter()
@@ -82,6 +98,8 @@ func main() {
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.Timeout(30 * time.Second))
+
+	r.Handle("/_groupcache/", cachepool)
 
 	r.Get("/dashboard", handleListDashboards)
 	r.Get("/dashboard/{slug}", handleListDashboard)

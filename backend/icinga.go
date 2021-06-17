@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
@@ -9,8 +10,10 @@ import (
 	"net/url"
 	"path"
 	"strings"
+	"time"
 
 	"github.com/go-chi/chi"
+	"github.com/mailgun/groupcache/v2"
 )
 
 type icingaAPIResults struct {
@@ -123,7 +126,6 @@ type together struct {
 }
 
 func handleCheckResult(w http.ResponseWriter, r *http.Request) {
-
 	object := r.URL.Query().Get("object")
 	attrs := r.URL.Query().Get("attrs")
 	objType := r.URL.Query().Get("objtype")
@@ -133,64 +135,97 @@ func handleCheckResult(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	client := &http.Client{}
-	//Disable TLS verification if config says so
-	if config.IcingaInsecureTLS {
-		client.Transport = &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-		}
-	}
-
-	//Create HTTP request
-	req_url, err := url.Parse(config.IcingaURL)
-	if err != nil {
-		log.Printf("Failed to parse IcingaURL: %w", err)
-		http.Error(w, "Server Error", http.StatusInternalServerError)
+	cache := groupcache.GetGroup("IcingaCheckResult")
+	if cache == nil {
+		log.Printf("No IcingaCheckResult cache")
+		http.Error(w, "No cache available", http.StatusInternalServerError)
 		return
 	}
 
-	if objType == "service" {
-		req_url.Path = path.Join(req_url.Path, "/v1/objects/services", object)
-	} else {
-		req_url.Path = path.Join(req_url.Path, "/v1/objects/hosts", object)
-	}
-
-	req_url.RawQuery = strings.ReplaceAll(url.Values{"attrs": []string{attrs}}.Encode(), "+", "%20")
-
-	req, err := http.NewRequest("GET", req_url.String(), nil)
-	req.Header.Set("Accept", "application/json")
-	req.SetBasicAuth(config.IcingaUsername, config.IcingaPassword)
-
-	if err != nil {
-		fmt.Println("Failed to create HTTP request: %w", err)
-		http.Error(w, "Error creating http request: "+err.Error(), http.StatusInternalServerError)
+	var enc []byte
+	key := strings.Join([]string{object, attrs, objType}, string(rune(0)))
+	if err := cache.Get(r.Context(), key, groupcache.AllocatingByteSliceSink(&enc)); err != nil {
+		log.Printf("Cache retrieval failed: %w", err)
+		http.Error(w, "Cache retrieval failed", http.StatusInternalServerError)
 		return
 	}
 
-	//Make request
-	res, err := client.Do(req)
-	if err != nil {
-		fmt.Println("Icinga2 API error: %w", err.Error())
-		http.Error(w, "Icinga2 API error: "+err.Error(), http.StatusInternalServerError)
-		return
-	}
+	w.Write(enc)
+}
 
-	fmt.Println("Response status:", res.Status)
+func initIcingaCheckResultCache() {
+	groupcache.NewGroup("IcingaCheckResult", config.CacheSizeBytes, groupcache.GetterFunc(
+		func(ctx context.Context, key string, dest groupcache.Sink) error {
+			bits := strings.SplitN(key, string(rune(0)), 3)
 
-	defer res.Body.Close()
+			if len(bits) < 3 {
+				return fmt.Errorf("Invalid cache key")
+			}
 
-	var checkResults icingaAPILastCheckResults
-	dec := json.NewDecoder(res.Body)
-	err = dec.Decode(&checkResults)
+			object  := bits[0]
+			attrs   := bits[1]
+			objType := bits[2]
 
-	if err != nil {
-		log.Printf("Error decoding Icinga2 API response: %w", err)
-		http.Error(w, "Error decoding Icinga2 API response: "+err.Error(), http.StatusInternalServerError)
-		return
-	}
+			client := &http.Client{}
+			//Disable TLS verification if config says so
+			if config.IcingaInsecureTLS {
+				client.Transport = &http.Transport{
+					TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+				}
+			}
 
-	enc := json.NewEncoder(w)
-	enc.Encode(checkResults)
+			//Create HTTP request
+			req_url, err := url.Parse(config.IcingaURL)
+			if err != nil {
+				log.Printf("Failed to parse IcingaURL: %w", err)
+				return err
+			}
+
+			if objType == "service" {
+				req_url.Path = path.Join(req_url.Path, "/v1/objects/services", object)
+			} else {
+				req_url.Path = path.Join(req_url.Path, "/v1/objects/hosts", object)
+			}
+
+			req_url.RawQuery = strings.ReplaceAll(url.Values{"attrs": []string{attrs}}.Encode(), "+", "%20")
+
+			req, err := http.NewRequest("GET", req_url.String(), nil)
+			req.Header.Set("Accept", "application/json")
+			req.SetBasicAuth(config.IcingaUsername, config.IcingaPassword)
+
+			if err != nil {
+				fmt.Println("Failed to create HTTP request: %w", err)
+				return err
+			}
+
+			//Make request
+			res, err := client.Do(req)
+			if err != nil {
+				fmt.Println("Icinga2 API error: %w", err.Error())
+				return err
+			}
+
+			fmt.Println("Response status:", res.Status)
+
+			defer res.Body.Close()
+
+			var checkResults icingaAPILastCheckResults
+			dec := json.NewDecoder(res.Body)
+			err = dec.Decode(&checkResults)
+
+			if err != nil {
+				log.Printf("Error decoding Icinga2 API response: %w", err)
+				return err
+			}
+
+			if enc, err := json.Marshal(checkResults); err != nil {
+				log.Printf("Failed to encode IcingaCheckResult value: %w", err)
+				return err
+			} else {
+				return dest.SetBytes(enc, time.Now().Add(time.Duration(config.CacheExpiryDurationSeconds)*time.Second))
+			}
+		},
+	))
 }
 
 func handleIcingaCheckState(w http.ResponseWriter, r *http.Request) {
@@ -213,84 +248,116 @@ func handleIcingaCheckState(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	client := &http.Client{}
-	//Disable TLS verification if config says so
-	if config.IcingaInsecureTLS {
-		client.Transport = &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-		}
-	}
-
-	//Create HTTP request
-	req_url, err := url.Parse(config.IcingaURL)
-	if err != nil {
-		log.Printf("Failed to parse IcingaURL: %w", err)
-		http.Error(w, "Server Error", http.StatusInternalServerError)
+	cache := groupcache.GetGroup("IcingaCheckState")
+	if cache == nil {
+		log.Printf("No IcingaCheckState cache")
+		http.Error(w, "No cache available", http.StatusInternalServerError)
 		return
 	}
 
-	req_url.Path = path.Join(req_url.Path, "/v1/objects", object_type+"s")
-	req_url.RawQuery = strings.ReplaceAll(url.Values{"filter": []string{filter}}.Encode(), "+", "%20")
-
-	req, err := http.NewRequest("GET", req_url.String(), nil)
-	if err != nil {
-		log.Printf("Failed to create HTTP request: %w", err)
-		http.Error(w, "Error creating http request: "+err.Error(), http.StatusInternalServerError)
+	var enc []byte
+	key := strings.Join([]string{object_type, filter}, string(rune(0)))
+	if err := cache.Get(r.Context(), key, groupcache.AllocatingByteSliceSink(&enc)); err != nil {
+		log.Printf("Cache retrieval failed: %w", err)
+		http.Error(w, "Cache retrieval failed", http.StatusInternalServerError)
 		return
 	}
 
-	req.SetBasicAuth(config.IcingaUsername, config.IcingaPassword)
+	w.Write(enc)
+}
 
-	//Make request
-	res, err := client.Do(req)
-	if err != nil {
-		log.Printf("Icinga2 API error: %w", err.Error())
-		http.Error(w, "Icinga2 API error: "+err.Error(), http.StatusInternalServerError)
-		return
-	}
+func initIcingaCheckStateCache() {
+	groupcache.NewGroup("IcingaCheckState", config.CacheSizeBytes, groupcache.GetterFunc(
+		func(ctx context.Context, key string, dest groupcache.Sink) error {
+			bits := strings.SplitN(key, string(rune(0)), 2)
 
-	defer res.Body.Close()
-
-	var results icingaAPIResults
-	dec := json.NewDecoder(res.Body)
-	err = dec.Decode(&results)
-
-	if err != nil {
-		log.Printf("Error decoding Icinga2 API response: %w", err)
-		http.Error(w, "Error decoding Icinga2 API response: "+err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	if len(results.Results) == 0 {
-		http.Error(w, fmt.Sprintf("No %s objects matched filter %s", object_type, filter), http.StatusBadRequest)
-		return
-	}
-
-	max_state := int64(0)
-	acknowledged := int64(0)
-
-	for _, obj := range results.Results {
-		if int64(obj.Attributes.Acknowledgement) == 1 {
-			acknowledged = int64(obj.Attributes.Acknowledgement)
-		}
-		if int64(obj.Attributes.State) > max_state {
-			max_state = int64(obj.Attributes.State)
-			if int64(obj.Attributes.State) == 2 {
-				max_state = int64(obj.Attributes.State)
+			if len(bits) < 2 {
+				return fmt.Errorf("Invalid cache key")
 			}
-		}
-	}
 
-	t := together{MaxState: max_state}
-	t.Acknowledged = acknowledged
+			object_type := bits[0]
+			filter     := bits[1]
 
-	enc := json.NewEncoder(w)
-	enc.Encode(&t)
+			client := &http.Client{}
+			//Disable TLS verification if config says so
+			if config.IcingaInsecureTLS {
+				client.Transport = &http.Transport{
+					TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+				}
+			}
+
+			//Create HTTP request
+			req_url, err := url.Parse(config.IcingaURL)
+			if err != nil {
+				log.Printf("Failed to parse IcingaURL: %w", err)
+				return err
+			}
+
+			req_url.Path = path.Join(req_url.Path, "/v1/objects", object_type+"s")
+			req_url.RawQuery = strings.ReplaceAll(url.Values{"filter": []string{filter}}.Encode(), "+", "%20")
+
+			req, err := http.NewRequest("GET", req_url.String(), nil)
+			if err != nil {
+				log.Printf("Failed to create HTTP request: %w", err)
+				return err
+			}
+
+			req.SetBasicAuth(config.IcingaUsername, config.IcingaPassword)
+
+			//Make request
+			res, err := client.Do(req)
+			if err != nil {
+				log.Printf("Icinga2 API error: %w", err.Error())
+				return err
+			}
+
+			defer res.Body.Close()
+
+			var results icingaAPIResults
+			dec := json.NewDecoder(res.Body)
+			err = dec.Decode(&results)
+
+			if err != nil {
+				log.Printf("Error decoding Icinga2 API response: %w", err)
+				return err
+			}
+
+			if len(results.Results) == 0 {
+				return err
+			}
+
+			max_state := int64(0)
+			acknowledged := int64(0)
+
+			for _, obj := range results.Results {
+				if int64(obj.Attributes.Acknowledgement) == 1 {
+					acknowledged = int64(obj.Attributes.Acknowledgement)
+				}
+				if int64(obj.Attributes.State) > max_state {
+					max_state = int64(obj.Attributes.State)
+					if int64(obj.Attributes.State) == 2 {
+						max_state = int64(obj.Attributes.State)
+					}
+				}
+			}
+
+			t := together{MaxState: max_state}
+			t.Acknowledged = acknowledged
+
+			if enc, err := json.Marshal(&t); err != nil {
+				log.Printf("Failed to encode IcingaCheckState value: %w", err)
+				return err
+			} else {
+				return dest.SetBytes(enc, time.Now().Add(time.Duration(config.CacheExpiryDurationSeconds)*time.Second))
+			}
+		},
+	))
 }
 
 func handleIcingaCheck(w http.ResponseWriter, r *http.Request) {
 	checkType := chi.URLParam(r, "check-type")
 	objectID := chi.URLParam(r, "object-id")
+	filter := r.URL.Query().Get("filter")
 
 	//We only support looking up hosts and services
 	if checkType != "hosts" && checkType != "services" && checkType != "hostgroups" && checkType != "servicegroups" {
@@ -298,68 +365,100 @@ func handleIcingaCheck(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	client := &http.Client{}
-	//Disable TLS verification if config says so
-	if config.IcingaInsecureTLS {
-		client.Transport = &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-		}
-	}
-
-	//Create HTTP request
-	req_url, err := url.Parse(config.IcingaURL)
-	if err != nil {
-		log.Printf("Failed to parse IcingaURL: %w", err)
-		http.Error(w, "Server Error", http.StatusInternalServerError)
+	cache := groupcache.GetGroup("IcingaCheck")
+	if cache == nil {
+		log.Printf("No IcingaCheck cache")
+		http.Error(w, "No cache available", http.StatusInternalServerError)
 		return
 	}
 
-	req_url.Path = path.Join(req_url.Path, "/v1/objects", checkType)
-	if objectID != "" {
-		req_url.Path = path.Join(req_url.Path, objectID)
-	}
-
-	if filter := r.URL.Query().Get("filter"); filter != "" {
-		req_url.RawQuery = strings.ReplaceAll(url.Values{"filter": []string{filter}}.Encode(), "+", "%20")
-		// req_url.RawQuery = strings.ReplaceAll(url.Values{"filter": []string{filter}}.Encode(), "~", "")
-	}
-
-	log.Printf("Requesting %s", req_url.String())
-	req, err := http.NewRequest("GET", req_url.String(), nil)
-	if err != nil {
-		log.Printf("Failed to create HTTP request: %w", err)
-		http.Error(w, "Error creating http request: "+err.Error(), http.StatusInternalServerError)
+	var enc []byte
+	key := strings.Join([]string{checkType, objectID, filter}, string(rune(0)))
+	if err := cache.Get(r.Context(), key, groupcache.AllocatingByteSliceSink(&enc)); err != nil {
+		log.Printf("Cache retrieval failed: %w", err)
+		http.Error(w, "Cache retrieval failed", http.StatusInternalServerError)
 		return
 	}
 
-	req.SetBasicAuth(config.IcingaUsername, config.IcingaPassword)
+	w.Write(enc)
+}
 
-	//Make request
-	res, err := client.Do(req)
-	if err != nil {
-		log.Printf("Icinga2 API error: %w", err.Error())
-		http.Error(w, "Icinga2 API error: "+err.Error(), http.StatusInternalServerError)
-		return
-	}
-	defer res.Body.Close()
+func initIcingaCheckCache() {
+	groupcache.NewGroup("IcingaCheck", config.CacheSizeBytes, groupcache.GetterFunc(
+		func(ctx context.Context, key string, dest groupcache.Sink) error {
+			bits := strings.SplitN(key, string(rune(0)), 3)
 
-	var results icingaAPIResults
-	dec := json.NewDecoder(res.Body)
-	err = dec.Decode(&results)
-	if err != nil {
-		log.Printf("Error decoding Icinga2 API response: %w", err)
-		http.Error(w, "Error decoding Icinga2 API response: "+err.Error(), http.StatusInternalServerError)
-		return
-	}
+			if len(bits) < 3 {
+				return fmt.Errorf("Invalid cache key")
+			}
 
-	//Convert to our type
-	var objs []icingaObject
-	for _, check := range results.Results {
-		objs = append(objs, check.toIcingaObject())
-	}
+			checkType := bits[0]
+			objectID  := bits[1]
+			filter    := bits[2]
 
-	enc := json.NewEncoder(w)
-	enc.Encode(objs)
+			client := &http.Client{}
+			//Disable TLS verification if config says so
+			if config.IcingaInsecureTLS {
+				client.Transport = &http.Transport{
+					TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+				}
+			}
+
+			//Create HTTP request
+			req_url, err := url.Parse(config.IcingaURL)
+			if err != nil {
+				log.Printf("Failed to parse IcingaURL: %w", err)
+				return err
+			}
+
+			req_url.Path = path.Join(req_url.Path, "/v1/objects", checkType)
+			if objectID != "" {
+				req_url.Path = path.Join(req_url.Path, objectID)
+			}
+
+			if filter != "" {
+				req_url.RawQuery = strings.ReplaceAll(url.Values{"filter": []string{filter}}.Encode(), "+", "%20")
+			}
+
+			log.Printf("Requesting %s", req_url.String())
+			req, err := http.NewRequest("GET", req_url.String(), nil)
+			if err != nil {
+				log.Printf("Failed to create HTTP request: %w", err)
+				return err
+			}
+
+			req.SetBasicAuth(config.IcingaUsername, config.IcingaPassword)
+
+			//Make request
+			res, err := client.Do(req)
+			if err != nil {
+				log.Printf("Icinga2 API error: %w", err.Error())
+				return err
+			}
+			defer res.Body.Close()
+
+			var results icingaAPIResults
+			dec := json.NewDecoder(res.Body)
+			err = dec.Decode(&results)
+			if err != nil {
+				log.Printf("Error decoding Icinga2 API response: %w", err)
+				return err
+			}
+
+			//Convert to our type
+			var objs []icingaObject
+			for _, check := range results.Results {
+				objs = append(objs, check.toIcingaObject())
+			}
+
+			if enc, err := json.Marshal(objs); err != nil {
+				log.Printf("Failed to encode IcingaCheck value: %w", err)
+				return err
+			} else {
+				return dest.SetBytes(enc, time.Now().Add(time.Duration(config.CacheExpiryDurationSeconds)*time.Second))
+			}
+		},
+	))
 }
 
 func handleIcingaVars(w http.ResponseWriter, r *http.Request) {
@@ -372,50 +471,80 @@ func handleIcingaVars(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	client := &http.Client{}
-	//Disable TLS verification if config says so
-	if config.IcingaInsecureTLS {
-		client.Transport = &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-		}
-	}
-
-	requestString, _ := http.NewRequest("GET", strings.Join([]string{config.IcingaURL, "/v1/objects/hosts"}, ""), nil)
-	q := requestString.URL.Query()
-	q.Add("host", hostName)
-	requestString.URL.RawQuery = q.Encode()
-
-	fmt.Println(requestString.URL.String())
-
-	req, err := http.NewRequest("GET", requestString.URL.String(), nil)
-	if err != nil {
-		log.Printf("Failed to create HTTP request: %w", err)
-		http.Error(w, "Error creating http request: "+err.Error(), http.StatusInternalServerError)
+	cache := groupcache.GetGroup("IcingaVars")
+	if cache == nil {
+		log.Printf("No IcingaVars cache")
+		http.Error(w, "No cache available", http.StatusInternalServerError)
 		return
 	}
 
-	req.SetBasicAuth(config.IcingaUsername, config.IcingaPassword)
-
-	//Make request
-	res, err := client.Do(req)
-	if err != nil {
-		log.Printf("Icinga2 API error: %w", err.Error())
-		http.Error(w, "Icinga2 API error: "+err.Error(), http.StatusInternalServerError)
+	var enc []byte
+	if err := cache.Get(r.Context(), hostName, groupcache.AllocatingByteSliceSink(&enc)); err != nil {
+		log.Printf("Cache retrieval failed: %w", err)
+		http.Error(w, "Cache retrieval failed", http.StatusInternalServerError)
 		return
 	}
 
-	defer res.Body.Close()
+	w.Write(enc)
+}
 
-	var results interface{}
-	dec := json.NewDecoder(res.Body)
-	err = dec.Decode(&results)
+func initIcingaVarsCache() {
+	groupcache.NewGroup("IcingaVars", config.CacheSizeBytes, groupcache.GetterFunc(
+		func(ctx context.Context, key string, dest groupcache.Sink) error {
+			client := &http.Client{}
+			//Disable TLS verification if config says so
+			if config.IcingaInsecureTLS {
+				client.Transport = &http.Transport{
+					TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+				}
+			}
 
-	if err != nil {
-		log.Printf("Error decoding Icinga2 API response: %w", err)
-		http.Error(w, "Error decoding Icinga2 API response: "+err.Error(), http.StatusInternalServerError)
-		return
-	}
+			requestString, _ := http.NewRequest("GET", strings.Join([]string{config.IcingaURL, "/v1/objects/hosts"}, ""), nil)
+			q := requestString.URL.Query()
+			q.Add("host", key)
+			requestString.URL.RawQuery = q.Encode()
 
-	enc := json.NewEncoder(w)
-	enc.Encode(results)
+			fmt.Println(requestString.URL.String())
+
+			req, err := http.NewRequest("GET", requestString.URL.String(), nil)
+			if err != nil {
+				log.Printf("Failed to create HTTP request: %w", err)
+				return err
+			}
+
+			req.SetBasicAuth(config.IcingaUsername, config.IcingaPassword)
+
+			//Make request
+			res, err := client.Do(req)
+			if err != nil {
+				log.Printf("Icinga2 API error: %w", err.Error())
+				return err
+			}
+
+			defer res.Body.Close()
+
+			var results interface{}
+			dec := json.NewDecoder(res.Body)
+			err = dec.Decode(&results)
+
+			if err != nil {
+				log.Printf("Error decoding Icinga2 API response: %w", err)
+				return err
+			}
+
+			if enc, err := json.Marshal(results); err != nil {
+				log.Printf("Failed to encode IcingaVars value: %w", err)
+				return err
+			} else {
+				return dest.SetBytes(enc, time.Now().Add(time.Duration(config.CacheExpiryDurationSeconds)*time.Second))
+			}
+		},
+	))
+}
+
+func initialiseIcingaCaches() {
+	initIcingaCheckResultCache()
+	initIcingaCheckStateCache()
+	initIcingaCheckCache()
+	initIcingaVarsCache()
 }
