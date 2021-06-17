@@ -73,10 +73,10 @@ func main() {
 	}
 
 	if config.CacheExpiryDurationSeconds == 0 {
-		config.CacheExpiryDurationSeconds = 10
+		config.CacheExpiryDurationSeconds = 16
 	}
 	if config.CacheSizeBytes == 0 {
-		config.CacheSizeBytes = 1048576
+		config.CacheSizeBytes = 20971520
 	}
 
 	initialiseIcingaCaches()
