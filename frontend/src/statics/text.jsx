@@ -65,8 +65,9 @@ export function StaticTextOptions({options, updateOptions}) {
 	</Fragment>
 }
 
-export function StaticText({options}) {
+export function StaticText({options, vars}) {
 	let styles = 'height: 100%; ';
+	let text = options.text;
 
 	if(typeof options.fontSize !== 'undefined') {
 		styles += `font-size: ${options.fontSize}px; `;
@@ -90,7 +91,14 @@ export function StaticText({options}) {
 		styles += `text-align: center; line-height: 470%; `;
 	}
 
-	return <div class="check-content text" style={styles}>{options.text}</div>
+	for (const [key, property] of Object.entries(vars)) {
+		if (options.text.includes(`~${key}~`)) {
+			let reg = new RegExp('~(' + key + ')~', 'g');
+			text = text.replaceAll(reg, property);
+		}
+	}
+
+	return <div class="check-content text" style={styles}>{text}</div>
 }
 
 export const StaticTextDefaults = {

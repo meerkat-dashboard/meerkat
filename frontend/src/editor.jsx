@@ -339,7 +339,7 @@ function DashboardElements({dashboardDispatch, selectedElementId, elements, high
 		if(element.type === 'check-svg') { ele = <CheckSVG options={element.options} slug={slug} dashboard={dashboard}/> }
 		if(element.type === 'check-image') { ele = <CheckImage options={element.options} slug={slug} dashboard={dashboard}/> }
 		if(element.type === 'check-line') { ele = <CheckLine options={element.options} slug={slug} dashboard={dashboard}/> }
-		if(element.type === 'static-text') { ele = <StaticText options={element.options}/> }
+		if(element.type === 'static-text') { ele = <StaticText options={element.options} vars={dashboard.variables}/> }
 		if(element.type === 'dynamic-text') { ele = <DynamicText options={element.options}/> }
 		if(element.type === 'static-ticker') { ele = <StaticTicker options={element.options}/> }
 		if(element.type === 'static-svg') { ele = <StaticSVG options={element.options}/> }
@@ -541,17 +541,28 @@ function VariablesModal({hide, dashboard, slug}) {
 		let matched = []
 
 		inputs.forEach(changed => {
-			if (changed.key !== changed.ori	) {
+			if (changed.key !== changed.ori) {
 				matched.push(changed);
 			}
 		});
 
 		dash.elements.forEach(ele => {
 			matched.forEach(key => {
-				if (ele.options.filter !== null) {
+				let reg = new RegExp('~(' + key.ori + ')~', 'g');
+
+				if (ele.options.hasOwnProperty('filter') && ele.options.filter !== null) {
 					if (ele.options.filter.includes(`~${key.ori}~`)) {
-						let reg = new RegExp('~(' + key.ori + ')~', 'g');
 						ele.options.filter = ele.options.filter.replaceAll(reg, `~${key.key}~`);
+					}
+				}
+				if (ele.options.hasOwnProperty('linkURL') && ele.options.linkURL !== null) {
+					if (ele.options.linkURL.includes(`~${key.ori}~`)) {
+						ele.options.linkURL = ele.options.linkURL.replaceAll(reg, `~${key.key}~`);
+					}
+				}
+				if (ele.options.hasOwnProperty('text') && ele.options.text !== null) {
+					if (ele.options.text.includes(`~${key.ori}~`)) {
+						ele.options.text = ele.options.text.replaceAll(reg, `~${key.key}~`);
 					}
 				}
 			})

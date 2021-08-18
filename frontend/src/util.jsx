@@ -436,23 +436,25 @@ export function linkHelper(element, ele, dashboard){
 		target = 'blank';
 	}
 
+	let encoded = encodeURIComponent(element.options.linkURL);
+
 	if (element.options.linkURL && element.type === 'static-text') {
 		if (element.options.linkURL.includes('http') ) {
-			ele = <a id="text-link" href={element.options.linkURL} target={target}>{ele}</a>
+			ele = <a id="text-link" href={encoded} target={target}>{ele}</a>
 		} else {
-			ele = <a id="text-link" href={`https://${element.options.linkURL}`} target={target}>{ele}</a>
+			ele = <a id="text-link" href={`https://${encoded}`} target={target}>{ele}</a>
 		}
 	} if (element.options.linkURL && element.type === 'dynamic-text') {
 		if (element.options.linkURL.includes('http') ) {
-			ele = <a id="text-link" href={element.options.linkURL} target={target}>{ele}</a>
+			ele = <a id="text-link" href={encoded} target={target}>{ele}</a>
 		} else {
-			ele = <a id="text-link" href={`https://${element.options.linkURL}`} target={target}>{ele}</a>
+			ele = <a id="text-link" href={`https://${encoded}`} target={target}>{ele}</a>
 		}
 	} else if (element.options.linkURL) {
 		if (element.options.linkURL.includes('http') ) {
-			ele = <a id="a-link" href={element.options.linkURL} target={target}>{ele}</a>
+			ele = <a id="a-link" href={encoded} target={target}>{ele}</a>
 		} else {
-			ele = <a id="a-link" href={`https://${element.options.linkURL}`} target={target}>{ele}</a>
+			ele = <a id="a-link" href={`https://${encoded}`} target={target}>{ele}</a>
 		}
 	}
 

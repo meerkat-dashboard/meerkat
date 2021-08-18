@@ -48,25 +48,37 @@ func handleCreateTemplate(w http.ResponseWriter, r *http.Request) {
 	var dashboardX Dashboard
 	json.Unmarshal([]byte(dash), &dashboardX)
 
+	regID, err := regexp.Compile(`"([^"]*)"`)
+
+	if err != nil {
+		log.Printf("Error compiling regex: %w", err.Error())
+	}
+
 	for i := range dashboardX.Elements {
 		for _, sqs := range qs {
+			reg, err := regexp.Compile(fmt.Sprint("~(", sqs, ")~"))
+
+			if err != nil {
+				log.Printf("Error compiling regex: %w", err.Error())
+			}
+
 			if strings.Contains(dashboardX.Elements[i].Options.Filter, fmt.Sprint("~", sqs, "~")) {
-				reg, err := regexp.Compile(fmt.Sprint("~(", sqs, ")~"))
-
-				if err != nil {
-					log.Printf("Error compiling regex: %w", err.Error())
-				}
-
-				regID, err := regexp.Compile(`"([^"]*)"`)
-
-				if err != nil {
-					log.Printf("Error compiling regex: %w", err.Error())
-				}
-
 				if r.URL.Query().Get(sqs) != "" {
 					dashboardX.Elements[i].Options.Filter = reg.ReplaceAllString(dashboardX.Elements[i].Options.Filter, r.URL.Query().Get(sqs))
 
 					dashboardX.Elements[i].Options.ID = strings.Trim(regID.FindString(dashboardX.Elements[i].Options.Filter), "\"")
+				}
+			}
+
+			if strings.Contains(dashboardX.Elements[i].Options.LinkURL, fmt.Sprint("~", sqs, "~")) {
+				if r.URL.Query().Get(sqs) != "" {
+					dashboardX.Elements[i].Options.LinkURL = reg.ReplaceAllString(dashboardX.Elements[i].Options.LinkURL, r.URL.Query().Get(sqs))
+				}
+			}
+
+			if strings.Contains(dashboardX.Elements[i].Options.Text, fmt.Sprint("~", sqs, "~")) {
+				if r.URL.Query().Get(sqs) != "" {
+					dashboardX.Elements[i].Options.Text = reg.ReplaceAllString(dashboardX.Elements[i].Options.Text, r.URL.Query().Get(sqs))
 				}
 			}
 		}

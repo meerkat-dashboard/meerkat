@@ -56,7 +56,7 @@ export function Viewer({slug, dashboardReducer}) {
 		if(element.type === 'check-svg') { ele = <CheckSVG options={element.options} dashboard={dashboard} slug={slug}/> }
 		if(element.type === 'check-image') { ele = <CheckImage options={element.options} dashboard={dashboard} slug={slug}/> }
 		if(element.type === 'check-line') { ele = <CheckLine options={element.options} dashboard={dashboard} slug={slug}/> }
-		if(element.type === 'static-text') { ele = <StaticText options={element.options}/> }
+		if(element.type === 'static-text') { ele = <StaticText options={element.options} vars={dashboard.variables} /> }
 		if(element.type === 'dynamic-text') { ele = <DynamicText options={element.options}/> }
 		if(element.type === 'static-ticker') { ele = <StaticTicker options={element.options}/> }
 		if(element.type === 'static-svg') { ele = <StaticSVG options={element.options}/> }

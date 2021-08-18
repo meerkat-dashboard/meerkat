@@ -27,11 +27,11 @@ export async function getIcingaServiceGroups() {
 }
 
 export async function getIcingaObjectState(objectType, filter, dashboard) {
-	return fetchHandler(`/icinga/check_state?object_type=${encodeURIComponent(objectType)};filter=${encodeURIComponent(filterReplace(filter, dashboard))}`);
+	return fetchHandler(`/icinga/check_state?object_type=${encodeURIComponent(objectType)}&filter=${encodeURIComponent(filterReplace(filter, dashboard))}`);
 }
 
 export async function getCheckResult(objType, object, attrs="last_check_result") {
-	return fetchHandler(`/icinga/check_result?objtype=${objType};object=${encodeURIComponent(object)};attrs=${encodeURIComponent(attrs)}`);
+	return fetchHandler(`/icinga/check_result?objtype=${objType}&object=${encodeURIComponent(object)}&attrs=${encodeURIComponent(attrs)}`);
 }
 
 export async function getDashboard(slug) {
