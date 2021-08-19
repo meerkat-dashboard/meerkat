@@ -431,30 +431,36 @@ export function alertSounds(checkState, options, dashboard) {
 
 export function linkHelper(element, ele, dashboard){
 	let target = null;
+	let link = element.options.linkURL;
 
 	if (dashboard.tabLink) {
 		target = 'blank';
 	}
 
-	let encoded = encodeURIComponent(element.options.linkURL);
+	for (const [key, property] of Object.entries(dashboard.variables)) {
+		if (element.options.hasOwnProperty('linkURL') && element.options.linkURL.includes(`~${key}~`)) {
+			let reg = new RegExp('~(' + key + ')~', 'g');
+			link = link.replaceAll(reg, encodeURIComponent(property));
+		}
+	}
 
 	if (element.options.linkURL && element.type === 'static-text') {
 		if (element.options.linkURL.includes('http') ) {
-			ele = <a id="text-link" href={encoded} target={target}>{ele}</a>
+			ele = <a id="text-link" href={link} target={target}>{ele}</a>
 		} else {
-			ele = <a id="text-link" href={`https://${encoded}`} target={target}>{ele}</a>
+			ele = <a id="text-link" href={`https://${link}`} target={target}>{ele}</a>
 		}
 	} if (element.options.linkURL && element.type === 'dynamic-text') {
 		if (element.options.linkURL.includes('http') ) {
-			ele = <a id="text-link" href={encoded} target={target}>{ele}</a>
+			ele = <a id="text-link" href={link} target={target}>{ele}</a>
 		} else {
-			ele = <a id="text-link" href={`https://${encoded}`} target={target}>{ele}</a>
+			ele = <a id="text-link" href={`https://${link}`} target={target}>{ele}</a>
 		}
 	} else if (element.options.linkURL) {
 		if (element.options.linkURL.includes('http') ) {
-			ele = <a id="a-link" href={encoded} target={target}>{ele}</a>
+			ele = <a id="a-link" href={link} target={target}>{ele}</a>
 		} else {
-			ele = <a id="a-link" href={`https://${encoded}`} target={target}>{ele}</a>
+			ele = <a id="a-link" href={`https://${link}`} target={target}>{ele}</a>
 		}
 	}
 

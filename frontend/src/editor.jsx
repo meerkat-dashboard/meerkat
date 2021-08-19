@@ -579,7 +579,7 @@ function VariablesModal({hide, dashboard, slug}) {
 	const addInputs = (e) => {
 		e.preventDefault();
 
-		if (inputs.length > 4) {
+		if (inputs.length > 50) {
 			alert("Max allowed variables reached");
 			return;
 		}
@@ -611,7 +611,7 @@ function VariablesModal({hide, dashboard, slug}) {
 	}
 
 	return <div class="modal-wrap" onMouseDown={hide}>
-		<div class="modal-fixed" onMouseDown={e => e.stopPropagation()}>
+		<div class="modal-fixed template-modal" onMouseDown={e => e.stopPropagation()}>
 			<div class="row">
 				<div class="col-md-4">
 					<h3>Variables</h3>
@@ -620,10 +620,10 @@ function VariablesModal({hide, dashboard, slug}) {
 				</div>
 			</div>
 			<form>
-				<div class="form-row">
+				<div class="form-row template-inputs">
 					{inputs.map((entry, i) => (
 						<div class="form-row" key={entry.id}>
-          					<div class="col-md-5" key={i}>
+          					<div class="col-md-4" key={i}>
           					  	<label for={`var${i}_key`}>Name</label>
           					  	<input
 									style="h-30p"
