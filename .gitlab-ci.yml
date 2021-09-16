@@ -13,3 +13,8 @@ build-backend:
     paths:
       - backend/meerkat
     expire_in: 1 week
+
+test:
+  image: node:lts
+  script:
+    - ls -al backend/
