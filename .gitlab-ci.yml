@@ -23,6 +23,17 @@ build-backend:
     paths:
       - ${ARTIFACTS_DIR}
 
+build-frontend:
+  stage: build
+  image: node:lts
+  script:
+    - cd frontend
+    - npm ci
+    - npm run prod
+  artifacts:
+    paths:
+      - frontend/dist/
+
 test-e2e:
   stage: test
   tags:
