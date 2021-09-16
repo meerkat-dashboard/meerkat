@@ -30,6 +30,9 @@ test:
         IcingaInsecureTLS = true
       END_CONFIG
     - ls -al /tmp/meerkat.toml
+    - pwd
+    - ls -al backend
+    - ls -al /backend
     - backend/meerkat -config /tmp/meerkat.toml &
     - curl -o - http://localhost:8585/
     - echo $?
