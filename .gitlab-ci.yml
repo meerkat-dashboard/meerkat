@@ -29,7 +29,8 @@ test:
         IcingaPassword = "$ICINGA_PASSWORD"
         IcingaInsecureTLS = true
       END_CONFIG
-    - cd backend && nohup ./meerkat -config /tmp/meerkat.toml &
+    - ls -al /tmp/meerkat.toml
+    - backend/meerkat -config /tmp/meerkat.toml &
     - curl -o - http://localhost:8585/
     - echo $?
     - MEERKAT_PID=$!
