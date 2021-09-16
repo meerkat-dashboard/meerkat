@@ -50,5 +50,5 @@ test-e2e:
       END_CONFIG
     - ${ARTIFACTS_DIR}/meerkat -config /tmp/meerkat.toml &
     - MEERKAT_PID=$!
-    - cypress run
+    - $(npm bin)/cypress run --browser chrome
     - kill $MEERKAT_PID
