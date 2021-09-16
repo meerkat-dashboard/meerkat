@@ -15,7 +15,22 @@ build-backend:
     expire_in: 1 week
 
 test:
+  tags:
+    - sol1-hq
   image: node:lts
   stage: test
   script:
-    - ls -al backend/
+    - apt-get update && apt install curl
+    - |
+      cat > /tmp/meerkat.toml <<END_CONFIG
+        HTTPAddr = "0.0.0.0:8585"
+        IcingaURL      = "$ICINGA_URL"
+        IcingaUsername = "$ICINGA_USERNAME"
+        IcingaPassword = "$ICINGA_PASSWORD"
+        IcingaInsecureTLS = true
+      END_CONFIG
+    - cd backend && nohup ./meerkat -config /tmp/meerkat.toml &
+    - curl -o - http://localhost:8585/
+    - echo $?
+    - MEERKAT_PID=$!
+    - kill $MEERKAT_PID
