@@ -38,11 +38,7 @@ test:
         IcingaPassword = "$ICINGA_PASSWORD"
         IcingaInsecureTLS = true
       END_CONFIG
-    - ls -al /tmp/meerkat.toml
-    - pwd
-    - ls -al backend
     - ${ARTIFACTS_DIR}/meerkat -config /tmp/meerkat.toml &
-    - curl -o - http://localhost:8585/
-    - echo $?
     - MEERKAT_PID=$!
+    # TODO run cypress stuff against Meerkat backend at http://localhost:8585/
     - kill $MEERKAT_PID
