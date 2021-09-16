@@ -17,7 +17,7 @@ build-backend:
     - cd ${GOPATH}/src/${GO_PROJECT}/backend
   script:
     - go get ./...
-    - go test
+    # - go test
     - go build -o ${CI_PROJECT_DIR}/${ARTIFACTS_DIR}/meerkat
   artifacts:
     paths:
