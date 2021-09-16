@@ -2,6 +2,8 @@ stages:
   - build
   - test
 
+# build backend in debian image until Cypress can build on alpine
+# https://github.com/cypress-io/cypress-docker-images/issues/110
 build-backend:
   stage: build
   image: golang:buster
