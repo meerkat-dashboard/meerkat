@@ -38,7 +38,7 @@ test-e2e:
   stage: test
   tags:
     - sol1-hq
-  image: node:lts
+  image: cypress/included:8.4.0
   script:
     - |
       cat > /tmp/meerkat.toml <<END_CONFIG
@@ -50,5 +50,5 @@ test-e2e:
       END_CONFIG
     - ${ARTIFACTS_DIR}/meerkat -config /tmp/meerkat.toml &
     - MEERKAT_PID=$!
-    # TODO run cypress stuff against Meerkat backend at http://localhost:8585/
+    - cypress run
     - kill $MEERKAT_PID
