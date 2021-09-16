@@ -3,7 +3,6 @@ stages:
   - test
 
 variables:
-  BIN_NAME: meerkat
   ARTIFACTS_DIR: artifacts
   GO_PROJECT: gitlab.sol1.net/oss/meerkat
 
@@ -15,11 +14,11 @@ build-backend:
     - mkdir -p ${GOPATH}/src/${GO_PROJECT}
     - mkdir -p ${CI_PROJECT_DIR}/${ARTIFACTS_DIR}
     - cp -r ${CI_PROJECT_DIR}/* ${GOPATH}/src/${GO_PROJECT}/
-    - cd ${GOPATH}/src/${GO_PROJECT}/${BIN_NAME}
+    - cd ${GOPATH}/src/${GO_PROJECT}/backend
   script:
     - go get ./...
     - go test
-    - go build -o ${CI_PROJECT_DIR}/${ARTIFACTS_DIR}/${BIN_NAME}
+    - go build -o ${CI_PROJECT_DIR}/${ARTIFACTS_DIR}/meerkat
   artifacts:
     paths:
       - ${ARTIFACTS_DIR}
