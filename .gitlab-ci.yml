@@ -1,0 +1,15 @@
+stages:
+  - build
+# - test
+
+build-backend:
+  image: golang:alpine
+  stage: build
+  script:
+    - apk add --update --no-cache gcc libc-dev git
+    - cd backend
+    - go build
+  artifacts:
+    paths:
+      - backend/meerkat
+    expire_in: 1 week
