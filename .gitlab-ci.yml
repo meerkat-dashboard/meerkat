@@ -1,6 +1,6 @@
 stages:
   - build
-# - test
+  - test
 
 build-backend:
   image: golang:alpine
@@ -16,5 +16,6 @@ build-backend:
 
 test:
   image: node:lts
+  stage: test
   script:
     - ls -al backend/
