@@ -2,8 +2,12 @@ stages:
   - build
   - test
 
-# build backend in debian image until Cypress can build on alpine
-# https://github.com/cypress-io/cypress-docker-images/issues/110
+# Since go binary, built on Alpine, cannot be run on Debian [read more*]
+# and Cypress container is based on debian image, [read more**]
+# we stick to using debian images, where necessary, so everything can work together.
+#
+# *  https://stackoverflow.com/questions/36279253/go-compiled-binary-wont-run-in-an-alpine-docker-container-on-ubuntu-host#answers-header
+# ** https://github.com/cypress-io/cypress-docker-images/issues/110
 build-backend:
   stage: build
   image: golang:buster
