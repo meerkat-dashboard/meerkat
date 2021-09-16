@@ -7,8 +7,8 @@ variables:
   GO_PROJECT: gitlab.sol1.net/oss/meerkat
 
 build-backend:
-  image: golang:buster
   stage: build
+  image: golang:buster
   before_script:
     - 'which git || ( apt install git )'
     - mkdir -p ${GOPATH}/src/${GO_PROJECT}
@@ -24,16 +24,16 @@ build-backend:
       - ${ARTIFACTS_DIR}
 
 test:
+test-e2e:
+  stage: test
   tags:
     - sol1-hq
   image: node:lts
-  stage: test
   script:
-    - apt-get update && apt install curl
     - |
       cat > /tmp/meerkat.toml <<END_CONFIG
         HTTPAddr = "0.0.0.0:8585"
-        IcingaURL      = "$ICINGA_URL"
+        IcingaURL = "$ICINGA_URL"
         IcingaUsername = "$ICINGA_USERNAME"
         IcingaPassword = "$ICINGA_PASSWORD"
         IcingaInsecureTLS = true
