@@ -38,7 +38,7 @@ test-e2e:
   stage: test
   tags:
     - sol1-hq
-  image: cypress/included:8.4.0
+  image: cypress/browsers:node12.14.1-chrome85-ff81
   script:
     - |
       cat > /tmp/meerkat.toml <<END_CONFIG
