@@ -1,4 +1,4 @@
-HTTPAddr = "localhost:8585"
+HTTPAddr = "0.0.0.0:8585"
 
 IcingaURL      = "https://icinga.example.com:5665"
 IcingaUsername = "api-user"
