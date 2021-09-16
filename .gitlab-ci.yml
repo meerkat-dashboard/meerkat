@@ -2,17 +2,27 @@ stages:
   - build
   - test
 
+variables:
+  BIN_NAME: meerkat
+  ARTIFACTS_DIR: artifacts
+  GO_PROJECT: gitlab.sol1.net/oss/meerkat
+
 build-backend:
-  image: golang:alpine
+  image: golang:buster
   stage: build
+  before_script:
+    - 'which git || ( apt install git )'
+    - mkdir -p ${GOPATH}/src/${GO_PROJECT}
+    - mkdir -p ${CI_PROJECT_DIR}/${ARTIFACTS_DIR}
+    - cp -r ${CI_PROJECT_DIR}/* ${GOPATH}/src/${GO_PROJECT}/
+    - cd ${GOPATH}/src/${GO_PROJECT}/${BIN_NAME}
   script:
-    - apk add --update --no-cache gcc libc-dev git
-    - cd backend
-    - go build
+    - go get ./...
+    - go test
+    - go build -o ${CI_PROJECT_DIR}/${ARTIFACTS_DIR}/${BIN_NAME}
   artifacts:
     paths:
-      - backend/meerkat
-    expire_in: 1 week
+      - ${ARTIFACTS_DIR}
 
 test:
   tags:
@@ -32,8 +42,7 @@ test:
     - ls -al /tmp/meerkat.toml
     - pwd
     - ls -al backend
-    - ls -al /backend
-    - backend/meerkat -config /tmp/meerkat.toml &
+    - $PWD/backend/meerkat -config /tmp/meerkat.toml &
     - curl -o - http://localhost:8585/
     - echo $?
     - MEERKAT_PID=$!
