@@ -23,7 +23,6 @@ build-backend:
     paths:
       - ${ARTIFACTS_DIR}
 
-test:
 test-e2e:
   stage: test
   tags:
