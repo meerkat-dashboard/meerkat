@@ -41,7 +41,7 @@ test:
     - ls -al /tmp/meerkat.toml
     - pwd
     - ls -al backend
-    - $PWD/backend/meerkat -config /tmp/meerkat.toml &
+    - ${ARTIFACTS_DIR}/meerkat -config /tmp/meerkat.toml &
     - curl -o - http://localhost:8585/
     - echo $?
     - MEERKAT_PID=$!
