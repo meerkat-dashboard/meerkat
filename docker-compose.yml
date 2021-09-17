@@ -10,3 +10,26 @@ services:
       - ./dashboards-data:/meerkat/dashboards-data
     ports:
       - 8585:8585
+
+  backend-dev:
+    build:
+      context: .
+      target: backend-build
+    working_dir: /tmp
+    command: sh -c "
+      cp backend/meerkat . &&
+      ./meerkat -config config/meerkat.toml
+      "
+    volumes:
+      - ./backend:/tmp/backend
+      - ./frontend:/tmp/frontend
+      - ./config:/tmp/config
+    ports:
+      - 8585:8585
+
+  frontend-dev:
+    image: node:lts
+    working_dir: /tmp/frontend
+    command: npm run dev
+    volumes:
+      - ./frontend:/tmp/frontend

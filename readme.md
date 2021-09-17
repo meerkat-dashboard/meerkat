@@ -107,6 +107,16 @@ Future enhancements may include:
 * Automation for creation of the dashboard config, allowing for easy mass creation of dashboards from Icinga data
 * Automation for export of Meerkat dashboards to Business Processes
 
+### Development with Docker Compose
+
+```
+host$ cp config/meerkat.toml.example config/meerkat.toml
+host$ # customize config/meerkat.toml
+host$ docker-compose up backend-dev frontend-dev
+host$ curl localhost:8585
+host$ # hack backend/* frontend/src/*
+host$ # profit!
+```
 
 ### Support
 Sol1 is an official Icinga Enterprise Partner, and can offer commercial support for Meerkat and Icinga and friends. We are a friendly bunch of people, so please don't hesitate to get in touch at http://sol1.com.au
