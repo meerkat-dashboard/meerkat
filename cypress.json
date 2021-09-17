@@ -1,4 +1,4 @@
 {
   "baseUrl": "http://localhost:8585",
-  "ignoreTestFiles": "*.md"
+  "testFiles": "**/*.spec.js"
 }
