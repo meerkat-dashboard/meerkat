@@ -7,8 +7,17 @@
 /frontend/dist
 /config/meerkat.toml
 deploy.txt
-/dashboards
 
 # MacOS stuff [read more*]
 # * https://en.wikipedia.org/wiki/.DS_Store
 .DS_Store
+
+# stuff generated from container
+#
+# As of 17 Sep 2021,
+# when running docker-compose up [see docker-compose.yml],
+# the host's current directory is mounted inside container, so
+# any files/folders that are written, inside the container,
+# show up on the current directory of the host.
+dashboards/
+dashboards-data/
