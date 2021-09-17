@@ -18,7 +18,7 @@ func handleCreateTemplate(w http.ResponseWriter, r *http.Request) {
 	templateID := r.URL.Query().Get("templateid")
 
 	if templateID == "" {
-		http.Error(w, "Template id must supplied", http.StatusBadRequest)
+		http.Error(w, "Please provide templateid in querystring and try again, e.g. http://meerkat.host/template?templateid=mydashboard", http.StatusBadRequest)
 		return
 	}
 

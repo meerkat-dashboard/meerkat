@@ -101,28 +101,38 @@ func main() {
 
 	r.Handle("/_groupcache/", cachepool)
 
+	// dashboard create, read, update, delete
 	r.Get("/dashboard", handleListDashboards)
 	r.Get("/dashboard/{slug}", handleListDashboard)
 	r.Post("/dashboard", handleCreateDashboard)
-
-	r.Post("/settings", handleChangeSettings)
-	r.Get("/settings", handleGetSettings)
-
 	r.Post("/dashboard/{slug}", handleUpdateDashboard)
 	r.Delete("/dashboard/{slug}", handleDeleteDashboard)
 
+	// settings - what these used for?
+	r.Get("/settings", handleGetSettings)
+	r.Post("/settings", handleChangeSettings)
+
+	// relay to icinga server
+	// browser <-> meerkat <-> icinga
 	r.Get("/icinga/{check-type}", handleIcingaCheck)
 	r.Get("/icinga/dynamic_text/{host-name}", handleIcingaVars)
 	r.Get("/icinga/{check-type}/{object-id}", handleIcingaCheck)
-
 	r.Get("/icinga/check_state", handleIcingaCheckState)
 	r.Get("/icinga/check_result", handleCheckResult)
 
+	// find and return dashboard json (useful for debugging),
+	// e.g. GET /template?templateid=ha.json
+	// would stream back content of /path/to/meerkat/root/dashboards/ha.json
 	r.Get("/template", handleCreateTemplate)
 
+	// persist user uploaded files onto server's local filesystem
 	r.Post("/upload", handleUpload)
+
+	// serve static assets, referenced in dashboard json configurations
 	r.Handle("/dashboards-data/*", http.StripPrefix("/dashboards-data/", http.FileServer(http.Dir("./dashboards-data"))))
 
+	// serve frontend stuff
+	// otherwise, 404 when nothing is found
 	r.NotFound(createFileHandler("./frontend"))
 
 	fmt.Printf("Starting web server: %s\n", config.HTTPAddr)
