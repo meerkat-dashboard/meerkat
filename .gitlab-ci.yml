@@ -43,8 +43,11 @@ test-e2e:
         IcingaPassword = "$ICINGA_PASSWORD"
         IcingaInsecureTLS = true
       END_CONFIG
-    - cd backend
-    - ./meerkat -config /tmp/meerkat.toml &
+    - |
+      cat > settings.json <<EOSETTINGS
+      {"appName":"Meerkat for fun & profits"}
+      EOSETTINGS
+    - backend/meerkat -config /tmp/meerkat.toml &
     - MEERKAT_PID=$!
     - npx cypress run --browser chrome
     - kill $MEERKAT_PID
