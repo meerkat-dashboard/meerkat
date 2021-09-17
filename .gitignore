@@ -8,3 +8,7 @@
 /config/meerkat.toml
 deploy.txt
 /dashboards
+
+# MacOS stuff [read more*]
+# * https://en.wikipedia.org/wiki/.DS_Store
+.DS_Store
