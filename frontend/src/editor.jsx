@@ -422,7 +422,7 @@ function SidePanelSettings({dashboardDispatch, dashboard}) {
 	return <Fragment>
 		<label for="title">Title</label>
 		<input class="form-control" type="text" id="title" placeholder="Network Overview" value={dashboard.title}
-			onInput={e => dashboardDispatch({type: 'setTitle', title: e.currentTarget.value})} />
+			onInput={e => dashboardDispatch({type: 'setTitle', title: e.currentTarget.value})} data-cy="dashboard:title" />
 
 		<TagEditor tags={dashboard.tags} updateTags={tags => updateTags(tags)} />
 
