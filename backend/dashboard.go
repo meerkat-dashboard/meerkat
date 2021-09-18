@@ -269,9 +269,12 @@ func handleUpdateDashboard(w http.ResponseWriter, r *http.Request) {
 
 	var dashboard Dashboard
 	err := json.Unmarshal(buf.Bytes(), &dashboard)
-	width, height := getImageDimension(trimFirstRune(dashboard.Background))
-	dashboard.Height = strconv.Itoa(height)
-	dashboard.Width = strconv.Itoa(width)
+
+	width, height, err := getImageDimension(trimFirstRune(dashboard.Background))
+	if err != nil {
+		dashboard.Height = strconv.Itoa(height)
+		dashboard.Width = strconv.Itoa(width)
+	}
 
 	if err != nil {
 		log.Printf("JSON decode failure: %w", err.Error())
