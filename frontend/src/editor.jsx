@@ -361,7 +361,7 @@ export function DashboardView({dashboard, dashboardDispatch, selectedElementId, 
 
 	return <div class="dashboard-wrap" style={{ Height: backgroundImage ? dashboard.height : '100vh', Width: backgroundImage ? dashboard.width : '100vw'}}>
 		<div class="dashboard" style={{ Height: backgroundImage ? dashboard.height : '100%', Width: backgroundImage ? dashboard.width : '100%'}}>
-			{backgroundImage ? <img src={backgroundImage} class="noselect" style="height: 100%; width: 100%;" id="dashboard-dimensions"/> : <div class="noselect" style="height: 95vh; width: 70vh"></div>}
+			{backgroundImage ? <img src={backgroundImage} class="noselect" style="height: 100%; width: 100%;" id="dashboard-dimensions" data-cy="dashboard:background" /> : <div class="noselect" style="height: 95vh; width: 70vh"></div>}
 
 			<DashboardElements slug={slug} elements={dashboard.elements} dashboard={dashboard} selectedElementId={selectedElementId}
 				dashboardDispatch={dashboardDispatch} highlightedElementId={highlightedElementId}/>
@@ -405,7 +405,7 @@ function SidePanelSettings({dashboardDispatch, dashboard}) {
 	const imgControls = src => {
 		if(src) {
 			return <Fragment>
-				<a onClick={clearBackground}>clear</a>&nbsp;
+				<a onClick={clearBackground} data-cy="dashboard#remove_background">clear</a>&nbsp;
 				<a target="_blank" href={src}>view</a>
 			</Fragment>
 		}
@@ -428,7 +428,7 @@ function SidePanelSettings({dashboardDispatch, dashboard}) {
 
 		<label for="background-image">Background Image {imgControls(dashboard.background)}</label>
 		<input class="form-control" id="background-image" type="file" placeholder="Upload a background image"
-			accept="image/*" onChange={handleBackgroundImg}/>
+			accept="image/*" onChange={handleBackgroundImg} data-cy="dashboard-background_input"/>
 		<label class="status-font-size">Mute Status Alerts</label>
     	<input type="checkbox" defaultChecked={dashboard.globalMute} onChange={e => muteAlerts(e)} class="form-control mute-sounds"/>
 		<br/>
