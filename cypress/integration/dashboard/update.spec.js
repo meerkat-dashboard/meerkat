@@ -41,6 +41,8 @@ describe('Dashboard update', () => {
 			mimeType: 'image/png',
 		})
   		.trigger('change', { force: true })
+		cy.intercept('POST', '/upload').as('uploadBackgroundImage')
+		cy.wait('@uploadBackgroundImage')
 		cy.contains('Save Dashboard').click()
 		cy.reload(true)
 		cy.get('[data-cy="dashboard:background"]')
