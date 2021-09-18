@@ -36,18 +36,19 @@ test-e2e:
   image: cypress/browsers:node12.14.1-chrome85-ff81
   script:
     - |
-      cat > /tmp/meerkat.toml <<END_CONFIG
+      cat > meerkat.toml <<EOCONFIG
         HTTPAddr = "0.0.0.0:8585"
         IcingaURL = "$ICINGA_URL"
         IcingaUsername = "$ICINGA_USERNAME"
         IcingaPassword = "$ICINGA_PASSWORD"
         IcingaInsecureTLS = true
-      END_CONFIG
+      EOCONFIG
     - |
       cat > settings.json <<EOSETTINGS
       {"appName":"Meerkat for fun & profits"}
       EOSETTINGS
-    - backend/meerkat -config /tmp/meerkat.toml &
+    - cp $CI_PROJECT_DIR/backend/meerkat .
+    - ./meerkat &
     - MEERKAT_PID=$!
     - npx cypress run --browser chrome
     - kill $MEERKAT_PID
