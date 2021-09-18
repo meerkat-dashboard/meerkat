@@ -18,6 +18,10 @@ import (
 	"github.com/mailgun/groupcache/v2"
 )
 
+func init() {
+	log.SetFlags(log.LstdFlags | log.Llongfile)
+}
+
 func initDirs() error {
 	requiredDirs := []string{"dashboards", "dashboards-data"}
 
