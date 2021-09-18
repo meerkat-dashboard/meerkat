@@ -263,30 +263,30 @@ func trimFirstRune(s string) string {
 func handleUpdateDashboard(w http.ResponseWriter, r *http.Request) {
 	slug := chi.URLParam(r, "slug")
 
-	//Decode body
-	buf := new(bytes.Buffer)
-	buf.ReadFrom(r.Body)
-
-	var dashboard Dashboard
-	err := json.Unmarshal(buf.Bytes(), &dashboard)
-
-	width, height, err := getImageDimension(trimFirstRune(dashboard.Background))
-	if err != nil {
-		dashboard.Height = strconv.Itoa(height)
-		dashboard.Width = strconv.Itoa(width)
+	//Check dashboard exists
+	if _, err := os.Stat(path.Join("dashboards", slug+".json")); os.IsNotExist(err) {
+		http.Error(w, "Not found", http.StatusNotFound)
+		return
 	}
 
+	//Decode body
+	var dashboard Dashboard
+	buf := new(bytes.Buffer)
+	buf.ReadFrom(r.Body)
+	err := json.Unmarshal(buf.Bytes(), &dashboard)
 	if err != nil {
 		log.Printf("JSON decode failure: %w", err.Error())
 		http.Error(w, "Error decoding json body: "+err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	//Check dashboard exists
-	if _, err := os.Stat(path.Join("dashboards", slug+".json")); os.IsNotExist(err) {
-		http.Error(w, "Not found", http.StatusNotFound)
-		return
+	//Set dimension of background
+	width, height, err := getImageDimension(trimFirstRune(dashboard.Background))
+	if err != nil {
+		dashboard.Background = ""
 	}
+	dashboard.Height = strconv.Itoa(height)
+	dashboard.Width = strconv.Itoa(width)
 
 	//Convert title to slug
 	slugNew := titleToSlug(dashboard.Title)
