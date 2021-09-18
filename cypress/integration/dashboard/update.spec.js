@@ -40,14 +40,16 @@ describe('Dashboard update', () => {
 			fixturePath: 'Evolution-from-4G-Network-to-5G-Network.png',
 			mimeType: 'image/png',
 		})
-  		.trigger('change', { force: true });
+  		.trigger('change', { force: true })
 		cy.contains('Save Dashboard').click()
 		cy.reload(true)
 		cy.get('[data-cy="dashboard:background"]')
 		.should('be.visible')
 
 		// remove background
-		cy.get('[data-cy="dashboard#remove_background"]')
+		cy.get('[data-cy="dashboard#remove_background"]').click()
+		cy.contains('Save Dashboard').click()
+		cy.reload(true)
 		cy.get('[data-cy="dashboard:background"]')
 		.should('not.exist')
 	})

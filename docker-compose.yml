@@ -30,8 +30,8 @@ x-backend-development: &backend-development
     - ./backend/settings.json:/app/settings.json
     - ./frontend:/app/frontend
     - ./config/meerkat.toml:/app/meerkat.toml
-    - ./backend/dashboards:/app/dashboards
-    - ./backend/dashboards-data:/app/dashboards-data
+      #- ./backend/dashboards:/app/dashboards
+      #- ./backend/dashboards-data:/app/dashboards-data
   ports:
     - 8585:8585
 
