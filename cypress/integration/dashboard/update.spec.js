@@ -15,12 +15,12 @@ describe('Dashboard update', () => {
 		.type('ABC News')
 		cy.contains('Save Dashboard').click()
 		cy.visit('/edit/abc-news')
-		cy.get('[data-cy="dashboard:title"]').should('have.value', 'ABC News')
+		cy.contains('ABC News').should('be.visible')
 	})
 
 	it('updates dashboard tags', () => {
 		// add tag
-		cy.get('[data-cy="dashboard-tag_input"]')
+		cy.get('[data-cy="dashboard:tag"]')
 		  .type('onfire{enter}')
 		cy.contains('Save Dashboard').click()
 		cy.reload(true)
@@ -28,9 +28,9 @@ describe('Dashboard update', () => {
 
 		// remove tag
 		cy.get('[data-cy="dashboard#remove-tag"]').click()
-		cy.get('[data-cy="dashboard:tag"]').should('not.exist');
+		cy.contains('onfire').should('not.exist');
 		cy.reload(true)
-		cy.get('[data-cy="dashboard:tag"]').should('not.exist');
+		cy.contains('onfire').should('not.exist');
 	})
 
 	it('updates dashboard background image', () => {
