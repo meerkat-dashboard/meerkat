@@ -1,5 +1,6 @@
 describe('When renaming dashboard to the same id as an existing one', () => {
 	beforeEach(() => {
+		// create abc and abc-news dashboards
 		cy.request({
 			method: 'POST',
 			url: '/dashboard',
@@ -21,7 +22,7 @@ describe('When renaming dashboard to the same id as an existing one', () => {
 		cy.visit('/edit/abc-news')
 		cy.get('[data-cy="dashboard:title"]').clear().type('ABC')
 		cy.contains('Save Dashboard').click()
-		cy.url().should('include', '/abc')
+		cy.url().should('include', '/edit/abc')
 		cy.contains('onfire').should('be.visible')
 	})
 })

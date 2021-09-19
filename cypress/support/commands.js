@@ -24,4 +24,5 @@
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
 
-import './attach_file'
+import './commands/clear_dashboards'
+import './commands/attach_file'

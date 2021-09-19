@@ -17,5 +17,10 @@ describe('Dashboard read', () => {
 		cy.visit('/')
 		cy.contains("ABC").should('be.visible')
 		cy.contains("SBS").should('be.visible')
+
+		cy.visit('/view/abc')
+		cy.url().should('include', '/view/abc')
+		cy.visit('/view/sbs')
+		cy.url().should('include', '/view/sbs')
 	})
 })
