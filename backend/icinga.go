@@ -256,12 +256,34 @@ func handleIcingaCheckState(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var enc []byte
+	/**
+	 * meerkat has two modes of operation:
+	 * 1. edit: dashboard is being customized
+	 * 2. view: dashboard is being viewed on a screen
+	 *
+	 * when editing, on cache miss, check state is re-fetched, and cached value updated
+	 * when viewing, simply read and return cached value, because cache is assumed to be warm
+	 *
+	 * TODO implement re-fetching when editing dashboard
+	 */
 	key := strings.Join([]string{object_type, filter}, string(rune(0)))
 	if err := cache.Get(r.Context(), key, groupcache.AllocatingByteSliceSink(&enc)); err != nil {
 		log.Printf("Cache retrieval failed: %w", err)
 		http.Error(w, "Cache retrieval failed", http.StatusInternalServerError)
 		return
 	}
+
+	/**
+	 * FIXME remove hack once cache is properly maintained for editing and viewing dashboard
+	 *
+	 * silence error in frontend
+	 * SyntaxError: Unexpected end of JSON input
+	 * read more at https://gitlab.sol1.net/oss/meerkat/-/issues/56
+	 */
+	if len(enc) == 0 {
+		enc = []byte("{}") // or {"MaxState":0,"Acknowledged":0}
+	}
+	// /FIXME remove hack once cache is properly maintained for editing and viewing dashboard
 
 	w.Write(enc)
 }

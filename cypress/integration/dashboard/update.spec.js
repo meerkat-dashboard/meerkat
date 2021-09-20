@@ -14,7 +14,7 @@ describe('Dashboard update', () => {
 		.clear()
 		.type('ABC News')
 		cy.contains('Save Dashboard').click()
-		cy.visit('/edit/abc-news')
+		cy.location('pathname').should('equal', '/edit/abc-news')
 		cy.contains('ABC News').should('be.visible')
 	})
 
@@ -23,36 +23,38 @@ describe('Dashboard update', () => {
 		cy.get('[data-cy="dashboard:tag"]')
 		  .type('onfire{enter}')
 		cy.contains('Save Dashboard').click()
-		cy.reload(true)
 		cy.contains('onfire').should('be.visible')
+		cy.reload()
+		.contains('onfire').should('be.visible')
 
 		// remove tag
 		cy.get('[data-cy="dashboard#remove-tag"]').click()
-		cy.contains('onfire').should('not.exist');
-		cy.reload(true)
-		cy.contains('onfire').should('not.exist');
+		cy.contains('onfire').should('not.exist')
+		cy.reload()
+		.contains('onfire').should('not.exist')
 	})
 
 	it('updates dashboard background image', () => {
+		cy.intercept('POST', '/upload').as('uploadBackgroundImage')
+
 		// add background
-		cy.get('[data-cy="dashboard-background_input"]')
+		cy.get('input[data-cy="dashboard:background"]')
   		.attachFile({
 			fixturePath: 'Evolution-from-4G-Network-to-5G-Network.png',
 			mimeType: 'image/png',
 		})
   		.trigger('change', { force: true })
-		cy.intercept('POST', '/upload').as('uploadBackgroundImage')
 		cy.wait('@uploadBackgroundImage')
 		cy.contains('Save Dashboard').click()
-		cy.reload(true)
-		cy.get('[data-cy="dashboard:background"]')
-		.should('be.visible')
+		cy.get('img[data-cy="dashboard:background"]').should('be.visible')
+		cy.reload()
+		.get('img[data-cy="dashboard:background"]').should('be.visible')
 
 		// remove background
 		cy.get('[data-cy="dashboard#remove_background"]').click()
+		cy.get('img[data-cy="dashboard:background"]').should('not.exist')
 		cy.contains('Save Dashboard').click()
-		cy.reload(true)
-		cy.get('[data-cy="dashboard:background"]')
-		.should('not.exist')
+		cy.reload()
+		.get('img[data-cy="dashboard:background"]').should('not.exist')
 	})
 })
