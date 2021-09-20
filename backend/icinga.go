@@ -263,6 +263,15 @@ func handleIcingaCheckState(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	/**
+	 * silence error in frontend
+	 * SyntaxError: Unexpected end of JSON input
+	 * read more at https://gitlab.sol1.net/oss/meerkat/-/issues/56
+	 */
+	if len(enc) == 0 {
+		enc = []byte("{}") // or {"MaxState":0,"Acknowledged":0}
+	}
+
 	w.Write(enc)
 }
 
