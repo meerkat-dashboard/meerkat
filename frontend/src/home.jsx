@@ -69,13 +69,13 @@ function CreateDashboardModal({ hide }) {
 			<form onSubmit={createDashboard}>
 				<label for="title">Title</label>
 				<input class="form-control" id="title" name="title" type="text" placeholder="New Dashboard"
-					value={title} onInput={e => setTitle(e.currentTarget.value)} />
+					value={title} onInput={e => setTitle(e.currentTarget.value)} data-cy="dashboard:title" />
 
 				<label>Result url</label>
 				<CopyTextBox text={window.location.host + '/view/' + titleToSlug(title)} />
 
 				<div class="right" style="margin-top: 20px">
-					<button class="rounded btn-primary btn-large" type="submit">Create</button>
+					<button class="rounded btn-primary btn-large" type="submit" data-cy="dashboard#create">Create</button>
 				</div>
 			</form>
 		</div>
@@ -231,7 +231,7 @@ function DeleteConfirmation({ slug, loadDashboards }) {
 	};
 
 	return <Fragment>
-				<a onClick={e => setShowConfirmation(true)}>delete</a>
+				<a onClick={e => setShowConfirmation(true)} data-cy="dashboard#delete">delete</a>
 				{showConfirmation
 					?
 					<Modal key={`template-modal-${slug}`} show={showConfirmation} onClose={e => closeModal(e)}>
@@ -241,7 +241,7 @@ function DeleteConfirmation({ slug, loadDashboards }) {
 								<label class="template-label">Are you sure you want to delete this dashboard?</label>
 								<br/>
 								<button class="rounded btn-primary btn-large mr-2" type="submit" onClick={e => closeModal(e)}>No</button>
-								<button class="rounded btn-primary btn-large" type="submit" onClick={e => deleteDashboard(e, slug)}>Yes</button>
+								<button class="rounded btn-primary btn-large" type="submit" onClick={e => deleteDashboard(e, slug)} data-cy="#confirm">Yes</button>
 							</div>
 						</div>
 					</Modal>
@@ -330,7 +330,7 @@ function SettingsModal({ hide }) {
 			<form onSubmit={changeSettings}>
 				<label for="title">App Name</label>
 				<input class="form-control" id="title" name="title" type="text" placeholder="New App Name"
-					value={title} onInput={e => setTitle(e.currentTarget.value)} />
+					value={title} onInput={e => setTitle(e.currentTarget.value)} data-cy="dashboard:title" />
 
 				<div class="right" style="margin-top: 20px">
 					<button class="rounded btn-primary btn-large" type="submit">Submit</button>

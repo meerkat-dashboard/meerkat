@@ -18,6 +18,10 @@ import (
 	"github.com/mailgun/groupcache/v2"
 )
 
+func init() {
+	log.SetFlags(log.LstdFlags | log.Llongfile)
+}
+
 func initDirs() error {
 	requiredDirs := []string{"dashboards", "dashboards-data"}
 
@@ -108,7 +112,7 @@ func main() {
 	r.Post("/dashboard/{slug}", handleUpdateDashboard)
 	r.Delete("/dashboard/{slug}", handleDeleteDashboard)
 
-	// settings - what these used for?
+	// settings - custom branding, white labeling
 	r.Get("/settings", handleGetSettings)
 	r.Post("/settings", handleChangeSettings)
 

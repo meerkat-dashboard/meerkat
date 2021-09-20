@@ -513,7 +513,7 @@ export function TagEditor({tags, updateTags}) {
 	const tagElements = tags.map((tag, i) => {
 		return <div class="pill tag btn-dark">
 			<span>{tag}</span>
-			<span class="close-icon" onClick={e => removeTag(i)}>x</span>
+			<span class="close-icon" onClick={e => removeTag(i)} data-cy="dashboard#remove-tag">x</span>
 		</div>
 	})
 
@@ -522,7 +522,8 @@ export function TagEditor({tags, updateTags}) {
 			<label for="add-tag">Tags <span class="subtle tiny">Enter to submit</span></label>
 			{tagElements}
 			<input class="form-control" type="text" id="add-tag" name="add-tag" ref={inputRef} placeholder="Enter a new tag"
-				pattern="[a-z\d\-_]+" title="only lower case letters, numbers, '-' and '_' are allowed"/>
+				pattern="[a-z\d\-_]+" title="only lower case letters, numbers, '-' and '_' are allowed"
+				data-cy="dashboard:tag" />
 		</form>
 	</Fragment>
 }

@@ -22,17 +22,19 @@ type ResponseURL struct {
 	URL string `json:"url"`
 }
 
-func getImageDimension(imagePath string) (int, int) {
+func getImageDimension(imagePath string) (int, int, error) {
 	file, err := os.Open(imagePath)
 	if err != nil {
 		log.Println(err)
+		return 0, 0, err
 	}
 
 	image, _, err := image.DecodeConfig(file)
 	if err != nil {
 		log.Println(imagePath, err)
+		return 0, 0, err
 	}
-	return image.Width, image.Height
+	return image.Width, image.Height, nil
 }
 
 func handleUpload(w http.ResponseWriter, r *http.Request) {

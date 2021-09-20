@@ -26,7 +26,6 @@ docker stack deploy -c docker-compose.yml meerkat
 The default `docker-compose.yml` uses the directories `config/` `dashboards/` and `dashboards/` for data persistance.  Feel free to edit docker-compose.yml as you see fit though, of course.
 
 We have also included a Dockerfile in case you want to build your own image.
-The Makefile also has a few very helpful options for developers.
 
 ### Build without Docker
 You will need an up to date go, and an up to date npm install to build Meerkat. The steps below aren't tested with each release, but should get you started.
@@ -107,6 +106,18 @@ Future enhancements may include:
 * Automation for creation of the dashboard config, allowing for easy mass creation of dashboards from Icinga data
 * Automation for export of Meerkat dashboards to Business Processes
 
+### Development with Docker Compose
+
+Please install [Docker Desktop](https://www.docker.com/products/docker-desktop).
+
+```
+host$ cp config/meerkat.toml.example config/meerkat.toml
+host$ # customize config/meerkat.toml
+host$ docker-compose up backend-dev frontend-dev
+host$ curl localhost:8585
+host$ # hack backend/* frontend/src/*
+host$ # profit!
+```
 
 ### Support
 Sol1 is an official Icinga Enterprise Partner, and can offer commercial support for Meerkat and Icinga and friends. We are a friendly bunch of people, so please don't hesitate to get in touch at http://sol1.com.au
