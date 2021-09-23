@@ -1,5 +1,6 @@
 import { h, Fragment } from 'preact';
 import { useState, useEffect} from 'preact/hooks';
+
 import * as meerkat from '../meerkat';
 import { icingaResultCodeToCheckState, IcingaCheckList, getPerfData, alertSounds } from '../util';
 
@@ -73,7 +74,7 @@ export function CheckCardOptions({options, updateOptions}) {
 }
 
 const PerfDataOptions = ({options, updateOptions}) => {
-	const [perfData, setPerfData] = useState(null);
+	const [perfData, setPerfData] = useState({});
 	const [objID, setObjID] = useState(null);
 
 	useEffect(() => {
@@ -88,22 +89,31 @@ const PerfDataOptions = ({options, updateOptions}) => {
 		getPerfData(options, setPerfData);
 	}
 
-	if (perfData === null) {
+	if (perfData.performanceData === null || typeof perfData.performanceData === "undefined") {
 		return <div><label>No Performance Data Available</label><br/></div>
 	}
 
 	return <Fragment>
-		<label id="perf-mode" class="status-font-size">Performance Data Mode</label>
-		<input type="checkbox" defaultChecked={options.perfDataMode} onClick={e => updateOptions({perfDataMode: e.currentTarget.checked})} class="form-control perf-data-mode"/>
+		<div class="flex items-center">
+			<input id="perf-data-mode-checkbox" name="data-mode" type="checkbox" defaultChecked={options.perfDataMode} onClick={e => updateOptions({perfDataMode: e.currentTarget.checked})} />
+			<label class="status-font-size" for="perf-data-mode-checkbox">Performance Data Mode</label>
+		</div>
 		{options.perfDataMode ?
 			<select onInput={e => updateOptions({perfDataSelection: e.currentTarget.value})} value={options.perfDataSelection}>
 				<option value={null} selected disabled>Choose away...</option>
-					{Object.keys(perfData).map(perf => (
-						<option key={perf} value={perf}>
-							{perf.toUpperCase()}
-						</option>
-					))}
+				{Object.keys(perfData.performanceData).map(perf => (
+					<option key={perf} value={perf}>{perf.toUpperCase()}</option>
+				))}
+				{perfData.pluginOutput ?
+					<option value="plugin_output">Plugin Output</option>
+				: null }
 			</select>
+		: null}
+		{options.perfDataSelection === 'plugin_output' ?
+			<div>
+				<input class="form-control" type="text" />
+				<small class="form-text text-muted">extract with default, e.g. /firmware=(.+)/;None</small>
+			</div>
 		: null}
 	</Fragment>
 }
