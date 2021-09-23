@@ -25,10 +25,15 @@ export function CheckCard({options, slug, dashboard}) {
 	const perfDataSelected = (perfData) => {
 		if (options.perfDataSelection === 'plugin_output') {
 			console.log('Plugin Output:', perfData.pluginOutput)
-			const pattern = new RegExp(options.pluginOutputPattern)
-			const extractedValues = (perfData.pluginOutput || "").match(pattern)
+			let pattern
+			try {
+				pattern = new RegExp(options.pluginOutputPattern)
+			} catch (e) {
+				console.error(e)
+			}
+			const extractedValues = pattern && (perfData.pluginOutput || "").match(pattern)
 			if (options.pluginOutputPattern && options.pluginOutputPattern.length > 0 && extractedValues) {
-				setPerfValue(extractedValues.length > 1 ? extractedValues[-1] : extractedValues[0])
+				setPerfValue(extractedValues.length > 1 ? extractedValues[extractedValues.length-1] : extractedValues[0])
 			} else if (options.pluginOutputDefault) {
 				setPerfValue(options.pluginOutputDefault)
 			} else {
@@ -118,11 +123,15 @@ const PerfDataOptions = ({options, updateOptions}) => {
 
 	return <Fragment>
 		<div class="flex items-center">
-			<input id="perf-data-mode-checkbox" name="data-mode" type="checkbox" defaultChecked={options.perfDataMode} onClick={e => updateOptions({perfDataMode: e.currentTarget.checked})} />
+			<input id="perf-data-mode-checkbox" name="data-mode" type="checkbox" defaultChecked={options.perfDataMode} onClick={e => updateOptions({perfDataMode: e.currentTarget.checked})} data-cy="card:checkPerformanceData" />
 			<label class="status-font-size" for="perf-data-mode-checkbox">Performance Data Mode</label>
 		</div>
 		{options.perfDataMode ?
-			<select onInput={e => updateOptions({perfDataSelection: e.currentTarget.value})} value={options.perfDataSelection}>
+			<select
+				onInput={e => updateOptions({perfDataSelection: e.currentTarget.value})}
+				value={options.perfDataSelection}
+				data-cy="card:checkPerformanceOptions"
+			>
 				<option value={null} selected disabled>Choose away...</option>
 				{Object.keys(perfData.performanceData).map(perf => (
 					<option key={perf} value={perf}>{perf.toUpperCase()}</option>
@@ -134,8 +143,22 @@ const PerfDataOptions = ({options, updateOptions}) => {
 		: null}
 		{options.perfDataSelection === 'plugin_output' ?
 			<div>
-				<input class="form-control" type="text" title="Regexp Pattern" placeholder="Enter regexp pattern" onInput={e => updateOptions({pluginOutputPattern: e.currentTarget.value})} />
-				<input class="form-control my-2" type="text" title="Value to display when regexp does NOT match" placeholder="Enter value when regexp does NOT match" onInput={e => updateOptions({pluginOutputDefault: e.currentTarget.value})} />
+				<input
+					class="form-control"
+					type="text"
+					title="Regexp Pattern"
+					placeholder="Enter regexp pattern"
+					onInput={e => updateOptions({pluginOutputPattern: e.currentTarget.value})}
+					data-cy="card:pluginOutputRegexp"
+				/>
+				<input
+					class="form-control my-2"
+					type="text"
+					title="Value to display when regexp does NOT match"
+					placeholder="Enter value when regexp does NOT match"
+					onInput={e => updateOptions({pluginOutputDefault: e.currentTarget.value})}
+					data-cy="card:pluginOutputDefault"
+				/>
 			</div>
 		: null}
 	</Fragment>

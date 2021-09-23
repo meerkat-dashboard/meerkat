@@ -721,7 +721,7 @@ function SidePanelElements({dashboard, dashboardDispatch, setHighlightedElementI
 		<div class="lefty-righty spacer">
 			<h3>Elements</h3>
 			<span style="display: inline;float: right;">
-				<button class="small btn btn-outline-primary" onClick={addElement}>New</button>
+				<button class="small btn btn-outline-primary" onClick={addElement} data-cy="dashboard#new_element">New</button>
 				<button style="margin-left: 5px" class="small btn btn-outline-primary" onClick={e => setShowVars(true)}>Vars</button>
 			</span>
 		</div>
@@ -809,7 +809,7 @@ export function ElementSettings({selectedElement, updateElement}) {
 					onInput={e => updateElement({...selectedElement, title: e.currentTarget.value})} />
 
 				<label>Visual Type</label>
-				<select class="form-control" name="item-type" value={selectedElement.type} onInput={updateType}>
+				<select class="form-control" name="item-type" value={selectedElement.type} onInput={updateType} data-cy="element:type">
 					<option value="check-card">Icinga Card</option>
 					<option value="check-svg">Icinga SVG</option>
 					<option value="check-image">Icinga Image</option>

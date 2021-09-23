@@ -126,7 +126,17 @@ export function IcingaCheckList({currentCheckopts, updateOptions}) {
 			}
 
 			if (opts !== null) {
-				input = <Combobox filter='contains' placeholder="Choose away..." textField='id' valueField='id' defaultValue={value} data={opts} onSelect={updateOptions} />
+				input =
+					<Combobox
+						filter='contains'
+						placeholder="Choose away..."
+						textField='id'
+						valueField='id'
+						defaultValue={value}
+						data={opts}
+						onSelect={updateOptions}
+						data-cy="card:check_options"
+					/>
 			}
 
 			if (input !== null) {
@@ -148,7 +158,15 @@ export function IcingaCheckList({currentCheckopts, updateOptions}) {
 	]
 
 	return <div>
-		<Combobox placeholder="Make your choice..." onChange={s => { setSelection(s.value); updateOptions({selection: s.value}) }} defaultValue={selection} data={selectionTypes} valueField="value" textField="label" />
+		<Combobox
+			placeholder="Make your choice..."
+			onChange={s => { setSelection(s.value); updateOptions({selection: s.value}) }}
+			defaultValue={selection}
+			data={selectionTypes}
+			valueField="value"
+			textField="label"
+			data-cy="card:check"
+		/>
 		<br/>
 		{typeOptions}
 	</div>
