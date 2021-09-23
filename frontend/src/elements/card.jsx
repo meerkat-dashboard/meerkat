@@ -25,17 +25,12 @@ export function CheckCard({options, slug, dashboard}) {
 	const perfDataSelected = (perfData) => {
 		if (options.perfDataSelection === 'plugin_output') {
 			console.log('Plugin Output:', perfData.pluginOutput)
-			const matches = (options.pluginOutputPattern || "").match(/\/([^/]*)\/;?(.*)/)
-			if (matches) {
-				const pattern = new RegExp(matches[1])
-				const extractedValues = (perfData.pluginOutput || "").match(pattern)
-				if (extractedValues) {
-					setPerfValue(extractedValues[1] || extractedValues[0])
-				} else if (matches[2]) {
-					setPerfValue(matches[2])
-				} else {
-					setPerfValue('useCheckState')
-				}
+			const pattern = new RegExp(options.pluginOutputPattern)
+			const extractedValues = (perfData.pluginOutput || "").match(pattern)
+			if (options.pluginOutputPattern && options.pluginOutputPattern.length > 0 && extractedValues) {
+				setPerfValue(extractedValues.length > 1 ? extractedValues[-1] : extractedValues[0])
+			} else if (options.pluginOutputDefault) {
+				setPerfValue(options.pluginOutputDefault)
 			} else {
 				setPerfValue('useCheckState')
 			}
@@ -62,7 +57,13 @@ export function CheckCard({options, slug, dashboard}) {
 			const intervalID = window.setInterval(updateState, 30*1000)
 			return () => window.clearInterval(intervalID);
 		}
-	}, [options.objectType, options.filter, options.perfDataSelection, options.pluginOutputPattern]);
+	}, [
+		options.objectType,
+		options.filter,
+		options.perfDataSelection,
+		options.pluginOutputPattern,
+		options.pluginOutputDefault,
+	]);
 
 	return <div class={"check-content card " + checkState + " " + `${checkState}-${acknowledged}`}>
 		<div class="check-state" style={`font-size: ${options.statusFontSize}px; line-height: 1.1;`}>
@@ -133,8 +134,8 @@ const PerfDataOptions = ({options, updateOptions}) => {
 		: null}
 		{options.perfDataSelection === 'plugin_output' ?
 			<div>
-				<input class="form-control" type="text" onInput={e => updateOptions({pluginOutputPattern: e.currentTarget.value})} />
-				<small class="form-text text-muted">extract with default, e.g. /firmware=(.+)/;None</small>
+				<input class="form-control" type="text" title="Regexp Pattern" placeholder="Enter regexp pattern" onInput={e => updateOptions({pluginOutputPattern: e.currentTarget.value})} />
+				<input class="form-control my-2" type="text" title="Value to display when regexp does NOT match" placeholder="Enter value when regexp does NOT match" onInput={e => updateOptions({pluginOutputDefault: e.currentTarget.value})} />
 			</div>
 		: null}
 	</Fragment>
