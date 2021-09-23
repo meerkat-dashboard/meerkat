@@ -22,11 +22,33 @@ export function CheckCard({options, slug, dashboard}) {
 		}
 	}
 
-	const perfDataSelected = async (perfData) => {
-		let waitPerf = await perfData;
-		for (const [key, value] of Object.entries(waitPerf)) {
-			if (options.perfDataSelection === key) {
-				setPerfValue(value)
+	const perfDataSelected = (perfData) => {
+		if (options.perfDataSelection === 'plugin_output') {
+			console.log('Plugin Output:', perfData.pluginOutput)
+			const matches = (options.pluginOutputPattern || "").match(/\/([^/]*)\/;?(.*)/)
+			if (matches) {
+				const pattern = new RegExp(matches[1])
+				const extractedValues = (perfData.pluginOutput || "").match(pattern)
+				if (extractedValues) {
+					setPerfValue(extractedValues[1] || extractedValues[0])
+				} else if (matches[2]) {
+					setPerfValue(matches[2])
+				} else {
+					setPerfValue('useCheckState')
+				}
+			} else {
+				setPerfValue('useCheckState')
+			}
+		} else {
+			// display performance data
+			for (const [key, value] of Object.entries(perfData.performanceData)) {
+				if (options.perfDataSelection === key) {
+					if (value) {
+						setPerfValue(Number(value.replace(/[^\d.-]/g, '')))
+					} else {
+						setPerfValue('useCheckState')
+					}
+				}
 			}
 		}
 	}
@@ -40,11 +62,11 @@ export function CheckCard({options, slug, dashboard}) {
 			const intervalID = window.setInterval(updateState, 30*1000)
 			return () => window.clearInterval(intervalID);
 		}
-	}, [options.objectType, options.filter, options.perfDataSelection]);
+	}, [options.objectType, options.filter, options.perfDataSelection, options.pluginOutputPattern]);
 
 	return <div class={"check-content card " + checkState + " " + `${checkState}-${acknowledged}`}>
 		<div class="check-state" style={`font-size: ${options.statusFontSize}px; line-height: 1.1;`}>
-			{perfValue ? Number(perfValue.replace(/[^\d.-]/g, '')) : <div class="align-center">{checkState}</div>}
+		    {perfValue === 'useCheckState' ? <div class="align-center">{checkState}</div> : perfValue}
 			{acknowledged ? <span>(ACK)</span> : ""}
 		</div>
 	</div>
@@ -111,7 +133,7 @@ const PerfDataOptions = ({options, updateOptions}) => {
 		: null}
 		{options.perfDataSelection === 'plugin_output' ?
 			<div>
-				<input class="form-control" type="text" />
+				<input class="form-control" type="text" onInput={e => updateOptions({pluginOutputPattern: e.currentTarget.value})} />
 				<small class="form-text text-muted">extract with default, e.g. /firmware=(.+)/;None</small>
 			</div>
 		: null}
