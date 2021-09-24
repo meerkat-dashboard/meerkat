@@ -28,7 +28,7 @@ describe('Element - Check Card - Performance Data Mode', () => {
 			})
 
 			// select plugin output
-			cy.get('[data-cy="card:checkPerformanceOptions"]').select('Plugin Output')
+			cy.get('[data-cy="card:checkDataSelection"]').select('Plugin Output')
 
 			// Check Card content
 			// no default, empty regex

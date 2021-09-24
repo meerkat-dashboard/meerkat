@@ -295,13 +295,13 @@ export function dynamicTextHelper(attribute) {
 }
 
 
-// get performance data and plugin output
+// get check data: performance and plugin output
 // then invoke callback to propagate state
-export function getPerfData(options, callback) {
+export function getCheckData(options, callback) {
 	meerkat.getCheckResult(options.objectType, options.id)
 	.then(c => {
-		const collectedData = {
-			performanceData: null,
+		const checkData = {
+			performance: null,
 			pluginOutput: null,
 		};
 
@@ -315,13 +315,13 @@ export function getPerfData(options, callback) {
 						arrPerf.push(perfData[i].split(';')[0]);
 					}
 				}
-				collectedData.performanceData = Object.fromEntries(arrPerf.map(s => s.split('=')));
+				checkData.performance = Object.fromEntries(arrPerf.map(s => s.split('=')));
 			}
 		}
 
-		collectedData.pluginOutput = c.results ? c.results[0].attrs.last_check_result.output : null;
+		checkData.pluginOutput = c.results ? c.results[0].attrs.last_check_result.output : null;
 
-		callback(collectedData);
+		callback(checkData);
 	});
 }
 

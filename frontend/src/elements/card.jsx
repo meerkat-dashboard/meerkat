@@ -2,53 +2,53 @@ import { h, Fragment } from 'preact';
 import { useState, useEffect, useCallback, useMemo } from 'preact/hooks';
 
 import * as meerkat from '../meerkat';
-import { icingaResultCodeToCheckState, IcingaCheckList, getPerfData, alertSounds, debounce } from '../util';
+import { icingaResultCodeToCheckState, IcingaCheckList, getCheckData, alertSounds, debounce } from '../util';
 
 function useCheckCard({options, dashboard}) {
 	const [checkState, setCheckState] = useState(null);
-	const [perfValue, setPerfValue] = useState(null);
+	const [checkValue, setCheckValue] = useState(null);
 	const [acknowledged, setAcknowledged] = useState("");
 
-	const extractAndSetPerfValue = useCallback(perfData => {
-		let newPerfValue
+	const extractAndSetPerfValue = useCallback(checkData => {
+		let newCheckValue
 
 		// extract and use plugin output
-		if (options.perfDataSelection === 'pluginOutput') {
-			//console.log('Plugin Output:', perfData.pluginOutput)
+		if (options.checkDataSelection === 'pluginOutput') {
+			//console.log('Plugin Output:', checkData.pluginOutput)
 			let pattern, extractedValues
 			try {
 				pattern = new RegExp(options.pluginOutputPattern, 'im')
-				extractedValues = (perfData.pluginOutput || "").match(pattern)
+				extractedValues = (checkData.pluginOutput || "").match(pattern)
 			} catch (e) {
 				console.error(e)
 			}
 
 			if (!options.pluginOutputPattern) {
-				newPerfValue = options.pluginOutputDefault || perfData.pluginOutput
+				newCheckValue = options.pluginOutputDefault || checkData.pluginOutput
 			} else if (extractedValues) {
-				newPerfValue = extractedValues.length > 1 ? extractedValues[extractedValues.length-1] : extractedValues[0]
+				newCheckValue = extractedValues.length > 1 ? extractedValues[extractedValues.length-1] : extractedValues[0]
 			} else {
-				newPerfValue = options.pluginOutputDefault
+				newCheckValue = options.pluginOutputDefault
 			}
 
 		// extract and use performance data
-		} else if (perfData.performanceData) {
-			for (const [key, value] of Object.entries(perfData.performanceData)) {
-				if (options.perfDataSelection === key && value) {
-					newPerfValue = Number(value.replace(/[^\d.-]/g, ''))
+		} else if (checkData.performance) {
+			for (const [key, value] of Object.entries(checkData.performance)) {
+				if (options.checkDataSelection === key && value) {
+					newCheckValue = Number(value.replace(/[^\d.-]/g, ''))
 				}
 			}
 		}
 
-		setPerfValue(newPerfValue || 'useCheckState')
+		setCheckValue(newCheckValue || 'useCheckState')
 	}, [
-		options.perfDataSelection,
+		options.checkDataSelection,
 		options.pluginOutputPattern,
 		options.pluginOutputDefault,
 	])
 
 	const updateCheckState = useCallback(async () => {
-		getPerfData(options, extractAndSetPerfValue)
+		getCheckData(options, extractAndSetPerfValue)
 
 		if (options.objectType !== null && options.filter !== null) {
 			try {
@@ -67,26 +67,26 @@ function useCheckCard({options, dashboard}) {
 
 	useEffect(() => {
 		if (options.objectType !== null && options.filter !== null) {
-			setPerfValue(null)
+			setCheckValue(null)
 			updateCheckState()
 			const intervalID = window.setInterval(updateCheckState, 30*1000)
 			return () => window.clearInterval(intervalID)
 		}
 	}, [updateCheckState])
 
-	return [checkState, acknowledged, perfValue]
+	return [checkState, acknowledged, checkValue]
 }
 export function CheckCard({options, dashboard}) {
-	const [checkState, acknowledged, perfValue] = useCheckCard({options, dashboard})
+	const [checkState, acknowledged, checkValue] = useCheckCard({options, dashboard})
 
 	alertSounds(checkState, options, dashboard, false)
 
 	return (
 		<div class={`check-content card ${checkState} ${checkState}-${acknowledged}`}>
 			<div class="check-state" style={`font-size: ${options.statusFontSize}px; line-height: 1.1;`}>
-			    {perfValue === 'useCheckState' ?
+			    {checkValue === 'useCheckState' ?
 					<div class="align-center">{checkState}</div>
-					: perfValue}
+					: checkValue}
 				{acknowledged ? <span>(ACK)</span> : ""}
 			</div>
 		</div>
@@ -109,26 +109,26 @@ export function CheckCardOptions({options, updateOptions}) {
 		<label for="status-font-size">Status Font Size</label>
 		<input class="form-control" id="status-font-size" value={options.statusFontSize} name="status-font-size" type="number" min="0"
 			   onInput={e => updateOptions({statusFontSize: Number(e.currentTarget.value)})}/>
-		<PerfDataOptions options={options} updateOptions={updateOptions}/>
+		<CheckDataOptions options={options} updateOptions={updateOptions}/>
 		<div></div>
 		<button class="rounded btn-primary btn-large mt-2" onClick={onClickAdvanced}>{showAdvanced ? 'Hide Options' : 'Advanced Options'}</button>
 		<AdvancedCheckOptions options={options} updateOptions={updateOptions} display={showAdvanced}/>
 	</div>
 }
 
-const PerfDataOptions = ({options, updateOptions}) => {
-	const [perfData, setPerfData] = useState({});
+const CheckDataOptions = ({options, updateOptions}) => {
+	const [checkData, setCheckData] = useState({});
 
 	useEffect(
-		() => getPerfData(options, setPerfData),
+		() => getCheckData(options, setCheckData),
 		[options.id]
 	)
 
 	const optionsSpec = useMemo(() => {
 		const result = []
 
-		if (perfData.performanceData) {
-			Object.keys(perfData.performanceData).forEach(name =>
+		if (checkData.performance) {
+			Object.keys(checkData.performance).forEach(name =>
 				result.push({
 					key: name,
 					value: name,
@@ -136,12 +136,12 @@ const PerfDataOptions = ({options, updateOptions}) => {
 				})
 			)
 		}
-		if (perfData.pluginOutput) {
+		if (checkData.pluginOutput) {
 			result.push({key: 'pluginOutput', value: 'pluginOutput', text: 'Plugin Output'})
 		}
 
 		return result
-	}, [perfData.performanceData, perfData.pluginOutput])
+	}, [checkData.performance, checkData.pluginOutput])
 
 	return (
 		optionsSpec.length === 0 ?
@@ -150,15 +150,15 @@ const PerfDataOptions = ({options, updateOptions}) => {
 				<label for="check-data-mode">Check Data Mode</label>
 				<select
 					id="check-data-mode"
-					onInput={e => updateOptions({perfDataSelection: e.currentTarget.value})}
-					data-cy="card:checkPerformanceOptions"
+					onInput={e => updateOptions({checkDataSelection: e.currentTarget.value})}
+					data-cy="card:checkDataSelection"
 				>
 					<option>Choose away...</option>
 					{optionsSpec.map(spec =>
 						<option key={spec.key} value={spec.value}>{spec.text}</option>
 					)}
 				</select>
-				{options.perfDataSelection === 'pluginOutput' ?
+				{options.checkDataSelection === 'pluginOutput' ?
 					<div>
 						<input
 							class="form-control"
