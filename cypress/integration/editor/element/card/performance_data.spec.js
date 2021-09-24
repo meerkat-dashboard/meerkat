@@ -13,25 +13,43 @@ describe('Element - Check Card - Performance Data Mode', () => {
 	describe('When service has plugin output', () => {
 		it('displays check state', () => {
 			cy.intercept("/icinga/services").as("getServicesFromIcinga")
+
+			// select services
 			cy.get('[data-cy="card:check"]').within(() => {
 				cy.get('button').click()
 				cy.get('li').contains(/^Services$/).click()
 			})
 			cy.wait("@getServicesFromIcinga")
 
+			// select name of service
 			cy.get('[data-cy="card:check_options"]').within(() => {
 				cy.get('button').click()
 				cy.get('li').contains('sanctuary.hq.sol1.net!Ceph disk usage').click()
 			})
+
+			// select plugin output
 			cy.get('[data-cy="card:checkPerformanceData"]').check()
 			cy.get('[data-cy="card:checkPerformanceOptions"]').select('Plugin Output')
 
 			// Check Card content
-			cy.get('.check-content .check-state').invoke('text').should('match', /ok|warning|critical|unknown/)
+			// empty regex, empty default
+			cy.get('.check-content .check-state').invoke('text').should('match', /RAW usage \d+\.\d+%/)
+
+			// has default, empty regex
 			cy.get('[data-cy="card:pluginOutputDefault"]').type('none')
 			cy.get('.check-content .check-state').should('have.text', 'none')
+
+			// has default, matching regex
 			cy.get('[data-cy="card:pluginOutputRegexp"]').type('RAW usage (.+)')
 			cy.get('.check-content .check-state').invoke('text').should('match', /\d+\.\d+%/)
+
+			// has default, but no regex match
+			cy.get('[data-cy="card:pluginOutputRegexp"]').clear().type('RAW sewerage (.+)')
+			cy.get('.check-content .check-state').invoke('text').should('match', /none/)
+
+			// no default, no regex match
+			cy.get('[data-cy="card:pluginOutputDefault"]').clear()
+			cy.get('.check-content .check-state').invoke('text').should('match', /ok|warning|critical|unknown/)
 		})
 	})
 })

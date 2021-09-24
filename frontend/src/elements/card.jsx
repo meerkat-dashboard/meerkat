@@ -12,18 +12,21 @@ function useCheckCard({options, dashboard}) {
 	const extractAndSetPerfValue = useCallback(perfData => {
 		// extract and use plugin output
 		if (options.perfDataSelection === 'plugin_output') {
-			console.log('Plugin Output:', perfData.pluginOutput)
+			//console.log('Plugin Output:', perfData.pluginOutput)
 			let pattern
 			try {
-				pattern = new RegExp(options.pluginOutputPattern)
+				// when pattern is empty, show full plugin output
+				pattern = new RegExp(options.pluginOutputPattern || ".*")
 			} catch (e) {
 				console.error(e)
 			}
 			const extractedValues = pattern && (perfData.pluginOutput || "").match(pattern)
-			if (options.pluginOutputPattern && options.pluginOutputPattern.length > 0 && extractedValues) {
-				setPerfValue(extractedValues.length > 1 ? extractedValues[extractedValues.length-1] : extractedValues[0])
-			} else if (options.pluginOutputDefault) {
+
+
+			if (options.pluginOutputDefault && (!options.pluginOutputPattern || !extractedValues)) {
 				setPerfValue(options.pluginOutputDefault)
+			} else if (extractedValues) {
+				setPerfValue(extractedValues.length > 1 ? extractedValues[extractedValues.length-1] : extractedValues[0])
 			} else {
 				setPerfValue('useCheckState')
 			}
