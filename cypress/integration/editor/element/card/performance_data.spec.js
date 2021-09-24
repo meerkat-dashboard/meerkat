@@ -28,11 +28,10 @@ describe('Element - Check Card - Performance Data Mode', () => {
 			})
 
 			// select plugin output
-			cy.get('[data-cy="card:checkPerformanceData"]').check()
 			cy.get('[data-cy="card:checkPerformanceOptions"]').select('Plugin Output')
 
 			// Check Card content
-			// empty regex, empty default
+			// no default, empty regex
 			cy.get('.check-content .check-state').invoke('text').should('match', /RAW usage \d+\.\d+%/)
 
 			// has default, empty regex

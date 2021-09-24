@@ -1,5 +1,5 @@
 import { h, Fragment } from 'preact';
-import { useState, useEffect, useCallback } from 'preact/hooks';
+import { useState, useEffect, useCallback, useMemo } from 'preact/hooks';
 
 import * as meerkat from '../meerkat';
 import { icingaResultCodeToCheckState, IcingaCheckList, getPerfData, alertSounds, debounce } from '../util';
@@ -10,39 +10,37 @@ function useCheckCard({options, dashboard}) {
 	const [acknowledged, setAcknowledged] = useState("");
 
 	const extractAndSetPerfValue = useCallback(perfData => {
+		let newPerfValue
+
 		// extract and use plugin output
-		if (options.perfDataSelection === 'plugin_output') {
+		if (options.perfDataSelection === 'pluginOutput') {
 			//console.log('Plugin Output:', perfData.pluginOutput)
-			let pattern
+			let pattern, extractedValues
 			try {
-				// when pattern is empty, show full plugin output
-				pattern = new RegExp(options.pluginOutputPattern || ".*")
+				pattern = new RegExp(options.pluginOutputPattern, 'im')
+				extractedValues = (perfData.pluginOutput || "").match(pattern)
 			} catch (e) {
 				console.error(e)
 			}
-			const extractedValues = pattern && (perfData.pluginOutput || "").match(pattern)
 
-
-			if (options.pluginOutputDefault && (!options.pluginOutputPattern || !extractedValues)) {
-				setPerfValue(options.pluginOutputDefault)
+			if (!options.pluginOutputPattern) {
+				newPerfValue = options.pluginOutputDefault || perfData.pluginOutput
 			} else if (extractedValues) {
-				setPerfValue(extractedValues.length > 1 ? extractedValues[extractedValues.length-1] : extractedValues[0])
+				newPerfValue = extractedValues.length > 1 ? extractedValues[extractedValues.length-1] : extractedValues[0]
 			} else {
-				setPerfValue('useCheckState')
+				newPerfValue = options.pluginOutputDefault
 			}
 
 		// extract and use performance data
-		} else {
+		} else if (perfData.performanceData) {
 			for (const [key, value] of Object.entries(perfData.performanceData)) {
-				if (options.perfDataSelection === key) {
-					if (value) {
-						setPerfValue(Number(value.replace(/[^\d.-]/g, '')))
-					} else {
-						setPerfValue('useCheckState')
-					}
+				if (options.perfDataSelection === key && value) {
+					newPerfValue = Number(value.replace(/[^\d.-]/g, ''))
 				}
 			}
 		}
+
+		setPerfValue(newPerfValue || 'useCheckState')
 	}, [
 		options.perfDataSelection,
 		options.pluginOutputPattern,
@@ -120,67 +118,70 @@ export function CheckCardOptions({options, updateOptions}) {
 
 const PerfDataOptions = ({options, updateOptions}) => {
 	const [perfData, setPerfData] = useState({});
-	const [objID, setObjID] = useState(null);
 
-	useEffect(() => {
-		if (!options.perfDataMode) {
-			updateOptions({perfDataSelection: ''})
+	useEffect(
+		() => getPerfData(options, setPerfData),
+		[options.id]
+	)
+
+	const optionsSpec = useMemo(() => {
+		const result = []
+
+		if (perfData.performanceData) {
+			Object.keys(perfData.performanceData).forEach(name =>
+				result.push({
+					key: name,
+					value: name,
+					text: `Performance ${name.toUpperCase()}`,
+				})
+			)
 		}
-	}, [options.perfDataMode, options.perfDataSelection])
+		if (perfData.pluginOutput) {
+			result.push({key: 'pluginOutput', value: 'pluginOutput', text: 'Plugin Output'})
+		}
 
-	setObjID(options.id);
+		return result
+	}, [perfData.performanceData, perfData.pluginOutput])
 
-	if (objID !== options.id) {
-		getPerfData(options, setPerfData);
-	}
-
-	if (perfData.performanceData === null || typeof perfData.performanceData === "undefined") {
-		return <div><label>No Performance Data Available</label><br/></div>
-	}
-
-	return <Fragment>
-		<div class="flex items-center">
-			<input id="perf-data-mode-checkbox" name="data-mode" type="checkbox" defaultChecked={options.perfDataMode} onClick={e => updateOptions({perfDataMode: e.currentTarget.checked})} data-cy="card:checkPerformanceData" />
-			<label class="status-font-size" for="perf-data-mode-checkbox">Performance Data Mode</label>
-		</div>
-		{options.perfDataMode ?
-			<select
-				onInput={e => updateOptions({perfDataSelection: e.currentTarget.value})}
-				value={options.perfDataSelection}
-				data-cy="card:checkPerformanceOptions"
-			>
-				<option value={null} selected disabled>Choose away...</option>
-				{Object.keys(perfData.performanceData).map(perf => (
-					<option key={perf} value={perf}>{perf.toUpperCase()}</option>
-				))}
-				{perfData.pluginOutput ?
-					<option value="plugin_output">Plugin Output</option>
-				: null }
-			</select>
-		: null}
-		{options.perfDataSelection === 'plugin_output' ?
-			<div>
-				<input
-					class="form-control"
-					name="pluginOutputPattern"
-					type="text"
-					title="Regexp Pattern"
-					placeholder="Enter regexp pattern"
-					onInput={debounce(e => updateOptions({[e.target.name]: e.target.value}), 300)}
-					data-cy="card:pluginOutputRegexp"
-				/>
-				<input
-					class="form-control my-2"
-					name="pluginOutputDefault"
-					type="text"
-					title="Value to display when regexp does NOT match"
-					placeholder="Enter value when regexp does NOT match"
-					onInput={debounce(e => updateOptions({[e.target.name]: e.target.value}), 300)}
-					data-cy="card:pluginOutputDefault"
-				/>
-			</div>
-		: null}
-	</Fragment>
+	return (
+		optionsSpec.length === 0 ?
+			<label for="check-data-mode">No Check Data Available</label>
+ 			: <Fragment>
+				<label for="check-data-mode">Check Data Mode</label>
+				<select
+					id="check-data-mode"
+					onInput={e => updateOptions({perfDataSelection: e.currentTarget.value})}
+					data-cy="card:checkPerformanceOptions"
+				>
+					<option>Choose away...</option>
+					{optionsSpec.map(spec =>
+						<option key={spec.key} value={spec.value}>{spec.text}</option>
+					)}
+				</select>
+				{options.perfDataSelection === 'pluginOutput' ?
+					<div>
+						<input
+							class="form-control"
+							name="pluginOutputPattern"
+							type="text"
+							title="Regexp Pattern"
+							placeholder="Enter regexp pattern"
+							onInput={debounce(e => updateOptions({[e.target.name]: e.target.value}), 300)}
+							data-cy="card:pluginOutputRegexp"
+						/>
+						<input
+							class="form-control my-2"
+							name="pluginOutputDefault"
+							type="text"
+							title="Value to display when regexp does NOT match"
+							placeholder="Enter value when regexp does NOT match"
+							onInput={debounce(e => updateOptions({[e.target.name]: e.target.value}), 300)}
+							data-cy="card:pluginOutputDefault"
+						/>
+					</div>
+				: null}
+			</Fragment>
+	)
 }
 
 const AdvancedCheckOptions = ({options, updateOptions, display}) => {
