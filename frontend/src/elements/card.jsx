@@ -149,18 +149,20 @@ const PerfDataOptions = ({options, updateOptions}) => {
 			<div>
 				<input
 					class="form-control"
+					name="pluginOutputPattern"
 					type="text"
 					title="Regexp Pattern"
 					placeholder="Enter regexp pattern"
-					onInput={e => updateOptions({pluginOutputPattern: e.currentTarget.value})}
+					onInput={debounce(e => updateOptions({[e.target.name]: e.target.value}), 300)}
 					data-cy="card:pluginOutputRegexp"
 				/>
 				<input
 					class="form-control my-2"
+					name="pluginOutputDefault"
 					type="text"
 					title="Value to display when regexp does NOT match"
 					placeholder="Enter value when regexp does NOT match"
-					onInput={e => updateOptions({pluginOutputDefault: e.currentTarget.value})}
+					onInput={debounce(e => updateOptions({[e.target.name]: e.target.value}), 300)}
 					data-cy="card:pluginOutputDefault"
 				/>
 			</div>
