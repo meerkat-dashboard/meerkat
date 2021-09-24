@@ -1,5 +1,5 @@
 import { h, Fragment } from 'preact';
-import { useState, useEffect } from 'preact/hooks';
+import { useState, useEffect, useCallback } from 'preact/hooks';
 
 import * as meerkat from '../meerkat';
 import { icingaResultCodeToCheckState, IcingaCheckList, getPerfData, alertSounds, debounce } from '../util';
@@ -9,20 +9,7 @@ export function CheckCard({options, slug, dashboard}) {
 	const [perfValue, setPerfValue] = useState(null);
 	const [acknowledged, setAcknowledged] = useState("");
 
-	const updateState = async () => {
-		getPerfData(options, extractAndSetPerfValue);
-		if (options.objectType !== null && options.filter !== null) {
-			try {
-				const res = await meerkat.getIcingaObjectState(options.objectType, options.filter, dashboard);
-				res.Acknowledged ? setAcknowledged('ack') : setAcknowledged("");
-				setCheckState(icingaResultCodeToCheckState(options.objectType, res.MaxState));
-			} catch (error) {
-				window.flash(`This dashboard isn't updating: ${error}`, 'error')
-			}
-		}
-	}
-
-	const extractAndSetPerfValue = (perfData) => {
+	const extractAndSetPerfValue = useCallback((perfData) => {
 		// extract and use plugin output
 		if (options.perfDataSelection === 'plugin_output') {
 			console.log('Plugin Output:', perfData.pluginOutput)
@@ -53,7 +40,28 @@ export function CheckCard({options, slug, dashboard}) {
 				}
 			}
 		}
-	}
+	}, [
+		options.perfDataSelection,
+		options.pluginOutputPattern,
+		options.pluginOutputDefault,
+	])
+
+	const updateState = useCallback(async () => {
+		getPerfData(options, extractAndSetPerfValue);
+		if (options.objectType !== null && options.filter !== null) {
+			try {
+				const res = await meerkat.getIcingaObjectState(options.objectType, options.filter, dashboard);
+				res.Acknowledged ? setAcknowledged('ack') : setAcknowledged("");
+				setCheckState(icingaResultCodeToCheckState(options.objectType, res.MaxState));
+			} catch (error) {
+				window.flash(`This dashboard isn't updating: ${error}`, 'error')
+			}
+		}
+	}, [
+		options.objectType,
+		options.filter,
+		extractAndSetPerfValue,
+	])
 
 	alertSounds(checkState, options, dashboard, false);
 
@@ -64,13 +72,7 @@ export function CheckCard({options, slug, dashboard}) {
 			const intervalID = window.setInterval(updateState, 30*1000)
 			return () => window.clearInterval(intervalID);
 		}
-	}, [
-		options.objectType,
-		options.filter,
-		options.perfDataSelection,
-		options.pluginOutputPattern,
-		options.pluginOutputDefault,
-	]);
+	}, [updateState])
 
 	return (
 		<div class={"check-content card " + checkState + " " + `${checkState}-${acknowledged}`}>
