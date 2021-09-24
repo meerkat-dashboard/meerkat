@@ -1,8 +1,8 @@
 import { h, Fragment } from 'preact';
-import { useState, useEffect} from 'preact/hooks';
+import { useState, useEffect } from 'preact/hooks';
 
 import * as meerkat from '../meerkat';
-import { icingaResultCodeToCheckState, IcingaCheckList, getPerfData, alertSounds } from '../util';
+import { icingaResultCodeToCheckState, IcingaCheckList, getPerfData, alertSounds, debounce } from '../util';
 
 export function CheckCard({options, slug, dashboard}) {
 	const [checkState, setCheckState] = useState(null);
@@ -10,7 +10,7 @@ export function CheckCard({options, slug, dashboard}) {
 	const [acknowledged, setAcknowledged] = useState("");
 
 	const updateState = async () => {
-		getPerfData(options, perfDataSelected);
+		getPerfData(options, extractAndSetPerfValue);
 		if (options.objectType !== null && options.filter !== null) {
 			try {
 				const res = await meerkat.getIcingaObjectState(options.objectType, options.filter, dashboard);
@@ -22,7 +22,8 @@ export function CheckCard({options, slug, dashboard}) {
 		}
 	}
 
-	const perfDataSelected = (perfData) => {
+	const extractAndSetPerfValue = (perfData) => {
+		// extract and use plugin output
 		if (options.perfDataSelection === 'plugin_output') {
 			console.log('Plugin Output:', perfData.pluginOutput)
 			let pattern
@@ -39,8 +40,9 @@ export function CheckCard({options, slug, dashboard}) {
 			} else {
 				setPerfValue('useCheckState')
 			}
+
+		// extract and use performance data
 		} else {
-			// display performance data
 			for (const [key, value] of Object.entries(perfData.performanceData)) {
 				if (options.perfDataSelection === key) {
 					if (value) {
@@ -70,12 +72,14 @@ export function CheckCard({options, slug, dashboard}) {
 		options.pluginOutputDefault,
 	]);
 
-	return <div class={"check-content card " + checkState + " " + `${checkState}-${acknowledged}`}>
-		<div class="check-state" style={`font-size: ${options.statusFontSize}px; line-height: 1.1;`}>
-		    {perfValue === 'useCheckState' ? <div class="align-center">{checkState}</div> : perfValue}
-			{acknowledged ? <span>(ACK)</span> : ""}
+	return (
+		<div class={"check-content card " + checkState + " " + `${checkState}-${acknowledged}`}>
+			<div class="check-state" style={`font-size: ${options.statusFontSize}px; line-height: 1.1;`}>
+			    {perfValue === 'useCheckState' ? <div class="align-center">{checkState}</div> : perfValue}
+				{acknowledged ? <span>(ACK)</span> : ""}
+			</div>
 		</div>
-	</div>
+	)
 }
 
 export function CheckCardOptions({options, updateOptions}) {
