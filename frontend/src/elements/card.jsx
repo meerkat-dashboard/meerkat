@@ -4,12 +4,12 @@ import { useState, useEffect, useCallback } from 'preact/hooks';
 import * as meerkat from '../meerkat';
 import { icingaResultCodeToCheckState, IcingaCheckList, getPerfData, alertSounds, debounce } from '../util';
 
-export function CheckCard({options, slug, dashboard}) {
+function useCheckCard({options, dashboard}) {
 	const [checkState, setCheckState] = useState(null);
 	const [perfValue, setPerfValue] = useState(null);
 	const [acknowledged, setAcknowledged] = useState("");
 
-	const extractAndSetPerfValue = useCallback((perfData) => {
+	const extractAndSetPerfValue = useCallback(perfData => {
 		// extract and use plugin output
 		if (options.perfDataSelection === 'plugin_output') {
 			console.log('Plugin Output:', perfData.pluginOutput)
@@ -46,8 +46,9 @@ export function CheckCard({options, slug, dashboard}) {
 		options.pluginOutputDefault,
 	])
 
-	const updateState = useCallback(async () => {
-		getPerfData(options, extractAndSetPerfValue);
+	const updateCheckState = useCallback(async () => {
+		getPerfData(options, extractAndSetPerfValue)
+
 		if (options.objectType !== null && options.filter !== null) {
 			try {
 				const res = await meerkat.getIcingaObjectState(options.objectType, options.filter, dashboard);
@@ -63,21 +64,28 @@ export function CheckCard({options, slug, dashboard}) {
 		extractAndSetPerfValue,
 	])
 
-	alertSounds(checkState, options, dashboard, false);
-
 	useEffect(() => {
 		if (options.objectType !== null && options.filter !== null) {
-			setPerfValue(null);
-			updateState();
-			const intervalID = window.setInterval(updateState, 30*1000)
-			return () => window.clearInterval(intervalID);
+			setPerfValue(null)
+			updateCheckState()
+			const intervalID = window.setInterval(updateCheckState, 30*1000)
+			return () => window.clearInterval(intervalID)
 		}
-	}, [updateState])
+	}, [updateCheckState])
+
+	return [checkState, acknowledged, perfValue]
+}
+export function CheckCard({options, dashboard}) {
+	const [checkState, acknowledged, perfValue] = useCheckCard({options, dashboard})
+
+	alertSounds(checkState, options, dashboard, false)
 
 	return (
-		<div class={"check-content card " + checkState + " " + `${checkState}-${acknowledged}`}>
+		<div class={`check-content card ${checkState} ${checkState}-${acknowledged}`}>
 			<div class="check-state" style={`font-size: ${options.statusFontSize}px; line-height: 1.1;`}>
-			    {perfValue === 'useCheckState' ? <div class="align-center">{checkState}</div> : perfValue}
+			    {perfValue === 'useCheckState' ?
+					<div class="align-center">{checkState}</div>
+					: perfValue}
 				{acknowledged ? <span>(ACK)</span> : ""}
 			</div>
 		</div>
