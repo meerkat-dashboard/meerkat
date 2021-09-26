@@ -133,11 +133,17 @@ const CheckDataOptions = ({options, updateOptions}) => {
 					key: name,
 					value: name,
 					text: `Performance ${name.toUpperCase()}`,
+					selected: options.checkDataSelection === name,
 				})
 			)
 		}
 		if (checkData.pluginOutput) {
-			result.push({key: 'pluginOutput', value: 'pluginOutput', text: 'Plugin Output'})
+			result.push({
+				key: 'pluginOutput',
+				value: 'pluginOutput',
+				text: 'Plugin Output',
+				selected: options.checkDataSelection === 'pluginOutput',
+			})
 		}
 
 		return result
@@ -155,7 +161,7 @@ const CheckDataOptions = ({options, updateOptions}) => {
 				>
 					<option>Choose away...</option>
 					{optionsSpec.map(spec =>
-						<option key={spec.key} value={spec.value}>{spec.text}</option>
+						<option key={spec.key} value={spec.value} selected={spec.selected}>{spec.text}</option>
 					)}
 				</select>
 				{options.checkDataSelection === 'pluginOutput' ?
@@ -167,6 +173,7 @@ const CheckDataOptions = ({options, updateOptions}) => {
 							title="Regexp Pattern"
 							placeholder="Enter regexp pattern"
 							onInput={debounce(e => updateOptions({[e.target.name]: e.target.value}), 300)}
+							value={options.pluginOutputPattern}
 							data-cy="card:pluginOutputRegexp"
 						/>
 						<input
@@ -176,6 +183,7 @@ const CheckDataOptions = ({options, updateOptions}) => {
 							title="Value to display when regexp does NOT match"
 							placeholder="Enter value when regexp does NOT match"
 							onInput={debounce(e => updateOptions({[e.target.name]: e.target.value}), 300)}
+							value={options.pluginOutputDefault}
 							data-cy="card:pluginOutputDefault"
 						/>
 					</div>
