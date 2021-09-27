@@ -1,4 +1,4 @@
-describe('Element - Check Card - Performance Data Mode', () => {
+describe('Element - Check Card - Check Data Mode', () => {
 	beforeEach(() => {
 		cy.request({
 			method: 'POST',
