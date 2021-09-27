@@ -9,7 +9,7 @@ function useCheckCard({options, dashboard}) {
 	const [checkValue, setCheckValue] = useState(null);
 	const [acknowledged, setAcknowledged] = useState("");
 
-	const extractAndSetPerfValue = useCallback(checkData => {
+	const extractAndSetCheckValue = useCallback(checkData => {
 		let newCheckValue
 
 		// extract and use plugin output
@@ -48,7 +48,7 @@ function useCheckCard({options, dashboard}) {
 	])
 
 	const updateCheckState = useCallback(async () => {
-		getCheckData(options, extractAndSetPerfValue)
+		getCheckData(options, extractAndSetCheckValue)
 
 		if (options.objectType !== null && options.filter !== null) {
 			try {
@@ -62,7 +62,7 @@ function useCheckCard({options, dashboard}) {
 	}, [
 		options.objectType,
 		options.filter,
-		extractAndSetPerfValue,
+		extractAndSetCheckValue,
 	])
 
 	useEffect(() => {
