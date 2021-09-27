@@ -307,16 +307,14 @@ export function getCheckData(options, callback) {
 
 		// extract & transform performance data
 		let perfData = c.results ? c.results[0].attrs.last_check_result.performance_data : null;
-		if (perfData !== null && typeof perfData !== "undefined" ) {
-			if (perfData.length > 0) {
-				let arrPerf = [];
-				for (var i = 0; i < perfData.length; i++){
-					if (perfData[i].includes('=')) {
-						arrPerf.push(perfData[i].split(';')[0]);
-					}
+		if (perfData !== null && typeof perfData !== "undefined" && perfData.length > 0) {
+			let arrPerf = [];
+			for (var i = 0; i < perfData.length; i++){
+				if (perfData[i].includes('=')) {
+					arrPerf.push(perfData[i].split(';')[0]);
 				}
-				checkData.performance = Object.fromEntries(arrPerf.map(s => s.split('=')));
 			}
+			checkData.performance = Object.fromEntries(arrPerf.map(s => s.split('=')));
 		}
 
 		checkData.pluginOutput = c.results ? c.results[0].attrs.last_check_result.output : null;
@@ -559,7 +557,7 @@ export function TagEditor({tags, updateTags}) {
 }
 
 
-// adapetd from https://github.com/lodash/lodash/blob/4.17.15/lodash.js#L10304
+// adapted from https://github.com/lodash/lodash/blob/4.17.15/lodash.js#L10304
 export function debounce(func, wait, options) {
 	var lastArgs,
 		lastThis,
