@@ -17,18 +17,18 @@ function useCheckCard({options, dashboard}) {
 			//console.log('Plugin Output:', checkData.pluginOutput)
 			let pattern, extractedValues
 			try {
-				pattern = new RegExp(options.pluginOutputPattern, 'im')
+				pattern = new RegExp(options.checkDataPattern, 'im')
 				extractedValues = (checkData.pluginOutput || "").match(pattern)
 			} catch (e) {
 				console.error(e)
 			}
 
-			if (!options.pluginOutputPattern) {
-				newCheckValue = options.pluginOutputDefault || checkData.pluginOutput
+			if (!options.checkDataPattern) {
+				newCheckValue = options.checkDataDefault || checkData.pluginOutput
 			} else if (extractedValues) {
 				newCheckValue = extractedValues.length > 1 ? extractedValues[extractedValues.length-1] : extractedValues[0]
 			} else {
-				newCheckValue = options.pluginOutputDefault
+				newCheckValue = options.checkDataDefault
 			}
 
 		// extract and use performance data
@@ -43,8 +43,8 @@ function useCheckCard({options, dashboard}) {
 		setCheckValue(newCheckValue || 'useCheckState')
 	}, [
 		options.checkDataSelection,
-		options.pluginOutputPattern,
-		options.pluginOutputDefault,
+		options.checkDataPattern,
+		options.checkDataDefault,
 	])
 
 	const updateCheckState = useCallback(async () => {
@@ -168,23 +168,23 @@ const CheckDataOptions = ({options, updateOptions}) => {
 					<div>
 						<input
 							class="form-control"
-							name="pluginOutputPattern"
+							name="checkDataPattern"
 							type="text"
 							title="Regexp Pattern"
 							placeholder="Enter regexp pattern"
 							onInput={debounce(e => updateOptions({[e.target.name]: e.target.value}), 300)}
-							value={options.pluginOutputPattern}
-							data-cy="card:pluginOutputRegexp"
+							value={options.checkDataPattern}
+							data-cy="card:checkDataRegexp"
 						/>
 						<input
 							class="form-control my-2"
-							name="pluginOutputDefault"
+							name="checkDataDefault"
 							type="text"
 							title="Value to display when regexp does NOT match"
 							placeholder="Enter value when regexp does NOT match"
 							onInput={debounce(e => updateOptions({[e.target.name]: e.target.value}), 300)}
-							value={options.pluginOutputDefault}
-							data-cy="card:pluginOutputDefault"
+							value={options.checkDataDefault}
+							data-cy="card:checkDataDefault"
 						/>
 					</div>
 				: null}

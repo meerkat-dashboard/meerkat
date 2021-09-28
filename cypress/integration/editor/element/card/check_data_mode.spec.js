@@ -35,19 +35,19 @@ describe('Element - Check Card - Check Data Mode', () => {
 			cy.get('.check-content .check-state').invoke('text').should('match', /RAW usage \d+\.\d+%/)
 
 			// has default, empty regex
-			cy.get('[data-cy="card:pluginOutputDefault"]').type('none')
+			cy.get('[data-cy="card:checkDataDefault"]').type('none')
 			cy.get('.check-content .check-state').should('have.text', 'none')
 
 			// has default, matching regex
-			cy.get('[data-cy="card:pluginOutputRegexp"]').type('RAW usage (.+)')
+			cy.get('[data-cy="card:checkDataRegexp"]').type('RAW usage (.+)')
 			cy.get('.check-content .check-state').invoke('text').should('match', /\d+\.\d+%/)
 
 			// has default, but no regex match
-			cy.get('[data-cy="card:pluginOutputRegexp"]').clear().type('RAW sewerage (.+)')
+			cy.get('[data-cy="card:checkDataRegexp"]').clear().type('RAW sewerage (.+)')
 			cy.get('.check-content .check-state').invoke('text').should('match', /none/)
 
 			// no default, no regex match
-			cy.get('[data-cy="card:pluginOutputDefault"]').clear()
+			cy.get('[data-cy="card:checkDataDefault"]').clear()
 			cy.get('.check-content .check-state').invoke('text').should('match', /ok|warning|critical|unknown/)
 		})
 	})

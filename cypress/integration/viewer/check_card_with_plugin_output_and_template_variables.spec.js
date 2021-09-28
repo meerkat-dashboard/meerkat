@@ -31,7 +31,7 @@ describe('check card', () => {
 			// select plugin output
 			cy.get('[data-cy="card:checkDataSelection"]').select('Plugin Output')
 
-			cy.get('[data-cy="card:pluginOutputDefault"').type('none')
+			cy.get('[data-cy="card:checkDataDefault"').type('none')
 			cy.contains('none').should('be.visible') // wait for debounced input
 
 			cy.contains('Save Dashboard').click()

@@ -95,8 +95,8 @@ type Option struct {
 	DownSound                       string `json:"downSound"`
 	MuteAlerts                      bool   `json:"muteAlerts"`
 	CheckDataSelection              string `json:"checkDataSelection"`
-	PluginOutputPattern             string `json:"pluginOutputPattern"`
-	PluginOutputDefault             string `json:"pluginOutputDefault"`
+	CheckDataPattern                string `json:"checkDataPattern"`
+	CheckDataDefault                string `json:"checkDataDefault"`
 	Dynamic                         bool   `json:"dynamic"`
 	ID                              string `json:"id"`
 	DynamicText                     string `json:"dynamicText"`
