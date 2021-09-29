@@ -94,8 +94,9 @@ type Option struct {
 	UpSound                         string `json:"upSound"`
 	DownSound                       string `json:"downSound"`
 	MuteAlerts                      bool   `json:"muteAlerts"`
-	PerfDataMode                    bool   `json:"perfDataMode"`
-	PerfDataSelection               string `json:"perfDataSelection"`
+	CheckDataSelection              string `json:"checkDataSelection"`
+	CheckDataPattern                string `json:"checkDataPattern"`
+	CheckDataDefault                string `json:"checkDataDefault"`
 	Dynamic                         bool   `json:"dynamic"`
 	ID                              string `json:"id"`
 	DynamicText                     string `json:"dynamicText"`

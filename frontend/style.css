@@ -705,13 +705,6 @@ input[type=checkbox].form-control.new-tab{
     position: absolute;
 }
 
-input[type=checkbox].form-control.perf-data-mode {
-    margin-left: 14em;
-	margin-top: -2em;
-	height: 20px;
-	position: absolute;
-}
-
 .dashboard.view-only .check {
 	cursor: default;
 }

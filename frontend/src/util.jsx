@@ -126,7 +126,17 @@ export function IcingaCheckList({currentCheckopts, updateOptions}) {
 			}
 
 			if (opts !== null) {
-				input = <Combobox filter='contains' placeholder="Choose away..." textField='id' valueField='id' defaultValue={value} data={opts} onSelect={updateOptions} />
+				input =
+					<Combobox
+						filter='contains'
+						placeholder="Choose away..."
+						textField='id'
+						valueField='id'
+						defaultValue={value}
+						data={opts}
+						onSelect={updateOptions}
+						data-cy="card:check_options"
+					/>
 			}
 
 			if (input !== null) {
@@ -148,7 +158,15 @@ export function IcingaCheckList({currentCheckopts, updateOptions}) {
 	]
 
 	return <div>
-		<Combobox placeholder="Make your choice..." onChange={s => { setSelection(s.value); updateOptions({selection: s.value}) }} defaultValue={selection} data={selectionTypes} valueField="value" textField="label" />
+		<Combobox
+			placeholder="Make your choice..."
+			onChange={s => { setSelection(s.value); updateOptions({selection: s.value}) }}
+			defaultValue={selection}
+			data={selectionTypes}
+			valueField="value"
+			textField="label"
+			data-cy="card:check"
+		/>
 		<br/>
 		{typeOptions}
 	</div>
@@ -277,21 +295,31 @@ export function dynamicTextHelper(attribute) {
 }
 
 
-export function getPerfData(options, setPerfData) {
-	meerkat.getCheckResult(options.objectType, options.id).then(async c => {
+// get check data: performance and plugin output
+// then invoke callback to propagate state
+export function getCheckData(options, callback) {
+	meerkat.getCheckResult(options.objectType, options.id)
+	.then(c => {
+		const checkData = {
+			performance: null,
+			pluginOutput: null,
+		};
+
+		// extract & transform performance data
 		let perfData = c.results ? c.results[0].attrs.last_check_result.performance_data : null;
-		if (perfData !== null) {
-			if (typeof perfData !== "undefined" && perfData.length > 0) {
-				let arrPerf = [];
-				for (var i = 0; i < perfData.length; i++){
-					if (perfData[i].includes('=')) {
-						arrPerf.push(perfData[i].split(';')[0]);
-					}
+		if (perfData !== null && typeof perfData !== "undefined" && perfData.length > 0) {
+			let arrPerf = [];
+			for (var i = 0; i < perfData.length; i++){
+				if (perfData[i].includes('=')) {
+					arrPerf.push(perfData[i].split(';')[0]);
 				}
-				let objPerf = Object.fromEntries(arrPerf.map(s => s.split('=')));
-				setPerfData(objPerf);
 			}
+			checkData.performance = Object.fromEntries(arrPerf.map(s => s.split('=')));
 		}
+
+		checkData.pluginOutput = c.results ? c.results[0].attrs.last_check_result.output : null;
+
+		callback(checkData);
 	});
 }
 
@@ -526,4 +554,131 @@ export function TagEditor({tags, updateTags}) {
 				data-cy="dashboard:tag" />
 		</form>
 	</Fragment>
+}
+
+
+// adapted from https://github.com/lodash/lodash/blob/4.17.15/lodash.js#L10304
+export function debounce(func, wait, options) {
+	var lastArgs,
+		lastThis,
+		maxWait,
+		result,
+		timerId,
+		lastCallTime,
+		lastInvokeTime = 0,
+		leading = false,
+		maxing = false,
+		trailing = true;
+
+	if (typeof func != 'function') {
+		throw new TypeError("Expected a function");
+	}
+	wait = Number(wait) || 0;
+	if (typeof options === 'object') {
+		leading = !!options.leading;
+		maxing = 'maxWait' in options;
+		maxWait = maxing ? Math.max(toNumber(options.maxWait) || 0, wait) : maxWait;
+		trailing = 'trailing' in options ? !!options.trailing : trailing;
+	}
+
+	function invokeFunc(time) {
+		var args = lastArgs,
+			thisArg = lastThis;
+
+		lastArgs = lastThis = undefined;
+		lastInvokeTime = time;
+		result = func.apply(thisArg, args);
+		return result;
+	}
+
+	function leadingEdge(time) {
+		// Reset any `maxWait` timer.
+		lastInvokeTime = time;
+		// Start the timer for the trailing edge.
+		timerId = setTimeout(timerExpired, wait);
+		// Invoke the leading edge.
+		return leading ? invokeFunc(time) : result;
+	}
+
+	function remainingWait(time) {
+		var timeSinceLastCall = time - lastCallTime,
+			timeSinceLastInvoke = time - lastInvokeTime,
+			timeWaiting = wait - timeSinceLastCall;
+
+		return maxing
+			? nativeMin(timeWaiting, maxWait - timeSinceLastInvoke)
+			: timeWaiting;
+	}
+
+	function shouldInvoke(time) {
+		var timeSinceLastCall = time - lastCallTime,
+			timeSinceLastInvoke = time - lastInvokeTime;
+
+		// Either this is the first call, activity has stopped and we're at the
+		// trailing edge, the system time has gone backwards and we're treating
+		// it as the trailing edge, or we've hit the `maxWait` limit.
+		return (lastCallTime === undefined || (timeSinceLastCall >= wait) ||
+			(timeSinceLastCall < 0) || (maxing && timeSinceLastInvoke >= maxWait));
+	}
+
+	function timerExpired() {
+		var time = Date.now();
+		if (shouldInvoke(time)) {
+			return trailingEdge(time);
+		}
+		// Restart the timer.
+		timerId = setTimeout(timerExpired, remainingWait(time));
+	}
+
+	function trailingEdge(time) {
+		timerId = undefined;
+
+		// Only invoke if we have `lastArgs` which means `func` has been
+		// debounced at least once.
+		if (trailing && lastArgs) {
+			return invokeFunc(time);
+		}
+		lastArgs = lastThis = undefined;
+		return result;
+	}
+
+	function cancel() {
+		if (timerId !== undefined) {
+			clearTimeout(timerId);
+		}
+		lastInvokeTime = 0;
+		lastArgs = lastCallTime = lastThis = timerId = undefined;
+	}
+
+	function flush() {
+		return timerId === undefined ? result : trailingEdge(Date.now());
+	}
+
+	function debounced() {
+		var time = Date.now(),
+			isInvoking = shouldInvoke(time);
+
+		lastArgs = arguments;
+		lastThis = this;
+		lastCallTime = time;
+
+		if (isInvoking) {
+			if (timerId === undefined) {
+				return leadingEdge(lastCallTime);
+			}
+			if (maxing) {
+				// Handle invocations in a tight loop.
+				clearTimeout(timerId);
+				timerId = setTimeout(timerExpired, wait);
+				return invokeFunc(lastCallTime);
+			}
+		}
+		if (timerId === undefined) {
+			timerId = setTimeout(timerExpired, wait);
+		}
+		return result;
+	}
+	debounced.cancel = cancel;
+	debounced.flush = flush;
+	return debounced;
 }

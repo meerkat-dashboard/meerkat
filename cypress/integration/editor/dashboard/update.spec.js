@@ -36,6 +36,7 @@ describe('Dashboard update', () => {
 
 	it('updates dashboard background image', () => {
 		cy.intercept('POST', '/upload').as('uploadBackgroundImage')
+		cy.intercept('/dashboard/abc').as('getDashboardJson')
 
 		// add background
 		cy.get('input[data-cy="dashboard:background"]')
@@ -48,7 +49,8 @@ describe('Dashboard update', () => {
 		cy.contains('Save Dashboard').click()
 		cy.get('img[data-cy="dashboard:background"]').should('be.visible')
 		cy.reload()
-		.get('img[data-cy="dashboard:background"]').should('be.visible')
+		cy.wait('@getDashboardJson')
+		cy.get('img[data-cy="dashboard:background"]').should('be.visible')
 
 		// remove background
 		cy.get('[data-cy="dashboard#remove_background"]').click()

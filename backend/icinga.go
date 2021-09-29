@@ -189,6 +189,7 @@ func initIcingaCheckResultCache() {
 
 			req_url.RawQuery = strings.ReplaceAll(url.Values{"attrs": []string{attrs}}.Encode(), "+", "%20")
 
+			log.Printf("Proxying to icinga: GET %s", req_url.String())
 			req, err := http.NewRequest("GET", req_url.String(), nil)
 			req.Header.Set("Accept", "application/json")
 			req.SetBasicAuth(config.IcingaUsername, config.IcingaPassword)
