@@ -12,6 +12,11 @@ timestamp=`date +"%Y%m%d_%H%M%S"`
 
 for dashboard in $1/*.json
 do
-	cmd="sed -i.$timestamp s/perfDataSelection/checkDataSelection/g $dashboard"
-	echo $cmd && $cmd
+	if grep -q checkDataSelection $dashboard
+	then
+		echo $dashboard has been migrated
+	else
+		cmd="sed -i.$timestamp s/perfDataSelection/checkDataSelection/g $dashboard"
+		echo $cmd && $cmd
+	fi
 done
