@@ -113,7 +113,7 @@ Please install [Docker Desktop](https://www.docker.com/products/docker-desktop).
 ```
 host$ cp config/meerkat.toml.example config/meerkat.toml
 host$ # customize config/meerkat.toml
-host$ docker-compose up backend-dev frontend-dev
+host$ docker-compose up be fe
 host$ curl localhost:8585
 host$ # hack backend/* frontend/src/*
 host$ # profit!
