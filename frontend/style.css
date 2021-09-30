@@ -18,10 +18,6 @@
 	--color-icinga-yellow: #ff9000;
 }
 
-@import "tailwindcss/base";
-@import "tailwindcss/components";
-@import "tailwindcss/utilities";
-
 @font-face {
 	font-family: 'Nunito';
 	font-style: normal;
