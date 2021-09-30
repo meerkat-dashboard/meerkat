@@ -169,7 +169,10 @@ export function Editor({slug, selectedElementId}) {
 	</Fragment>
 }
 
-function TransformableElement({rect, updateRect, checkType, rotation, updateRotation, children, glow, highlight}) {
+function TransformableElement({rect, updateRect, checkType, rotation, updateRotation, children, glow, highlight, index}) {
+	// Open editor on left sidepanel
+	const handleEdit = event => routeParam('selectedElementId', index)
+
 	//Handle dragging elements
 	const handleMove = downEvent => {
 		const mousemove = moveEvent => {
@@ -297,14 +300,14 @@ function TransformableElement({rect, updateRect, checkType, rotation, updateRota
 			style={{left: left, top: top, width: "100%", height: height}}
 			onMouseDown={handleMove}>
 				{children}
-				<button type="button" class="edit btn btn-primary btn-sm">Edit</button>
+				<button type="button" class="edit btn btn-primary btn-sm" onClick={handleEdit}>Edit</button>
 				<div class="resize" onMouseDown={handleResize}></div>
 		</div>
 		: <div class={`check ${glow || highlight ? 'glow' : ''}`}
 			style={{left: left, top: top, width: width, height: height, transform: _rotation}}
 			onMouseDown={handleMove}>
 				{children}
-				<button type="button" class="edit btn btn-primary btn-sm">Edit</button>
+				<button type="button" class="edit btn btn-primary btn-sm" onClick={handleEdit}>Edit</button>
 				<div class="resize" onMouseDown={handleResize}></div>
 				<div class="rotate" onMouseDown={handleRotate}></div>
 		</div>
@@ -347,12 +350,19 @@ function DashboardElements({dashboardDispatch, selectedElementId, elements, high
 		if(element.type === 'iframe-video') { ele = <IframeVideo options={element.options}/> }
 		if(element.type === 'audio-stream') { ele = <AudioStream options={element.options}/> }
 
-		return  <TransformableElement rect={element.rect} updateRect={updateRect}
-					checkType={element.type}
-					glow={selectedElementId === index} highlight={highlightedElementId === index}
-					updateRotation={updateRotation} rotation={element.rotation}>
-					{ele}
-			    </TransformableElement>
+		return (
+			<TransformableElement
+				rect={element.rect}
+				updateRect={updateRect}
+				checkType={element.type}
+				glow={selectedElementId === index}
+				highlight={highlightedElementId === index}
+				updateRotation={updateRotation} rotation={element.rotation}
+				index={index}
+			>
+				{ele}
+		    </TransformableElement>
+		)
 	});
 }
 
@@ -799,7 +809,7 @@ export function ElementSettings({selectedElement, updateElement}) {
 		<div class="options">
 			<div class="lefty-righty spacer">
 				<h3 class="no-margin">{selectedElement.title}</h3>
-				<svg class="feather" onClick={e => removeParam('selectedElementId')}>
+				<svg class="feather" onClick={e => removeParam('selectedElementId')} data-cy="element#close">
 					<use xlinkHref={`/res/svgs/feather-sprite.svg#x`}/>
 				</svg>
 			</div>
