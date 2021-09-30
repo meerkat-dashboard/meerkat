@@ -292,22 +292,22 @@ function TransformableElement({rect, updateRect, checkType, rotation, updateRota
 
 	const _rotation = rotation ? `rotate(${rotation}rad)` : `rotate(0rad)`;
 
-	if (checkType === 'static-ticker'){
-		return <div class={`ticker ${glow || highlight ? 'glow' : ''}`}
+	return checkType === 'static-ticker' ?
+		<div class={`ticker ${glow || highlight ? 'glow' : ''}`}
 			style={{left: left, top: top, width: "100%", height: height}}
 			onMouseDown={handleMove}>
 				{children}
-			<div class="resize" onMouseDown={handleResize}></div>
+				<button type="button" class="edit btn btn-primary btn-sm">Edit</button>
+				<div class="resize" onMouseDown={handleResize}></div>
 		</div>
-	}
-
-	return <div class={`check ${glow || highlight ? 'glow' : ''}`}
-		style={{left: left, top: top, width: width, height: height, transform: _rotation}}
-		onMouseDown={handleMove}>
-			{children}
-			<div class="resize" onMouseDown={handleResize}></div>
-			<div class="rotate" onMouseDown={handleRotate}></div>
-	</div>
+		: <div class={`check ${glow || highlight ? 'glow' : ''}`}
+			style={{left: left, top: top, width: width, height: height, transform: _rotation}}
+			onMouseDown={handleMove}>
+				{children}
+				<button type="button" class="edit btn btn-primary btn-sm">Edit</button>
+				<div class="resize" onMouseDown={handleResize}></div>
+				<div class="rotate" onMouseDown={handleRotate}></div>
+		</div>
 }
 
 function DashboardElements({dashboardDispatch, selectedElementId, elements, highlightedElementId, dashboard, slug}) {

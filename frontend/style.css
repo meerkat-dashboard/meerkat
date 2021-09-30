@@ -771,6 +771,13 @@ div.tag .close-icon {
 }
 
 /* DASHBOARD ELEMENTS */
+.ticker > .edit,
+.check > .edit {
+	position: absolute;
+	top: 2px;
+	right: 2px;
+}
+
 .check {
 	cursor: move;
 	position: absolute;
