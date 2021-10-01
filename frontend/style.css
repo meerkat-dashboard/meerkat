@@ -774,8 +774,6 @@ div.tag .close-icon {
 .ticker > .edit,
 .check > .edit {
 	position: absolute;
-	top: 2px;
-	right: 2px;
 }
 
 .check {
@@ -785,8 +783,17 @@ div.tag .close-icon {
 	text-transform: uppercase;
 }
 
+.check-editing {
+	overflow: visible;
+}
+
 .check.glow {
 	outline: 3px solid #0008ff;
+}
+
+.check > .edit {
+	top: -20px;
+	right: -30px;
 }
 
 .check > div.resize {
@@ -966,12 +973,21 @@ a#text-link {
 	/* animation: marqueeX 10s linear infinite; */
 }
 
+.ticker-editing {
+	overflow: visible;
+}
+
 .ticker > .check-content {
 	pointer-events: none;
 	user-select: none;
 	width: 100%;
 	height: 100%;
 	/* animation: marqueeX 10s linear infinite; */
+}
+
+.ticker > .edit {
+	top: -20px;
+	right: 2px;
 }
 
 .ticker > div.resize {

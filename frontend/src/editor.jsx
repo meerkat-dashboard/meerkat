@@ -296,14 +296,14 @@ function TransformableElement({rect, updateRect, checkType, rotation, updateRota
 	const _rotation = rotation ? `rotate(${rotation}rad)` : `rotate(0rad)`;
 
 	return checkType === 'static-ticker' ?
-		<div class={`ticker ${glow || highlight ? 'glow' : ''}`}
+		<div class={`ticker ticker-editing ${glow || highlight ? 'glow' : ''}`}
 			style={{left: left, top: top, width: "100%", height: height}}
 			onMouseDown={handleMove}>
 				{children}
 				<button type="button" class="edit btn btn-primary btn-sm" onClick={handleEdit}>Edit</button>
 				<div class="resize" onMouseDown={handleResize}></div>
 		</div>
-		: <div class={`check ${glow || highlight ? 'glow' : ''}`}
+		: <div class={`check check-editing ${glow || highlight ? 'glow' : ''}`}
 			style={{left: left, top: top, width: width, height: height, transform: _rotation}}
 			onMouseDown={handleMove}>
 				{children}
