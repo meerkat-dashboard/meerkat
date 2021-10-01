@@ -10,39 +10,37 @@ function useCheckCard({options, dashboard}) {
 	const [acknowledged, setAcknowledged] = useState("");
 
 	const extractAndSetCheckValue = useCallback(checkData => {
-		let newCheckValue
+		let newCheckValue = options.checkDataDefault || 'useCheckState'
 
 		// extract and use plugin output
-		if (options.checkDataSelection === 'pluginOutput') {
+		if (options.checkDataSelection === 'pluginOutput' && checkData.pluginOutput) {
 			//console.log('Plugin Output:', checkData.pluginOutput)
-			let pattern, extractedValues
-			try {
-				pattern = new RegExp(options.checkDataPattern, 'im')
-				extractedValues = (checkData.pluginOutput || "").match(pattern)
-			} catch (e) {
-				console.error(e)
-			}
 
-			if (!options.checkDataPattern) {
-				newCheckValue = options.checkDataDefault || checkData.pluginOutput
-			} else if (extractedValues) {
-				newCheckValue = extractedValues.length > 1 ? extractedValues[extractedValues.length-1] : extractedValues[0]
-			} else {
-				newCheckValue = options.checkDataDefault
+			if (options.checkDataPattern) {
+				try {
+					const pattern = new RegExp(options.checkDataPattern, 'im')
+					const extractedValues = (checkData.pluginOutput).match(pattern)
+					if (extractedValues) {
+						newCheckValue = extractedValues.length > 1 ? extractedValues[extractedValues.length-1] : extractedValues[0]
+					}
+				} catch (e) {
+					// catch invalid regexp
+					console.error(e)
+				}
+			} else if (!options.checkDataDefault) {
+				newCheckValue = checkData.pluginOutput
 			}
 
 		// extract and use performance data
-		} else if (checkData.performance) {
+		} else if (options.checkDataSelection && checkData.performance) {
 			const value = checkData.performance[options.checkDataSelection]
 
 			if (value) {
-				newCheckValue = String(Number(value.replace(/[^\d.-]/g, '')))
-			} else {
-				newCheckValue = options.checkDataDefault
+				newCheckValue = Number(value.replace(/[^\d.-]/g, ''))
 			}
 		}
 
-		setCheckValue(newCheckValue || 'useCheckState')
+		setCheckValue(newCheckValue)
 	}, [
 		options.checkDataSelection,
 		options.checkDataPattern,
