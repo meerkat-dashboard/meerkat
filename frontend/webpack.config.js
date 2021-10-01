@@ -1,4 +1,11 @@
+const fs = require('fs');
 const path = require('path');
+const webpack = require('webpack');
+
+const version = fs.readFileSync(
+  path.resolve(path.join(__dirname, '../version')),
+  'utf8'
+);
 
 module.exports = {
   entry: './src/index.jsx',
@@ -21,6 +28,11 @@ module.exports = {
       }
     ],
   },
+  plugins: [
+    new webpack.DefinePlugin({
+      __MEERKAT_VERSION__: JSON.stringify(version)
+    })
+  ],
   resolve: {
     extensions: [ '.jsx', '.ts', '.js' ],
     alias: {
