@@ -33,10 +33,12 @@ function useCheckCard({options, dashboard}) {
 
 		// extract and use performance data
 		} else if (checkData.performance) {
-			for (const [key, value] of Object.entries(checkData.performance)) {
-				if (options.checkDataSelection === key && value) {
-					newCheckValue = Number(value.replace(/[^\d.-]/g, ''))
-				}
+			const value = checkData.performance[options.checkDataSelection]
+
+			if (value) {
+				newCheckValue = String(Number(value.replace(/[^\d.-]/g, '')))
+			} else {
+				newCheckValue = options.checkDataDefault
 			}
 		}
 
@@ -167,7 +169,7 @@ const CheckDataOptions = ({options, updateOptions}) => {
 				{options.checkDataSelection === 'pluginOutput' ?
 					<div>
 						<input
-							class="form-control"
+							class="form-control mb-1"
 							name="checkDataPattern"
 							type="text"
 							title="Regexp Pattern"
@@ -176,12 +178,16 @@ const CheckDataOptions = ({options, updateOptions}) => {
 							value={options.checkDataPattern}
 							data-cy="card:checkDataRegexp"
 						/>
+					</div>
+				: null}
+				{options.checkDataSelection ?
+					<div>
 						<input
-							class="form-control my-2"
+							class="form-control mb-2"
 							name="checkDataDefault"
 							type="text"
-							title="Value to display when regexp does NOT match"
-							placeholder="Enter value when regexp does NOT match"
+							title="Check data default value"
+							placeholder="Enter default value for check data"
 							onInput={debounce(e => updateOptions({[e.target.name]: e.target.value}), 300)}
 							value={options.checkDataDefault}
 							data-cy="card:checkDataDefault"

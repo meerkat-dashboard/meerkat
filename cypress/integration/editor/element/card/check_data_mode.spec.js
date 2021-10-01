@@ -51,4 +51,38 @@ describe('Element - Check Card - Check Data Mode', () => {
 			cy.get('.check-content .check-state').invoke('text').should('match', /ok|warning|critical|unknown/)
 		})
 	})
+
+	describe('When service has performance data', () => {
+		it('displays check state', () => {
+			cy.intercept("/icinga/services").as("getServicesFromIcinga")
+
+			// select services
+			cy.get('[data-cy="card:check"]').within(() => {
+				cy.get('button').click()
+				cy.get('li').contains(/^Services$/).click()
+			})
+			cy.wait("@getServicesFromIcinga")
+
+			// select name of service
+			cy.get('[data-cy="card:check_options"]').within(() => {
+				cy.get('button').click()
+				cy.get('li').contains('suboptimal.colo.sol1.net!ping4').click()
+			})
+
+			// select performance data
+			cy.get('[data-cy="card:checkDataSelection"]').select('Performance RTA')
+
+			// Check Card content
+			// no default
+			cy.get('.check-content .check-state').invoke('text').should('match', /\d+\.\d+/)
+
+			// has default, has performance data
+			cy.get('[data-cy="card:checkDataDefault"]').type('none')
+			cy.get('.check-content .check-state').invoke('text').should('match', /\d+\.\d+/)
+
+			// TODO how can this case be simulated and tested?
+			// has default, but no performance data
+			//cy.get('.check-content .check-state').should('have.text', 'none')
+		})
+	})
 })
