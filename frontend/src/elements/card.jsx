@@ -10,37 +10,37 @@ function useCheckCard({options, dashboard}) {
 	const [acknowledged, setAcknowledged] = useState("");
 
 	const extractAndSetCheckValue = useCallback(checkData => {
-		let newCheckValue
+		let newCheckValue = options.checkDataDefault || 'useCheckState'
 
 		// extract and use plugin output
-		if (options.checkDataSelection === 'pluginOutput') {
+		if (options.checkDataSelection === 'pluginOutput' && checkData.pluginOutput) {
 			//console.log('Plugin Output:', checkData.pluginOutput)
-			let pattern, extractedValues
-			try {
-				pattern = new RegExp(options.checkDataPattern, 'im')
-				extractedValues = (checkData.pluginOutput || "").match(pattern)
-			} catch (e) {
-				console.error(e)
-			}
 
-			if (!options.checkDataPattern) {
-				newCheckValue = options.checkDataDefault || checkData.pluginOutput
-			} else if (extractedValues) {
-				newCheckValue = extractedValues.length > 1 ? extractedValues[extractedValues.length-1] : extractedValues[0]
-			} else {
-				newCheckValue = options.checkDataDefault
+			if (options.checkDataPattern) {
+				try {
+					const pattern = new RegExp(options.checkDataPattern, 'im')
+					const extractedValues = (checkData.pluginOutput).match(pattern)
+					if (extractedValues) {
+						newCheckValue = extractedValues.length > 1 ? extractedValues[extractedValues.length-1] : extractedValues[0]
+					}
+				} catch (e) {
+					// catch invalid regexp
+					console.error(e)
+				}
+			} else if (!options.checkDataDefault) {
+				newCheckValue = checkData.pluginOutput
 			}
 
 		// extract and use performance data
-		} else if (checkData.performance) {
-			for (const [key, value] of Object.entries(checkData.performance)) {
-				if (options.checkDataSelection === key && value) {
-					newCheckValue = Number(value.replace(/[^\d.-]/g, ''))
-				}
+		} else if (options.checkDataSelection && checkData.performance) {
+			const value = checkData.performance[options.checkDataSelection]
+
+			if (value) {
+				newCheckValue = Number(value.replace(/[^\d.-]/g, ''))
 			}
 		}
 
-		setCheckValue(newCheckValue || 'useCheckState')
+		setCheckValue(newCheckValue)
 	}, [
 		options.checkDataSelection,
 		options.checkDataPattern,
@@ -167,7 +167,7 @@ const CheckDataOptions = ({options, updateOptions}) => {
 				{options.checkDataSelection === 'pluginOutput' ?
 					<div>
 						<input
-							class="form-control"
+							class="form-control mb-1"
 							name="checkDataPattern"
 							type="text"
 							title="Regexp Pattern"
@@ -176,12 +176,16 @@ const CheckDataOptions = ({options, updateOptions}) => {
 							value={options.checkDataPattern}
 							data-cy="card:checkDataRegexp"
 						/>
+					</div>
+				: null}
+				{options.checkDataSelection ?
+					<div>
 						<input
-							class="form-control my-2"
+							class="form-control mb-2"
 							name="checkDataDefault"
 							type="text"
-							title="Value to display when regexp does NOT match"
-							placeholder="Enter value when regexp does NOT match"
+							title="Check data default value"
+							placeholder="Enter default value for check data"
 							onInput={debounce(e => updateOptions({[e.target.name]: e.target.value}), 300)}
 							value={options.checkDataDefault}
 							data-cy="card:checkDataDefault"
