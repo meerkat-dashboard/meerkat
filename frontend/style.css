@@ -771,6 +771,11 @@ div.tag .close-icon {
 }
 
 /* DASHBOARD ELEMENTS */
+.ticker > .check-content,
+.check > .check-content {
+	overflow: hidden;
+}
+
 .ticker > .edit,
 .check > .edit {
 	position: absolute;
