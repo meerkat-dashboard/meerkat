@@ -38,6 +38,20 @@ You will need an up to date go, and an up to date npm install to build Meerkat. 
 
 Meerkat will need a valid config file to start - the following is a sample:
 
+### Build from repo
+There is script to deploy meerkat on Ubuntu from the current repository, `./contrib/install-ubuntu.sh`.
+
+To deploy or update meerkat update your git repoitory on the target system to the branch, tag or release you want then from the root of the repository run the script
+
+```
+cd meerkat
+git pull
+service meerkat stop
+./contrib/install-ubuntu.sh
+service meerkat stop
+```
+At this stage you should have a running meerkat with the updated code. Make sure the browsers that are accessing the server clear their cache to ensure they also have the updated code they require.
+
 ### Configuring Meerkat
 ```
 HTTPAddr = "[::]:8585"
@@ -100,8 +114,17 @@ Embed video or audio streams in the dashboards in case staring at the dashboard 
 ### Sounds
 Meerkat allows you to specify a global sound scheme for state change, as well as upload custom sounds. Each check can also have different sounds triggered on state change. Yes you can have the sysadmin DJ soundboard of doom you always wanted!
 
+### Displaying check information instead of state
+Some element type allow you to add performance data or check output to the dashboard.
 
-Future enhancements may include:
+For performance data you have the option to set a default value if metic doesn't exist. This can occur if the performance data on the check varies, changes due to state or the dashboard is a template.
+
+The check output has the option to take a regex value to extract parts of the check output, the default value is available if no match is found.
+
+Both perfdata and check output use state as the default value if no match is found.
+
+
+### Future enhancements may include:
 * Authentication support (though it is meant to be displayed on a wall, without auth mostly)
 * Automation for creation of the dashboard config, allowing for easy mass creation of dashboards from Icinga data
 * Automation for export of Meerkat dashboards to Business Processes
