@@ -119,15 +119,13 @@ host$ # hack backend/* frontend/src/*
 host$ # profit!
 ```
 
-### Deploy a Docker Hub Image
-clone meerkat to a docker host 
-You may need to use `docker login hub.example.net` if you haven't configured auth
+### Docker images
+
+A meerkat Docker image is available at https://hub.docker.com/r/sol1/meerkat or you can build one locally with
 
 ```
-docker build --tag hub.example.net/meerkat:latest 
-docker image push hub.example.net/meerkat:latest
+docker build -t meerkat .
 ```
-
 
 ### Support
 Sol1 is an official Icinga Enterprise Partner, and can offer commercial support for Meerkat and Icinga and friends. We are a friendly bunch of people, so please don't hesitate to get in touch at http://sol1.com.au
