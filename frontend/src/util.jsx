@@ -465,13 +465,15 @@ export function linkHelper(element, ele, dashboard){
 		target = 'blank';
 	}
 
-	for (const [key, property] of Object.entries(dashboard.variables)) {
-		if (element.options.hasOwnProperty('linkURL') && element.options.linkURL.includes(`~${key}~`)) {
-			let reg = new RegExp('~(' + key + ')~', 'g');
-			link = link.replaceAll(reg, encodeURIComponent(property));
+	if (dashboard.hasOwnProperty('variables')) {
+		for (const [key, property] of Object.entries(dashboard.variables)) {
+			if (element.options.hasOwnProperty('linkURL') && element.options.linkURL.includes(`~${key}~`)) {
+				let reg = new RegExp('~(' + key + ')~', 'g');
+				link = link.replaceAll(reg, encodeURIComponent(property));
+			}
 		}
 	}
-
+	
 	if (element.options.linkURL && element.type === 'static-text') {
 		if (element.options.linkURL.includes('http') ) {
 			ele = <a id="text-link" href={link} target={target}>{ele}</a>
