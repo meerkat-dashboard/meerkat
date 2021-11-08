@@ -1,4 +1,4 @@
-FROM golang:alpine AS backend-build
+FROM golang:1.16.10-alpine AS backend-build
 RUN apk add --update --no-cache gcc libc-dev git
 
 FROM backend-build AS backend
