@@ -91,10 +91,12 @@ export function StaticText({options, vars}) {
 		styles += `text-align: center; line-height: 470%; `;
 	}
 
-	for (const [key, property] of Object.entries(vars)) {
-		if (options.text.includes(`~${key}~`)) {
-			let reg = new RegExp('~(' + key + ')~', 'g');
-			text = text.replaceAll(reg, property);
+	if (typeof vars === 'object' && vars != null) {
+		for (const [key, property] of Object.entries(vars)) {
+			if (options.text.includes(`~${key}~`)) {
+				let reg = new RegExp('~(' + key + ')~', 'g');
+				text = text.replaceAll(reg, property);
+			}
 		}
 	}
 
