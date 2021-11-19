@@ -862,6 +862,7 @@ div.tag .close-icon {
 	justify-content: center;
 	align-items: center;
 	text-transform: uppercase;
+	white-space: pre-wrap;
 }
 
 .warning-ack {
