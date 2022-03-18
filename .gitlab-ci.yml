@@ -76,9 +76,7 @@ build-docker:
     - docker build --pull -t "$CI_REGISTRY_IMAGE${tag}" .
     - docker push "$CI_REGISTRY_IMAGE${tag}"
   rules:
-    # But only run on the default branch for now (meaning the conditional tag script above is redundant)
-    - if: $CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH 
-    # And only try to build if we actually have a Dockerfile
-    - if: $CI_COMMIT_BRANCH
+    - if: '"$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH"' # Only on the default branch for now
+    - if: $CI_COMMIT_BRANCH # And only if we have a Dockerfile
       exists:
         - Dockerfile
