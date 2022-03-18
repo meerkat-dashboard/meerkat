@@ -52,3 +52,33 @@ test-e2e:
     - MEERKAT_PID=$!
     - npx cypress run --browser chrome
     - kill $MEERKAT_PID
+
+build-docker:
+  image: docker:20
+  tags:
+    - dind
+  stage: build
+  services:
+    - docker:dind
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD"
+  script:
+    # Default branch leaves tag empty (= latest tag)
+    # All other branches are tagged with the escaped branch name (commit ref slug)
+    - |
+      if [[ "$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH" ]]; then
+        tag=""
+        echo "Running on default branch '$CI_DEFAULT_BRANCH': tag = 'latest'"
+      else
+        tag=":$CI_COMMIT_REF_SLUG"
+        echo "Running on branch '$CI_COMMIT_BRANCH': tag = $tag"
+      fi
+    - docker build --pull -t "$CI_REGISTRY_IMAGE${tag}" .
+    - docker push "$CI_REGISTRY_IMAGE${tag}"
+  rules:
+    # But only run on the default branch for now (meaning the conditional tag script above is redundant)
+    - if: $CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH 
+    # And only try to build if we actually have a Dockerfile
+    - if: $CI_COMMIT_BRANCH
+      exists:
+        - Dockerfile
