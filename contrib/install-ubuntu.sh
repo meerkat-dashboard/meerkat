@@ -28,7 +28,7 @@ mkdir /usr/local/meerkat -p
 echo "Building meerkat"
 cd backend
 go build
-if [$? != 0]
+if [ $? -ne 0 ]
     then echo "Something went wrong with the build!"
     exit
     else "Ok, onto installing the node stuff"
