@@ -31,7 +31,7 @@ go build
 if [ $? -ne 0 ]
     then echo "Something went wrong with the build!"
     exit
-    else "Ok, onto installing the node stuff"
+    else echo "Ok, onto installing the node stuff"
 fi
 
 chmod +x meerkat
