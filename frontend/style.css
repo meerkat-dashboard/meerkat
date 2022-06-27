@@ -399,6 +399,14 @@ div.selection > .selector:last-child {
 	border-radius: 0 3px 3px 0;
 }
 
+/* Meerkat Version */
+.app-version {
+	position: fixed;
+	right: 10px;
+	bottom: 10px;
+	text-shadow: 0 1px 0 black;
+}
+
 /* COPY SELECTION BOX */
 div.copy-box {
 	position: relative;

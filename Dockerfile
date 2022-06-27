@@ -8,6 +8,7 @@ RUN go build
 
 FROM node:lts AS frontend
 COPY ./frontend /root/frontend
+COPY ./version /root/version
 WORKDIR /root/frontend
 RUN npm install && npm run prod
 

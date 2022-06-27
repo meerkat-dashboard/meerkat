@@ -17,6 +17,7 @@ function Main() {
 
 			<NotFound default/>
 		</Router>
+		<div title="Meerkat version" class="app-version">{__MEERKAT_VERSION__}</div>
 	</Fragment>
 }
 

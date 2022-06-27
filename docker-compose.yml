@@ -45,6 +45,7 @@ x-frontend-development: &frontend-development
     npm run dev
     "
   volumes:
+    - ./version:/app/version
     - ./frontend:/app/frontend
 
 services:
