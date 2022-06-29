@@ -1,14 +1,10 @@
 {
-  "name": "meerket",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
   "scripts": {
     "dev": "webpack --display-modules --mode development --watch",
     "prod": "webpack --display-modules --mode production"
   },
-  "author": "",
-  "license": "ISC",
+  "license": "AGPL-3.0-or-later",
+  "author": "Matthew Streatfield (https://github.com/StreatCodes)",
   "dependencies": {
     "@babel/core": "^7.11.1",
     "@babel/plugin-transform-react-jsx": "^7.10.4",
@@ -22,6 +18,5 @@
     "video.js": "^7.8.4",
     "webpack": "^4.44.1",
     "webpack-cli": "^3.3.12"
-  },
-  "devDependencies": {}
+  }
 }
