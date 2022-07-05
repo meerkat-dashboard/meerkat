@@ -1,13 +1,9 @@
 # Meerkat web server listens, and accepts requests, from this host and port.
-HTTPAddr = "0.0.0.0:8585" # FIXME rename to BindHostPort
+HTTPAddr = "0.0.0.0:8585"
 
 # Meerkat acts as a reverse proxy to this specified Icinga server.
-#
-# TODO condense into one variable, e.g.
-# IcingaURL = "https://user:pass@icinga.host:5665?insecure_tls=false"
-#
-# When icinga uses self-signed SSL certificate, set insecure_tls=true
 IcingaURL      = "https://icinga.example.com:5665"
 IcingaUsername = "api-user"
 IcingaPassword = "api-password"
+# Set to true when, for example, Icinga serves a self-signed certificate.
 IcingaInsecureTLS = false

@@ -4,8 +4,6 @@ A utility to create and share dashboards for icinga2 checks and hosts. Meerkat a
 
 ![Meerkat World Map](docs/meerkat_world_map.png)
 
-
-
 Dashboards are saved as json files under the `dashboards` directory which get generated on startup, so backing up or moving data is easy. The `dashboard-data` directory is for image/file data.
 
 **This tool is designed to be used internally, there is no user management and it has direct access to the Icinga2 API (with some minor filtering) I would not recommend putting this on the internet. You can limit the API user using filters as per the Icinga docs here: https://icinga.com/docs/icinga2/latest/doc/12-icinga2-api/#icinga2-api-permissions **
@@ -30,31 +28,22 @@ Finally run meerkat and provide a configuration file:
 
 	./meerkat -config config/meerkat.toml
 
-See below for a sample configuration file.
+See config/meerkat.toml.example for an example configuration file.
 
-## Confguring Meerkat
+## Confguring Icinga2
 
-```
-HTTPAddr = "[::]:8585"
-
-IcingaURL = "https://icinga.example.com:5665"
-IcingaUsername = "meerkat"
-IcingaPassword = "meerkatpassword"
-IcingaInsecureTLS = true
-```
-
-The username and password you will use should be configured in the Icinga2 api-users.conf. Here is an example:
+Meerkat communicates with Icinga2 via its HTTP API.
+It requires a user to authenticate as.
+Here is an example `ApiUser` object with limited, read-only privileges:
 
 ```
 object ApiUser "meerkat" {
   password = "meerkatpassword"
-
-permissions = [ "objects/query/Host", "objects/query/Service", "objects/query/ServiceGroup", "objects/query/HostGroup" ]
+  permissions = [ "objects/query/Host", "objects/query/Service", "objects/query/ServiceGroup", "objects/query/HostGroup" ]
 }
 ```
 
-And don't forget to restart Icinga2 after updating that config file.
-
+In a default Icinga2 installation, this definition may be written to `/etc/icinga2/conf.d/api-users.conf`.
 
 ### Using Meerkat
 
