@@ -11,34 +11,29 @@ Dashboards are saved as json files under the `dashboards` directory which get ge
 **This tool is designed to be used internally, there is no user management and it has direct access to the Icinga2 API (with some minor filtering) I would not recommend putting this on the internet. You can limit the API user using filters as per the Icinga docs here: https://icinga.com/docs/icinga2/latest/doc/12-icinga2-api/#icinga2-api-permissions **
 
 
-### Quick Start
-Deploying from the docker hub image is the easiest way to get started.
+## Development
 
-Copy `config/meerkat.toml.example` to `config/meerkat.toml`, edit `config/meerkat.toml` using your favourite editor, then invoke your favourite composer:
-```
-docker-compose up
-```
-or
-```
-docker stack deploy -c docker-compose.yml meerkat
-```
+First, build the frontend. Install dependencies, then build the application bundle:
 
-The default `docker-compose.yml` uses the directories `config/` `dashboards/` and `dashboards/` for data persistance.  Feel free to edit docker-compose.yml as you see fit though, of course.
+	cd frontend
+	npm install
+	npm run prod
 
-We have also included a Dockerfile in case you want to build your own image.
+Next, build the backend.
+The meerkat executable serves the frontend bundle from "frontend" directory,
+so write the binary to the repository root:
 
-### Build without Docker
-You will need an up to date go, and an up to date npm install to build Meerkat. The steps below aren't tested with each release, but should get you started.
+	cd backend
+	go build -o ../meerkat
 
-* ```go build``` in the root directory of this project to build the server
-* From the frontend directory run ```npm i``` which installs JS dependencies
+Finally run meerkat and provide a configuration file:
 
-* ```npm run prod``` from the frontend directory which builds the frontend code (index.html loads this output (bundle.js))
-* You can then run ```./meerkat -config meerkat.toml``` after creating the config file above
+	./meerkat -config config/meerkat.toml
 
-Meerkat will need a valid config file to start - the following is a sample:
+See below for a sample configuration file.
 
-### Configuring Meerkat
+## Confguring Meerkat
+
 ```
 HTTPAddr = "[::]:8585"
 
@@ -105,19 +100,6 @@ Future enhancements may include:
 * Authentication support (though it is meant to be displayed on a wall, without auth mostly)
 * Automation for creation of the dashboard config, allowing for easy mass creation of dashboards from Icinga data
 * Automation for export of Meerkat dashboards to Business Processes
-
-### Development with Docker Compose
-
-Please install [Docker Desktop](https://www.docker.com/products/docker-desktop).
-
-```
-host$ cp config/meerkat.toml.example config/meerkat.toml
-host$ # customize config/meerkat.toml
-host$ docker-compose up be fe
-host$ curl localhost:8585
-host$ # hack backend/* frontend/src/*
-host$ # profit!
-```
 
 ### Docker images
 
