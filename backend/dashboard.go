@@ -213,6 +213,29 @@ type SlugResponse struct {
 	Slug string `json:"slug"`
 }
 
+// basicAuthHandler returns a http.Handler which presents a HTTP Basic Authentication challenge
+// before the request can proceed. The challenge must be completed with the provided
+// username and password. On successful authentication, the request is handled by next.
+func basicAuthHandler(username, password string, next http.Handler) http.Handler {
+	fn := func(w http.ResponseWriter, req *http.Request) {
+		u, p, ok := req.BasicAuth()
+		if !ok || len(u) == 0 || len(p) == 0 {
+			w.Header().Set("WWW-Authenticate", `Basic realm="meerkat"`)
+			c := http.StatusUnauthorized
+			http.Error(w, http.StatusText(c), c)
+			return
+		}
+		if u == username && p == password {
+			next.ServeHTTP(w, req)
+			return
+		}
+		w.Header().Set("WWW-Authenticate", `Basic realm="meerkat"`)
+		c := http.StatusUnauthorized
+		http.Error(w, http.StatusText(c), c)
+	}
+	return http.HandlerFunc(fn)
+}
+
 func handleCreateDashboard(w http.ResponseWriter, r *http.Request) {
 	//Decode body
 	buf := new(bytes.Buffer)

@@ -49,7 +49,6 @@ Files:
 	return nil
 }
 
-//Config - application config data
 type Config struct {
 	HTTPAddr string
 
@@ -57,6 +56,9 @@ type Config struct {
 	IcingaUsername    string
 	IcingaPassword    string
 	IcingaInsecureTLS bool
+
+	AdminUsername string
+	AdminPassword string
 
 	CacheExpiryDurationSeconds int64
 	CacheSizeBytes             int64
@@ -94,7 +96,6 @@ func main() {
 	cachepool := groupcache.NewHTTPPool("http://localhost:8585")
 	cachepool.Set("http://localhost:8585")
 
-	//Web server setup
 	r := chi.NewRouter()
 
 	r.Use(middleware.RequestID)
@@ -105,12 +106,26 @@ func main() {
 
 	r.Handle("/_groupcache/", cachepool)
 
-	// dashboard create, read, update, delete
 	r.Get("/dashboard", handleListDashboards)
 	r.Get("/dashboard/{slug}", handleListDashboard)
-	r.Post("/dashboard", handleCreateDashboard)
-	r.Post("/dashboard/{slug}", handleUpdateDashboard)
-	r.Delete("/dashboard/{slug}", handleDeleteDashboard)
+
+	var (
+		createDashboard http.HandlerFunc
+		updateDashboard http.HandlerFunc
+		deleteDashboard http.HandlerFunc
+	)
+	if config.AdminUsername != "" && config.AdminPassword != "" {
+		createDashboard = basicAuthHandler(config.AdminUsername, config.AdminPassword, http.HandlerFunc(handleCreateDashboard)).ServeHTTP
+		updateDashboard = basicAuthHandler(config.AdminUsername, config.AdminPassword, http.HandlerFunc(handleUpdateDashboard)).ServeHTTP
+		updateDashboard = basicAuthHandler(config.AdminUsername, config.AdminPassword, http.HandlerFunc(handleUpdateDashboard)).ServeHTTP
+	} else {
+		createDashboard = handleCreateDashboard
+		updateDashboard = handleUpdateDashboard
+		deleteDashboard = handleDeleteDashboard
+	}
+	r.Post("/dashboard", createDashboard)
+	r.Post("/dashboard/{slug}", updateDashboard)
+	r.Delete("/dashboard/{slug}", deleteDashboard)
 
 	// settings - custom branding, white labeling
 	r.Get("/settings", handleGetSettings)
