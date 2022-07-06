@@ -1,8 +1,3 @@
-/**
- * Backend API calls
- *
- * TODO rename from meerkat.js to api.js?
- */
 import { fetchHandler, filterReplace } from './util';
 
 export async function getIcingaHosts() {
