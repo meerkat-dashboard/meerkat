@@ -306,7 +306,7 @@ export function getCheckData(options, callback) {
 		};
 
 		// extract & transform performance data
-		let perfData = c.results ? c.results[0].attrs.last_check_result.performance_data : null;
+		let perfData = c.results ? c.results[0].lastCheckResult.performance_data : null;
 		if (perfData !== null && typeof perfData !== "undefined" && perfData.length > 0) {
 			let arrPerf = [];
 			for (var i = 0; i < perfData.length; i++){
@@ -317,7 +317,7 @@ export function getCheckData(options, callback) {
 			checkData.performance = Object.fromEntries(arrPerf.map(s => s.split('=')));
 		}
 
-		checkData.pluginOutput = c.results ? c.results[0].attrs.last_check_result.output : null;
+		checkData.pluginOutput = c.results ? c.results[0].lastCheckResult.output : null;
 
 		callback(checkData);
 	});
@@ -473,7 +473,7 @@ export function linkHelper(element, ele, dashboard){
 			}
 		}
 	}
-	
+
 	if (element.options.linkURL && element.type === 'static-text') {
 		if (element.options.linkURL.includes('http') ) {
 			ele = <a id="text-link" href={link} target={target}>{ele}</a>
