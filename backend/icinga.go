@@ -162,8 +162,8 @@ func initIcingaCheckResultCache() {
 				return fmt.Errorf("Invalid cache key")
 			}
 
-			object  := bits[0]
-			attrs   := bits[1]
+			object := bits[0]
+			attrs := bits[1]
 			objType := bits[2]
 
 			client := &http.Client{}
@@ -299,7 +299,7 @@ func initIcingaCheckStateCache() {
 			}
 
 			object_type := bits[0]
-			filter     := bits[1]
+			filter := bits[1]
 
 			client := &http.Client{}
 			//Disable TLS verification if config says so
@@ -416,8 +416,8 @@ func initIcingaCheckCache() {
 			}
 
 			checkType := bits[0]
-			objectID  := bits[1]
-			filter    := bits[2]
+			objectID := bits[1]
+			filter := bits[2]
 
 			client := &http.Client{}
 			//Disable TLS verification if config says so
