@@ -29,9 +29,5 @@ module.exports = {
       "react-dom": "preact/compat",
     }
   },
-  output: {
-    filename: 'bundle.js',
-    path: path.resolve(__dirname, 'dist'),
-  },
   devtool: 'source-map'
 };
