@@ -47,9 +47,9 @@ else
     echo "config already in place at /etc/meerkat.toml"
 fi
 
-cd frontend/
-npm i
-npm run prod
+cd frontend
+npm install
+npm run build
 
 cd ..
 

@@ -15,7 +15,7 @@ First, build the frontend. Install dependencies, then build the application bund
 
 	cd frontend
 	npm install
-	npm run prod
+	npm run build
 
 Next, build the backend.
 The meerkat executable serves the frontend bundle from "frontend" directory,
