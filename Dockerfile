@@ -9,7 +9,7 @@ RUN go build
 FROM node:lts AS frontend
 COPY ./frontend /root/frontend
 WORKDIR /root/frontend
-RUN npm install && npm run prod
+RUN npm install && npm run build
 
 FROM alpine:latest
 WORKDIR /meerkat
