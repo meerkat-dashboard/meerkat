@@ -27,7 +27,8 @@ so write the binary to the repository root:
 
 Finally, run meerkat and provide a configuration file:
 
-	../meerkat -config ../config/meerkat.toml
+	cd ..
+	./meerkat -config config/meerkat.toml
 
 See `config/meerkat.toml.example` for an example configuration file.
 
