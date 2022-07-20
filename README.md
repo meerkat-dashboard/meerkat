@@ -23,12 +23,17 @@ The meerkat executable serves the frontend bundle from "frontend" directory,
 so write the binary to the repository root:
 
 	cd backend
-	go build -o ../meerkat
+	go build -o ..
 
 Finally, run meerkat and provide a configuration file:
 
 	cd ..
 	./meerkat -config config/meerkat.toml
+
+Or on Windows
+
+	cd ..
+	.\meerkat.exe -config config\meerkat.toml
 
 See `config/meerkat.toml.example` for an example configuration file.
 
