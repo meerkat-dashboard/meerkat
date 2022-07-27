@@ -137,7 +137,6 @@ func main() {
 	r.Get("/icinga/dynamic_text/{host-name}", handleIcingaVars)
 	r.Get("/icinga/{check-type}/{object-id}", handleIcingaCheck)
 	r.Get("/icinga/check_state", handleIcingaCheckState)
-	r.Get("/icinga/check_result", handleCheckResult)
 
 	// find and return dashboard json (useful for debugging),
 	// e.g. GET /template?templateid=ha.json

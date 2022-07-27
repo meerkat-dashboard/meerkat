@@ -430,7 +430,7 @@ export function getCheckData(options, callback) {
 
 		// extract & transform performance data
 		let perfData = c.results
-			? c.results[0].attrs.last_check_result.performance_data
+			? c.results[0].lastCheckResult.performance_data
 			: null;
 		if (
 			perfData !== null &&
@@ -449,7 +449,7 @@ export function getCheckData(options, callback) {
 		}
 
 		checkData.pluginOutput = c.results
-			? c.results[0].attrs.last_check_result.output
+			? c.results[0].lastCheckResult.output
 			: null;
 
 		callback(checkData);
