@@ -27,65 +27,46 @@ type icingaAPIResult struct {
 }
 
 type icingaAttributes struct {
-	Acknowledgement float64  `json:"acknowledgement"`
-	Name            string   `json:"name"`
-	HostName        string   `json:"host_name"`
-	DisplayName     string   `json:"display_name"`
-	Command         string   `json:"check_command"`
-	State           float32  `json:"state"`
-	Interval        float32  `json:"check_interval"`
-	Groups          []string `json:"groups"`
-	Vars            vars     `json:"vars,omitempty"`
+	Acknowledgement float64     `json:"acknowledgement"`
+	Name            string      `json:"name"`
+	HostName        string      `json:"host_name"`
+	DisplayName     string      `json:"display_name"`
+	Command         string      `json:"check_command"`
+	State           float32     `json:"state"`
+	Interval        float32     `json:"check_interval"`
+	Groups          []string    `json:"groups"`
+	Vars            vars        `json:"vars,omitempty"`
+	LastCheckResult checkResult `json:"last_check_result"`
 }
 
 type vars struct{}
 
 func (ir *icingaAPIResult) toIcingaObject() icingaObject {
 	return icingaObject{
-		ID:          ir.Name,
-		Type:        ir.Type,
-		Name:        ir.Attributes.Name,
-		HostName:    ir.Attributes.HostName,
-		DisplayName: ir.Attributes.DisplayName,
-		Command:     ir.Attributes.Command,
-		State:       ir.Attributes.State,
-		Interval:    ir.Attributes.Interval,
-		Groups:      ir.Attributes.Groups,
+		ID:              ir.Name,
+		Type:            ir.Type,
+		Name:            ir.Attributes.Name,
+		HostName:        ir.Attributes.HostName,
+		DisplayName:     ir.Attributes.DisplayName,
+		Command:         ir.Attributes.Command,
+		State:           ir.Attributes.State,
+		Interval:        ir.Attributes.Interval,
+		Groups:          ir.Attributes.Groups,
+		LastCheckResult: ir.Attributes.LastCheckResult,
 	}
 }
 
 type icingaObject struct {
-	ID          string   `json:"id"`
-	Type        string   `json:"type"`
-	Name        string   `json:"name"`
-	HostName    string   `json:"hostName"`
-	DisplayName string   `json:"displayName"`
-	Command     string   `json:"checkCommand"`
-	State       float32  `json:"state"`
-	Interval    float32  `json:"checkInterval"`
-	Groups      []string `json:"groups"`
-}
-
-type icingaAPILastCheckResults struct {
-	CheckResults []results `json:"results"`
-}
-
-type results struct {
-	Attributes icingaCheckAttributes `json:"attrs"`
-	Joins      joins                 `json:"joins,omitempty"`
-	Meta       types                 `json:"meta,omitempty"`
-	Name       string                `json:"name"`
-	Type       string                `json:"type"`
-}
-
-type joins struct {
-}
-
-type types struct {
-}
-
-type icingaCheckAttributes struct {
-	Attributes checkResult `json:"last_check_result"`
+	ID              string      `json:"id"`
+	Type            string      `json:"type"`
+	Name            string      `json:"name"`
+	HostName        string      `json:"hostName"`
+	DisplayName     string      `json:"displayName"`
+	Command         string      `json:"checkCommand"`
+	State           float32     `json:"state"`
+	Interval        float32     `json:"checkInterval"`
+	Groups          []string    `json:"groups"`
+	LastCheckResult checkResult `json:"lastCheckResult"`
 }
 
 type checkResult struct {
@@ -123,110 +104,6 @@ type varsBefore struct {
 type together struct {
 	MaxState     int64
 	Acknowledged int64
-}
-
-func handleCheckResult(w http.ResponseWriter, r *http.Request) {
-	object := r.URL.Query().Get("object")
-	attrs := r.URL.Query().Get("attrs")
-	objType := r.URL.Query().Get("objtype")
-
-	if object == "" {
-		http.Error(w, "No unique queue name specified", http.StatusBadRequest)
-		return
-	}
-
-	cache := groupcache.GetGroup("IcingaCheckResult")
-	if cache == nil {
-		log.Printf("No IcingaCheckResult cache")
-		http.Error(w, "No cache available", http.StatusInternalServerError)
-		return
-	}
-
-	var enc []byte
-	key := strings.Join([]string{object, attrs, objType}, string(rune(0)))
-	if err := cache.Get(r.Context(), key, groupcache.AllocatingByteSliceSink(&enc)); err != nil {
-		log.Printf("Cache retrieval failed: %w", err)
-		http.Error(w, "Cache retrieval failed", http.StatusInternalServerError)
-		return
-	}
-
-	w.Write(enc)
-}
-
-func initIcingaCheckResultCache() {
-	groupcache.NewGroup("IcingaCheckResult", config.CacheSizeBytes, groupcache.GetterFunc(
-		func(ctx context.Context, key string, dest groupcache.Sink) error {
-			bits := strings.SplitN(key, string(rune(0)), 3)
-
-			if len(bits) < 3 {
-				return fmt.Errorf("Invalid cache key")
-			}
-
-			object := bits[0]
-			attrs := bits[1]
-			objType := bits[2]
-
-			client := &http.Client{}
-			//Disable TLS verification if config says so
-			if config.IcingaInsecureTLS {
-				client.Transport = &http.Transport{
-					TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-				}
-			}
-
-			//Create HTTP request
-			req_url, err := url.Parse(config.IcingaURL)
-			if err != nil {
-				log.Printf("Failed to parse IcingaURL: %w", err)
-				return err
-			}
-
-			if objType == "service" {
-				req_url.Path = path.Join(req_url.Path, "/v1/objects/services", object)
-			} else {
-				req_url.Path = path.Join(req_url.Path, "/v1/objects/hosts", object)
-			}
-
-			req_url.RawQuery = strings.ReplaceAll(url.Values{"attrs": []string{attrs}}.Encode(), "+", "%20")
-
-			log.Printf("Proxying to icinga: GET %s", req_url.String())
-			req, err := http.NewRequest("GET", req_url.String(), nil)
-			req.Header.Set("Accept", "application/json")
-			req.SetBasicAuth(config.IcingaUsername, config.IcingaPassword)
-
-			if err != nil {
-				fmt.Println("Failed to create HTTP request: %w", err)
-				return err
-			}
-
-			//Make request
-			res, err := client.Do(req)
-			if err != nil {
-				fmt.Println("Icinga2 API error: %w", err.Error())
-				return err
-			}
-
-			fmt.Println("Response status:", res.Status)
-
-			defer res.Body.Close()
-
-			var checkResults icingaAPILastCheckResults
-			dec := json.NewDecoder(res.Body)
-			err = dec.Decode(&checkResults)
-
-			if err != nil {
-				log.Printf("Error decoding Icinga2 API response: %w", err)
-				return err
-			}
-
-			if enc, err := json.Marshal(checkResults); err != nil {
-				log.Printf("Failed to encode IcingaCheckResult value: %w", err)
-				return err
-			} else {
-				return dest.SetBytes(enc, time.Now().Add(time.Duration(config.CacheExpiryDurationSeconds)*time.Second))
-			}
-		},
-	))
 }
 
 func handleIcingaCheckState(w http.ResponseWriter, r *http.Request) {
@@ -566,7 +443,6 @@ func initIcingaVarsCache() {
 }
 
 func initialiseIcingaCaches() {
-	initIcingaCheckResultCache()
 	initIcingaCheckStateCache()
 	initIcingaCheckCache()
 	initIcingaVarsCache()
