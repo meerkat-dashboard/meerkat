@@ -34,12 +34,16 @@ export async function getIcingaObjectState(objectType, filter, dashboard) {
 	);
 }
 
-export async function getCheckResult(objType, objName) {
-	if (objType == "host") {
-		return fetchHandler(`/icinga/hosts/${encodeURIComponent(objName)}`);
-	} else if (objType == "service") {
-		return fetchHandler(`/icinga/services/${encodeURIComponent(objName)}`);
-	}
+export async function getCheckResult(
+	objType,
+	object,
+	attrs = "last_check_result"
+) {
+	return fetchHandler(
+		`/icinga/check_result?objtype=${objType}&object=${encodeURIComponent(
+			object
+		)}&attrs=${encodeURIComponent(attrs)}`
+	);
 }
 
 export async function getDashboard(slug) {
