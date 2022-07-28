@@ -34,7 +34,7 @@ func handleCreateTemplate(w http.ResponseWriter, r *http.Request) {
 	err := json.Unmarshal([]byte(dash), &dashboard)
 
 	if err != nil {
-		log.Printf("Error processing json: %w", err.Error())
+		log.Println("Error processing json:", err)
 		http.Error(w, "Error processing json: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -51,7 +51,7 @@ func handleCreateTemplate(w http.ResponseWriter, r *http.Request) {
 	regID, err := regexp.Compile(`"([^"]*)"`)
 
 	if err != nil {
-		log.Printf("Error compiling regex: %w", err.Error())
+		log.Println("Error compiling regex:", err)
 	}
 
 	for i := range dashboardX.Elements {
@@ -59,7 +59,7 @@ func handleCreateTemplate(w http.ResponseWriter, r *http.Request) {
 			reg, err := regexp.Compile(fmt.Sprint("~(", sqs, ")~"))
 
 			if err != nil {
-				log.Printf("Error compiling regex: %w", err.Error())
+				log.Println("Error compiling regex:", err)
 			}
 
 			if strings.Contains(dashboardX.Elements[i].Options.Filter, fmt.Sprint("~", sqs, "~")) {

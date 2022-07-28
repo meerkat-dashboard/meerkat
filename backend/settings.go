@@ -23,7 +23,7 @@ func handleChangeSettings(w http.ResponseWriter, r *http.Request) {
 	var settings Settings
 	err := json.Unmarshal(buf.Bytes(), &settings)
 	if err != nil {
-		log.Printf("JSON body decode failure: %w", err.Error())
+		log.Println("JSON body decode failure:", err)
 		http.Error(w, "Error decoding json body: "+err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -35,12 +35,12 @@ func handleChangeSettings(w http.ResponseWriter, r *http.Request) {
 		// path/to/whatever does not exist
 		err = ioutil.WriteFile(outputFile, buf.Bytes(), 0655)
 		if err != nil {
-			log.Printf("Error writing file: %w", err.Error())
+			log.Println("Error writing file:", err)
 			http.Error(w, "Error writing file: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
 	} else if err != nil {
-		log.Printf("Error checking file exists: %w", err.Error())
+		log.Println("Error checking file exists:", err)
 		http.Error(w, "Error checking file exists: "+err.Error(), http.StatusInternalServerError)
 		return
 	} else {
@@ -60,7 +60,7 @@ func handleGetSettings(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Not found", http.StatusNotFound)
 		return
 	} else if err != nil {
-		log.Printf("Error checking that file exists: %w", err.Error())
+		log.Println("Error checking that file exists:", err)
 		http.Error(w, "Error checking file exists: "+err.Error(), http.StatusInternalServerError)
 		return
 	} else {
@@ -68,7 +68,7 @@ func handleGetSettings(w http.ResponseWriter, r *http.Request) {
 		defer f.Close()
 		_, err = io.Copy(w, f)
 		if err != nil {
-			log.Printf("Error writing response: %w", err.Error())
+			log.Println("Error writing response:", err)
 			http.Error(w, "Error writing response: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
