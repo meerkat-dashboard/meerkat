@@ -140,7 +140,7 @@ func slugFromFileName(fileName string) string {
 func handleListDashboards(w http.ResponseWriter, r *http.Request) {
 	files, err := ioutil.ReadDir("dashboards")
 	if err != nil {
-		log.Printf("Failed to read directory: %w", err.Error())
+		log.Println("Failed to read directory:", err)
 		http.Error(w, "Failed to read directory: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -152,7 +152,7 @@ func handleListDashboards(w http.ResponseWriter, r *http.Request) {
 		if strings.HasSuffix(f.Name(), ".json") {
 			data, err := ioutil.ReadFile(path.Join("dashboards", f.Name()))
 			if err != nil {
-				log.Printf("Error reading file contents: %w", err.Error())
+				log.Println("Error reading file contents:", err)
 				http.Error(w, "Error reading file contents: "+err.Error(), http.StatusInternalServerError)
 				return
 			}
@@ -161,7 +161,7 @@ func handleListDashboards(w http.ResponseWriter, r *http.Request) {
 			err = json.Unmarshal(data, &dashboard)
 			//skip files with invalid json
 			if err != nil {
-				log.Printf("Invalid dashboard file %s: %w", f.Name(), err)
+				log.Printf("Invalid dashboard file %s: %v", f.Name(), err)
 				http.Error(w, "Invalid file: "+err.Error(), http.StatusInternalServerError)
 				continue
 			}
@@ -181,7 +181,7 @@ func handleListDashboards(w http.ResponseWriter, r *http.Request) {
 	enc := json.NewEncoder(w)
 	err = enc.Encode(dashboards)
 	if err != nil {
-		log.Printf("Error encoding response: %s\n", err)
+		log.Println("Error encoding response:", err)
 	}
 }
 
@@ -193,7 +193,7 @@ func handleListDashboard(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Not found", http.StatusNotFound)
 		return
 	} else if err != nil {
-		log.Printf("Error checking that file exists: %w", err.Error())
+		log.Println("Error checking that file exists:", err)
 		http.Error(w, "Error checking file exists: "+err.Error(), http.StatusInternalServerError)
 		return
 	} else {
@@ -201,7 +201,7 @@ func handleListDashboard(w http.ResponseWriter, r *http.Request) {
 		defer f.Close()
 		_, err = io.Copy(w, f)
 		if err != nil {
-			log.Printf("Error writing response: %w", err.Error())
+			log.Println("Error writing response:", err)
 			http.Error(w, "Error writing response: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -244,7 +244,7 @@ func handleCreateDashboard(w http.ResponseWriter, r *http.Request) {
 	var dashboard Dashboard
 	err := json.Unmarshal(buf.Bytes(), &dashboard)
 	if err != nil {
-		log.Printf("JSON body decode failure: %w", err.Error())
+		log.Println("JSON body decode failure:", err)
 		http.Error(w, "Error decoding json body: "+err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -264,12 +264,12 @@ func handleCreateDashboard(w http.ResponseWriter, r *http.Request) {
 		// path/to/whatever does not exist
 		err = ioutil.WriteFile(outputFile, buf.Bytes(), 0655)
 		if err != nil {
-			log.Printf("Error writing file: %w", err.Error())
+			log.Println("Error writing file:", err)
 			http.Error(w, "Error writing file: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
 	} else if err != nil {
-		log.Printf("Error checking file exists: %w", err.Error())
+		log.Println("Error checking file exists:", err)
 		http.Error(w, "Error checking file exists: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -299,7 +299,7 @@ func handleUpdateDashboard(w http.ResponseWriter, r *http.Request) {
 	buf.ReadFrom(r.Body)
 	err := json.Unmarshal(buf.Bytes(), &dashboard)
 	if err != nil {
-		log.Printf("JSON decode failure: %w", err.Error())
+		log.Println("JSON decode failure:", err)
 		http.Error(w, "Error decoding json body: "+err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -315,7 +315,7 @@ func handleUpdateDashboard(w http.ResponseWriter, r *http.Request) {
 	//Convert title to slug
 	slugNew := titleToSlug(dashboard.Title)
 	if len(slug) < 1 {
-		log.Printf("Slugless URL")
+		log.Println("Slugless URL")
 		http.Error(w, "Generated URL must be atleast one character", http.StatusBadRequest)
 		return
 	}
@@ -323,7 +323,7 @@ func handleUpdateDashboard(w http.ResponseWriter, r *http.Request) {
 	//Write updated file
 	err = ioutil.WriteFile(path.Join("dashboards", slugNew+".json"), buf.Bytes(), 0655)
 	if err != nil {
-		log.Printf("Error writing file: %w", err.Error())
+		log.Println("Error writing file:", err)
 		http.Error(w, "Error writing file: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -333,7 +333,7 @@ func handleUpdateDashboard(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("Slug updated %s -> %s deleting old data\n", slug, slugNew)
 		err := os.Remove(path.Join("dashboards", slug+".json"))
 		if err != nil {
-			log.Printf("Failed to remove old file: %w", err.Error())
+			log.Println("Failed to remove old file:", err)
 			http.Error(w, "Failed to remove old file: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -356,7 +356,7 @@ func handleDeleteDashboard(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("Deleting dashbaord %s\n", slug)
 	err := os.Remove(path.Join("dashboards", slug+".json"))
 	if err != nil {
-		log.Printf("Failed to remove old file: %w", err.Error())
+		log.Println("Failed to remove old file:", err)
 		http.Error(w, "Failed to remove old file: "+err.Error(), http.StatusInternalServerError)
 		return
 	}

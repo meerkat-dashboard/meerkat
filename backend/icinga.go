@@ -145,7 +145,7 @@ func handleCheckResult(w http.ResponseWriter, r *http.Request) {
 	var enc []byte
 	key := strings.Join([]string{object, attrs, objType}, string(rune(0)))
 	if err := cache.Get(r.Context(), key, groupcache.AllocatingByteSliceSink(&enc)); err != nil {
-		log.Printf("Cache retrieval failed: %w", err)
+		log.Printf("Cache retrieval failed: %v", err)
 		http.Error(w, "Cache retrieval failed", http.StatusInternalServerError)
 		return
 	}
@@ -177,7 +177,7 @@ func initIcingaCheckResultCache() {
 			//Create HTTP request
 			req_url, err := url.Parse(config.IcingaURL)
 			if err != nil {
-				log.Printf("Failed to parse IcingaURL: %w", err)
+				log.Printf("Failed to parse IcingaURL: %v", err)
 				return err
 			}
 
@@ -195,14 +195,14 @@ func initIcingaCheckResultCache() {
 			req.SetBasicAuth(config.IcingaUsername, config.IcingaPassword)
 
 			if err != nil {
-				fmt.Println("Failed to create HTTP request: %w", err)
+				fmt.Println("Failed to create HTTP request:", err)
 				return err
 			}
 
 			//Make request
 			res, err := client.Do(req)
 			if err != nil {
-				fmt.Println("Icinga2 API error: %w", err.Error())
+				fmt.Println("Icinga2 API error:", err)
 				return err
 			}
 
@@ -215,12 +215,12 @@ func initIcingaCheckResultCache() {
 			err = dec.Decode(&checkResults)
 
 			if err != nil {
-				log.Printf("Error decoding Icinga2 API response: %w", err)
+				log.Printf("Error decoding Icinga2 API response: %v", err)
 				return err
 			}
 
 			if enc, err := json.Marshal(checkResults); err != nil {
-				log.Printf("Failed to encode IcingaCheckResult value: %w", err)
+				log.Printf("Failed to encode IcingaCheckResult value: %v", err)
 				return err
 			} else {
 				return dest.SetBytes(enc, time.Now().Add(time.Duration(config.CacheExpiryDurationSeconds)*time.Second))
@@ -269,7 +269,7 @@ func handleIcingaCheckState(w http.ResponseWriter, r *http.Request) {
 	 */
 	key := strings.Join([]string{object_type, filter}, string(rune(0)))
 	if err := cache.Get(r.Context(), key, groupcache.AllocatingByteSliceSink(&enc)); err != nil {
-		log.Printf("Cache retrieval failed: %w", err)
+		log.Printf("Cache retrieval failed: %v", err)
 		http.Error(w, "Cache retrieval failed", http.StatusInternalServerError)
 		return
 	}
@@ -312,7 +312,7 @@ func initIcingaCheckStateCache() {
 			//Create HTTP request
 			req_url, err := url.Parse(config.IcingaURL)
 			if err != nil {
-				log.Printf("Failed to parse IcingaURL: %w", err)
+				log.Printf("Failed to parse IcingaURL: %v", err)
 				return err
 			}
 
@@ -321,7 +321,7 @@ func initIcingaCheckStateCache() {
 
 			req, err := http.NewRequest("GET", req_url.String(), nil)
 			if err != nil {
-				log.Printf("Failed to create HTTP request: %w", err)
+				log.Printf("Failed to create HTTP request: %v", err)
 				return err
 			}
 
@@ -330,7 +330,7 @@ func initIcingaCheckStateCache() {
 			//Make request
 			res, err := client.Do(req)
 			if err != nil {
-				log.Printf("Icinga2 API error: %w", err.Error())
+				log.Printf("Icinga2 API error: %v", err.Error())
 				return err
 			}
 
@@ -341,7 +341,7 @@ func initIcingaCheckStateCache() {
 			err = dec.Decode(&results)
 
 			if err != nil {
-				log.Printf("Error decoding Icinga2 API response: %w", err)
+				log.Printf("Error decoding Icinga2 API response: %v", err)
 				return err
 			}
 
@@ -368,7 +368,7 @@ func initIcingaCheckStateCache() {
 			t.Acknowledged = acknowledged
 
 			if enc, err := json.Marshal(&t); err != nil {
-				log.Printf("Failed to encode IcingaCheckState value: %w", err)
+				log.Printf("Failed to encode IcingaCheckState value: %v", err)
 				return err
 			} else {
 				return dest.SetBytes(enc, time.Now().Add(time.Duration(config.CacheExpiryDurationSeconds)*time.Second))
@@ -398,7 +398,7 @@ func handleIcingaCheck(w http.ResponseWriter, r *http.Request) {
 	var enc []byte
 	key := strings.Join([]string{checkType, objectID, filter}, string(rune(0)))
 	if err := cache.Get(r.Context(), key, groupcache.AllocatingByteSliceSink(&enc)); err != nil {
-		log.Printf("Cache retrieval failed: %w", err)
+		log.Printf("Cache retrieval failed: %v", err)
 		http.Error(w, "Cache retrieval failed", http.StatusInternalServerError)
 		return
 	}
@@ -430,7 +430,7 @@ func initIcingaCheckCache() {
 			//Create HTTP request
 			req_url, err := url.Parse(config.IcingaURL)
 			if err != nil {
-				log.Printf("Failed to parse IcingaURL: %w", err)
+				log.Printf("Failed to parse IcingaURL: %v", err)
 				return err
 			}
 
@@ -446,7 +446,7 @@ func initIcingaCheckCache() {
 			log.Printf("Requesting %s", req_url.String())
 			req, err := http.NewRequest("GET", req_url.String(), nil)
 			if err != nil {
-				log.Printf("Failed to create HTTP request: %w", err)
+				log.Printf("Failed to create HTTP request: %v", err)
 				return err
 			}
 
@@ -455,7 +455,7 @@ func initIcingaCheckCache() {
 			//Make request
 			res, err := client.Do(req)
 			if err != nil {
-				log.Printf("Icinga2 API error: %w", err.Error())
+				log.Printf("Icinga2 API error: %v", err.Error())
 				return err
 			}
 			defer res.Body.Close()
@@ -464,7 +464,7 @@ func initIcingaCheckCache() {
 			dec := json.NewDecoder(res.Body)
 			err = dec.Decode(&results)
 			if err != nil {
-				log.Printf("Error decoding Icinga2 API response: %w", err)
+				log.Printf("Error decoding Icinga2 API response: %v", err)
 				return err
 			}
 
@@ -475,7 +475,7 @@ func initIcingaCheckCache() {
 			}
 
 			if enc, err := json.Marshal(objs); err != nil {
-				log.Printf("Failed to encode IcingaCheck value: %w", err)
+				log.Printf("Failed to encode IcingaCheck value: %v", err)
 				return err
 			} else {
 				return dest.SetBytes(enc, time.Now().Add(time.Duration(config.CacheExpiryDurationSeconds)*time.Second))
@@ -503,7 +503,7 @@ func handleIcingaVars(w http.ResponseWriter, r *http.Request) {
 
 	var enc []byte
 	if err := cache.Get(r.Context(), hostName, groupcache.AllocatingByteSliceSink(&enc)); err != nil {
-		log.Printf("Cache retrieval failed: %w", err)
+		log.Printf("Cache retrieval failed: %v", err)
 		http.Error(w, "Cache retrieval failed", http.StatusInternalServerError)
 		return
 	}
@@ -531,7 +531,7 @@ func initIcingaVarsCache() {
 
 			req, err := http.NewRequest("GET", requestString.URL.String(), nil)
 			if err != nil {
-				log.Printf("Failed to create HTTP request: %w", err)
+				log.Printf("Failed to create HTTP request: %v", err)
 				return err
 			}
 
@@ -540,7 +540,7 @@ func initIcingaVarsCache() {
 			//Make request
 			res, err := client.Do(req)
 			if err != nil {
-				log.Printf("Icinga2 API error: %w", err.Error())
+				log.Printf("Icinga2 API error: %v", err.Error())
 				return err
 			}
 
@@ -551,12 +551,12 @@ func initIcingaVarsCache() {
 			err = dec.Decode(&results)
 
 			if err != nil {
-				log.Printf("Error decoding Icinga2 API response: %w", err)
+				log.Printf("Error decoding Icinga2 API response: %v", err)
 				return err
 			}
 
 			if enc, err := json.Marshal(results); err != nil {
-				log.Printf("Failed to encode IcingaVars value: %w", err)
+				log.Printf("Failed to encode IcingaVars value: %v", err)
 				return err
 			} else {
 				return dest.SetBytes(enc, time.Now().Add(time.Duration(config.CacheExpiryDurationSeconds)*time.Second))
