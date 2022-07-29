@@ -5,6 +5,7 @@ import { useEffect, useReducer, useState } from "preact/hooks";
 import * as meerkat from "./meerkat";
 import { routeParam, removeParam, TagEditor } from "./util";
 import { CheckCard, CheckCardOptions } from "./elements/card";
+import { CheckDigitalClock, CheckDigitalClockOptions } from "./elements/digitalClock";
 import { CheckSVG, CheckSVGOptions, CheckSVGDefaults } from "./elements/svg";
 import { CheckImage, CheckImageOptions } from "./elements/image";
 import {
@@ -440,6 +441,15 @@ function DashboardElements({
 		if (element.type === "check-card") {
 			ele = (
 				<CheckCard
+					options={element.options}
+					slug={slug}
+					dashboard={dashboard}
+				/>
+			);
+		}
+		if (element.type === "digital-clock") {
+			ele = (
+				<CheckDigitalClock
 					options={element.options}
 					slug={slug}
 					dashboard={dashboard}
@@ -1144,7 +1154,6 @@ export function ElementSettings({ selectedElement, updateElement }) {
 	if (selectedElement === null) {
 		return null;
 	}
-
 	const updateElementOptions = (options) => {
 		const newOptions = Object.assign(selectedElement.options, options);
 		updateElement({ ...selectedElement, options: newOptions });
@@ -1204,6 +1213,14 @@ export function ElementSettings({ selectedElement, updateElement }) {
 	if (selectedElement.type === "check-card") {
 		ElementOptions = (
 			<CheckCardOptions
+				updateOptions={updateElementOptions}
+				options={selectedElement.options}
+			/>
+		);
+	}
+	if (selectedElement.type === "digital-clock") {
+		ElementOptions = (
+			<CheckDigitalClockOptions
 				updateOptions={updateElementOptions}
 				options={selectedElement.options}
 			/>
@@ -1329,6 +1346,7 @@ export function ElementSettings({ selectedElement, updateElement }) {
 							data-cy="element:type"
 						>
 							<option value="check-card">Icinga Card</option>
+							<option value="digital-clock">Digital Clock</option>
 							<option value="check-svg">Icinga SVG</option>
 							<option value="check-image">Icinga Image</option>
 							<option value="check-line">Icinga Line</option>

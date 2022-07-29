@@ -593,6 +593,10 @@ div.home .filter-wrap #filter {
 	margin-right: 0;
 }
 
+.digital-clock {
+	color: #fff;
+}
+
 /* EDITOR DASHBOARD */
 div.dashboard-wrap {
 	margin: 20px;

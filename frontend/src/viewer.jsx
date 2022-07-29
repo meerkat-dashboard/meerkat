@@ -16,6 +16,7 @@ import { StaticTicker } from "./statics/ticker";
 import { StaticSVG } from "./statics/svg";
 import { StaticImage } from "./statics/image";
 import { getDerivedStateFromProps } from "react-widgets/lib/SelectList";
+import { CheckDigitalClock } from "./elements/digitalClock";
 
 //Read only page
 export function Viewer({ slug, dashboardReducer }) {
@@ -59,6 +60,15 @@ export function Viewer({ slug, dashboardReducer }) {
 		if (element.type === "check-card") {
 			ele = (
 				<CheckCard
+					options={element.options}
+					dashboard={dashboard}
+					slug={slug}
+				/>
+			);
+		}
+		if (element.type === "digital-clock") {
+			ele = (
+				<CheckDigitalClock
 					options={element.options}
 					dashboard={dashboard}
 					slug={slug}
