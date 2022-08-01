@@ -79,7 +79,6 @@ function CreateDashboardModal({ hide }) {
 						placeholder="New Dashboard"
 						value={title}
 						onInput={(e) => setTitle(e.currentTarget.value)}
-						data-cy="dashboard:title"
 					/>
 
 					<label>Result url</label>
@@ -88,11 +87,7 @@ function CreateDashboardModal({ hide }) {
 					/>
 
 					<div class="right" style="margin-top: 20px">
-						<button
-							class="rounded btn-primary btn-large"
-							type="submit"
-							data-cy="dashboard#create"
-						>
+						<button class="rounded btn-primary btn-large" type="submit">
 							Create
 						</button>
 					</div>
@@ -279,9 +274,7 @@ function DeleteConfirmation({ slug, loadDashboards }) {
 
 	return (
 		<Fragment>
-			<a onClick={(e) => setShowConfirmation(true)} data-cy="dashboard#delete">
-				delete
-			</a>
+			<a onClick={(e) => setShowConfirmation(true)}>delete</a>
 			{showConfirmation ? (
 				<Modal
 					key={`template-modal-${slug}`}
@@ -305,7 +298,6 @@ function DeleteConfirmation({ slug, loadDashboards }) {
 								class="rounded btn-primary btn-large"
 								type="submit"
 								onClick={(e) => deleteDashboard(e, slug)}
-								data-cy="#confirm"
 							>
 								Yes
 							</button>
@@ -408,7 +400,6 @@ function SettingsModal({ hide }) {
 						placeholder="New App Name"
 						value={title}
 						onInput={(e) => setTitle(e.currentTarget.value)}
-						data-cy="dashboard:title"
 					/>
 
 					<div class="right" style="margin-top: 20px">
