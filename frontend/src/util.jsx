@@ -198,7 +198,6 @@ export function IcingaCheckList({ currentCheckopts, updateOptions }) {
 						defaultValue={value}
 						data={opts}
 						onSelect={updateOptions}
-						data-cy="card:check_options"
 					/>
 				);
 			}
@@ -233,7 +232,6 @@ export function IcingaCheckList({ currentCheckopts, updateOptions }) {
 				data={selectionTypes}
 				valueField="value"
 				textField="label"
-				data-cy="card:check"
 			/>
 			<br />
 			{typeOptions}
@@ -701,11 +699,7 @@ export function TagEditor({ tags, updateTags }) {
 		return (
 			<div class="pill tag btn-dark">
 				<span>{tag}</span>
-				<span
-					class="close-icon"
-					onClick={(e) => removeTag(i)}
-					data-cy="dashboard#remove-tag"
-				>
+				<span class="close-icon" onClick={(e) => removeTag(i)}>
 					x
 				</span>
 			</div>
@@ -728,7 +722,6 @@ export function TagEditor({ tags, updateTags }) {
 					placeholder="Enter a new tag"
 					pattern="[a-z\d\-_]+"
 					title="only lower case letters, numbers, '-' and '_' are allowed"
-					data-cy="dashboard:tag"
 				/>
 			</form>
 		</Fragment>

@@ -117,7 +117,7 @@ func main() {
 	if config.AdminUsername != "" && config.AdminPassword != "" {
 		createDashboard = basicAuthHandler(config.AdminUsername, config.AdminPassword, http.HandlerFunc(handleCreateDashboard)).ServeHTTP
 		updateDashboard = basicAuthHandler(config.AdminUsername, config.AdminPassword, http.HandlerFunc(handleUpdateDashboard)).ServeHTTP
-		updateDashboard = basicAuthHandler(config.AdminUsername, config.AdminPassword, http.HandlerFunc(handleUpdateDashboard)).ServeHTTP
+		deleteDashboard = basicAuthHandler(config.AdminUsername, config.AdminPassword, http.HandlerFunc(handleDeleteDashboard)).ServeHTTP
 	} else {
 		createDashboard = handleCreateDashboard
 		updateDashboard = handleUpdateDashboard

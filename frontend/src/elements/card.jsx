@@ -211,7 +211,6 @@ const CheckDataOptions = ({ options, updateOptions }) => {
 				onInput={(e) =>
 					updateOptions({ checkDataSelection: e.currentTarget.value })
 				}
-				data-cy="card:checkDataSelection"
 			>
 				<option>Choose away...</option>
 				{optionsSpec.map((spec) => (
@@ -233,7 +232,6 @@ const CheckDataOptions = ({ options, updateOptions }) => {
 							300
 						)}
 						value={options.checkDataPattern}
-						data-cy="card:checkDataRegexp"
 					/>
 				</div>
 			) : null}
@@ -250,7 +248,6 @@ const CheckDataOptions = ({ options, updateOptions }) => {
 							300
 						)}
 						value={options.checkDataDefault}
-						data-cy="card:checkDataDefault"
 					/>
 				</div>
 			) : null}
