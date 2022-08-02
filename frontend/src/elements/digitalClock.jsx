@@ -7,15 +7,13 @@ import {
 	getCheckData,
 } from "../util";
 
-import timezones from '../../utils/timezones.json';
+import dayjs from "dayjs";
+import utc from 'dayjs/plugin/utc'
+import timezone from "dayjs/plugin/timezone";
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 
-
-const listTimezones = timezones.map(function(val) {
-	return val.utc;
-  }).reduce(function(pre, cur) {
-	 return pre.concat(cur);
-  })
 
 function useCheckDigitalClock({ options, dashboard }) {
 	const [checkState, setCheckState] = useState(null);
@@ -106,13 +104,14 @@ export function CheckDigitalClock({ options, dashboard }) {
 		options,
 		dashboard
 	});
-
-	const [date, setDate] = useState(new Date());
+	
+	const [clock, setClock] = useState('');
 
 	useEffect(() => {
 
 		const clockId = setInterval(()=> {
-			setDate(new Date());
+			let now = dayjs();
+			setClock(dayjs.tz(now, options.timeZone).format('hh:mm:ss A'));
 		}, 1000);
 
 		return () => clearInterval(clockId);
@@ -121,7 +120,9 @@ export function CheckDigitalClock({ options, dashboard }) {
 	return (
 		<div class='digital-clock align-center'>
 			<p style={`font-size: ${options.statusFontSize}px; color: ${options.fontColor};`}>
-				{date.toLocaleTimeString(options.locale, {timeZone: options.timeZone})}
+				{clock}
+				<br />
+
 			</p>
 		</div>
 	);
@@ -135,6 +136,8 @@ export function CheckDigitalClockOptions({ options, updateOptions }) {
 		setTimeZone(e.currentTarget.value);
 		updateOptions({ locale: locale, timeZone: e.currentTarget.value });
 	}
+
+	const listTimezones = Intl.supportedValuesOf('timeZone');
 
 	const clearField = (e, field) => {
 		e.preventDefault();
