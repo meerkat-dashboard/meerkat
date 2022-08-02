@@ -115,9 +115,16 @@ func main() {
 		deleteDashboard http.HandlerFunc
 	)
 	if config.AdminUsername != "" && config.AdminPassword != "" {
-		createDashboard = basicAuthHandler(config.AdminUsername, config.AdminPassword, http.HandlerFunc(handleCreateDashboard)).ServeHTTP
-		updateDashboard = basicAuthHandler(config.AdminUsername, config.AdminPassword, http.HandlerFunc(handleUpdateDashboard)).ServeHTTP
-		deleteDashboard = basicAuthHandler(config.AdminUsername, config.AdminPassword, http.HandlerFunc(handleDeleteDashboard)).ServeHTTP
+		user, pass := config.AdminUsername, config.AdminPassword
+		store := newTokenStore()
+		createDashboard = basicAuthHandler(user, pass, store, http.HandlerFunc(handleCreateDashboard)).ServeHTTP
+		updateDashboard = basicAuthHandler(user, pass, store, http.HandlerFunc(handleUpdateDashboard)).ServeHTTP
+		deleteDashboard = basicAuthHandler(user, pass, store, http.HandlerFunc(handleDeleteDashboard)).ServeHTTP
+
+		rdr := http.RedirectHandler("/", http.StatusFound)
+		r.Get("/authenticate", basicAuthHandler(user, pass, store, rdr).ServeHTTP)
+		// a hint for the frontend to see if authentication is configured.
+		r.Head("/authentication", emptyHandler)
 	} else {
 		createDashboard = handleCreateDashboard
 		updateDashboard = handleUpdateDashboard

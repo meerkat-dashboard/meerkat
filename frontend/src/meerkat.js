@@ -116,3 +116,17 @@ export async function uploadFile(file) {
 	});
 	return res.json();
 }
+
+export async function authConfigured() {
+	const res = await fetch("/authentication", {
+		method: "HEAD",
+	});
+	if (res.status == 404) {
+		return false;
+	}
+	return true;
+}
+
+export async function authenticate() {
+	return await fetch("/authenticate");
+}
