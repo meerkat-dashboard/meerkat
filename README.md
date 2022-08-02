@@ -81,6 +81,9 @@ Select a set of images you want to toggle between on state change.
 #### Icinga Line
 Allows you to draw lines, you can rotate and resize them, and set the weight. They only toggle between OK, Warning, Critical, Unknown at present.
 
+#### Dynamic Text
+Allows you to pull text out of a host_var or service_var and display it on the dashboard like a card.
+
 #### Static Text, SVG and Image
 Useful for adding headings or labels.
 
