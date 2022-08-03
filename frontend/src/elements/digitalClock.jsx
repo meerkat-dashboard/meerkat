@@ -121,8 +121,6 @@ export function CheckDigitalClock({ options, dashboard }) {
 		<div class='digital-clock align-center'>
 			<p style={`font-size: ${options.statusFontSize}px; color: ${options.fontColor};`}>
 				{clock}
-				<br />
-
 			</p>
 		</div>
 	);
