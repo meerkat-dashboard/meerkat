@@ -548,7 +548,6 @@ export function DashboardView({
 						class="noselect"
 						style="height: 100%; width: 100%;"
 						id="dashboard-dimensions"
-						data-cy="dashboard:background"
 					/>
 				) : (
 					<div class="noselect" style="height: 95vh; width: 70vh"></div>
@@ -605,9 +604,7 @@ function SidePanelSettings({ dashboardDispatch, dashboard }) {
 		if (src) {
 			return (
 				<Fragment>
-					<a onClick={clearBackground} data-cy="dashboard#remove_background">
-						clear
-					</a>
+					<a onClick={clearBackground}>clear</a>
 					&nbsp;
 					<a target="_blank" href={src}>
 						view
@@ -637,7 +634,6 @@ function SidePanelSettings({ dashboardDispatch, dashboard }) {
 				onInput={(e) =>
 					dashboardDispatch({ type: "setTitle", title: e.currentTarget.value })
 				}
-				data-cy="dashboard:title"
 			/>
 
 			<TagEditor
@@ -655,7 +651,6 @@ function SidePanelSettings({ dashboardDispatch, dashboard }) {
 				placeholder="Upload a background image"
 				accept="image/*"
 				onChange={handleBackgroundImg}
-				data-cy="dashboard:background"
 			/>
 			<label class="status-font-size">Mute Status Alerts</label>
 			<input
@@ -1121,11 +1116,7 @@ function SidePanelElements({
 			<div class="lefty-righty spacer">
 				<h3>Elements</h3>
 				<span style="display: inline;float: right;">
-					<button
-						class="small btn btn-outline-primary"
-						onClick={addElement}
-						data-cy="dashboard#new_element"
-					>
+					<button class="small btn btn-outline-primary" onClick={addElement}>
 						New
 					</button>
 					<button
@@ -1316,7 +1307,6 @@ export function ElementSettings({ selectedElement, updateElement }) {
 						<svg
 							class="feather"
 							onClick={(e) => removeParam("selectedElementId")}
-							data-cy="element#close"
 						>
 							<use xlinkHref={`/res/svgs/feather-sprite.svg#x`} />
 						</svg>
@@ -1343,7 +1333,6 @@ export function ElementSettings({ selectedElement, updateElement }) {
 							name="item-type"
 							value={selectedElement.type}
 							onInput={updateType}
-							data-cy="element:type"
 						>
 							<option value="check-card">Icinga Card</option>
 							<option value="digital-clock">Digital Clock</option>
