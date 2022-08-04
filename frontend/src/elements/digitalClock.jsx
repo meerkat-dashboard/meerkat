@@ -1,11 +1,5 @@
 import { h, Fragment } from "preact";
-import { useState, useEffect, useCallback, useMemo } from "preact/hooks";
-
-import * as meerkat from "../meerkat";
-import {
-	icingaResultCodeToCheckState,
-	getCheckData,
-} from "../util";
+import { useState, useEffect } from "preact/hooks";
 
 import dayjs from "dayjs";
 import utc from 'dayjs/plugin/utc'
