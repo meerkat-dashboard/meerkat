@@ -5,23 +5,18 @@ module.exports = {
     },
     "extends": [
         "eslint:recommended",
-        "plugin:react/recommended",
-        "prettier",
-        "standard", 
-        "standard-preact"
+        "plugin:react/recommended"
     ],
     "parserOptions": {
         "ecmaFeatures": {
             "jsx": true
         },
+        "ecmaVersion": "latest",
         "sourceType": "module"
     },
     "plugins": [
         "react"
     ],
-    "settings": {
-        "react": {
-          "version": "detect",
-        },
+    "rules": {
     }
 }
