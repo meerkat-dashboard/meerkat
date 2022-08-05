@@ -1,6 +1,7 @@
 import { h, Fragment } from "preact";
 import { route } from "preact-router";
 import { useEffect, useReducer, useState } from "preact/hooks";
+import "preact/debug";
 
 import * as meerkat from "./meerkat";
 import { routeParam, removeParam, TagEditor } from "./util";
@@ -241,7 +242,6 @@ function TransformableElement({
 }) {
 	// Open editor on left sidepanel
 	const handleEdit = (event) => routeParam("selectedElementId", index);
-
 	//Handle dragging elements
 	const handleMove = (downEvent) => {
 		const mousemove = (moveEvent) => {
@@ -252,7 +252,9 @@ function TransformableElement({
 			if (elementNode.className === "audio-container") {
 				elementNode = elementNode.parentElement;
 			}
-
+			if(elementNode.parentElement.className.includes("digital-clock")) {
+				elementNode = elementNode.parentElement.parentElement;
+			}
 			const dashboardNode = elementNode.parentElement;
 
 			//Get max dimensions
@@ -362,8 +364,9 @@ function TransformableElement({
 	const width = `${rect.w}%`;
 	const height = `${rect.h}%`;
 
-	const _rotation = rotation ? `rotate(${rotation}rad)` : `rotate(0rad)`;
 
+
+	const _rotation = rotation ? `rotate(${rotation}rad)` : `rotate(0rad)`;
 	return checkType === "static-ticker" ? (
 		<div
 			class={`ticker ticker-editing ${glow || highlight ? "glow" : ""}`}
@@ -452,7 +455,6 @@ function DashboardElements({
 				<CheckDigitalClock
 					options={element.options}
 					slug={slug}
-					dashboard={dashboard}
 				/>
 			);
 		}
@@ -500,7 +502,6 @@ function DashboardElements({
 		if (element.type === "audio-stream") {
 			ele = <AudioStream options={element.options} />;
 		}
-
 		return (
 			<TransformableElement
 				rect={element.rect}
