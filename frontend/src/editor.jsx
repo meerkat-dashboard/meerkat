@@ -252,9 +252,6 @@ function TransformableElement({
 			if (elementNode.className === "audio-container") {
 				elementNode = elementNode.parentElement;
 			}
-			if(elementNode.parentElement.className.includes("digital-clock")) {
-				elementNode = elementNode.parentElement.parentElement;
-			}
 			const dashboardNode = elementNode.parentElement;
 
 			//Get max dimensions

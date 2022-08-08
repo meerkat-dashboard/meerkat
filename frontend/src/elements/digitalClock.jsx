@@ -23,7 +23,7 @@ export function CheckDigitalClock({ options, dashboard }) {
 	}, []);
 	
 	return (
-		<div class='digital-clock align-center'>
+		<div class='check-content digital-clock align-center'>
 			<p style={`font-size: ${options.statusFontSize}px; color: ${options.fontColor};`}>
 				{clock}
 			</p>

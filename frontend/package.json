@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "dev": "webpack --display-modules --mode development --watch",
+    "dev": "webpack --stats-modules --mode development --watch",
     "build": "webpack"
   },
   "license": "AGPL-3.0-or-later",
