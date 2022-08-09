@@ -1,7 +1,5 @@
 ## Meerkat - A Dashboarding tool for Icinga2
 
-
-
 Meerkat is a utility to create and share dashboards for Icinga2. It's quick to setup and easy to use. There is a WSIWYG editor interface when you can set a background for a dashboard and start overlaying checks which update in real time by polling the Icinga2 API via the Meerkat backend.
 
 The main driver for Meerkat to exist is to communicate to perhaps non-technical users, the relationship between the infrastructure they are familar with, and the Icinga checks you have worked so hard to build. It can also play sounds to alert people of changes, along with embed video and audio streams. Meerkat isn't a replacement for a complete notification system, but should complement any NOC nicely, and let users very clearly define the checks or groups of checks they care about with context that is relevant for them.
@@ -16,67 +14,9 @@ Or a video workflow from left to right:
 
 This check uses the Icinga Business Process module to quickly show the overall path is OK, even if one of the paths is having problems.
 
-
 ## Getting Started
 
 Once Meerkat is installed and configured, you simply browse it, make a new dashboard, upload a background, and start dragging and dropping elements over the background. You then give the 'view' link to users to put on TVs on the wall, and you have a ready made NOC.
-
-
-### Deployment with Docker
-Deploying from the docker hub image is the easiest way to get started.
-
-Copy `config/meerkat.toml.example` to `config/meerkat.toml`, edit `config/meerkat.toml` using your favourite editor, then invoke your favourite composer:
-```
-docker-compose up
-```
-or
-```
-docker stack deploy -c docker-compose.yml meerkat
-```
-
-The default `docker-compose.yml` uses the directories `config/` `dashboards/` and `dashboards/` for data persistance.  Feel free to edit docker-compose.yml as you see fit though, of course.
-
-We have also included a Dockerfile in case you want to build your own image.
-
-### Build without Docker
-
-There is a basic install script in the contrib directory you can use to install on Ubuntu and Debian machines. Packages for Meerkat are coming soon.
-You will need nodejs at least v16 and Golang at least 1.15 to build and install Meerkat.
-
-``` contrib/install-ubuntu.sh ``` from the root directory of the git repo should get you most of the way there.
-
-You will need an up to date go, and an up to date npm install to build Meerkat. The steps below aren't tested with each release, but should get you started.
-
-* ```go build``` in the root directory of this project to build the server
-* From the frontend directory run ```npm i``` which installs JS dependencies
-
-* ```npm run prod``` from the frontend directory which builds the frontend code (index.html loads this output (bundle.js))
-* You can then run ```./meerkat -config meerkat.toml``` after creating the config file above
-
-Meerkat will need a valid config file to start - the following is a sample:
-
-### Configuring Meerkat
-```
-HTTPAddr = "[::]:8585"
-
-IcingaURL = "https://icinga.example.com:5665"
-IcingaUsername = "meerkat"
-IcingaPassword = "meerkatpassword"
-IcingaInsecureTLS = true
-```
-
-The username and password you will use should be configured in the Icinga2 api-users.conf. Here is an example:
-
-```
-object ApiUser "meerkat" {
-  password = "meerkatpassword"
-
-permissions = [ "objects/query/Host", "objects/query/Service", "objects/query/ServiceGroup", "objects/query/HostGroup" ]
-}
-```
-
-And don't forget to restart Icinga2 after updating that config file.
-
 
 ### Using Meerkat
 
@@ -134,27 +74,6 @@ Future enhancements may include:
 * Authentication support (though it is meant to be displayed on a wall, without auth mostly)
 * Automation for creation of the dashboard config, allowing for easy mass creation of dashboards from Icinga data
 * Automation for export of Meerkat dashboards to Business Processes
-
-### Development with Docker Compose
-
-Please install [Docker Desktop](https://www.docker.com/products/docker-desktop).
-
-```
-host$ cp config/meerkat.toml.example config/meerkat.toml
-host$ # customize config/meerkat.toml
-host$ docker-compose up be fe
-host$ curl localhost:8585
-host$ # hack backend/* frontend/src/*
-host$ # profit!
-```
-
-### Docker images
-
-A meerkat Docker image is available at https://hub.docker.com/r/sol1/meerkat or you can build one locally with
-
-```
-docker build -t meerkat .
-```
 
 ### Support
 Sol1 is an official Icinga Enterprise Partner, and can offer commercial support for Meerkat and Icinga and friends. We are a friendly bunch of people, so please don't hesitate to get in touch at http://sol1.com.au
