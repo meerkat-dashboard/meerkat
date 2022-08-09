@@ -1,0 +1,46 @@
+name: Test
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  frontend:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 16.x
+
+    - name: Install dependencies
+      run: cd frontend && npm install
+
+    - name: lint
+      run: |
+        cd frontend
+        npx eslint src
+        npx prettier -l src
+
+  backend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-go@v3
+
+      - name: gofmt
+        # if gofmt reports any files need formatting, print them then exit with error
+        run: |
+          cd backend
+          if ! [ -z "`gofmt -l .`" ]; then gofmt -l . && exit 1; fi
+
+      - name: test
+        run: |
+          cd backend
+          go test
