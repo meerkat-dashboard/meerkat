@@ -930,14 +930,6 @@ div.tag .close-icon {
 	align-items: center;
 }
 
-.inner-text {
-	text-transform: none;
-	word-wrap: break-word;
-	white-space: initial;
-	width: 100%;
-	height: 100%;
-}
-
 a#a-link {
 	display: block;
 	line-height: 0;
