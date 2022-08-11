@@ -11,6 +11,7 @@ import { CheckLine } from "./elements/line";
 import { AudioStream } from "./elements/audio";
 import { IframeVideo } from "./elements/video";
 import { DynamicText } from "./elements/text";
+import { Clock } from "./elements/clock";
 import { StaticText } from "./statics/text";
 import { StaticTicker } from "./statics/ticker";
 import { StaticSVG } from "./statics/svg";
@@ -63,6 +64,11 @@ export function Viewer({ slug, dashboardReducer }) {
 					dashboard={dashboard}
 					slug={slug}
 				/>
+			);
+		}
+		if (element.type === "clock") {
+			ele = (
+				<Clock options={element.options} dashboard={dashboard} slug={slug} />
 			);
 		}
 		if (element.type === "check-svg") {

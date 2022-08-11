@@ -31,6 +31,7 @@ import { StaticSVG, StaticSVGOptions, StaticSVGDefaults } from "./statics/svg";
 import { StaticImage, StaticImageOptions } from "./statics/image";
 import { IframeVideo, IframeVideoOptions } from "./elements/video";
 import { AudioStream, AudioOptions } from "./elements/audio";
+import { Clock, ClockOptions } from "./elements/clock";
 
 //Manage dashboard state
 const dashboardReducer = (state, action) => {
@@ -468,6 +469,9 @@ function DashboardElements({
 					dashboard={dashboard}
 				/>
 			);
+		}
+		if (element.type === "clock") {
+			ele = <Clock options={element.options} slug={slug} />;
 		}
 		if (element.type === "static-text") {
 			ele = <StaticText options={element.options} vars={dashboard.variables} />;
@@ -1208,6 +1212,14 @@ export function ElementSettings({ selectedElement, updateElement }) {
 			/>
 		);
 	}
+	if (selectedElement.type === "clock") {
+		ElementOptions = (
+			<ClockOptions
+				updateOptions={updateElementOptions}
+				options={selectedElement.options}
+			/>
+		);
+	}
 	if (selectedElement.type === "check-image") {
 		ElementOptions = (
 			<CheckImageOptions
@@ -1328,6 +1340,7 @@ export function ElementSettings({ selectedElement, updateElement }) {
 							<option value="static-ticker">Static Ticker</option>
 							<option value="iframe-video">HLS Stream</option>
 							<option value="audio-stream">Audio Stream</option>
+							<option value="clock">Clock</option>
 						</select>
 						<hr />
 
