@@ -93,6 +93,19 @@ function useCheckCard({ options, dashboard }) {
 
 	return [checkState, acknowledged, checkValue];
 }
+
+function CheckState(state, acknowledged) {
+	if (acknowledged) {
+		return (
+			<div class="align-center">
+				{state}
+				<span>(ACK)</span>
+			</div>
+		);
+	}
+	return <div class="align-center">{state}</div>;
+}
+
 export function CheckCard({ options, dashboard }) {
 	const [checkState, acknowledged, checkValue] = useCheckCard({
 		options,
@@ -101,6 +114,20 @@ export function CheckCard({ options, dashboard }) {
 
 	alertSounds(checkState, options, dashboard, false);
 
+	if (checkValue === "useCheckState") {
+		return (
+			<div
+				class={`check-content card ${checkState} ${checkState}-${acknowledged}`}
+			>
+				<div
+					class="check-state"
+					style={`font-size: ${options.statusFontSize}px; line-height: 1.1;`}
+				>
+					<CheckState state={checkState} acknowledged={acknowledged} />
+				</div>
+			</div>
+		);
+	}
 	return (
 		<div
 			class={`check-content card ${checkState} ${checkState}-${acknowledged}`}
@@ -109,12 +136,7 @@ export function CheckCard({ options, dashboard }) {
 				class="check-state"
 				style={`font-size: ${options.statusFontSize}px; line-height: 1.1;`}
 			>
-				{checkValue === "useCheckState" ? (
-					<div class="align-center">{checkState}</div>
-				) : (
-					checkValue
-				)}
-				{acknowledged ? <span>(ACK)</span> : ""}
+				checkValue
 			</div>
 		</div>
 	);
