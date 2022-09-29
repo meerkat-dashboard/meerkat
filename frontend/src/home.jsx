@@ -356,6 +356,17 @@ function DashboardList({ dashboards, loadDashboards, filter }) {
 
 	const dbs = filteredDashboards.map((dashboard) => {
 		const slug = titleToSlug(dashboard.title);
+		if (meerkat.authConfigured() && document.cookie == "") {
+			return (
+				<div class="dashboard-listing">
+					<h3>{dashboard.title}</h3>
+					<div class="timestamps">
+						<a href={`/view/${slug}`}>view</a>
+						<TemplateModal slug={slug} />
+					</div>
+				</div>
+			);
+		}
 		return (
 			<div class="dashboard-listing">
 				<h3>{dashboard.title}</h3>
