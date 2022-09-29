@@ -593,6 +593,12 @@ div.home .filter-wrap #filter {
 	margin-right: 0;
 }
 
+.clock {
+	color: white;
+	font-variant-numeric: tabular-nums;
+	pointer-events: none;
+}
+
 /* EDITOR DASHBOARD */
 div.dashboard-wrap {
 	margin: 20px;

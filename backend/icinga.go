@@ -353,7 +353,7 @@ func initIcingaCheckStateCache() {
 			acknowledged := int64(0)
 
 			for _, obj := range results.Results {
-				if int64(obj.Attributes.Acknowledgement) == 1 ||  int64(obj.Attributes.Acknowledgement) == 2 {
+				if int64(obj.Attributes.Acknowledgement) == 1 || int64(obj.Attributes.Acknowledgement) == 2 {
 					acknowledged = int64(obj.Attributes.Acknowledgement)
 				}
 				if int64(obj.Attributes.State) > max_state {
