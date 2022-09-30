@@ -337,7 +337,7 @@ function CloneDashboard({ dashboard, dashboards }) {
 	);
 }
 
-function DashboardList({ dashboards, loadDashboards, filter }) {
+function DashboardList({ dashboards, loadDashboards, filter, authEnabled }) {
 	if (dashboards === null) {
 		return <div class="subtle loading">Loading Dashboards</div>;
 	}
@@ -356,7 +356,7 @@ function DashboardList({ dashboards, loadDashboards, filter }) {
 
 	const dbs = filteredDashboards.map((dashboard) => {
 		const slug = titleToSlug(dashboard.title);
-		if (meerkat.authConfigured() && document.cookie == "") {
+		if (authEnabled && document.cookie == "") {
 			return (
 				<div class="dashboard-listing">
 					<h3>{dashboard.title}</h3>
@@ -430,11 +430,16 @@ export function Home() {
 	const [settings, setSettings] = useState(null);
 	const [dashboards, setDashboards] = useState(null);
 	const [filter, setFilter] = useState("");
+	const [authentication, setAuthentication] = useState(false);
 
 	const loadDashboards = () =>
 		meerkat.getAllDashboards().then((dbs) => setDashboards(dbs));
 	const loadSettings = () =>
 		meerkat.getSettings().then((settings) => setSettings(settings));
+	meerkat.authConfigured().then((v) => {
+		console.log("auth configured promise resolved with", v);
+		setAuthentication(v);
+	});
 
 	useEffect(loadDashboards, []);
 	useEffect(loadSettings, []);
@@ -477,6 +482,7 @@ export function Home() {
 							loadDashboards={loadDashboards}
 							dashboards={dashboards}
 							filter={filter}
+							authEnabled={authentication}
 						/>
 					</div>
 				</div>
