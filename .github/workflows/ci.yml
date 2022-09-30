@@ -1,4 +1,4 @@
-name: Test
+name: CI
 
 on:
   push:
@@ -44,3 +44,23 @@ jobs:
         run: |
           cd backend
           go test
+
+  package:
+    runs-on: ubuntu-latest
+    needs: [frontend, backend]
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+      - uses: actions/setup-go@v3
+
+      - name: create distribution tarball
+        run: ./mkdist.sh .
+
+      - name: upload tarball
+        uses: actions/upload-artifact@v3
+        with:
+          name: meerkat.tar.gz
+          path: meerkat.tar.gz
