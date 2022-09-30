@@ -1,15 +1,12 @@
 package main
 
 import (
-	"errors"
 	"flag"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
-	"path"
 	"time"
 
 	"github.com/BurntSushi/toml"
@@ -158,35 +155,17 @@ func main() {
 	r.Handle("/dashboards-data/*", http.StripPrefix("/dashboards-data/", http.FileServer(http.Dir("./dashboards-data"))))
 
 	// serve frontend stuff
-	// otherwise, 404 when nothing is found
 	r.NotFound(createFileHandler("./frontend"))
 
 	fmt.Printf("Starting web server: %s\n", config.HTTPAddr)
 	log.Fatal(http.ListenAndServe(config.HTTPAddr, r))
 }
 
-//Serves index.html if the path isn't found
 func createFileHandler(frontendPath string) func(w http.ResponseWriter, r *http.Request) {
 	frontendDir := http.Dir(frontendPath)
 	fs := http.FileServer(frontendDir)
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		p := path.Clean(r.URL.Path)
-		f, err := frontendDir.Open(p)
-
-		if errors.Is(err, os.ErrNotExist) {
-			f, err := os.Open(path.Join(frontendPath, "index.html"))
-			if err != nil {
-				http.Error(w, "Error opening index.html - "+err.Error(), http.StatusInternalServerError)
-			}
-			_, err = io.Copy(w, f)
-			if err != nil {
-				http.Error(w, "Error writing index.html to response - "+err.Error(), http.StatusInternalServerError)
-			}
-			f.Close()
-		} else {
-			f.Close()
-			fs.ServeHTTP(w, r)
-		}
+		fs.ServeHTTP(w, r)
 	}
 }
