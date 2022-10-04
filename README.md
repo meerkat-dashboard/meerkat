@@ -2,7 +2,7 @@
 
 Meerkat is a utility to create and share dashboards for Icinga 2 checks and hosts. It is comprised of a lightweight Go server and a browser front-end written in Preact. It's quick to setup and easy to use.
 
-For a high level introduction to Meerkat and user documentation see the project website at https://meerkat.run
+**Not developing Meerkat?** See the Meerkat website at https://meerkat.run
 
 ## Development
 
