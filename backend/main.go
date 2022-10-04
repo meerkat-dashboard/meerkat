@@ -68,18 +68,11 @@ func main() {
 	flag.StringVar(&configFile, "config", "./meerkat.toml", "provide an alternative config path")
 	flag.Parse()
 
-	//Config
 	fmt.Printf("Reading config: %s\n", configFile)
-	_, err := toml.DecodeFile(configFile, &config)
+	var err error
+	config, err = LoadConfig(configFile)
 	if err != nil {
 		log.Fatalf("Error reading config - %s\n", err)
-	}
-
-	if config.CacheExpiryDurationSeconds == 0 {
-		config.CacheExpiryDurationSeconds = 16
-	}
-	if config.CacheSizeBytes == 0 {
-		config.CacheSizeBytes = 20971520
 	}
 
 	initialiseIcingaCaches()
@@ -168,4 +161,32 @@ func createFileHandler(frontendPath string) func(w http.ResponseWriter, r *http.
 	return func(w http.ResponseWriter, r *http.Request) {
 		fs.ServeHTTP(w, r)
 	}
+}
+
+func LoadConfig(name string) (Config, error) {
+	var conf Config
+	_, err := toml.DecodeFile(name, &conf)
+
+	if conf.HTTPAddr == "" {
+		conf.HTTPAddr = ":8080"
+	}
+
+	if conf.IcingaURL == "" {
+		conf.IcingaURL = "https://127.0.0.1:5665"
+	}
+	if conf.IcingaUsername == "" {
+		conf.IcingaUsername = "meerkat"
+	}
+	if conf.IcingaPassword == "" {
+		conf.IcingaPassword = "meerkat"
+	}
+
+	if config.CacheExpiryDurationSeconds == 0 {
+		config.CacheExpiryDurationSeconds = 16
+	}
+	if config.CacheSizeBytes == 0 {
+		config.CacheSizeBytes = 20971520
+	}
+
+	return conf, err
 }
