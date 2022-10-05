@@ -1,13 +1,4 @@
 :root {
-	--color-dark-orange: #f0570d;
-	--color-dark-blue: #213b5c;
-	--color-blue: #476C9B;
-	--color-black: #101419;
-	--color-gray: #797979;
-	--color-light-gray: #d1d9db;
-	--color-white: #eeeeee;
-	--color-light-black: #21272f;
-
 	--color-icinga-red: #ff0019;
 	--color-icinga-green: #0ee16a;
 	--color-icinga-purple: #970ee1;
@@ -123,7 +114,7 @@ body {
 	margin: 0;
 	font-family: Arial, sans-serif;
 	font-size: 18px;
-	color: var(--color-black)
+	color: black;
 }
 
 h1, h2, h3, h4, h5, h6, p {
@@ -139,14 +130,14 @@ hr {
 }
 
 a {
-	color: var(--color-blue);
+	color: steelblue;
 	cursor: pointer;
 	font-weight: normal;
 	text-decoration: none;
 }
 
 a:hover, a:focus {
-	color: var(--color-dark-blue);
+	color: midnightblue;
 }
 
 .lefty-righty {
@@ -225,12 +216,12 @@ label~input, label~select, label~textarea {
 
 button {
 	cursor: pointer;
-	background-color: var(--color-dark-orange);
+	background-color: orangered;
 	border: 0;
 	border-radius: 40px;
 	padding: 10px 20px;
 	font-size: 16px;
-	color: var(--color-white);
+	color: whitesmoke;
 	margin-right: 5px;
 	display: inline-block;
 }
@@ -285,7 +276,7 @@ input, select, textarea {
 	width: 100%;
 	padding: 8px;
 	border-radius: 3px;
-	border: solid 1.5px var(--color-gray);
+	border: solid 1.5px gray;
 	transition: 300ms border-color;
 	font-size: 13px;
 }
@@ -296,7 +287,7 @@ textarea {
 }
 
 input:focus, select:focus {
-	border-color: var(--color-blue);
+	border-color: steelblue;
 }
 
 select[multiple] {
@@ -350,7 +341,7 @@ div.selection > .selector {
 	border: solid 1.5px #ced4da;
 	border-left: 0;
 	cursor: pointer;
-	color: var(--color-black);
+	color: black;
 	border-radius: 1px;
 }
 
@@ -392,7 +383,7 @@ div.copy-box > svg {
 	top: 0;
 	display: block;
 	margin: 5px;
-	color: var(--color-light-black);
+	color: black;
 	cursor: pointer;
 }
 
@@ -418,7 +409,7 @@ div.modal-wrap .modal-fixed {
 	left: calc(50% - 200px);
 	width: 400px;
 	top: 20vh;
-	color: var(--color-black);
+	color: black;
 	border-radius: 4px;
 	animation-name: slide-up;
 	animation-iteration-count: initial;
@@ -823,7 +814,7 @@ div.tag .close-icon {
 .check > .card {
 	padding: 6px 10px;
 	color: white;
-	background-color: var(--color-black);
+	background-color: black;
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -851,7 +842,7 @@ div.tag .close-icon {
 .check > a > .card {
 	padding: 6px 10px;
 	color: white;
-	background-color: var(--color-black);
+	background-color: black;
 	display: flex;
 	justify-content: center;
 	align-items: center;
