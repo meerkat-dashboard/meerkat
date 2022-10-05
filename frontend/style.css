@@ -14,10 +14,6 @@
 	}
   }
 
-* {
-	box-sizing: border-box;
-}
-
 .switch {
 	position: relative;
 	display: inline-block;
@@ -110,34 +106,21 @@ input:checked + .slider:before {
 	to { transform: rotate(360deg); }
 }
 
-body {
-	margin: 0;
-	font-family: Arial, sans-serif;
-	font-size: 18px;
-	color: black;
-}
-
 h1, h2, h3, h4, h5, h6, p {
 	margin-top: 0;
 	margin-bottom: 15px;
 }
 
-hr {
-	height: 0;
-	border: 0;
-	margin-top: 0;
-	border-bottom: solid 1px #aaa;
-}
-
 a {
-	color: steelblue;
 	cursor: pointer;
 	font-weight: normal;
-	text-decoration: none;
 }
 
-a:hover, a:focus {
-	color: midnightblue;
+input, select, textarea {
+	width: 100%;
+	padding: 8px;
+	border-radius: 3px;
+	border: solid 1.5px gray;
 }
 
 .lefty-righty {
@@ -215,14 +198,8 @@ label~input, label~select, label~textarea {
 }
 
 button {
-	cursor: pointer;
-	background-color: orangered;
 	border: 0;
-	border-radius: 40px;
 	padding: 10px 20px;
-	font-size: 16px;
-	color: whitesmoke;
-	margin-right: 5px;
 	display: inline-block;
 }
 
@@ -272,22 +249,9 @@ div.small.loading::before {
 	height: 10px;
 }
 
-input, select, textarea {
-	width: 100%;
-	padding: 8px;
-	border-radius: 3px;
-	border: solid 1.5px gray;
-	transition: 300ms border-color;
-	font-size: 13px;
-}
-
 textarea {
 	resize: vertical;
 	min-height: 80px;
-}
-
-input:focus, select:focus {
-	border-color: steelblue;
 }
 
 select[multiple] {
