@@ -74,143 +74,159 @@ export function IcingaCheckList({ currentCheckopts, updateOptions }) {
 	const [selection, setSelection] = useState(currentCheckopts.selection);
 
 	const updateTypeOptions = async () => {
-		if (selection === "") {
+		if (!selection) {
 			setTypeOptions("");
-		} else {
-			setTypeOptions(
-				<Combobox
-					placeholder="Loading..."
-					busy
-					value=""
-					data={[]}
-					busySpinner={
-						<div
-							class="loading"
-							style="width: 14px; height: 14px; margin-left: 10px"
-						/>
+			return;
+		}
+		setTypeOptions(
+			<Combobox
+				placeholder="Loading..."
+				busy
+				value=""
+				data={[]}
+				busySpinner={
+					<div
+						class="loading"
+						style="width: 14px; height: 14px; margin-left: 10px"
+					/>
+				}
+			/>
+		);
+		let opts = null;
+		let input = "";
+		let value = "";
+
+		if (currentCheckopts.selection == selection) {
+			value = currentCheckopts.id;
+		}
+
+		if (selection === "hosts") {
+			opts = [];
+			let hosts = await meerkat.getIcingaHosts();
+			hosts.sort(sortHost);
+			for (const host of hosts) {
+				opts.push({
+					id: host.id,
+					selection: "hosts",
+					objectType: "host",
+					filter: `host.name=="${host.id}"`,
+				});
+			}
+		} else if (selection === "services") {
+			opts = [];
+			let services = await meerkat.getIcingaServices();
+			services.sort(sortService);
+			for (const service of services) {
+				opts.push({
+					id: service.id,
+					selection: "services",
+					objectType: "service",
+					filter: `service.__name=="${service.id}"`,
+				});
+			}
+		} else if (selection === "host-groups") {
+			opts = [];
+			let hostGroups = await meerkat.getIcingaHostGroups();
+			hostGroups.sort(sortHostGroups);
+			for (const hostGroup of hostGroups) {
+				opts.push({
+					id: hostGroup.id,
+					selection: "host-groups",
+					objectType: "host",
+					filter: `"${hostGroup.id}" in host.groups`,
+				});
+			}
+		} else if (selection === "service-groups") {
+			opts = [];
+			let serviceGroups = await meerkat.getIcingaServiceGroups();
+			serviceGroups.sort(sortServiceGroups);
+			for (const serviceGroup of serviceGroups) {
+				opts.push({
+					id: serviceGroup.id,
+					selection: "service-groups",
+					objectType: "service",
+					filter: `"${serviceGroup.id}" in service.groups`,
+				});
+			}
+		} else if (selection === "host-filter") {
+			input = (
+				<input
+					class="form-control"
+					id="host-filter"
+					name="host_filter"
+					value={currentCheckopts.filter}
+					type="text"
+					placeholder="host.foo == 42"
+					onInput={(e) =>
+						updateOptions({ filter: e.target.value, objectType: "host" })
 					}
 				/>
 			);
-			let opts = null;
-			let input = "";
-			let value = "";
-
-			if (currentCheckopts.selection == selection) {
-				value = currentCheckopts.id;
+		} else if (selection === "service-filter") {
+			input = (
+				<input
+					class="form-control"
+					id="service-filter"
+					name="service_filter"
+					value={currentCheckopts.filter}
+					type="text"
+					placeholder="service.foo == 42"
+					onInput={(e) =>
+						updateOptions({ filter: e.target.value, objectType: "service" })
+					}
+				/>
+			);
+		} else if (selection === "host-services") {
+			opts = [];
+			let hosts = await meerkat.getIcingaHosts();
+			for (const host of hosts) {
+				opts.push({
+					id: host.id,
+					selection: "host-services",
+					objectType: "service",
+					filter: `host.name=="${host.id}"`,
+				});
 			}
+		}
 
-			if (selection === "hosts") {
-				opts = [];
-				let hosts = await meerkat.getIcingaHosts();
-				hosts.sort(sortHost);
-				for (const host of hosts) {
-					opts.push({
-						id: host.id,
-						selection: "hosts",
-						objectType: "host",
-						filter: `host.name=="${host.id}"`,
-					});
-				}
-			} else if (selection === "services") {
-				opts = [];
-				let services = await meerkat.getIcingaServices();
-				services.sort(sortService);
-				for (const service of services) {
-					opts.push({
-						id: service.id,
-						selection: "services",
-						objectType: "service",
-						filter: `service.__name=="${service.id}"`,
-					});
-				}
-			} else if (selection === "host-groups") {
-				opts = [];
-				let hostGroups = await meerkat.getIcingaHostGroups();
-				hostGroups.sort(sortHostGroups);
-				for (const hostGroup of hostGroups) {
-					opts.push({
-						id: hostGroup.id,
-						selection: "host-groups",
-						objectType: "host",
-						filter: `"${hostGroup.id}" in host.groups`,
-					});
-				}
-			} else if (selection === "service-groups") {
-				opts = [];
-				let serviceGroups = await meerkat.getIcingaServiceGroups();
-				serviceGroups.sort(sortServiceGroups);
-				for (const serviceGroup of serviceGroups) {
-					opts.push({
-						id: serviceGroup.id,
-						selection: "service-groups",
-						objectType: "service",
-						filter: `"${serviceGroup.id}" in service.groups`,
-					});
-				}
-			} else if (selection === "host-filter") {
-				input = (
-					<input
-						class="form-control"
-						id="host-filter"
-						name="host_filter"
-						value={currentCheckopts.filter}
-						type="text"
-						placeholder="host.foo == 42"
-						onInput={(e) =>
-							updateOptions({ filter: e.target.value, objectType: "host" })
-						}
-					/>
-				);
-			} else if (selection === "service-filter") {
-				input = (
-					<input
-						class="form-control"
-						id="service-filter"
-						name="service_filter"
-						value={currentCheckopts.filter}
-						type="text"
-						placeholder="service.foo == 42"
-						onInput={(e) =>
-							updateOptions({ filter: e.target.value, objectType: "service" })
-						}
-					/>
-				);
-			} else if (selection === "host-services") {
-				opts = [];
-				let hosts = await meerkat.getIcingaHosts();
-				for (const host of hosts) {
-					opts.push({
-						id: host.id,
-						selection: "host-services",
-						objectType: "service",
-						filter: `host.name=="${host.id}"`,
-					});
-				}
-			}
+		if (opts !== null) {
+			input = (
+				<Combobox
+					filter="contains"
+					placeholder="Choose away..."
+					textField="id"
+					valueField="id"
+					defaultValue={value}
+					data={opts}
+					onSelect={updateOptions}
+				/>
+			);
+		}
 
-			if (opts !== null) {
-				input = (
-					<Combobox
-						filter="contains"
-						placeholder="Choose away..."
-						textField="id"
-						valueField="id"
-						defaultValue={value}
-						data={opts}
-						onSelect={updateOptions}
-					/>
-				);
-			}
-
-			if (input !== null) {
-				setTypeOptions(input);
-			}
+		if (input !== null) {
+			setTypeOptions(input);
 		}
 	};
 
 	useEffect(updateTypeOptions, [selection]);
 
-	let selectionTypes = [
+	return (
+		<div>
+			<select
+				id="icinga-object-type-select"
+				onInput={(sel) => setSelection(sel.currentTarget.value)}
+				required
+			>
+				<ObjectTypeOptions selection={selection} />
+			</select>
+			<br />
+			{typeOptions}
+		</div>
+	);
+}
+
+function ObjectTypeOptions({ selection }) {
+	let types = [
 		{ value: "hosts", label: "Hosts" },
 		{ value: "services", label: "Services" },
 		{ value: "host-groups", label: "Host Groups" },
@@ -219,24 +235,21 @@ export function IcingaCheckList({ currentCheckopts, updateOptions }) {
 		{ value: "service-filter", label: "Service Filter" },
 		{ value: "host-services", label: "All Services on a Host" },
 	];
-
-	return (
-		<div>
-			<Combobox
-				placeholder="Make your choice..."
-				onChange={(s) => {
-					setSelection(s.value);
-					updateOptions({ selection: s.value });
-				}}
-				defaultValue={selection}
-				data={selectionTypes}
-				valueField="value"
-				textField="label"
-			/>
-			<br />
-			{typeOptions}
-		</div>
-	);
+	const options = types.map((t) => {
+		if (t.value == selection) {
+			return (
+				<option key={t.value} value={t.value} selected>
+					{t.label}
+				</option>
+			);
+		}
+		return (
+			<option key={t.value} value={t.value}>
+				{t.label}
+			</option>
+		);
+	});
+	return options;
 }
 
 export function flattenObject(obj, prefix = false, result = null) {
