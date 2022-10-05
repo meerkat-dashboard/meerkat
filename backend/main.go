@@ -65,14 +65,13 @@ var config Config
 
 func main() {
 	var configFile string
-	flag.StringVar(&configFile, "config", "./meerkat.toml", "provide an alternative config path")
+	flag.StringVar(&configFile, "config", "", "provide an alternative config path")
 	flag.Parse()
 
-	fmt.Printf("Reading config: %s\n", configFile)
 	var err error
 	config, err = LoadConfig(configFile)
 	if err != nil {
-		log.Fatalf("Error reading config - %s\n", err)
+		log.Fatalln(err)
 	}
 
 	initialiseIcingaCaches()
@@ -165,7 +164,10 @@ func createFileHandler(frontendPath string) func(w http.ResponseWriter, r *http.
 
 func LoadConfig(name string) (Config, error) {
 	var conf Config
-	_, err := toml.DecodeFile(name, &conf)
+	var err error
+	if name != "" {
+		_, err = toml.DecodeFile(name, &conf)
+	}
 
 	if conf.HTTPAddr == "" {
 		conf.HTTPAddr = ":8080"
