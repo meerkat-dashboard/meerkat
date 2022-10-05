@@ -1,3 +1,8 @@
+---
+title: Create a dashboard
+parent: Tutorials
+---
+
 # Tutorial: Create a dashboard
 
 Once you have Meerkat up and running, you will want to create your first dashboard.

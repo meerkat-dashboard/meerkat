@@ -1,3 +1,8 @@
+---
+title: Connecting Icinga
+parent: Tutorials
+---
+
 # Tutorial: Connecting Icinga
 
 Meerkat can connect to Icinga2 to create dashboards from Icinga2 objects like Services and Host Groups.
