@@ -815,7 +815,6 @@ div.tag .close-icon {
 
 .check > .text {
 	white-space: pre;
-	display: flex;
 }
 
 .text {
@@ -924,6 +923,10 @@ a#a-link {
 	height: 100% !important;
 }
 
+.check-content {
+	display: flex;
+}
+
 .align-center {
 	text-align: center;
 }
@@ -933,13 +936,6 @@ a#text-link {
 	display: block;
 	line-height: 5vh;
 	height: 100%;
-}
-
-.check > a#text-link > div.check-content.text {
-	line-height: 470%;
-	text-align: center;
-	height: 100% !important;
-	vertical-align: middle;
 }
 
 .ticker {
@@ -977,14 +973,13 @@ a#text-link {
 	cursor: ns-resize;
 	border-radius: 3px;
 }
+
 .ticker > .check-content.ticker {
 	display: flex;
 	justify-content: center;
 	align-items: center;
 	vertical-align: top;
 }
-
-
 
 .view-ticker {
 	cursor: default;

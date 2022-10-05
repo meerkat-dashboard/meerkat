@@ -169,9 +169,6 @@ export function StaticText({ options, vars }) {
 	if (typeof options.boldText !== "undefined" && options.boldText) {
 		styles += `font-weight: bold; `;
 	}
-	if (typeof options.linkURL !== "undefined" && options.linkURL) {
-		styles += `text-align: center; line-height: 470%; `;
-	}
 
 	if (typeof vars === "object" && vars != null) {
 		for (const [key, property] of Object.entries(vars)) {
