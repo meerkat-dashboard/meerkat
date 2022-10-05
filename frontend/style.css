@@ -608,14 +608,6 @@ div.dashboard-wrap {
 	margin-left: 25px;
 }
 
-.settings-cog:hover {
-	animation-iteration-count: infinite;
-	animation-name: rotate;
-	animation-duration: 2s;
-	animation-direction: alternate;
-	animation-timing-function: linear;
-  }
-
   @keyframes rotate {
 	to {
 	  stroke-dashoffset: 227;
