@@ -943,7 +943,6 @@ a#text-link {
 	position: absolute;
 	overflow: hidden;
 	width: 100vw;
-	/* animation: marqueeX 10s linear infinite; */
 }
 
 .ticker-editing {
@@ -955,7 +954,6 @@ a#text-link {
 	user-select: none;
 	width: 100%;
 	height: 100%;
-	/* animation: marqueeX 10s linear infinite; */
 }
 
 .ticker > .edit {
