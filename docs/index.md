@@ -1,3 +1,8 @@
+---
+title: Home
+nav_order: 1
+---
+
 # Meerkat - A Dashboarding tool for Icinga2
 
 Meerkat is a utility to create and share dashboards for Icinga2. It's quick to setup and easy to use. There is a WSIWYG editor interface when you can set a background for a dashboard and start overlaying checks which update in real time by polling the Icinga2 API via the Meerkat backend.
