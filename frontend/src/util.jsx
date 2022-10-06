@@ -213,6 +213,7 @@ export function IcingaCheckList({ currentCheckopts, updateOptions }) {
 	return (
 		<div>
 			<select
+				class="form-select"
 				id="icinga-object-type-select"
 				onInput={(sel) => setSelection(sel.currentTarget.value)}
 				required

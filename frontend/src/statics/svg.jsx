@@ -19,7 +19,7 @@ export function StaticSVGOptions({ options, updateOptions }) {
 		<Fragment>
 			<label for="svg">SVG</label>
 			<select
-				class="form-control"
+				class="form-select"
 				id="svg"
 				name="svg"
 				value={options.svg}

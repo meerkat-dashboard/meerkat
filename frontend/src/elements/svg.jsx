@@ -44,7 +44,7 @@ export function CheckSVGOptions({ options, updateOptions }) {
 
 			<label for="okSvg">OK SVG</label>
 			<select
-				class="form-control"
+				class="form-select"
 				id="okSvg"
 				name="okSvg"
 				value={options.okSvg}
@@ -77,7 +77,7 @@ export function CheckSVGOptions({ options, updateOptions }) {
 
 			<label for="warningSvg">Warning SVG</label>
 			<select
-				class="form-control"
+				class="form-select"
 				id="warningSvg"
 				name="warningSvg"
 				value={options.warningSvg}
@@ -133,7 +133,7 @@ export function CheckSVGOptions({ options, updateOptions }) {
 
 			<label for="unknownSvg">Unknown SVG</label>
 			<select
-				class="form-control"
+				class="form-select"
 				id="unknownSvg"
 				name="unknownSvg"
 				value={options.unknownSvg}
@@ -189,7 +189,7 @@ export function CheckSVGOptions({ options, updateOptions }) {
 
 			<label for="criticalSvg">Critical SVG</label>
 			<select
-				class="form-control"
+				class="form-select"
 				id="criticalSvg"
 				name="criticalSvg"
 				value={options.criticalSvg}

@@ -51,7 +51,7 @@ export function ClockOptions({ options, updateOptions }) {
 		<div class="clock-options">
 			<label for="time-zone-list">Timezone</label>
 			<select
-				class="form-control"
+				class="form-select"
 				name="item-type"
 				value={timeZone}
 				onChange={(e) => handleSelectTimeZone(e)}

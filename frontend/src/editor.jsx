@@ -1324,7 +1324,7 @@ export function ElementSettings({ selectedElement, updateElement }) {
 
 						<label>Visual Type</label>
 						<select
-							class="form-control"
+							class="form-select"
 							name="item-type"
 							value={selectedElement.type}
 							onInput={updateType}

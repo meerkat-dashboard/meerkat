@@ -229,6 +229,7 @@ const CheckDataOptions = ({ options, updateOptions }) => {
 		<Fragment>
 			<label for="check-data-mode">Check Data Mode</label>
 			<select
+				class="form-select"
 				id="check-data-mode"
 				onInput={(e) =>
 					updateOptions({ checkDataSelection: e.currentTarget.value })
