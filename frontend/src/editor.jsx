@@ -61,13 +61,6 @@ const dashboardReducer = (state, action) => {
 			return { ...state, background: action.background };
 		case "setGlobalMute":
 			return { ...state, globalMute: action.globalMute };
-		case "setGlobalTabLink":
-			if (state.hasOwnProperty("tabLink")) {
-				return { ...state, tabLink: action.tabLink };
-			} else {
-				Object.assign(state, { tabLink: action.tabLink });
-				return state;
-			}
 		case "addElement":
 			console.log("Adding new element");
 			const newElement = {
@@ -701,23 +694,6 @@ const AdvancedAlertOptions = ({ dashboardDispatch, display, dashboard }) => {
 
 	return (
 		<div style={{ display: display ? "" : "none" }}>
-			<div class="form-check">
-				<input
-					type="checkbox"
-					id="newTab"
-					defaultChecked={dashboard.tabLink}
-					onChange={(e) =>
-						dashboardDispatch({
-							type: "setGlobalTabLink",
-							tabLink: e.target.checked,
-						})
-					}
-					class="form-check-input"
-				/>
-				<label class="form-check-label" for="newTab">
-					Open links in new tab
-				</label>
-			</div>
 			<label for="soundFile">
 				Ok Alert Sound {audioControls(dashboard.okSound)}
 				<a

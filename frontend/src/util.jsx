@@ -605,10 +605,6 @@ export function linkHelper(element, ele, dashboard) {
 	let target = null;
 	let link = element.options.linkURL;
 
-	if (dashboard.tabLink) {
-		target = "blank";
-	}
-
 	if (dashboard.hasOwnProperty("variables")) {
 		for (const [key, property] of Object.entries(dashboard.variables)) {
 			if (
