@@ -915,6 +915,11 @@ div.check-content.svg {
 	line-height: 1.2;
 }
 
+.check-state {
+	-webkit-text-stroke-width: 0.03em;
+	-webkit-text-stroke-color: black;
+}
+
 a {
 	text-decoration: none!important;
 }
