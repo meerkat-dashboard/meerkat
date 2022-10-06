@@ -303,18 +303,20 @@ const AdvancedCheckOptions = ({ options, updateOptions, display }) => {
 	return (
 		<div style={{ display: display ? "" : "none" }}>
 			<br />
-			<label class="status-font-size">Mute Card Alerts</label>
-			<span>
+			<div class="form-check">
 				<input
+					class="form-check-input"
 					type="checkbox"
+					id="muteAlerts"
 					defaultChecked={options.muteAlerts}
 					onChange={(e) => updateOptions({ muteAlerts: e.target.checked })}
-					class="form-control mute-sounds"
 				/>
-			</span>
-			<br />
-			<br />
-			<label for="soundFile">
+				<label class="form-check-label" for="muteAlerts">
+					Mute Card Alerts
+				</label>
+			</div>
+
+			<label class="form-label" for="okSound">
 				Ok Alert Sound {audioControls(options.okSound)}{" "}
 				<a onClick={(e) => updateOptions({ okSound: "" })}>default</a>
 			</label>
@@ -322,10 +324,10 @@ const AdvancedCheckOptions = ({ options, updateOptions, display }) => {
 				type="file"
 				id="okSound"
 				accept="audio/*"
-				placeholder="Upload an audio file"
 				onInput={(e) => handleAudioFile("okSound", e.target.files)}
 			></input>
-			<label for="soundFile">
+
+			<label class="form-label" for="warningSound">
 				Warning Alert Sound {audioControls(options.warningSound)}{" "}
 				<a onClick={(e) => updateOptions({ warningSound: "" })}>default</a>
 			</label>
@@ -333,10 +335,10 @@ const AdvancedCheckOptions = ({ options, updateOptions, display }) => {
 				type="file"
 				id="warningSound"
 				accept="audio/*"
-				placeholder="Upload an audio file"
 				onInput={(e) => handleAudioFile("warningSound", e.target.files)}
 			></input>
-			<label for="soundFile">
+
+			<label class="form-label" for="criticalSound">
 				Critical Alert Sound {audioControls(options.criticalSound)}{" "}
 				<a onClick={(e) => updateOptions({ criticalSound: "" })}>default</a>
 			</label>
@@ -344,10 +346,10 @@ const AdvancedCheckOptions = ({ options, updateOptions, display }) => {
 				type="file"
 				id="criticalSound"
 				accept="audio/*"
-				placeholder="Upload an audio file"
 				onInput={(e) => handleAudioFile("criticalSound", e.target.files)}
 			></input>
-			<label for="soundFile">
+
+			<label class="form-label" for="unknownSound">
 				Unknown Alert Sound {audioControls(options.unknownSound)}{" "}
 				<a onClick={(e) => updateOptions({ unknownSound: "" })}>default</a>
 			</label>
@@ -355,10 +357,10 @@ const AdvancedCheckOptions = ({ options, updateOptions, display }) => {
 				type="file"
 				id="unknownSound"
 				accept="audio/*"
-				placeholder="Upload an audio file"
 				onInput={(e) => handleAudioFile("unknownSound", e.target.files)}
 			></input>
-			<label for="soundFile">
+
+			<label class="form-label" for="upSound">
 				Up Alert Sound {audioControls(options.upSound)}{" "}
 				<a onClick={(e) => updateOptions({ upSound: "" })}>default</a>
 			</label>
@@ -366,10 +368,10 @@ const AdvancedCheckOptions = ({ options, updateOptions, display }) => {
 				type="file"
 				id="upSound"
 				accept="audio/*"
-				placeholder="Upload an audio file"
 				onInput={(e) => handleAudioFile("upSound", e.target.files)}
 			></input>
-			<label for="soundFile">
+
+			<label class="form-label" for="downSound">
 				Down Alert Sound {audioControls(options.downSound)}{" "}
 				<a onClick={(e) => updateOptions({ downSound: "" })}>default</a>
 			</label>
@@ -377,7 +379,6 @@ const AdvancedCheckOptions = ({ options, updateOptions, display }) => {
 				type="file"
 				id="downSound"
 				accept="audio/*"
-				placeholder="Upload an audio file"
 				onInput={(e) => handleAudioFile("downSound", e.target.files)}
 			></input>
 		</div>

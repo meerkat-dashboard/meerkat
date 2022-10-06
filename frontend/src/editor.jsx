@@ -646,13 +646,18 @@ function SidePanelSettings({ dashboardDispatch, dashboard }) {
 				accept="image/*"
 				onChange={handleBackgroundImg}
 			/>
-			<label class="status-font-size">Mute Status Alerts</label>
-			<input
-				type="checkbox"
-				defaultChecked={dashboard.globalMute}
-				onChange={(e) => muteAlerts(e)}
-				class="form-control mute-sounds"
-			/>
+			<div class="form-check">
+				<input
+					id="muteStatusAlerts"
+					class="form-check-input"
+					type="checkbox"
+					defaultChecked={dashboard.globalMute}
+					onChange={(e) => muteAlerts(e)}
+				/>
+				<label class="form-check-label" for="muteStatusAlerts">
+					Mute Status Alerts
+				</label>
+			</div>
 			<br />
 			<button class="rounded btn-primary btn-large" onClick={onClickAdvanced}>
 				{showAdvanced ? "Hide Options" : "Global Options"}
@@ -696,20 +701,23 @@ const AdvancedAlertOptions = ({ dashboardDispatch, display, dashboard }) => {
 
 	return (
 		<div style={{ display: display ? "" : "none" }}>
-			<br />
-			<label class="new-tab">Open links in new tab</label>
-			<input
-				type="checkbox"
-				defaultChecked={dashboard.tabLink}
-				onChange={(e) =>
-					dashboardDispatch({
-						type: "setGlobalTabLink",
-						tabLink: e.target.checked,
-					})
-				}
-				class="form-control new-tab"
-			/>
-			<br />
+			<div class="form-check">
+				<input
+					type="checkbox"
+					id="newTab"
+					defaultChecked={dashboard.tabLink}
+					onChange={(e) =>
+						dashboardDispatch({
+							type: "setGlobalTabLink",
+							tabLink: e.target.checked,
+						})
+					}
+					class="form-check-input"
+				/>
+				<label class="form-check-label" for="newTab">
+					Open links in new tab
+				</label>
+			</div>
 			<label for="soundFile">
 				Ok Alert Sound {audioControls(dashboard.okSound)}
 				<a
