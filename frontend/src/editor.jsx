@@ -212,7 +212,7 @@ export function Editor({ slug, selectedElementId }) {
 					</div>
 				</div>
 				<div class="side-bar-footer lefty-righty">
-					<button class="btn btn-outline-primary " onClick={(e) => route("/")}>
+					<button class="btn btn-primary " onClick={(e) => route("/")}>
 						Home
 					</button>
 					<button
@@ -1110,12 +1110,12 @@ function SidePanelElements({
 			<div class="lefty-righty spacer">
 				<h3>Elements</h3>
 				<span style="display: inline;float: right;">
-					<button class="small btn btn-outline-primary" onClick={addElement}>
+					<button class="small btn btn-primary" onClick={addElement}>
 						New
 					</button>
 					<button
 						style="margin-left: 5px"
-						class="small btn btn-outline-primary"
+						class="small btn btn-primary"
 						onClick={(e) => setShowVars(true)}
 					>
 						Vars
