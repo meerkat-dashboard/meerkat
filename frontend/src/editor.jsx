@@ -1057,7 +1057,7 @@ function SidePanelElements({
 			onDragStart={handleDragStart}
 		>
 			<div onClick={(e) => routeParam("selectedElementId", index.toString())}>
-				<div class="element-title">{element.title}</div>
+				{element.title}
 			</div>
 			<button
 				class="btn btn-primary btn-sm"

@@ -115,12 +115,7 @@ label~input, label~select, label~textarea {
 	margin-bottom: 20px;
 }
 
-.element-title {
-	display: inline-block;
-	padding-right: 2em;
-}
-
-button.loading, div.loading {
+div.loading {
 	display: flex;
 	align-items: center;
 }
@@ -129,7 +124,7 @@ div.loading {
 	font-style: italic;
 }
 
-button.loading::before, div.loading::before {
+div.loading::before {
 	content: '';
 	display: inline-block;
 	width: 20px;
@@ -142,28 +137,6 @@ button.loading::before, div.loading::before {
 	animation-name: spin;
 	animation-duration: 500ms;
 	animation-iteration-count: infinite;
-}
-
-button.small {
-	padding: 4px 8px;
-	font-size: 12px;
-	text-transform: uppercase;
-}
-
-button.medium {
-	padding: 6px 10px;
-	font-size: 14px;
-	text-transform: uppercase;
-}
-
-div.small {
-	font-size: 14px;
-}
-
-button.small.loading::before,
-div.small.loading::before {
-	width: 10px;
-	height: 10px;
 }
 
 textarea {
@@ -371,18 +344,13 @@ div.home {
 	margin: 10vh auto;
 }
 
-.filter-results .dashboard-listing {
-	border: solid 1px #21272f;
-	color: #f8f8f8;
+.dashboard-listing {
+	display: flex;
+	justify-content: space-between;
 	background-color: #333f46;
 	padding: 10px;
 	margin-bottom: 10px;
 	border-radius: 4px;
-}
-
-.dashboard-listing {
-	display: flex;
-	justify-content: space-between;
 }
 
 .clock {
@@ -481,27 +449,8 @@ input[type=checkbox].form-control.bold-static-text {
     position: absolute;
 }
 
-input[type=checkbox].form-control.new-tab{
-	float: right;
-    margin-left: 12em;
-    margin-top: -2.9em;
-    position: absolute;
-}
-
 .dashboard.view-only .check {
 	cursor: default;
-}
-
-.dashboard.view-only button.view-only-button {
-	position: absolute;
-	bottom: 20px;
-	left: 20px;
-	opacity: .4;
-	transition: opacity 400ms;
-}
-
-.dashboard.view-only button.view-only-button:hover {
-	opacity: 1.0;
 }
 
 /* EDITOR */
@@ -864,14 +813,6 @@ a {
 
 .element-list > .element-item:hover {
 	color: #797979;
-}
-
-.move-button {
-	background-color: #007bff;
-	color: white;
-	border-radius: 0px 0px 30px 30px;
-	height: 2em;
-	text-align: center;
 }
 
 /* Video JS */
