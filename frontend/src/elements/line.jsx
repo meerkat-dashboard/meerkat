@@ -41,22 +41,20 @@ export function CheckLineOptions({ options, updateOptions }) {
 				}
 			/>
 
-			<label>Render Arrows</label>
-			<div class="left spacer">
+			<fieldset>
+				<legend>Arrowheads</legend>
 				<input
-					class="form-control"
+					class="form-check-input"
 					id="left-arrow"
 					type="checkbox"
 					checked={options.leftArrow}
 					onClick={(e) => updateOptions({ leftArrow: e.currentTarget.checked })}
 				/>
-				<label for="left-arrow" style="font-weight: normal">
+				<label class="form-check-label" for="left-arrow">
 					Left
 				</label>
-			</div>
-			<div class="left spacer">
 				<input
-					class="form-control"
+					class="form-check-input"
 					id="right-arrow"
 					type="checkbox"
 					checked={options.rightArrow}
@@ -64,12 +62,11 @@ export function CheckLineOptions({ options, updateOptions }) {
 						updateOptions({ rightArrow: e.currentTarget.checked })
 					}
 				/>
-				<label for="right-arrow" style="font-weight: normal">
+				<label class="form-check-label" for="right-arrow">
 					Right
 				</label>
-			</div>
-			<br />
-			<button class="rounded btn-primary btn-large" onClick={onClickAdvanced}>
+			</fieldset>
+			<button class="btn btn-secondary" onClick={onClickAdvanced}>
 				{showAdvanced ? "Hide Options" : "Advanced Options"}
 			</button>
 			<AdvancedLineOptions
@@ -114,7 +111,6 @@ const AdvancedLineOptions = ({ options, updateOptions, display }) => {
 					class="form-control mute-sounds"
 				/>
 			</span>
-			<br />
 			<br />
 			<label for="soundFile">
 				Ok Alert Sound {audioControls(options.okSound)}{" "}

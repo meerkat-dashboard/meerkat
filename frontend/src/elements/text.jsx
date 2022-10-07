@@ -6,7 +6,9 @@ import * as meerkat from "../meerkat";
 export function FontSizeInput({ value, onInput }) {
 	return (
 		<fieldset>
-			<label class="form-label" for="font-size">Font size</label>
+			<label class="form-label" for="font-size">
+				Font size
+			</label>
 			<input
 				class="form-control"
 				id="font-size"
