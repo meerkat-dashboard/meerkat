@@ -26,7 +26,6 @@ export function CheckSVGOptions({ options, updateOptions }) {
 
 	return (
 		<div class="card-options">
-			<label>Icinga Host or Service</label>
 			<IcingaCheckList
 				currentCheckopts={options}
 				updateOptions={updateOptions}

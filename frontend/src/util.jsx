@@ -211,7 +211,8 @@ export function IcingaCheckList({ currentCheckopts, updateOptions }) {
 	useEffect(updateTypeOptions, [selection]);
 
 	return (
-		<div>
+		<fieldset>
+			<label>Icinga object type</label>
 			<select
 				class="form-select"
 				id="icinga-object-type-select"
@@ -220,9 +221,8 @@ export function IcingaCheckList({ currentCheckopts, updateOptions }) {
 			>
 				<ObjectTypeOptions selection={selection} />
 			</select>
-			<br />
 			{typeOptions}
-		</div>
+		</fieldset>
 	);
 }
 

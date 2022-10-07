@@ -43,7 +43,6 @@ export function CheckImageOptions({ options, updateOptions }) {
 
 	return (
 		<Fragment>
-			<label>Icinga Host or Service</label>
 			<IcingaCheckList
 				currentCheckopts={options}
 				updateOptions={updateOptions}
