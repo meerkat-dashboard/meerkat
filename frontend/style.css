@@ -51,13 +51,6 @@ header {
 	justify-content: space-between;
 }
 
-input, select, textarea {
-	width: 100%;
-	padding: 8px;
-	border-radius: 3px;
-	border: solid 1.5px gray;
-}
-
 .lefty-righty {
 	display: flex;
 	justify-content: space-between;
