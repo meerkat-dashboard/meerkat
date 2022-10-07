@@ -446,7 +446,7 @@ export function Home() {
 
 	return (
 		<Fragment>
-			<header class="telstra-color-top-border">
+			<header>
 				<div class="home">
 					<h1 class="title">{settings ? settings.appName : "Meerkat"}</h1>
 

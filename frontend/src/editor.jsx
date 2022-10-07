@@ -172,7 +172,7 @@ export function Editor({ slug, selectedElementId }) {
 
 	return (
 		<Fragment>
-			<header class="telstra-color-top-border">
+			<header>
 				<DashboardView
 					dashboard={dashboard}
 					slug={slug}

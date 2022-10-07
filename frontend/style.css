@@ -409,15 +409,6 @@ div.home .filter-wrap #filter {
 	padding: 12px 16px;
 }
 
-.telstra-color-top-border {
-	border-image: linear-gradient(90deg,#0064D2,#5CD6E0 30%,#5E50BF);
-	border-image-slice: 1;
-	width: 100vw;
-	border-width: 5px 0 0;
-	border-style: solid;
-	z-index: 10;
-}
-
 .filter-results .dashboard-listing {
 	border: solid 1px #21272f;
 	color: #f8f8f8;
