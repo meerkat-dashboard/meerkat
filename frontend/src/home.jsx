@@ -87,7 +87,7 @@ function CreateDashboardModal({ hide }) {
 					/>
 
 					<div class="right" style="margin-top: 20px">
-						<button class="rounded btn-primary btn-large" type="submit">
+						<button class="btn btn-primary" type="submit">
 							Create
 						</button>
 					</div>
@@ -414,7 +414,7 @@ function SettingsModal({ hide }) {
 					/>
 
 					<div class="right" style="margin-top: 20px">
-						<button class="rounded btn-primary btn-large" type="submit">
+						<button class="btn btn-primary" type="submit">
 							Submit
 						</button>
 					</div>
@@ -452,7 +452,7 @@ export function Home() {
 
 					<div class="center" style="margin: 25px 0 40px;">
 						<button
-							class="rounded btn-primary btn-large"
+							class="btn btn-primary"
 							style="left: 18px !important; position: relative;"
 							onClick={(e) => setShowModal(true)}
 						>
