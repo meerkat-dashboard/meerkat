@@ -9,6 +9,7 @@ import {
 	alertSounds,
 	debounce,
 } from "../util";
+import { FontSizeInput } from "./text";
 
 function useCheckCard({ options, dashboard }) {
 	const [checkState, setCheckState] = useState(null);
@@ -164,14 +165,8 @@ export function CheckCardOptions({ options, updateOptions }) {
 				value={options.linkURL}
 				onInput={(e) => updateOptions({ linkURL: e.currentTarget.value })}
 			></input>
-			<label for="status-font-size">Status Font Size</label>
-			<input
-				class="form-control"
-				id="status-font-size"
+			<FontSizeInput
 				value={options.statusFontSize}
-				name="status-font-size"
-				type="number"
-				min="0"
 				onInput={(e) =>
 					updateOptions({ statusFontSize: Number(e.currentTarget.value) })
 				}

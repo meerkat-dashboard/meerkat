@@ -62,10 +62,8 @@ const dashboardReducer = (state, action) => {
 		case "setGlobalMute":
 			return { ...state, globalMute: action.globalMute };
 		case "addElement":
-			console.log("Adding new element");
 			const newElement = {
 				type: "check-card",
-				title: "New Element",
 				rect: { x: 0, y: 0, w: 15, h: 12 },
 				options: {
 					objectType: null,
@@ -82,12 +80,10 @@ const dashboardReducer = (state, action) => {
 			};
 
 		case "deleteElement":
-			console.log("Deleting element");
 			const nstate = { ...state };
 			nstate.elements.splice(action.index, 1);
 			return nstate;
 		case "duplicateElement":
-			console.log("Duplicating element");
 			return {
 				...state,
 				elements: state.elements.concat(
@@ -1282,7 +1278,7 @@ export function ElementSettings({ selectedElement, updateElement }) {
 		<div class="form-group">
 			<div class="editor settings-overlay">
 				<div class="options">
-					<div class="lefty-righty spacer">
+					<div class="lefty-righty">
 						<h3>{selectedElement.title}</h3>
 						<svg
 							class="feather"
@@ -1297,7 +1293,7 @@ export function ElementSettings({ selectedElement, updateElement }) {
 							class="form-control"
 							id="name"
 							type="text"
-							placeholder="Cool Element"
+							placeholder="A new element"
 							value={selectedElement.title}
 							onInput={(e) =>
 								updateElement({
@@ -1307,10 +1303,10 @@ export function ElementSettings({ selectedElement, updateElement }) {
 							}
 						/>
 
-						<label>Visual Type</label>
+						<label>Element type</label>
 						<select
 							class="form-select"
-							name="item-type"
+							name="element-type"
 							value={selectedElement.type}
 							onInput={updateType}
 						>

@@ -1,6 +1,8 @@
 import { h, Fragment } from "preact";
 import { useState, useEffect } from "preact/hooks";
 
+import { FontSizeInput } from "../elements/text";
+
 export function StaticTextOptions({ options, updateOptions }) {
 	const clearField = (e, field) => {
 		e.preventDefault();
@@ -20,15 +22,11 @@ export function StaticTextOptions({ options, updateOptions }) {
 				onInput={(e) => updateOptions({ text: e.currentTarget.value })}
 			></textarea>
 
-			<label for="font-size">Font Size</label>
-			<input
-				class="form-control"
-				id="font-size"
-				name="font-size"
-				type="number"
-				min="0"
+			<FontSizeInput
 				value={options.fontSize}
-				onInput={(e) => updateOptions({ fontSize: e.currentTarget.value })}
+				onInput={(e) =>
+					updateOptions({ fontSize: Number(e.currentTarget.value) })
+				}
 			/>
 
 			<label class="font-size">Bold Text</label>

@@ -7,6 +7,8 @@ import timezone from "dayjs/plugin/timezone";
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
+import { FontSizeInput } from "./text";
+
 export function Clock({ options, dashboard }) {
 	const [clock, setClock] = useState("");
 
@@ -62,14 +64,8 @@ export function ClockOptions({ options, updateOptions }) {
 					</option>
 				))}
 			</select>
-			<label for="status-font-size">Font Size</label>
-			<input
-				class="form-control"
-				id="status-font-size"
+			<FontSizeInput
 				value={options.statusFontSize}
-				name="font-size"
-				type="number"
-				min="0"
 				onInput={(e) =>
 					updateOptions({ statusFontSize: Number(e.currentTarget.value) })
 				}

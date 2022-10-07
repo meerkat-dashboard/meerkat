@@ -1,6 +1,8 @@
 import { h, Fragment } from "preact";
 import { useState, useEffect } from "preact/hooks";
 
+import { FontSizeInput } from "../elements/text";
+
 export function StaticTickerOptions({ options, updateOptions }) {
 	const clearField = (e, field) => {
 		e.preventDefault();
@@ -32,15 +34,11 @@ export function StaticTickerOptions({ options, updateOptions }) {
 				onInput={(e) => updateOptions({ scrollPeriod: e.currentTarget.value })}
 			/>
 
-			<label for="font-size">Font Size</label>
-			<input
-				class="form-control"
-				id="font-size"
-				name="font-size"
-				type="number"
-				min="0"
+			<FontSizeInput
 				value={options.fontSize}
-				onInput={(e) => updateOptions({ fontSize: e.currentTarget.value })}
+				onInput={(e) =>
+					updateOptions({ fontSize: Number(e.currentTarget.value) })
+				}
 			/>
 
 			<label for="font-color">

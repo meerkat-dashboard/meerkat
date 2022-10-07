@@ -3,6 +3,23 @@ import { useState, useEffect } from "preact/hooks";
 import { IcingaHostVars, dynamicTextHelper, flattenObject } from "../util";
 import * as meerkat from "../meerkat";
 
+export function FontSizeInput({ value, onInput }) {
+	return (
+		<fieldset>
+			<label class="form-label" for="font-size">Font size</label>
+			<input
+				class="form-control"
+				id="font-size"
+				value={value}
+				name="status-font-size"
+				type="number"
+				min="8"
+				onInput={onInput}
+			/>
+		</fieldset>
+	);
+}
+
 export function DynamicTextOptions({ options, updateOptions }) {
 	const clearField = (e, field) => {
 		e.preventDefault();
@@ -22,15 +39,11 @@ export function DynamicTextOptions({ options, updateOptions }) {
 			/>
 			<br />
 
-			<label for="font-size">Font Size</label>
-			<input
-				class="form-control"
-				id="font-size"
-				name="font-size"
-				type="number"
-				min="0"
+			<FontSizeInput
 				value={options.fontSize}
-				onInput={(e) => updateOptions({ fontSize: e.currentTarget.value })}
+				onInput={(e) =>
+					updateOptions({ fontSize: Number(e.currentTarget.value) })
+				}
 			/>
 
 			<label>Text Alignment</label>
