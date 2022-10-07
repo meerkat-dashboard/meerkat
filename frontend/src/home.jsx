@@ -424,36 +424,34 @@ export function Home() {
 
 	return (
 		<Fragment>
-			<header>
-				<div class="home">
-					<h1>Meerkat</h1>
+			<div class="home">
+				<h1>Meerkat</h1>
 
-					<div class="center" style="margin-bottom: 10px">
-						<button class="btn btn-primary" onClick={(e) => setShowModal(true)}>
-							Create New Dashboard
-						</button>
-					</div>
-
-					<div class="filter-wrap">
-						<input
-							class="form-control"
-							type="text"
-							id="filter"
-							onInput={(e) => setFilter(e.currentTarget.value)}
-							placeholder="Filter dashboards"
-						/>
-					</div>
-
-					<div class="filter-results">
-						<DashboardList
-							loadDashboards={loadDashboards}
-							dashboards={dashboards}
-							filter={filter}
-							authEnabled={authentication}
-						/>
-					</div>
+				<div class="center" style="margin-bottom: 10px">
+					<button class="btn btn-primary" onClick={(e) => setShowModal(true)}>
+						Create New Dashboard
+					</button>
 				</div>
-			</header>
+
+				<div class="filter-wrap">
+					<input
+						class="form-control"
+						type="text"
+						id="filter"
+						onInput={(e) => setFilter(e.currentTarget.value)}
+						placeholder="Filter dashboards"
+					/>
+				</div>
+
+				<div class="filter-results">
+					<DashboardList
+						loadDashboards={loadDashboards}
+						dashboards={dashboards}
+						filter={filter}
+						authEnabled={authentication}
+					/>
+				</div>
+			</div>
 
 			{showModal ? (
 				<CreateDashboardModal hide={() => setShowModal(false)} />
