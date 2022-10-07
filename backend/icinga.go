@@ -199,22 +199,16 @@ func initIcingaCheckResultCache() {
 				return err
 			}
 
-			//Make request
 			res, err := client.Do(req)
 			if err != nil {
 				fmt.Println("Icinga2 API error:", err)
 				return err
 			}
 
-			fmt.Println("Response status:", res.Status)
-
 			defer res.Body.Close()
 
 			var checkResults icingaAPILastCheckResults
-			dec := json.NewDecoder(res.Body)
-			err = dec.Decode(&checkResults)
-
-			if err != nil {
+			if err := json.NewDecoder(res.Body).Decode(&checkResults); err != nil {
 				log.Printf("Error decoding Icinga2 API response: %v", err)
 				return err
 			}
