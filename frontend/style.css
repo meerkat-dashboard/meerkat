@@ -46,11 +46,6 @@
 	to { transform: rotate(360deg); }
 }
 
-h1, h2, h3, h4, h5, h6, p {
-	margin-top: 0;
-	margin-bottom: 15px;
-}
-
 header {
 	display: flex;
 	justify-content: space-between;
@@ -127,12 +122,6 @@ label~input, label~select, label~textarea {
 .element-title {
 	display: inline-block;
 	padding-right: 2em;
-}
-
-button {
-	border: 0;
-	padding: 10px 20px;
-	display: inline-block;
 }
 
 button.loading, div.loading {
