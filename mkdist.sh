@@ -43,7 +43,6 @@ cp Dockerfile $workdir
 cp -R contrib $workdir
 cp -R docs $workdir
 
-cp config/meerkat.toml.example $workdir
 cp backend/meerkat $workdir
 
 mkdir -p "$workdir/frontend"
@@ -52,5 +51,5 @@ cp -R frontend/react-widgets.css frontend/fonts "$workdir/frontend"
 cp -R frontend/dist "$workdir/frontend"
 
 tarball="$outdir/meerkat.tar.gz"
-( cd "$workdir" && tar cv meerkat | gzip -c )  > "$tarball"
+( cd "$workdir/.."  && tar cv meerkat | gzip -c )  > "$tarball"
 echo "$tarball"
