@@ -407,6 +407,20 @@ function DashboardActions({ dashboard, dashboards, loadDashboards }) {
 	);
 }
 
+function AppHeader() {
+	const [showCreate, setShowCreate] = useState(false);
+	return (
+		<header>
+			<h1>Meerkat</h1>
+			<button class="btn btn-primary" onClick={(e) => setShowCreate(true)}>
+				Create New Dashboard
+			</button>
+			{showCreate ? (
+				<CreateDashboardModal hide={() => setShowCreate(false)} />
+			) : null}
+		</header>
+	);
+}
 export function Home() {
 	const [showModal, setShowModal] = useState(false);
 	const [dashboards, setDashboards] = useState(null);
@@ -423,39 +437,26 @@ export function Home() {
 	useEffect(loadDashboards, []);
 
 	return (
-		<Fragment>
-			<div class="home">
-				<h1>Meerkat</h1>
+		<div class="home">
+			<AppHeader />
+			<hr />
+				<input
+					class="form-control"
+style="margin-bottom: 10px"
+type="text"
+					id="filter"
+					onInput={(e) => setFilter(e.currentTarget.value)}
+					placeholder="Filter dashboards"
+				/>
 
-				<div class="center" style="margin-bottom: 10px">
-					<button class="btn btn-primary" onClick={(e) => setShowModal(true)}>
-						Create New Dashboard
-					</button>
-				</div>
-
-				<div class="filter-wrap">
-					<input
-						class="form-control"
-						type="text"
-						id="filter"
-						onInput={(e) => setFilter(e.currentTarget.value)}
-						placeholder="Filter dashboards"
-					/>
-				</div>
-
-				<div class="filter-results">
-					<DashboardList
-						loadDashboards={loadDashboards}
-						dashboards={dashboards}
-						filter={filter}
-						authEnabled={authentication}
-					/>
-				</div>
+			<div class="filter-results">
+				<DashboardList
+					loadDashboards={loadDashboards}
+					dashboards={dashboards}
+					filter={filter}
+					authEnabled={authentication}
+				/>
 			</div>
-
-			{showModal ? (
-				<CreateDashboardModal hide={() => setShowModal(false)} />
-			) : null}
-		</Fragment>
+		</div>
 	);
 }

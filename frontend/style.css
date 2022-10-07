@@ -51,9 +51,9 @@ h1, h2, h3, h4, h5, h6, p {
 	margin-bottom: 15px;
 }
 
-a {
-	cursor: pointer;
-	font-weight: normal;
+header {
+	display: flex;
+	justify-content: space-between;
 }
 
 input, select, textarea {
@@ -381,32 +381,9 @@ div.template-inputs {
 	top: 2em;
 }
 
-
-
-/* HOME */
 div.home {
 	max-width: 600px;
 	margin: 10vh auto;
-}
-
-div.home h1.title {
-	font-size: 80px;
-	font-weight: lighter;
-	color: #f8f8f8;
-}
-
-div.home h1 {
-	text-align: center;
-}
-
-div.home .filter-wrap {
-	display: flex;
-	margin-bottom: 10px;
-}
-
-div.home .filter-wrap #filter {
-	font-size: 20px;
-	padding: 12px 16px;
 }
 
 .filter-results .dashboard-listing {
