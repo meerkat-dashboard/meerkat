@@ -66,24 +66,6 @@ export async function createDashboard(dashboard) {
 	return res.json();
 }
 
-export async function changeSettings(settings) {
-	const settingsProcessed = { appName: settings };
-
-	const res = await fetch(`/settings`, {
-		method: "POST",
-		body: JSON.stringify(settingsProcessed),
-	});
-
-	return res.json();
-}
-
-export async function getSettings() {
-	const res = await fetch("/settings");
-	const data = await res.json();
-
-	return data;
-}
-
 export async function saveDashboard(slug, dashboard) {
 	const res = await fetch(`/dashboard/${slug}`, {
 		method: "POST",

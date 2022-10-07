@@ -384,87 +384,34 @@ function DashboardList({ dashboards, loadDashboards, filter, authEnabled }) {
 	return <Fragment>{dbs}</Fragment>;
 }
 
-function SettingsModal({ hide }) {
-	const [title, setTitle] = useState("");
-
-	const changeSettings = async (e) => {
-		try {
-			await meerkat.changeSettings(title);
-		} catch (e) {
-			console.log("Failed to change settings:");
-			console.log(e);
-		}
-	};
-
-	return (
-		<div class="modal-wrap" onMouseDown={hide}>
-			<div class="modal-fixed" onMouseDown={(e) => e.stopPropagation()}>
-				<h3>Settings</h3>
-
-				<form onSubmit={changeSettings}>
-					<label for="title">App Name</label>
-					<input
-						class="form-control"
-						id="title"
-						name="title"
-						type="text"
-						placeholder="New App Name"
-						value={title}
-						onInput={(e) => setTitle(e.currentTarget.value)}
-					/>
-
-					<div class="right" style="margin-top: 20px">
-						<button class="btn btn-primary" type="submit">
-							Submit
-						</button>
-					</div>
-				</form>
-			</div>
-		</div>
-	);
-}
-
 export function Home() {
 	const [showModal, setShowModal] = useState(false);
-	const [showSettings, setShowSettings] = useState(false);
-	const [settings, setSettings] = useState(null);
 	const [dashboards, setDashboards] = useState(null);
 	const [filter, setFilter] = useState("");
 	const [authentication, setAuthentication] = useState(false);
 
 	const loadDashboards = () =>
 		meerkat.getAllDashboards().then((dbs) => setDashboards(dbs));
-	const loadSettings = () =>
-		meerkat.getSettings().then((settings) => setSettings(settings));
 	meerkat.authConfigured().then((v) => {
 		console.log("auth configured promise resolved with", v);
 		setAuthentication(v);
 	});
 
 	useEffect(loadDashboards, []);
-	useEffect(loadSettings, []);
 
 	return (
 		<Fragment>
 			<header>
 				<div class="home">
-					<h1 class="title">{settings ? settings.appName : "Meerkat"}</h1>
+					<h1>Meerkat</h1>
 
-					<div class="center" style="margin: 25px 0 40px;">
+					<div class="center" style="margin-bottom: 10px">
 						<button
 							class="btn btn-primary"
-							style="left: 18px !important; position: relative;"
 							onClick={(e) => setShowModal(true)}
 						>
 							Create New Dashboard
 						</button>
-						<span onClick={(e) => setShowSettings(true)}>
-							<img
-								class="settings-cog"
-								src="../assets/settings-cogwheel.svg"
-								alt=""
-							/>
-						</span>
 					</div>
 
 					<div class="filter-wrap">
@@ -488,9 +435,6 @@ export function Home() {
 				</div>
 			</header>
 
-			{showSettings ? (
-				<SettingsModal hide={() => setShowSettings(false)} />
-			) : null}
 			{showModal ? (
 				<CreateDashboardModal hide={() => setShowModal(false)} />
 			) : null}

@@ -469,14 +469,11 @@ div.dashboard-wrap {
 	align-items: center;
 }
 
-.settings-cog {
-	width: 30px;
-	cursor: pointer;
-	margin-top: 5px;
-	margin-left: 25px;
+div.settings {
+	font-size: 13px;
 }
 
-  @keyframes rotate {
+@keyframes rotate {
 	to {
 	  stroke-dashoffset: 227;
 	}
@@ -920,10 +917,6 @@ a {
 
 .element-list > .element-item:hover {
 	color: #797979;
-}
-
-div.settings {
-	font-size: 13px;
 }
 
 .move-button {

@@ -123,10 +123,6 @@ func main() {
 	r.Post("/dashboard/{slug}", updateDashboard)
 	r.Delete("/dashboard/{slug}", deleteDashboard)
 
-	// settings - custom branding, white labeling
-	r.Get("/settings", handleGetSettings)
-	r.Post("/settings", handleChangeSettings)
-
 	// relay to icinga server
 	// browser <-> meerkat <-> icinga
 	r.Get("/icinga/{check-type}", handleIcingaCheck)
