@@ -89,10 +89,6 @@ input, select, textarea {
 	margin-bottom: 15px;
 }
 
-.no-margin {
-	margin: 0;
-}
-
 .subtle {
 	margin: 20px auto;
 	text-align: center;

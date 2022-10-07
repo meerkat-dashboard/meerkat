@@ -51,7 +51,7 @@ export function CheckLineOptions({ options, updateOptions }) {
 					checked={options.leftArrow}
 					onClick={(e) => updateOptions({ leftArrow: e.currentTarget.checked })}
 				/>
-				<label for="left-arrow" class="no-margin" style="font-weight: normal">
+				<label for="left-arrow" style="font-weight: normal">
 					Left
 				</label>
 			</div>
@@ -65,7 +65,7 @@ export function CheckLineOptions({ options, updateOptions }) {
 						updateOptions({ rightArrow: e.currentTarget.checked })
 					}
 				/>
-				<label for="right-arrow" class="no-margin" style="font-weight: normal">
+				<label for="right-arrow" style="font-weight: normal">
 					Right
 				</label>
 			</div>

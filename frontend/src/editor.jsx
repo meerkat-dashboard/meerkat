@@ -1283,7 +1283,7 @@ export function ElementSettings({ selectedElement, updateElement }) {
 			<div class="editor settings-overlay">
 				<div class="options">
 					<div class="lefty-righty spacer">
-						<h3 class="no-margin">{selectedElement.title}</h3>
+						<h3>{selectedElement.title}</h3>
 						<svg
 							class="feather"
 							onClick={(e) => removeParam("selectedElementId")}
