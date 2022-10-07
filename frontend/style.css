@@ -418,24 +418,9 @@ div.home .filter-wrap #filter {
 	border-radius: 4px;
 }
 
-.dashboard-listing h3 {
-	margin-bottom: 0;
-}
-
-.dashboard-listing div.timestamps {
-	font-size: 16px;
-}
-
-.dashboard-listing div.timestamps > a {
-	margin: 0 4px;
-}
-
-.dashboard-listing div.timestamps > a:first-child {
-	margin-left: 0;
-}
-
-.dashboard-listing div.timestamps > a:last-child {
-	margin-right: 0;
+.dashboard-listing {
+	display: flex;
+	justify-content: space-between;
 }
 
 .clock {

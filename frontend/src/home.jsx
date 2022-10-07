@@ -274,7 +274,12 @@ function DeleteConfirmation({ slug, loadDashboards }) {
 
 	return (
 		<Fragment>
-			<a onClick={(e) => setShowConfirmation(true)}>delete</a>
+			<button
+				class="btn btn-danger btn-sm"
+				onClick={(e) => setShowConfirmation(true)}
+			>
+				Delete
+			</button>
 			{showConfirmation ? (
 				<Modal
 					key={`template-modal-${slug}`}
@@ -332,7 +337,7 @@ function CloneDashboard({ dashboard, dashboards }) {
 
 	return (
 		<Fragment>
-			<a onClick={(e) => clone(e)}>clone</a>
+			<a onClick={(e) => clone(e)}>Clone</a>
 		</Fragment>
 	);
 }
@@ -359,29 +364,47 @@ function DashboardList({ dashboards, loadDashboards, filter, authEnabled }) {
 		if (authEnabled && document.cookie == "") {
 			return (
 				<div class="dashboard-listing">
-					<h3>{dashboard.title}</h3>
-					<div class="timestamps">
-						<a href={`/view/${slug}`}>view</a>
-						<TemplateModal slug={slug} />
-					</div>
+					<a href={`/view/${slug}`}>
+						<big>{dashboard.title}</big>
+					</a>
+					<TemplateModal slug={slug} />
 				</div>
 			);
 		}
 		return (
 			<div class="dashboard-listing">
-				<h3>{dashboard.title}</h3>
-				<div class="timestamps">
-					<a href={`/view/${slug}`}>view</a>
-					<a href={`/edit/${slug}`}>edit</a>
-					<CloneDashboard dashboard={dashboard} dashboards={dashboards} />
-					<DeleteConfirmation slug={slug} loadDashboards={loadDashboards} />
-					<TemplateModal slug={slug} />
-				</div>
+				<a href={`/view/${slug}`}>
+					<big>{dashboard.title}</big>
+				</a>
+				<DashboardActions
+					dashboard={dashboard}
+					dashboards={dashboards}
+					loadDashboards={loadDashboards}
+				/>
 			</div>
 		);
 	});
 
 	return <Fragment>{dbs}</Fragment>;
+}
+
+function DashboardActions({ dashboard, dashboards, loadDashboards }) {
+	const slug = titleToSlug(dashboard.title);
+	return (
+		<div>
+			<a href={`/edit/${slug}`}>
+				<button class="btn btn-primary btn-sm">Edit</button>
+			</a>
+			<button
+				style="margin-left: 5px; margin-right: 5px"
+				class="btn btn-secondary btn-sm"
+			>
+				<CloneDashboard dashboard={dashboard} dashboards={dashboards} />
+			</button>
+			<DeleteConfirmation slug={slug} loadDashboards={loadDashboards} />
+			<TemplateModal slug={slug} />
+		</div>
+	);
 }
 
 export function Home() {
@@ -406,10 +429,7 @@ export function Home() {
 					<h1>Meerkat</h1>
 
 					<div class="center" style="margin-bottom: 10px">
-						<button
-							class="btn btn-primary"
-							onClick={(e) => setShowModal(true)}
-						>
+						<button class="btn btn-primary" onClick={(e) => setShowModal(true)}>
 							Create New Dashboard
 						</button>
 					</div>
