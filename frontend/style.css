@@ -377,10 +377,6 @@ div.dashboard-wrap {
 	align-items: center;
 }
 
-div.settings {
-	font-size: 13px;
-}
-
 @keyframes rotate {
 	to {
 	  stroke-dashoffset: 227;

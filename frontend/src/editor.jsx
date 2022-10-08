@@ -1287,7 +1287,7 @@ export function ElementSettings({ selectedElement, updateElement }) {
 							<use xlinkHref={`/res/svgs/feather-sprite.svg#x`} />
 						</svg>
 					</div>
-					<div class="settings">
+					<form>
 						<label for="name">Name</label>
 						<input
 							class="form-control"
@@ -1326,7 +1326,7 @@ export function ElementSettings({ selectedElement, updateElement }) {
 						<hr />
 
 						{ElementOptions}
-					</div>
+					</form>
 				</div>
 			</div>
 		</div>

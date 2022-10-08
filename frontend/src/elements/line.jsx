@@ -16,7 +16,6 @@ export function CheckLineOptions({ options, updateOptions }) {
 				updateOptions={updateOptions}
 			/>
 
-			<br />
 			<label for="line-linking-url">Linking Url</label>
 			<input
 				class="form-control"

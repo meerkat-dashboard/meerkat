@@ -440,14 +440,14 @@ export function Home() {
 		<div class="home">
 			<AppHeader />
 			<hr />
-				<input
-					class="form-control"
-style="margin-bottom: 10px"
-type="text"
-					id="filter"
-					onInput={(e) => setFilter(e.currentTarget.value)}
-					placeholder="Filter dashboards"
-				/>
+			<input
+				class="form-control"
+				style="margin-bottom: 10px"
+				type="text"
+				id="filter"
+				onInput={(e) => setFilter(e.currentTarget.value)}
+				placeholder="Filter dashboards"
+			/>
 
 			<div class="filter-results">
 				<DashboardList
