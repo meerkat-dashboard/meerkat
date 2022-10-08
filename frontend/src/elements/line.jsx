@@ -38,28 +38,34 @@ export function CheckLineOptions({ options, updateOptions }) {
 
 			<fieldset>
 				<legend>Arrowheads</legend>
-				<input
-					class="form-check-input"
-					id="left-arrow"
-					type="checkbox"
-					checked={options.leftArrow}
-					onClick={(e) => updateOptions({ leftArrow: e.currentTarget.checked })}
-				/>
-				<label class="form-check-label" for="left-arrow">
-					Left
-				</label>
-				<input
-					class="form-check-input"
-					id="right-arrow"
-					type="checkbox"
-					checked={options.rightArrow}
-					onClick={(e) =>
-						updateOptions({ rightArrow: e.currentTarget.checked })
-					}
-				/>
-				<label class="form-check-label" for="right-arrow">
-					Right
-				</label>
+				<div class="form-check">
+					<input
+						class="form-check-input"
+						id="left-arrow"
+						type="checkbox"
+						checked={options.leftArrow}
+						onClick={(e) =>
+							updateOptions({ leftArrow: e.currentTarget.checked })
+						}
+					/>
+					<label class="form-check-label" for="left-arrow">
+						Left
+					</label>
+				</div>
+				<div class="form-check">
+					<input
+						class="form-check-input"
+						id="right-arrow"
+						type="checkbox"
+						checked={options.rightArrow}
+						onClick={(e) =>
+							updateOptions({ rightArrow: e.currentTarget.checked })
+						}
+					/>
+					<label class="form-check-label" for="right-arrow">
+						Right
+					</label>
+				</div>
 			</fieldset>
 			<button class="btn btn-secondary" onClick={onClickAdvanced}>
 				{showAdvanced ? "Hide Options" : "Advanced Options"}
