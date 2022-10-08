@@ -1,7 +1,7 @@
 import { h, Fragment } from "preact";
 import { useState, useEffect } from "preact/hooks";
 
-import { FontSizeInput } from "../elements/text";
+import { FontSizeInput, ExternalURL } from "../elements/options";
 
 export function StaticTextOptions({ options, updateOptions }) {
 	const clearField = (e, field) => {
@@ -89,15 +89,10 @@ export function StaticTextOptions({ options, updateOptions }) {
 				</button>
 			</div>
 
-			<label for="card-linking-url">Linking Url</label>
-			<input
-				class="form-control"
-				id="card-linking-url"
-				name="card-linking-url"
-				type="text"
+			<ExternalURL
 				value={options.linkURL}
 				onInput={(e) => updateOptions({ linkURL: e.currentTarget.value })}
-			></input>
+			/>
 
 			<label for="font-color">
 				Font Color <a onClick={(e) => clearField(e, "fontColor")}>clear</a>

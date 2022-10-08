@@ -9,7 +9,7 @@ import {
 	alertSounds,
 	debounce,
 } from "../util";
-import { FontSizeInput } from "./text";
+import { FontSizeInput, ExternalURL } from "./options";
 
 function useCheckCard({ options, dashboard }) {
 	const [checkState, setCheckState] = useState(null);
@@ -154,16 +154,10 @@ export function CheckCardOptions({ options, updateOptions }) {
 				currentCheckopts={options}
 				updateOptions={updateOptions}
 			/>
-			<br />
-			<label for="card-linking-url">Linking Url</label>
-			<input
-				class="form-control"
-				id="card-linking-url"
-				name="card-linking-url"
-				type="text"
+			<ExternalURL
 				value={options.linkURL}
 				onInput={(e) => updateOptions({ linkURL: e.currentTarget.value })}
-			></input>
+			/>
 			<FontSizeInput
 				value={options.statusFontSize}
 				onInput={(e) =>
@@ -173,7 +167,7 @@ export function CheckCardOptions({ options, updateOptions }) {
 			<CheckDataOptions options={options} updateOptions={updateOptions} />
 			<div></div>
 			<button
-				class="rounded btn-primary btn-large mt-2"
+				class="btn btn-primary"
 				onClick={onClickAdvanced}
 			>
 				{showAdvanced ? "Hide Options" : "Advanced Options"}

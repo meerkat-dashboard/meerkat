@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from "preact/hooks";
 
 import * as meerkat from "../meerkat";
 import { icingaResultCodeToCheckState, IcingaCheckList } from "../util";
+import { ExternalURL } from "./options";
 
 export function CheckLineOptions({ options, updateOptions }) {
 	const [showAdvanced, setAdvanced] = useState(false);
@@ -16,15 +17,10 @@ export function CheckLineOptions({ options, updateOptions }) {
 				updateOptions={updateOptions}
 			/>
 
-			<label for="line-linking-url">Linking Url</label>
-			<input
-				class="form-control"
-				id="line-linking-url"
-				name="line-linking-url"
-				type="text"
+			<ExternalURL
 				value={options.linkURL}
 				onInput={(e) => updateOptions({ linkURL: e.currentTarget.value })}
-			></input>
+			/>
 
 			<label for="stroke-width">Stroke width</label>
 			<input

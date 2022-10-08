@@ -1,7 +1,7 @@
 import { h, Fragment } from "preact";
 import { useState, useEffect } from "preact/hooks";
 
-import { FontSizeInput } from "../elements/text";
+import { FontSizeInput } from "../elements/options";
 
 export function StaticTickerOptions({ options, updateOptions }) {
 	const clearField = (e, field) => {

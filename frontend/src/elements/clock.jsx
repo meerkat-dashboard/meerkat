@@ -7,7 +7,7 @@ import timezone from "dayjs/plugin/timezone";
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
-import { FontSizeInput } from "./text";
+import { FontSizeInput } from "./options";
 
 export function Clock({ options, dashboard }) {
 	const [clock, setClock] = useState("");

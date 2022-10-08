@@ -1,26 +1,8 @@
 import { h, Fragment } from "preact";
 import { useState, useEffect } from "preact/hooks";
 import { IcingaHostVars, dynamicTextHelper, flattenObject } from "../util";
+import { FontSizeInput, ExternalURL } from "./options";
 import * as meerkat from "../meerkat";
-
-export function FontSizeInput({ value, onInput }) {
-	return (
-		<fieldset>
-			<label class="form-label" for="font-size">
-				Font size
-			</label>
-			<input
-				class="form-control"
-				id="font-size"
-				value={value}
-				name="status-font-size"
-				type="number"
-				min="8"
-				onInput={onInput}
-			/>
-		</fieldset>
-	);
-}
 
 export function DynamicTextOptions({ options, updateOptions }) {
 	const clearField = (e, field) => {
@@ -97,15 +79,10 @@ export function DynamicTextOptions({ options, updateOptions }) {
 				</button>
 			</div>
 
-			<label for="card-linking-url">Linking Url</label>
-			<input
-				class="form-control"
-				id="card-linking-url"
-				name="card-linking-url"
-				type="text"
+			<ExternalURL
 				value={options.linkURL}
 				onInput={(e) => updateOptions({ linkURL: e.currentTarget.value })}
-			></input>
+			/>
 
 			<label for="font-color">
 				Font Color <a onClick={(e) => clearField(e, "fontColor")}>clear</a>

@@ -7,6 +7,7 @@ import {
 	IcingaCheckList,
 	alertSounds,
 } from "../util";
+import { ExternalURL } from "./options";
 
 export function CheckImageOptions({ options, updateOptions }) {
 	const [showAdvanced, setAdvanced] = useState(false);
@@ -47,16 +48,11 @@ export function CheckImageOptions({ options, updateOptions }) {
 				currentCheckopts={options}
 				updateOptions={updateOptions}
 			/>
-			<br />
-			<label for="image-linking-url">Linking Url</label>
-			<input
-				class="form-control"
-				id="image-linking-url"
-				name="image-linking-url"
-				type="text"
+			<ExternalURL
 				value={options.linkURL}
 				onInput={(e) => updateOptions({ linkURL: e.currentTarget.value })}
-			></input>
+			/>
+
 			<hr />
 
 			<label for="ok-image">OK State Image {imgControls("okImage")}</label>

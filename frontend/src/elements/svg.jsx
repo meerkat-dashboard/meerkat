@@ -8,6 +8,7 @@ import {
 	alertSounds,
 } from "../util";
 import { svgList } from "../svg-list";
+import { ExternalURL } from "./options";
 
 export function CheckSVGOptions({ options, updateOptions }) {
 	const svgOptions = svgList.map((svgName) => (
@@ -31,15 +32,10 @@ export function CheckSVGOptions({ options, updateOptions }) {
 				updateOptions={updateOptions}
 			/>
 			<br />
-			<label for="image-linking-url">Linking Url</label>
-			<input
-				class="form-control"
-				id="image-linking-url"
-				name="image-linking-url"
-				type="text"
+			<ExternalURL
 				value={options.linkURL}
 				onInput={(e) => updateOptions({ linkURL: e.currentTarget.value })}
-			></input>
+			/>
 
 			<label for="okSvg">OK SVG</label>
 			<select

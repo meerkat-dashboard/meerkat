@@ -104,10 +104,6 @@ span.tiny {
 	fill: none;
 }
 
-label~input, label~select, label~textarea {
-	margin-bottom: 20px;
-}
-
 div.loading {
 	display: flex;
 	align-items: center;
