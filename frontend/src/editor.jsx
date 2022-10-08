@@ -180,25 +180,23 @@ export function Editor({ slug, selectedElementId }) {
 				/>
 
 				<div class="editor">
-					<div class="options">
-						<h3>{dashboard.title}</h3>
-						<SidePanelSettings
-							dashboard={dashboard}
-							dashboardDispatch={dashboardDispatch}
-						/>
-						<hr />
-						<SidePanelElements
-							dashboard={dashboard}
-							dashboardDispatch={dashboardDispatch}
-							slug={slug}
-							setHighlightedElementId={setHighlightedElementId}
-						/>
+					<h2>{dashboard.title}</h2>
+					<SidePanelSettings
+						dashboard={dashboard}
+						dashboardDispatch={dashboardDispatch}
+					/>
+					<hr />
+					<SidePanelElements
+						dashboard={dashboard}
+						dashboardDispatch={dashboardDispatch}
+						slug={slug}
+						setHighlightedElementId={setHighlightedElementId}
+					/>
 
-						<ElementSettings
-							selectedElement={selectedElement}
-							updateElement={updateElement}
-						/>
-					</div>
+					<ElementSettings
+						selectedElement={selectedElement}
+						updateElement={updateElement}
+					/>
 				</div>
 				<div class="side-bar-footer lefty-righty">
 					<button class="btn btn-secondary " onClick={(e) => route("/")}>
@@ -206,8 +204,7 @@ export function Editor({ slug, selectedElementId }) {
 					</button>
 					<button
 						onClick={saveDashboard}
-						class={savingDashboard ? "loading" : ""}
-						class="btn btn-primary btn-success"
+						class="btn btn-success"
 					>
 						Save Dashboard
 					</button>

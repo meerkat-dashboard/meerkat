@@ -438,8 +438,8 @@ input[type=checkbox].form-control.bold-static-text {
 	cursor: default;
 }
 
-/* EDITOR */
-div.editor {
+
+.editor {
 	position: fixed;
 	left: 0;
 	top: 0;
@@ -448,12 +448,7 @@ div.editor {
 	background-color: #333f46;
 	min-width: 380px;
 	overflow-y: auto;
-}
-
-.editor .options {
 	padding: 20px;
-	background-color: #333f46;
-	color: white;
 }
 
 .editor.settings-overlay {
