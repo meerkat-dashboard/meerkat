@@ -166,10 +166,7 @@ export function CheckCardOptions({ options, updateOptions }) {
 			/>
 			<CheckDataOptions options={options} updateOptions={updateOptions} />
 			<div></div>
-			<button
-				class="btn btn-primary"
-				onClick={onClickAdvanced}
-			>
+			<button class="btn btn-primary" onClick={onClickAdvanced}>
 				{showAdvanced ? "Hide Options" : "Advanced Options"}
 			</button>
 			<AdvancedCheckOptions

@@ -607,7 +607,9 @@ function SidePanelSettings({ dashboardDispatch, dashboard }) {
 
 	return (
 		<Fragment>
-			<label for="title">Title</label>
+			<label class="form-label" for="title">
+				Title
+			</label>
 			<input
 				class="form-control"
 				type="text"
@@ -624,38 +626,43 @@ function SidePanelSettings({ dashboardDispatch, dashboard }) {
 				updateTags={(tags) => updateTags(tags)}
 			/>
 
-			<label for="background-image">
-				Background Image {imgControls(dashboard.background)}
-			</label>
-			<input
-				class="form-control"
-				id="background-image"
-				type="file"
-				placeholder="Upload a background image"
-				accept="image/*"
-				onChange={handleBackgroundImg}
-			/>
-			<div class="form-check">
-				<input
-					id="muteStatusAlerts"
-					class="form-check-input"
-					type="checkbox"
-					defaultChecked={dashboard.globalMute}
-					onChange={(e) => muteAlerts(e)}
-				/>
-				<label class="form-check-label" for="muteStatusAlerts">
-					Mute Status Alerts
+			<fieldset class="form-group">
+				<label class="form-label" for="background-image">
+					Background image {imgControls(dashboard.background)}
 				</label>
-			</div>
-			<br />
-			<button class="rounded btn-primary btn-large" onClick={onClickAdvanced}>
-				{showAdvanced ? "Hide Options" : "Global Options"}
-			</button>
-			<AdvancedAlertOptions
-				dashboardDispatch={dashboardDispatch}
-				display={showAdvanced}
-				dashboard={dashboard}
-			/>
+				<input
+					class="form-control"
+					id="background-image"
+					type="file"
+					placeholder="Upload a background image"
+					accept="image/*"
+					onChange={handleBackgroundImg}
+				/>
+			</fieldset>
+
+			<fieldset class="form-group mt-3">
+				<legend>Alerts</legend>
+				<div class="form-check">
+					<input
+						id="muteStatusAlerts"
+						class="form-check-input"
+						type="checkbox"
+						defaultChecked={dashboard.globalMute}
+						onChange={(e) => muteAlerts(e)}
+					/>
+					<label class="form-check-label" for="muteStatusAlerts">
+						Mute
+					</label>
+				</div>
+				<button class="btn btn-primary mt-3" onClick={onClickAdvanced}>
+					{showAdvanced ? "Hide alert options" : "Show alert options"}
+				</button>
+				<AdvancedAlertOptions
+					dashboardDispatch={dashboardDispatch}
+					display={showAdvanced}
+					dashboard={dashboard}
+				/>
+			</fieldset>
 		</Fragment>
 	);
 }
