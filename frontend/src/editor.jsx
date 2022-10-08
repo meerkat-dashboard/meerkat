@@ -1280,12 +1280,12 @@ export function ElementSettings({ selectedElement, updateElement }) {
 				<div class="options">
 					<div class="lefty-righty">
 						<h3>{selectedElement.title}</h3>
-						<svg
-							class="feather"
+						<button
+							class="btn btn-secondary"
 							onClick={(e) => removeParam("selectedElementId")}
 						>
-							<use xlinkHref={`/res/svgs/feather-sprite.svg#x`} />
-						</svg>
+							Close
+						</button>
 					</div>
 					<form>
 						<label for="name">Name</label>
