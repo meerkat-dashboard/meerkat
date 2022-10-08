@@ -119,7 +119,6 @@ const dashboardReducer = (state, action) => {
 	}
 };
 
-//Edit page
 export function Editor({ slug, selectedElementId }) {
 	const [dashboard, dashboardDispatch] = useReducer(dashboardReducer, null);
 	const [savingDashboard, setSavingDashboard] = useState(false);
@@ -167,50 +166,43 @@ export function Editor({ slug, selectedElementId }) {
 	};
 
 	return (
-		<Fragment>
-			<header>
-				<DashboardView
+		<header>
+			<DashboardView
+				dashboard={dashboard}
+				slug={slug}
+				dashboardDispatch={dashboardDispatch}
+				selectedElementId={selectedElementId ? Number(selectedElementId) : null}
+				highlightedElementId={highlightedElementId}
+			/>
+
+			<div class="editor">
+				<h2>{dashboard.title}</h2>
+				<SidePanelSettings
 					dashboard={dashboard}
-					slug={slug}
 					dashboardDispatch={dashboardDispatch}
-					selectedElementId={
-						selectedElementId ? Number(selectedElementId) : null
-					}
-					highlightedElementId={highlightedElementId}
+				/>
+				<hr />
+				<SidePanelElements
+					dashboard={dashboard}
+					dashboardDispatch={dashboardDispatch}
+					slug={slug}
+					setHighlightedElementId={setHighlightedElementId}
 				/>
 
-				<div class="editor">
-					<h2>{dashboard.title}</h2>
-					<SidePanelSettings
-						dashboard={dashboard}
-						dashboardDispatch={dashboardDispatch}
-					/>
-					<hr />
-					<SidePanelElements
-						dashboard={dashboard}
-						dashboardDispatch={dashboardDispatch}
-						slug={slug}
-						setHighlightedElementId={setHighlightedElementId}
-					/>
-
-					<ElementSettings
-						selectedElement={selectedElement}
-						updateElement={updateElement}
-					/>
-				</div>
-				<div class="side-bar-footer lefty-righty">
-					<button class="btn btn-secondary " onClick={(e) => route("/")}>
-						Home
-					</button>
-					<button
-						onClick={saveDashboard}
-						class="btn btn-success"
-					>
-						Save Dashboard
-					</button>
-				</div>
-			</header>
-		</Fragment>
+				<ElementSettings
+					selectedElement={selectedElement}
+					updateElement={updateElement}
+				/>
+			</div>
+			<div class="side-bar-footer lefty-righty">
+				<button class="btn btn-secondary " onClick={(e) => route("/")}>
+					Home
+				</button>
+				<button onClick={saveDashboard} class="btn btn-success">
+					Save Dashboard
+				</button>
+			</div>
+		</header>
 	);
 }
 
