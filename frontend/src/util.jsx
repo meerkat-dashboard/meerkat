@@ -717,24 +717,23 @@ export function TagEditor({ tags, updateTags }) {
 	});
 
 	return (
-		<Fragment>
-			<form onSubmit={addTag}>
-				<label for="add-tag">
-					Tags <span class="subtle tiny">Enter to submit</span>
-				</label>
-				{tagElements}
-				<input
-					class="form-control"
-					type="text"
-					id="add-tag"
-					name="add-tag"
-					ref={inputRef}
-					placeholder="Enter a new tag"
-					pattern="[a-z\d\-_]+"
-					title="only lower case letters, numbers, '-' and '_' are allowed"
-				/>
-			</form>
-		</Fragment>
+		<form onSubmit={addTag}>
+			<label class="form-label" for="add-tag">
+				Tags
+			</label>
+			{tagElements}
+			<input
+				class="form-control"
+				type="text"
+				id="add-tag"
+				name="add-tag"
+				ref={inputRef}
+				placeholder="networking"
+				pattern="[a-z\d\-_]+"
+				title="only lower case letters, numbers, '-' and '_' are allowed"
+			/>
+			<small class="form-text">Press enter to add a tag.</small>
+		</form>
 	);
 }
 
