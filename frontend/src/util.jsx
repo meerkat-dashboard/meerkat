@@ -41,10 +41,6 @@ export function icingaResultCodeToCheckState(checkType, resultCode) {
 		switch (resultCode) {
 			case 0:
 				return "up";
-			case 0:
-				return "up";
-			case 1:
-				return "down";
 			case 1:
 				return "down";
 		}
