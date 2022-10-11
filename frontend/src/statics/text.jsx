@@ -13,11 +13,10 @@ export function StaticTextOptions({ options, updateOptions }) {
 
 	return (
 		<Fragment>
-			<label for="text">Text</label>
+			<label class="form-label" for="text">Text</label>
 			<textarea
 				class="form-control"
 				id="text"
-				name="text"
 				value={options.text}
 				onInput={(e) => updateOptions({ text: e.currentTarget.value })}
 			></textarea>
@@ -29,18 +28,18 @@ export function StaticTextOptions({ options, updateOptions }) {
 				}
 			/>
 
-			<label class="font-size">Bold Text</label>
-			<span>
+			<div class="form-check">
 				<input
+					class="form-check-input"
 					type="checkbox"
+					id="bold"
 					defaultChecked={options.boldText}
 					onChange={(e) => updateOptions({ boldText: e.target.checked })}
-					class="form-control bold-static-text"
 				/>
-			</span>
-			<br />
+				<label class="form-check-label" for="bold">Bold text</label>
+			</div>
 
-			<label>Text Alignment</label>
+			<label>Text alignment</label>
 			<div class="selection" style="margin-bottom: 5px;">
 				<button
 					class={`selector ${options.textAlign === "start" ? "active" : ""}`}

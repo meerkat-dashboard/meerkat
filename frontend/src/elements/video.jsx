@@ -27,7 +27,6 @@ export function IframeVideo({ options }, props) {
 		buildPlayer();
 	}, []);
 
-	console.log(`video source: ${options.source}`);
 	const noDefaultBehavior = (e) => {
 		e.preventDefault();
 		e.target.removeEventListener("mouseover", true);
