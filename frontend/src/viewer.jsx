@@ -1,5 +1,4 @@
 import { h } from "preact";
-import { route } from "preact-router";
 import { useState, useEffect } from "preact/hooks";
 import { linkHelper } from "./util";
 
@@ -16,7 +15,6 @@ import { StaticText } from "./statics/text";
 import { StaticTicker } from "./statics/ticker";
 import { StaticSVG } from "./statics/svg";
 import { StaticImage } from "./statics/image";
-import { getDerivedStateFromProps } from "react-widgets/lib/SelectList";
 
 //Read only page
 export function Viewer({ slug, dashboardReducer }) {
