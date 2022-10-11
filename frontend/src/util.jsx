@@ -602,8 +602,10 @@ export function alertSounds(checkState, options, dashboard) {
 }
 
 export function linkHelper(element, ele, dashboard) {
-	let target = null;
 	let link = element.options.linkURL;
+	if (!link) {
+		return ele;
+	}
 
 	if (dashboard.hasOwnProperty("variables")) {
 		for (const [key, property] of Object.entries(dashboard.variables)) {
@@ -617,52 +619,7 @@ export function linkHelper(element, ele, dashboard) {
 		}
 	}
 
-	if (element.options.linkURL && element.type === "static-text") {
-		if (element.options.linkURL.includes("http")) {
-			ele = (
-				<a id="text-link" href={link} target={target}>
-					{ele}
-				</a>
-			);
-		} else {
-			ele = (
-				<a id="text-link" href={`https://${link}`} target={target}>
-					{ele}
-				</a>
-			);
-		}
-	}
-	if (element.options.linkURL && element.type === "dynamic-text") {
-		if (element.options.linkURL.includes("http")) {
-			ele = (
-				<a id="text-link" href={link} target={target}>
-					{ele}
-				</a>
-			);
-		} else {
-			ele = (
-				<a id="text-link" href={`https://${link}`} target={target}>
-					{ele}
-				</a>
-			);
-		}
-	} else if (element.options.linkURL) {
-		if (element.options.linkURL.includes("http")) {
-			ele = (
-				<a id="a-link" href={link} target={target}>
-					{ele}
-				</a>
-			);
-		} else {
-			ele = (
-				<a id="a-link" href={`https://${link}`} target={target}>
-					{ele}
-				</a>
-			);
-		}
-	}
-
-	return ele;
+	return <a href={link}>{ele}</a>;
 }
 
 export async function fetchHandler(string) {

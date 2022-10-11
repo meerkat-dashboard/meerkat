@@ -641,13 +641,7 @@ div.tag .close-icon {
 	align-items: center;
 }
 
-a#a-link {
-	display: block;
-	line-height: 0;
-	height: 100%;
-}
-
-.check > a#a-link > div.check-content.svg > svg.feather {
+.check > a > div.check-content.svg > svg.feather {
 	display:block;
 	line-height: 0;
 	left: 100% !important;
@@ -662,13 +656,6 @@ a#a-link {
 
 .align-center {
 	text-align: center;
-}
-
-a#text-link {
-	position: relative;
-	display: block;
-	line-height: 5vh;
-	height: 100%;
 }
 
 .ticker {
