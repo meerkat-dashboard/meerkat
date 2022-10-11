@@ -1086,7 +1086,7 @@ function SidePanelElements({
 		<Fragment>
 			<div class="lefty-righty spacer">
 				<h3>Elements</h3>
-				<span style="display: inline;float: right;">
+				<span>
 					<button class="btn btn-primary btn-sm" onClick={addElement}>
 						New
 					</button>
