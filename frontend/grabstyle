@@ -1,0 +1,4 @@
+#!/bin/sh
+
+curl https://bootswatch.com/5/darkly/bootstrap.min.css > dist/bootstrap.min.css
+curl https://vjs.zencdn.net/7.20.3/video-js.min.css > dist/video-js.min.css
