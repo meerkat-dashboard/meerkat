@@ -159,14 +159,42 @@ export function Editor({ slug, selectedElementId }) {
 				}`
 			);
 		} catch (e) {
-			console.log("error saving dashboard:");
-			console.log(e);
+			console.log("error saving dashboard:", e);
 		}
 		setSavingDashboard(false);
 	};
 
 	return (
-		<header>
+		<Fragment>
+			<header>
+				<div class="editor">
+					<h2>{dashboard.title}</h2>
+					<SidePanelSettings
+						dashboard={dashboard}
+						dashboardDispatch={dashboardDispatch}
+					/>
+					<hr />
+					<SidePanelElements
+						dashboard={dashboard}
+						dashboardDispatch={dashboardDispatch}
+						slug={slug}
+						setHighlightedElementId={setHighlightedElementId}
+					/>
+
+					<ElementSettings
+						selectedElement={selectedElement}
+						updateElement={updateElement}
+					/>
+				</div>
+				<div class="side-bar-footer lefty-righty">
+					<button class="btn btn-secondary " onClick={(e) => route("/")}>
+						Home
+					</button>
+					<button onClick={saveDashboard} class="btn btn-success">
+						Save Dashboard
+					</button>
+				</div>
+			</header>
 			<DashboardView
 				dashboard={dashboard}
 				slug={slug}
@@ -174,35 +202,7 @@ export function Editor({ slug, selectedElementId }) {
 				selectedElementId={selectedElementId ? Number(selectedElementId) : null}
 				highlightedElementId={highlightedElementId}
 			/>
-
-			<div class="editor">
-				<h2>{dashboard.title}</h2>
-				<SidePanelSettings
-					dashboard={dashboard}
-					dashboardDispatch={dashboardDispatch}
-				/>
-				<hr />
-				<SidePanelElements
-					dashboard={dashboard}
-					dashboardDispatch={dashboardDispatch}
-					slug={slug}
-					setHighlightedElementId={setHighlightedElementId}
-				/>
-
-				<ElementSettings
-					selectedElement={selectedElement}
-					updateElement={updateElement}
-				/>
-			</div>
-			<div class="side-bar-footer lefty-righty">
-				<button class="btn btn-secondary " onClick={(e) => route("/")}>
-					Home
-				</button>
-				<button onClick={saveDashboard} class="btn btn-success">
-					Save Dashboard
-				</button>
-			</div>
-		</header>
+		</Fragment>
 	);
 }
 
