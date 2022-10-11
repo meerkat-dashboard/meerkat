@@ -1,7 +1,7 @@
 {
   "scripts": {
-    "dev": "webpack --display-modules --mode development --watch",
-    "build": "webpack --mode production"
+    "dev": "webpack --mode development --watch",
+    "build": "./grabstyle && webpack --mode production"
   },
   "license": "AGPL-3.0-or-later",
   "author": "Matthew Streatfield (https://github.com/StreatCodes)",
