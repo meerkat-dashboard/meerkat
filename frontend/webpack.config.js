@@ -27,5 +27,10 @@ module.exports = {
       "react-dom": "preact/compat",
     }
   },
-  devtool: 'source-map'
+  devtool: 'source-map',
+  performance: {
+    // we used to be at 875K. Let's never go bigger than that again!
+    maxAssetSize: 870*1024,
+    maxEntrypointSize: 870*1024,
+  },
 };
