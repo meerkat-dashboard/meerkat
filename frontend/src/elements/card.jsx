@@ -25,8 +25,6 @@ function useCheckCard({ options, dashboard }) {
 				options.checkDataSelection === "pluginOutput" &&
 				checkData.pluginOutput
 			) {
-				//console.log('Plugin Output:', checkData.pluginOutput)
-
 				if (options.checkDataPattern) {
 					try {
 						const pattern = new RegExp(options.checkDataPattern, "im");
@@ -98,13 +96,13 @@ function useCheckCard({ options, dashboard }) {
 function CheckState(state, acknowledged) {
 	if (acknowledged) {
 		return (
-			<div class="align-center">
+			<Fragment>
 				{state}
 				<span>(ACK)</span>
-			</div>
+			</Fragment>
 		);
 	}
-	return <div class="align-center">{state}</div>;
+	return {state};
 }
 
 export function CheckCard({ options, dashboard }) {
@@ -122,7 +120,7 @@ export function CheckCard({ options, dashboard }) {
 			>
 				<div
 					class="check-state"
-					style={`font-size: ${options.statusFontSize}px; line-height: 1.1;`}
+					style={`font-size: ${options.statusFontSize}px`}
 				>
 					<CheckState state={checkState} acknowledged={acknowledged} />
 				</div>
@@ -133,10 +131,7 @@ export function CheckCard({ options, dashboard }) {
 		<div
 			class={`check-content card ${checkState} ${checkState}-${acknowledged}`}
 		>
-			<div
-				class="check-state"
-				style={`font-size: ${options.statusFontSize}px; line-height: 1.1;`}
-			>
+			<div class="check-state" style={`font-size: ${options.statusFontSize}px`}>
 				checkValue
 			</div>
 		</div>
