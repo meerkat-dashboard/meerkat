@@ -6,10 +6,9 @@
   "license": "AGPL-3.0-or-later",
   "author": "Matthew Streatfield (https://github.com/StreatCodes)",
   "dependencies": {
-    "@babel/core": "^7.11.1",
-    "@babel/plugin-transform-react-jsx": "^7.10.4",
+    "@babel/core": "7.19.3",
+    "@babel/plugin-transform-react-jsx": "7.19.0",
     "babel-loader": "^8.1.0",
-    "dayjs": "^1.8.33",
     "preact": "^10.4.7",
     "preact-router": "^3.2.1",
     "react-widgets": "4.4.4",

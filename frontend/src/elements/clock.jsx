@@ -1,94 +1,78 @@
-import { h, Fragment } from "preact";
-import { useState, useEffect } from "preact/hooks";
-
-import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-import timezone from "dayjs/plugin/timezone";
-dayjs.extend(utc);
-dayjs.extend(timezone);
+import { h, Component, Fragment } from "preact";
 
 import { FontSizeInput } from "./options";
 
-export function Clock({ options, dashboard }) {
-	const [clock, setClock] = useState("");
+export class Clock extends Component {
+	constructor(props) {
+		super(props);
+		this.state = {
+			time: Date.now(),
+		};
+	}
 
-	const format24h = "HH:mm:ss";
-	useEffect(() => {
-		setClock(dayjs.tz(dayjs(), options.timeZone).format(format24h));
-		const interval = setInterval(() => {
-			setClock(dayjs.tz(dayjs(), options.timeZone).format(format24h));
+	componentDidMount() {
+		this.timer = setInterval(() => {
+			this.setState({ time: Date.now() });
 		}, 1000);
+	}
 
-		return () => clearInterval(interval);
-	}, []);
+	componentWillUnmount() {
+		clearInterval(this.timer);
+	}
 
-	return (
-		<div class="check-content clock align-center">
-			<time
-				style={`font-size: ${options.statusFontSize}px; color: ${options.fontColor};`}
-			>
-				{clock}
-			</time>
-		</div>
-	);
+	render() {
+		let t = new Intl.DateTimeFormat("en", {
+			timeStyle: "medium",
+			hourCycle: "h23",
+			timeZone: this.props.timeZone,
+		}).format(this.state.time);
+		return <time class="clock" style={`font-size: ${this.props.fontSize}px`}>{t}</time>;
+	}
 }
 
-export function ClockOptions({ options, updateOptions }) {
-	const { locale, timezone } = Intl.DateTimeFormat().resolvedOptions();
-	const [timeZone, setTimeZone] = useState(options.timeZone || timezone);
-	const handleSelectTimeZone = (e) => {
-		setTimeZone(e.currentTarget.value);
-		updateOptions({ locale: locale, timeZone: e.currentTarget.value });
-	};
-
-	const clearField = (e, field) => {
-		e.preventDefault();
-		let opts = {};
-		opts[field] = null;
-		updateOptions(opts);
-	};
-
+function TimezoneInput({ value, onChange }) {
 	const timezones = Intl.supportedValuesOf("timeZone");
 	return (
-		<div class="clock-options">
-			<label for="time-zone-list">Timezone</label>
+		<Fragment>
+			<label class="form-label">Timezone</label>
 			<select
 				class="form-select"
-				name="item-type"
-				value={timeZone}
-				onChange={(e) => handleSelectTimeZone(e)}
+				name="timeZone"
+				value={value}
+				onChange={onChange}
 			>
-				{timezones.map((option, index) => (
-					<option key={index} value={option}>
-						{option}
+				{timezones.map((tz, index) => (
+					<option key={index} value={tz}>
+						{tz}
 					</option>
 				))}
 			</select>
-			<FontSizeInput
-				value={options.statusFontSize}
-				onInput={(e) =>
-					updateOptions({ statusFontSize: Number(e.currentTarget.value) })
-				}
-			/>
-			<label for="font-color">
-				Font Color <a onClick={(e) => clearField(e, "fontColor")}>clear</a>
-			</label>
-			<div class="lefty-righty spacer">
-				<input
-					class="form-control"
-					id="font-color"
-					name="font-color"
-					type="color"
-					value={options.fontColor}
-					onInput={(e) => updateOptions({ fontColor: e.currentTarget.value })}
-				/>
-				<input
-					class="form-control"
-					type="text"
-					value={options.fontColor}
-					disabled
-				/>
-			</div>
-		</div>
+		</Fragment>
 	);
+}
+
+export class ClockOptions extends Component {
+	constructor(props) {
+		super(props);
+		this.handleChange = this.handleChange.bind(this);
+	}
+
+	handleChange(event) {
+		const target = event.target;
+		this.props.onChange({
+			[target.name]: target.value,
+		});
+	}
+
+	render() {
+		return (
+			<form>
+				<TimezoneInput value={this.props.timeZone} onChange={this.handleChange} />
+				<FontSizeInput
+					value={this.props.fontSize}
+					onInput={this.handleChange}
+				/>
+			</form>
+		);
+	}
 }

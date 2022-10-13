@@ -10,7 +10,7 @@ export function FontSizeInput({ value, onInput }) {
 				class="form-control"
 				id="font-size"
 				value={value}
-				name="status-font-size"
+				name="fontSize"
 				type="number"
 				min="8"
 				onInput={onInput}

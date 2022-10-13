@@ -66,7 +66,10 @@ export function Viewer({ slug, dashboardReducer }) {
 		}
 		if (element.type === "clock") {
 			ele = (
-				<Clock options={element.options} dashboard={dashboard} slug={slug} />
+				<Clock
+					timeZone={element.options.timeZone}
+					fontSize={element.options.fontSize}
+				/>
 			);
 		}
 		if (element.type === "check-svg") {

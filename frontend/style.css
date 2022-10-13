@@ -343,7 +343,6 @@ div.home {
 }
 
 .clock {
-	color: white;
 	font-variant-numeric: tabular-nums;
 	pointer-events: none;
 }

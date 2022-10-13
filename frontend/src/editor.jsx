@@ -34,15 +34,13 @@ import { AudioStream, AudioOptions } from "./elements/audio";
 import { Clock, ClockOptions } from "./elements/clock";
 
 //Manage dashboard state
-const dashboardReducer = (state, action) => {
+function dashboardReducer(state, action) {
 	switch (action.type) {
 		case "setDashboard":
 			return action.dashboard;
 		case "setTitle":
-			console.log("Setting title to " + action.title);
 			return { ...state, title: action.title };
 		case "setTags":
-			console.log(`Setting tags to ${action.tags}`);
 			return { ...state, tags: action.tags };
 		case "setGlobalOk":
 			return { ...state, okSound: action.okSound };
@@ -57,7 +55,6 @@ const dashboardReducer = (state, action) => {
 		case "setGlobalDown":
 			return { ...state, downSound: action.downSound };
 		case "setBackground":
-			console.log("Setting background to " + action.background);
 			return { ...state, background: action.background };
 		case "setGlobalMute":
 			return { ...state, globalMute: action.globalMute };
@@ -117,7 +114,7 @@ const dashboardReducer = (state, action) => {
 		default:
 			throw new Error(`Unexpected action`);
 	}
-};
+}
 
 export function Editor({ slug, selectedElementId }) {
 	const [dashboard, dashboardDispatch] = useReducer(dashboardReducer, null);
@@ -415,8 +412,9 @@ function DashboardElements({
 			});
 		};
 
-		let ele = null;
-		if (element.type === "check-card") {
+		let ele;
+		switch(element.type) {
+		case "check-card":
 			ele = (
 				<CheckCard
 					options={element.options}
@@ -424,13 +422,13 @@ function DashboardElements({
 					dashboard={dashboard}
 				/>
 			);
-		}
-		if (element.type === "check-svg") {
+			break;
+		case "check-svg":
 			ele = (
 				<CheckSVG options={element.options} slug={slug} dashboard={dashboard} />
 			);
-		}
-		if (element.type === "check-image") {
+			break;
+		case "check-image":
 			ele = (
 				<CheckImage
 					options={element.options}
@@ -438,8 +436,8 @@ function DashboardElements({
 					dashboard={dashboard}
 				/>
 			);
-		}
-		if (element.type === "check-line") {
+			break;
+		case "check-line":
 			ele = (
 				<CheckLine
 					options={element.options}
@@ -447,29 +445,29 @@ function DashboardElements({
 					dashboard={dashboard}
 				/>
 			);
-		}
-		if (element.type === "clock") {
-			ele = <Clock options={element.options} slug={slug} />;
-		}
-		if (element.type === "static-text") {
+			break;
+		case "clock":
+			ele = <Clock timeZone={element.options.timeZone} fontSize={element.options.fontSize} />;
+			break;
+		case "static-text":
 			ele = <StaticText options={element.options} vars={dashboard.variables} />;
-		}
-		if (element.type === "dynamic-text") {
+			break;
+		case "dynamic-text":
 			ele = <DynamicText options={element.options} />;
-		}
-		if (element.type === "static-ticker") {
+			break;
+		case "static-ticker":
 			ele = <StaticTicker options={element.options} />;
-		}
-		if (element.type === "static-svg") {
+			break;
+		case "static-svg":
 			ele = <StaticSVG options={element.options} />;
-		}
-		if (element.type === "static-image") {
+			break;
+		case "static-image":
 			ele = <StaticImage options={element.options} />;
-		}
-		if (element.type === "iframe-video") {
+			break;
+		case "iframe-video":
 			ele = <IframeVideo options={element.options} />;
-		}
-		if (element.type === "audio-stream") {
+			break;
+		case "audio-stream":
 			ele = <AudioStream options={element.options} />;
 		}
 
@@ -1192,8 +1190,9 @@ export function ElementSettings({ selectedElement, updateElement }) {
 	if (selectedElement.type === "clock") {
 		ElementOptions = (
 			<ClockOptions
-				updateOptions={updateElementOptions}
-				options={selectedElement.options}
+				onChange={updateElementOptions}
+				timeZone={selectedElement.options.timeZone}
+				fontSize={selectedElement.options.fontSize}
 			/>
 		);
 	}
