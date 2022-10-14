@@ -6,8 +6,6 @@ import {
 	icingaResultCodeToCheckState,
 	IcingaCheckList,
 	getCheckData,
-	alertSounds,
-	debounce,
 } from "../util";
 import { FontSizeInput, ExternalURL } from "./options";
 
@@ -111,8 +109,6 @@ export function CheckCard({ options, dashboard }) {
 		dashboard,
 	});
 
-	alertSounds(checkState, options, dashboard, false);
-
 	if (checkValue === "useCheckState") {
 		return (
 			<div
@@ -139,10 +135,6 @@ export function CheckCard({ options, dashboard }) {
 }
 
 export function CheckCardOptions({ options, updateOptions }) {
-	const [showAdvanced, setAdvanced] = useState(false);
-	const onClickAdvanced = () =>
-		showAdvanced ? setAdvanced(false) : setAdvanced(true);
-
 	return (
 		<div class="card-options">
 			<IcingaCheckList
@@ -160,15 +152,6 @@ export function CheckCardOptions({ options, updateOptions }) {
 				}
 			/>
 			<CheckDataOptions options={options} updateOptions={updateOptions} />
-			<div></div>
-			<button class="btn btn-primary" onClick={onClickAdvanced}>
-				{showAdvanced ? "Hide Options" : "Advanced Options"}
-			</button>
-			<AdvancedCheckOptions
-				options={options}
-				updateOptions={updateOptions}
-				display={showAdvanced}
-			/>
 		</div>
 	);
 }
@@ -285,110 +268,3 @@ function NoMatchInput({ value, onInput }) {
 		</Fragment>
 	);
 }
-
-const AdvancedCheckOptions = ({ options, updateOptions, display }) => {
-	const handleAudioFile = async (fieldName, files) => {
-		const res = await meerkat.uploadFile(files[0]);
-		const opts = {};
-		opts[fieldName] = res.url;
-		updateOptions(opts);
-	};
-
-	const audioControls = (src) => {
-		if (src) {
-			return (
-				<Fragment>
-					]
-					<a target="_blank" href={src}>
-						view
-					</a>
-				</Fragment>
-			);
-		}
-		return null;
-	};
-
-	return (
-		<div style={{ display: display ? "" : "none" }}>
-			<br />
-			<div class="form-check">
-				<input
-					class="form-check-input"
-					type="checkbox"
-					id="muteAlerts"
-					defaultChecked={options.muteAlerts}
-					onChange={(e) => updateOptions({ muteAlerts: e.target.checked })}
-				/>
-				<label class="form-check-label" for="muteAlerts">
-					Mute Card Alerts
-				</label>
-			</div>
-
-			<label class="form-label" for="okSound">
-				Ok Alert Sound {audioControls(options.okSound)}{" "}
-				<a onClick={(e) => updateOptions({ okSound: "" })}>default</a>
-			</label>
-			<input
-				type="file"
-				id="okSound"
-				accept="audio/*"
-				onInput={(e) => handleAudioFile("okSound", e.target.files)}
-			></input>
-
-			<label class="form-label" for="warningSound">
-				Warning Alert Sound {audioControls(options.warningSound)}{" "}
-				<a onClick={(e) => updateOptions({ warningSound: "" })}>default</a>
-			</label>
-			<input
-				type="file"
-				id="warningSound"
-				accept="audio/*"
-				onInput={(e) => handleAudioFile("warningSound", e.target.files)}
-			></input>
-
-			<label class="form-label" for="criticalSound">
-				Critical Alert Sound {audioControls(options.criticalSound)}{" "}
-				<a onClick={(e) => updateOptions({ criticalSound: "" })}>default</a>
-			</label>
-			<input
-				type="file"
-				id="criticalSound"
-				accept="audio/*"
-				onInput={(e) => handleAudioFile("criticalSound", e.target.files)}
-			></input>
-
-			<label class="form-label" for="unknownSound">
-				Unknown Alert Sound {audioControls(options.unknownSound)}{" "}
-				<a onClick={(e) => updateOptions({ unknownSound: "" })}>default</a>
-			</label>
-			<input
-				type="file"
-				id="unknownSound"
-				accept="audio/*"
-				onInput={(e) => handleAudioFile("unknownSound", e.target.files)}
-			></input>
-
-			<label class="form-label" for="upSound">
-				Up Alert Sound {audioControls(options.upSound)}{" "}
-				<a onClick={(e) => updateOptions({ upSound: "" })}>default</a>
-			</label>
-			<input
-				type="file"
-				id="upSound"
-				accept="audio/*"
-				onInput={(e) => handleAudioFile("upSound", e.target.files)}
-			></input>
-
-			<label class="form-label" for="downSound">
-				Down Alert Sound {audioControls(options.downSound)}{" "}
-				<a onClick={(e) => updateOptions({ downSound: "" })}>default</a>
-			</label>
-			<input
-				type="file"
-				id="downSound"
-				accept="audio/*"
-				onInput={(e) => handleAudioFile("downSound", e.target.files)}
-			></input>
-		</div>
-	);
-};

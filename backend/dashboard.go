@@ -21,20 +21,13 @@ import (
 
 //Dashboard contains all information to render a dashboard
 type Dashboard struct {
-	Title         string    `json:"title"`
-	Slug          string    `json:"slug"`
-	Background    string    `json:"background"`
-	Width         string    `json:"width"`
-	Height        string    `json:"height"`
-	Tags          []string  `json:"tags"`
-	Elements      []Element `json:"elements"`
-	GlobalMute    bool      `json:"globalMute"`
-	OkSound       string    `json:"okSound"`
-	CriticalSound string    `json:"criticalSound"`
-	WarningSound  string    `json:"warningSound"`
-	UnknownSound  string    `json:"unknownSound"`
-	UpSound       string    `json:"upSound"`
-	DownSound     string    `json:"downSound"`
+	Title      string    `json:"title"`
+	Slug       string    `json:"slug"`
+	Background string    `json:"background"`
+	Width      string    `json:"width"`
+	Height     string    `json:"height"`
+	Tags       []string  `json:"tags"`
+	Elements   []Element `json:"elements"`
 }
 
 //Element contains any service/host information needed
@@ -87,13 +80,6 @@ type Option struct {
 	FontSize                        string `json:"fontSize"`
 	ScrollPeriod                    string `json:"scrollPeriod"`
 	LinkURL                         string `json:"linkURL"`
-	OkSound                         string `json:"okSound"`
-	WarningSound                    string `json:"warningSound"`
-	UnknownSound                    string `json:"unknownSound"`
-	CriticalSound                   string `json:"criticalSound"`
-	UpSound                         string `json:"upSound"`
-	DownSound                       string `json:"downSound"`
-	MuteAlerts                      bool   `json:"muteAlerts"`
 	CheckDataSelection              string `json:"checkDataSelection"`
 	CheckDataPattern                string `json:"checkDataPattern"`
 	CheckDataDefault                string `json:"checkDataDefault"`

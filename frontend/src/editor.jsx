@@ -33,7 +33,6 @@ import { IframeVideo, IframeVideoOptions } from "./elements/video";
 import { AudioStream, AudioOptions } from "./elements/audio";
 import { Clock, ClockOptions } from "./elements/clock";
 
-//Manage dashboard state
 function dashboardReducer(state, action) {
 	switch (action.type) {
 		case "setDashboard":
@@ -42,22 +41,8 @@ function dashboardReducer(state, action) {
 			return { ...state, title: action.title };
 		case "setTags":
 			return { ...state, tags: action.tags };
-		case "setGlobalOk":
-			return { ...state, okSound: action.okSound };
-		case "setGlobalCritical":
-			return { ...state, criticalSound: action.criticalSound };
-		case "setGlobalWarning":
-			return { ...state, warningSound: action.warningSound };
-		case "setGlobalUnknown":
-			return { ...state, unknownSound: action.unknownSound };
-		case "setGlobalUp":
-			return { ...state, upSound: action.upSound };
-		case "setGlobalDown":
-			return { ...state, downSound: action.downSound };
 		case "setBackground":
 			return { ...state, background: action.background };
-		case "setGlobalMute":
-			return { ...state, globalMute: action.globalMute };
 		case "addElement":
 			const newElement = {
 				type: "check-card",
@@ -68,7 +53,6 @@ function dashboardReducer(state, action) {
 					selection: "",
 					nameFontSize: 40,
 					statusFontSize: 60,
-					muteAlerts: false,
 				},
 			};
 			return {
@@ -585,13 +569,6 @@ function SidePanelSettings({ dashboardDispatch, dashboard }) {
 		return null;
 	};
 
-	const muteAlerts = (e) => {
-		dashboardDispatch({
-			type: "setGlobalMute",
-			globalMute: e.target.checked,
-		});
-	};
-
 	return (
 		<Fragment>
 			<label class="form-label" for="title">
@@ -626,189 +603,9 @@ function SidePanelSettings({ dashboardDispatch, dashboard }) {
 					onChange={handleBackgroundImg}
 				/>
 			</fieldset>
-
-			<fieldset class="form-group mt-3">
-				<legend>Alerts</legend>
-				<div class="form-check">
-					<input
-						id="muteStatusAlerts"
-						class="form-check-input"
-						type="checkbox"
-						defaultChecked={dashboard.globalMute}
-						onChange={(e) => muteAlerts(e)}
-					/>
-					<label class="form-check-label" for="muteStatusAlerts">
-						Mute
-					</label>
-				</div>
-				<button class="btn btn-primary mt-3" onClick={onClickAdvanced}>
-					{showAdvanced ? "Hide alert options" : "Show alert options"}
-				</button>
-				<AdvancedAlertOptions
-					dashboardDispatch={dashboardDispatch}
-					display={showAdvanced}
-					dashboard={dashboard}
-				/>
-			</fieldset>
 		</Fragment>
 	);
 }
-
-const AdvancedAlertOptions = ({ dashboardDispatch, display, dashboard }) => {
-	const handleAlertSound = async (e, action, sound) => {
-		try {
-			const res = await meerkat.uploadFile(e.target.files[0]);
-			dashboardDispatch({
-				type: action,
-				[sound]: res.url,
-			});
-		} catch (e) {
-			console.log("failed to upload sound");
-			console.log(e);
-		}
-	};
-
-	const audioControls = (src) => {
-		if (src) {
-			return (
-				<Fragment>
-					<a target="_blank" style="color: white" href={src}>
-						view
-					</a>
-					&nbsp;
-				</Fragment>
-			);
-		}
-		return null;
-	};
-
-	return (
-		<div style={{ display: display ? "" : "none" }}>
-			<label for="soundFile">
-				Ok Alert Sound {audioControls(dashboard.okSound)}
-				<a
-					onClick={(e) =>
-						dashboardDispatch({
-							type: "setGlobalOk",
-							okSound: "/dashboards-data/ok.mp3",
-						})
-					}
-				>
-					default
-				</a>
-			</label>
-			<input
-				type="file"
-				id="okSound"
-				accept="audio/*"
-				placeholder="Upload an audio file"
-				onInput={(e) => handleAlertSound(e, "setGlobalOk", "okSound")}
-			></input>
-			<label for="soundFile">
-				Warning Alert Sound {audioControls(dashboard.warningSound)}
-				<a
-					onClick={(e) =>
-						dashboardDispatch({
-							type: "setGlobalUnknown",
-							unknownSound: "/dashboards-data/unknown.mp3",
-						})
-					}
-				>
-					default
-				</a>
-			</label>
-			<input
-				type="file"
-				id="warningSound"
-				accept="audio/*"
-				placeholder="Upload an audio file"
-				onInput={(e) => handleAlertSound(e, "setGlobalWarning", "warningSound")}
-			></input>
-			<label for="soundFile">
-				Critical Alert Sound {audioControls(dashboard.criticalSound)}
-				<a
-					onClick={(e) =>
-						dashboardDispatch({
-							type: "setGlobalCritical",
-							criticalSound: "/dashboards-data/critical.mp3",
-						})
-					}
-				>
-					default
-				</a>
-			</label>
-			<input
-				type="file"
-				id="criticalSound"
-				accept="audio/*"
-				placeholder="Upload an audio file"
-				onInput={(e) =>
-					handleAlertSound(e, "setGlobalCritical", "criticalSound")
-				}
-			></input>
-			<label for="soundFile">
-				Unknown Alert Sound {audioControls(dashboard.unknownSound)}
-				<a
-					onClick={(e) =>
-						dashboardDispatch({
-							type: "setGlobalUnknown",
-							unknownSound: "/dashboards-data/unknown.mp3",
-						})
-					}
-				>
-					default
-				</a>
-			</label>
-			<input
-				type="file"
-				id="unknownSound"
-				accept="audio/*"
-				placeholder="Upload an audio file"
-				onInput={(e) => handleAlertSound(e, "setGlobalUnknown", "unknownSound")}
-			></input>
-			<label for="soundFile">
-				Up Alert Sound {audioControls(dashboard.upSound)}
-				<a
-					onClick={(e) =>
-						dashboardDispatch({
-							type: "setGlobalup",
-							upSound: "/dashboards-data/up.mp3",
-						})
-					}
-				>
-					default
-				</a>
-			</label>
-			<input
-				type="file"
-				id="upSound"
-				accept="audio/*"
-				placeholder="Upload an audio file"
-				onInput={(e) => handleAlertSound(e, "setGlobalUp", "upSound")}
-			></input>
-			<label for="soundFile">
-				Down Alert Sound {audioControls(dashboard.downSound)}
-				<a
-					onClick={(e) =>
-						dashboardDispatch({
-							type: "setGlobaldown",
-							downSound: "/dashboards-data/down.mp3",
-						})
-					}
-				>
-					default
-				</a>
-			</label>
-			<input
-				type="file"
-				id="downSound"
-				accept="audio/*"
-				placeholder="Upload an audio file"
-				onInput={(e) => handleAlertSound(e, "setGlobalDown", "downSound")}
-			></input>
-		</div>
-	);
-};
 
 function VariablesModal({ hide, dashboard, slug }) {
 	let [inputs, setInputs] = useState([]);
