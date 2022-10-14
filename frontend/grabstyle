@@ -1,4 +1,13 @@
 #!/bin/sh
 
-curl https://bootswatch.com/5/darkly/bootstrap.min.css > dist/bootstrap.min.css
-curl https://vjs.zencdn.net/7.20.3/video-js.min.css > dist/video-js.min.css
+mkdir -p dist
+
+if ! test -f dist/bootstrap.min.css
+then
+	curl https://bootswatch.com/5/darkly/bootstrap.min.css > dist/bootstrap.min.css
+fi
+
+if ! test -f dist/video-js.min.css
+then
+	curl https://vjs.zencdn.net/7.20.3/video-js.min.css > dist/video-js.min.css
+fi
