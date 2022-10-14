@@ -183,7 +183,6 @@ const AdvancedLineOptions = ({ options, updateOptions, display }) => {
 	);
 };
 
-//The rendered view (in the actual dashboard) of the Check SVG
 export function CheckLine({ options, dashboard, slug }) {
 	const svgRef = useRef({ clientWidth: 100, clientHeight: 40 });
 	const [checkState, setCheckState] = useState(null);
