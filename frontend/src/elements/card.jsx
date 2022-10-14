@@ -203,6 +203,23 @@ const CheckDataOptions = ({ options, updateOptions }) => {
 		return result;
 	}, [checkData.performance, checkData.pluginOutput]);
 
+	const handleInput = (e) => updateOptions({ [e.target.name]: e.target.value });
+	let input = (
+		<NoMatchInput
+			value={options.checkDataDefault}
+			onInput={handleInput}
+		/>
+	);
+	if (options.checkDataSelection == "pluginOutput") {
+		input = (
+			<RegexpInput
+				expr={options.checkDataPattern}
+				nomatch={options.checkDataDefault}
+				onInput={handleInput}
+			/>
+		);
+	}
+
 	return optionsSpec.length === 0 ? (
 		<label for="check-data-mode">No Check Data Available</label>
 	) : (
@@ -222,41 +239,52 @@ const CheckDataOptions = ({ options, updateOptions }) => {
 					</option>
 				))}
 			</select>
-			{options.checkDataSelection === "pluginOutput" ? (
-				<div>
-					<input
-						class="form-control mb-1"
-						name="checkDataPattern"
-						type="text"
-						title="Regexp Pattern"
-						placeholder="Enter regexp pattern"
-						onInput={debounce(
-							(e) => updateOptions({ [e.target.name]: e.target.value }),
-							300
-						)}
-						value={options.checkDataPattern}
-					/>
-				</div>
-			) : null}
-			{options.checkDataSelection ? (
-				<div>
-					<input
-						class="form-control mb-2"
-						name="checkDataDefault"
-						type="text"
-						title="Check data default value"
-						placeholder="Enter default value for check data"
-						onInput={debounce(
-							(e) => updateOptions({ [e.target.name]: e.target.value }),
-							300
-						)}
-						value={options.checkDataDefault}
-					/>
-				</div>
-			) : null}
+			{input}
 		</Fragment>
 	);
 };
+
+function RegexpInput({ expr, nomatch, onInput }) {
+	return (
+		<fieldset>
+			<label class="form-label mt-1" for="check-data-regexp">
+				Regular expression
+			</label>
+			<input
+				class="form-control mb-1"
+				id="check-data-regexp"
+				name="checkDataPattern"
+				type="text"
+				placeholder="[0-9]+"
+				onInput={onInput}
+				value={expr}
+			/>
+			<NoMatchInput value={nomatch} onInput={onInput} />
+			<small class="form-text">
+				If the regular expression results in no matches, this value will be displayed.
+			</small>
+		</fieldset>
+	);
+}
+
+function NoMatchInput({ value, onInput }) {
+	return (
+		<Fragment>
+			<label class="form-label mt-1" for="check-data-nomatch">
+				Value on no match
+			</label>
+			<input
+				class="form-control mb-1"
+				id="check-data-nomatch"
+				name="checkDataNomatch"
+				type="text"
+				placeholder="Hello, world!"
+				onInput={onInput}
+				value={nomatch}
+			/>
+		</Fragment>
+	);
+}
 
 const AdvancedCheckOptions = ({ options, updateOptions, display }) => {
 	const handleAudioFile = async (fieldName, files) => {
