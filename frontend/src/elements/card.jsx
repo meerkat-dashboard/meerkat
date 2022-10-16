@@ -263,7 +263,7 @@ function NoMatchInput({ value, onInput }) {
 				type="text"
 				placeholder="Hello, world!"
 				onInput={onInput}
-				value={nomatch}
+				value={value}
 			/>
 		</Fragment>
 	);

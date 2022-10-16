@@ -16,27 +16,11 @@ import { StaticTicker } from "./statics/ticker";
 import { StaticSVG } from "./statics/svg";
 import { StaticImage } from "./statics/image";
 
-//Read only page
 export function Viewer({ slug, dashboardReducer }) {
 	let [dashboard, setDashboard] = useState(null);
-	let [vars, setVars] = useState(null);
-
-	const isQuery = () => (window.location.search ? true : false);
 
 	useEffect(() => {
-		if (isQuery()) {
-			meerkat.getDashboard(slug).then(function (dashboard) {
-				if (dashboard.hasOwnProperty("variables")) {
-					setVars(dashboard.variables);
-					const params = window.location.search.substr(1);
-					meerkat
-						.getTemplate(slug, params)
-						.then((board) => setDashboard(board));
-				}
-			});
-		} else {
-			meerkat.getDashboard(slug).then((board) => setDashboard(board));
-		}
+		meerkat.getDashboard(slug).then((board) => setDashboard(board));
 	}, [slug]);
 
 	if (dashboard === null) {
@@ -52,9 +36,7 @@ export function Viewer({ slug, dashboardReducer }) {
 			? `rotate(${element.rotation}rad)`
 			: `rotate(0rad)`;
 
-		let ele = null;
-
-		if (vars) dashboard["variables"] = vars;
+		let ele;
 		if (element.type === "check-card") {
 			ele = (
 				<CheckCard
@@ -96,7 +78,7 @@ export function Viewer({ slug, dashboardReducer }) {
 			);
 		}
 		if (element.type === "static-text") {
-			ele = <StaticText options={element.options} vars={dashboard.variables} />;
+			ele = <StaticText options={element.options} />;
 		}
 		if (element.type === "dynamic-text") {
 			ele = <DynamicText options={element.options} />;

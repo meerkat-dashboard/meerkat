@@ -123,11 +123,6 @@ func main() {
 	r.Get("/icinga/check_state", handleIcingaCheckState)
 	r.Get("/icinga/check_result", handleCheckResult)
 
-	// find and return dashboard json (useful for debugging),
-	// e.g. GET /template?templateid=ha.json
-	// would stream back content of /path/to/meerkat/root/dashboards/ha.json
-	r.Get("/template", handleCreateTemplate)
-
 	// persist user uploaded files onto server's local filesystem
 	r.Post("/upload", handleUpload)
 

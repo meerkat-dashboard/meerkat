@@ -46,7 +46,6 @@ function CreateDashboardModal({ hide }) {
 				tags: [],
 				background: null,
 				elements: [],
-				variables: {},
 			};
 
 			const res = await meerkat.createDashboard(newDashboard);
@@ -87,167 +86,6 @@ function CreateDashboardModal({ hide }) {
 				</form>
 			</div>
 		</div>
-	);
-}
-
-function TemplateModal({ slug }) {
-	const [showTemplate, setShowTemplate] = useState(null);
-	const [dashboard, setDashboard] = useState(null);
-	const [inputs, setInputs] = useState([]);
-
-	useEffect(() => {
-		meerkat.getDashboard(slug).then((options) => populateInputs(options));
-		meerkat.getDashboard(slug).then((board) => setDashboard(board));
-	}, []);
-
-	const viewFromTemplate = (e) => {
-		e.preventDefault(e);
-
-		if (dashboard.hasOwnProperty("variables")) {
-			let vars = {};
-			for (const [_, property] of Object.entries(inputs)) {
-				vars[property.key] = property.val;
-			}
-
-			const params = new URLSearchParams(vars).toString();
-
-			try {
-				route(`/view/${slug}?${params}`);
-			} catch (e) {
-				console.log("Failed to create template");
-				console.log(e);
-			}
-		}
-	};
-
-	const populateInputs = (board) => {
-		let exist = [];
-		if (board.hasOwnProperty("variables")) {
-			let i = 0;
-			for (const [key, value] of Object.entries(board.variables)) {
-				exist.push({ ["id"]: i++, ["key"]: key, ["val"]: value });
-			}
-		}
-		setInputs(exist);
-	};
-
-	const updateKey = (id, ent) => {
-		const key = ent.target.value;
-		const updatedInputs = inputs.map((ent, index) =>
-			index === id ? { ...ent, key: key } : ent
-		);
-		setInputs(updatedInputs);
-	};
-
-	const updateValue = (id, ent) => {
-		const val = ent.target.value;
-		const updatedInputs = inputs.map((ent, index) =>
-			index === id ? { ...ent, val: val } : ent
-		);
-		setInputs(updatedInputs);
-	};
-
-	const closeModal = (e) => {
-		e.preventDefault();
-		setShowTemplate(false);
-	};
-
-	if (showTemplate && typeof dashboard === "undefined") {
-		return (
-			<div class="modal-wrap">
-				<div class="modal-fixed">
-					<h3>Template Settings</h3>
-					<br />
-					<div class="subtle loading">Loading Template Vars</div>
-				</div>
-			</div>
-		);
-	}
-
-	const isTemplate = () => {
-		if (
-			dashboard &&
-			dashboard.hasOwnProperty("variables") &&
-			Object.keys(dashboard.variables).length
-		) {
-			return <a onClick={(e) => setShowTemplate(true)}>template</a>;
-		}
-
-		return "";
-	};
-
-	return (
-		<Fragment>
-			{isTemplate()}
-			{showTemplate ? (
-				<Modal
-					key={`template-modal-${slug}`}
-					show={showTemplate}
-					onClose={(e) => closeModal(e)}
-				>
-					<div class="modal-wrap" id={`id-${slug}`}>
-						<div class="modal-fixed" onMouseDown={(e) => e.stopPropagation()}>
-							<label class="template-label">Template Settings</label>
-
-							<form>
-								<label for="variables" class="template-label">
-									Variables
-								</label>
-								<div class="form-row">
-									{inputs.map((entry, i) => (
-										<div class="form-row" key={entry.id}>
-											<div class="col-md-6" key={i}>
-												<label for={`var${i}_key`} class="label-reset">
-													Name
-												</label>
-												<input
-													value={entry.key}
-													id={`var${i}_key`}
-													name={`var${i}_key`}
-													class="form-control h-30p"
-													onChange={(ent) => updateKey(i, ent)}
-													readonly
-												/>
-											</div>
-											<div class="col-md-6" key={i}>
-												<label for={`var${i}_val`} class="label-reset">
-													Value
-												</label>
-												<input
-													value={entry.val}
-													id={`var${i}_val`}
-													name={`var${i}_val`}
-													class="form-control h-30p"
-													onChange={(ent) => updateValue(i, ent)}
-												/>
-											</div>
-										</div>
-									))}
-								</div>
-								<div class="right mt-2">
-									<button
-										class="rounded btn-primary btn-large mr-2"
-										type="submit"
-										onClick={(e) => closeModal(e)}
-									>
-										Close
-									</button>
-									<button
-										class="rounded btn-primary btn-large"
-										type="submit"
-										onClick={(e) => viewFromTemplate(e)}
-									>
-										View
-									</button>
-								</div>
-							</form>
-						</div>
-					</div>
-				</Modal>
-			) : (
-				""
-			)}
-		</Fragment>
 	);
 }
 
@@ -360,7 +198,6 @@ function DashboardList({ dashboards, loadDashboards, filter, authEnabled }) {
 					<a href={`/view/${slug}`}>
 						<big>{dashboard.title}</big>
 					</a>
-					<TemplateModal slug={slug} />
 				</div>
 			);
 		}
@@ -395,7 +232,6 @@ function DashboardActions({ dashboard, dashboards, loadDashboards }) {
 				<CloneDashboard dashboard={dashboard} dashboards={dashboards} />
 			</button>
 			<DeleteConfirmation slug={slug} loadDashboards={loadDashboards} />
-			<TemplateModal slug={slug} />
 		</div>
 	);
 }

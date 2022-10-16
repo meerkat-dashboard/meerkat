@@ -481,19 +481,6 @@ export function linkHelper(element, ele, dashboard) {
 	if (!link) {
 		return ele;
 	}
-
-	if (dashboard.hasOwnProperty("variables")) {
-		for (const [key, property] of Object.entries(dashboard.variables)) {
-			if (
-				element.options.hasOwnProperty("linkURL") &&
-				element.options.linkURL.includes(`~${key}~`)
-			) {
-				let reg = new RegExp("~(" + key + ")~", "g");
-				link = link.replaceAll(reg, encodeURIComponent(property));
-			}
-		}
-	}
-
 	return <a href={link}>{ele}</a>;
 }
 
@@ -511,18 +498,6 @@ export async function fetchHandler(string) {
 	} else {
 		return false;
 	}
-}
-
-export function filterReplace(filter, dashboard) {
-	if (dashboard.hasOwnProperty("variables")) {
-		for (const [key, value] of Object.entries(dashboard.variables)) {
-			if (filter.includes(`~${key}~`)) {
-				let reg = new RegExp("~(" + key + ")~", "g");
-				filter = filter.replaceAll(reg, value);
-			}
-		}
-	}
-	return filter;
 }
 
 export function TagEditor({ tags, updateTags }) {

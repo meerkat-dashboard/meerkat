@@ -1,4 +1,4 @@
-import { fetchHandler, filterReplace } from "./util";
+import { fetchHandler } from "./util";
 
 export async function getIcingaHosts() {
 	const res = await fetch(`/icinga/hosts`);
@@ -30,7 +30,7 @@ export async function getIcingaObjectState(objectType, filter, dashboard) {
 	return fetchHandler(
 		`/icinga/check_state?object_type=${encodeURIComponent(
 			objectType
-		)}&filter=${encodeURIComponent(filterReplace(filter, dashboard))}`
+		)}&filter=${encodeURIComponent(filter)}`
 	);
 }
 
@@ -70,13 +70,6 @@ export async function saveDashboard(slug, dashboard) {
 	const res = await fetch(`/dashboard/${slug}`, {
 		method: "POST",
 		body: JSON.stringify(dashboard),
-	});
-	return res.json();
-}
-
-export async function getTemplate(slug, params) {
-	const res = await fetch(`/template?templateid=${slug}&${params}`, {
-		method: "GET",
 	});
 	return res.json();
 }

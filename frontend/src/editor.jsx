@@ -434,7 +434,7 @@ function DashboardElements({
 			ele = <Clock timeZone={element.options.timeZone} fontSize={element.options.fontSize} />;
 			break;
 		case "static-text":
-			ele = <StaticText options={element.options} vars={dashboard.variables} />;
+			ele = <StaticText options={element.options} />;
 			break;
 		case "dynamic-text":
 			ele = <DynamicText options={element.options} />;
@@ -607,185 +607,6 @@ function SidePanelSettings({ dashboardDispatch, dashboard }) {
 	);
 }
 
-function VariablesModal({ hide, dashboard, slug }) {
-	let [inputs, setInputs] = useState([]);
-
-	useEffect(() => {
-		let exist = [];
-		if (dashboard.hasOwnProperty("variables")) {
-			let i = 0;
-			for (const [key, value] of Object.entries(dashboard.variables)) {
-				exist.push({ ["id"]: i++, ["key"]: key, ["ori"]: key, ["val"]: value });
-			}
-		}
-
-		setInputs(exist);
-	}, []);
-
-	const changeVariables = async (e) => {
-		if (dashboard.hasOwnProperty("variables")) {
-			delete dashboard["variables"];
-		}
-
-		let vars = {};
-
-		for (const [key, property] of Object.entries(inputs)) {
-			vars[property.key] = property.val;
-		}
-
-		let dash = { ...dashboard, variables: vars };
-
-		let matched = [];
-
-		inputs.forEach((changed) => {
-			if (changed.key !== changed.ori) {
-				matched.push(changed);
-			}
-		});
-
-		dash.elements.forEach((ele) => {
-			matched.forEach((key) => {
-				let reg = new RegExp("~(" + key.ori + ")~", "g");
-
-				if (
-					ele.options.hasOwnProperty("filter") &&
-					ele.options.filter !== null
-				) {
-					if (ele.options.filter.includes(`~${key.ori}~`)) {
-						ele.options.filter = ele.options.filter.replaceAll(
-							reg,
-							`~${key.key}~`
-						);
-					}
-				}
-				if (
-					ele.options.hasOwnProperty("linkURL") &&
-					ele.options.linkURL !== null
-				) {
-					if (ele.options.linkURL.includes(`~${key.ori}~`)) {
-						ele.options.linkURL = ele.options.linkURL.replaceAll(
-							reg,
-							`~${key.key}~`
-						);
-					}
-				}
-				if (ele.options.hasOwnProperty("text") && ele.options.text !== null) {
-					if (ele.options.text.includes(`~${key.ori}~`)) {
-						ele.options.text = ele.options.text.replaceAll(reg, `~${key.key}~`);
-					}
-				}
-			});
-		});
-
-		try {
-			await meerkat.saveDashboard(slug, dash);
-		} catch (e) {
-			console.log("Failed to change variables");
-			console.log(e);
-		}
-	};
-
-	const addInputs = (e) => {
-		e.preventDefault();
-
-		if (inputs.length > 50) {
-			alert("Max allowed variables reached");
-			return;
-		}
-
-		const newObj = [...inputs, { id: inputs.length + 1, key: "", val: "" }];
-		setInputs(newObj);
-	};
-
-	const removeInputs = (e, id) => {
-		e.preventDefault();
-		const newInputs = inputs.filter((entry) => entry.id !== id);
-		setInputs(newInputs);
-	};
-
-	const updateKey = (id, ent) => {
-		const key = ent.target.value;
-		const updatedInputs = inputs.map((ent, index) =>
-			index === id ? { ...ent, key: key } : ent
-		);
-		setInputs(updatedInputs);
-	};
-
-	const updateValue = (id, ent) => {
-		const val = ent.target.value;
-		const updatedInputs = inputs.map((ent, index) =>
-			index === id ? { ...ent, val: val } : ent
-		);
-		setInputs(updatedInputs);
-	};
-
-	return (
-		<div class="modal-wrap" onMouseDown={hide}>
-			<div
-				class="modal-fixed template-modal"
-				onMouseDown={(e) => e.stopPropagation()}
-			>
-				<div class="row">
-					<div class="col-md-4">
-						<h3>Variables</h3>
-					</div>
-					<div class="col-sm-4"></div>
-				</div>
-				<form>
-					<div class="form-row template-inputs">
-						{inputs.map((entry, i) => (
-							<div class="form-row" key={entry.id}>
-								<div class="col-md-4" key={i}>
-									<label for={`var${i}_key`}>Name</label>
-									<input
-										style="h-30p"
-										value={entry.key}
-										id={`var${i}_key`}
-										name={`var${i}_key`}
-										onChange={(ent) => updateKey(i, ent)}
-									/>
-								</div>
-								<div class="col-md-5" key={i}>
-									<label for={`var${i}_val`}>Value</label>
-									<input
-										style="h-30p"
-										value={entry.val}
-										id={`var${i}_val`}
-										name={`var${i}_val`}
-										onChange={(ent) => updateValue(i, ent)}
-									/>
-								</div>
-								<button
-									class="col-md-2 btn btn-danger btn-sm"
-									style="margin-top: 32px !important; height: 37%;"
-									onClick={(e) => removeInputs(e, entry.id)}
-								>
-									remove
-								</button>
-							</div>
-						))}
-					</div>
-					<div class="right mt-2">
-						<button
-							class="rounded btn-primary btn-large mr-2"
-							onClick={(e) => addInputs(e)}
-						>
-							Add
-						</button>
-						<button
-							class="rounded btn-primary btn-large"
-							type="submit"
-							onClick={(e) => changeVariables(e)}
-						>
-							Save
-						</button>
-					</div>
-				</form>
-			</div>
-		</div>
-	);
-}
-
 function SidePanelElements({
 	dashboard,
 	dashboardDispatch,
@@ -895,14 +716,6 @@ function SidePanelElements({
 				</span>
 			</div>
 			<div class="element-list">{elementList}</div>
-
-			{showVars ? (
-				<VariablesModal
-					hide={() => setShowVars(false)}
-					dashboard={dashboard}
-					slug={slug}
-				/>
-			) : null}
 		</Fragment>
 	);
 }
