@@ -632,8 +632,6 @@ function SidePanelElements({
 	state,
 	slug,
 }) {
-	const [showVars, setShowVars] = useState(false);
-
 	const addElement = (e) => {
 		const newId = dashboard.elements.length;
 		dashboardDispatch({ type: "addElement" });
@@ -722,13 +720,6 @@ function SidePanelElements({
 				<span>
 					<button class="btn btn-primary btn-sm" onClick={addElement}>
 						New
-					</button>
-					<button
-						style="margin-left: 5px"
-						class="btn btn-primary btn-sm"
-						onClick={(e) => setShowVars(true)}
-					>
-						Vars
 					</button>
 				</span>
 			</div>
