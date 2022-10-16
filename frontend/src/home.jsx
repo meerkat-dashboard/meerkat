@@ -1,28 +1,9 @@
-import { h, Fragment, createRef } from "preact";
+import { h, Fragment } from "preact";
 import { route } from "preact-router";
 import { useState, useEffect } from "preact/hooks";
 import { Modal } from "./modal";
 
 import * as meerkat from "./meerkat";
-
-function CopyTextBox({ text }) {
-	const ref = createRef();
-
-	const handleClick = (e) => {
-		ref.current.focus();
-		ref.current.select();
-		document.execCommand("copy");
-	};
-
-	return (
-		<div class="copy-box" onClick={handleClick}>
-			<input class="form-control" ref={ref} type="text" value={text} readOnly />
-			<svg class="feather">
-				<use xlinkHref={`/res/svgs/feather-sprite.svg#copy`} />
-			</svg>
-		</div>
-	);
-}
 
 const titleToSlug = (title) => {
 	let result = title;
@@ -57,8 +38,6 @@ function CreateDashboardModal({ hide }) {
 	return (
 		<div class="modal-wrap" onMouseDown={hide}>
 			<div class="modal-fixed" onMouseDown={(e) => e.stopPropagation()}>
-				<h3>Create Dashboard</h3>
-
 				<form onSubmit={createDashboard}>
 					<label for="title">Title</label>
 					<input
@@ -71,16 +50,16 @@ function CreateDashboardModal({ hide }) {
 						onInput={(e) => setTitle(e.currentTarget.value)}
 					/>
 
-					<label>Result url</label>
-					<CopyTextBox
-						text={window.location.host + "/view/" + titleToSlug(title)}
+					<label>Dashboard URL</label>
+					<input
+						class="form-control"
+						type="text"
+						value={window.location.href + "view/" + titleToSlug(title)}
+						readonly
 					/>
-
-					<div class="right" style="margin-top: 20px">
-						<button class="btn btn-primary" type="submit">
-							Create
-						</button>
-					</div>
+					<button class="btn btn-primary mt-3" type="submit">
+						Create
+					</button>
 				</form>
 			</div>
 		</div>
@@ -168,7 +147,7 @@ function CloneDashboard({ dashboard, dashboards }) {
 
 function DashboardList({ dashboards, loadDashboards, filter, authEnabled }) {
 	if (dashboards === null) {
-		return <div class="subtle loading">Loading Dashboards</div>;
+		return;
 	}
 
 	const filteredDashboards = dashboards.filter((dashboard) => {
