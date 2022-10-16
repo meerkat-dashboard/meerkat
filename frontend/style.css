@@ -255,7 +255,7 @@ audio::-webkit-media-controls-time-remaining-display {
 	padding: 20px;
 }
 
-.editor.settings-overlay {
+.settings-overlay {
 	animation-name: slide-right;
 	animation-iteration-count: initial;
 	animation-fill-mode: forwards;
@@ -510,23 +510,23 @@ a {
 	text-decoration: none!important;
 }
 
-.element-list > .element-item {
+.element-item {
 	font-size: 18px;
 	cursor: pointer;
 }
 
-.element-list > .element-item > .drop-zone {
+.element-item > .drop-zone {
 	height: 10px;
 	border-radius: 8px;
 
 	transition: height 200ms;
 }
 
-.element-list > .element-item > .drop-zone.active {
+.element-item > .drop-zone.active {
 	opacity: 50%;
 	height: 20px;
 }
 
-.element-list > .element-item:hover {
-	color: #797979;
+.element-item:hover {
+	color: #ffffff;
 }

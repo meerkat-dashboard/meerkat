@@ -708,15 +708,13 @@ function SidePanelElements({
 
 	return (
 		<Fragment>
-			<div class="lefty-righty spacer">
+			<div class="lefty-righty">
 				<h3>Elements</h3>
-				<span>
-					<button class="btn btn-primary btn-sm" onClick={addElement}>
-						New
-					</button>
-				</span>
+				<button class="btn btn-primary btn-sm" onClick={addElement}>
+					New
+				</button>
 			</div>
-			<div class="element-list">{elementList}</div>
+			{elementList}
 		</Fragment>
 	);
 }
@@ -858,60 +856,56 @@ export function ElementSettings({ selectedElement, updateElement }) {
 	}
 
 	return (
-		<div class="form-group">
-			<div class="editor settings-overlay">
-				<div class="options">
-					<div class="lefty-righty">
-						<h3>{selectedElement.title}</h3>
-						<button
-							class="btn btn-secondary"
-							onClick={(e) => removeParam("selectedElementId")}
-						>
-							Close
-						</button>
-					</div>
-					<form>
-						<label for="name">Name</label>
-						<input
-							class="form-control"
-							id="name"
-							type="text"
-							placeholder="A new element"
-							value={selectedElement.title}
-							onInput={(e) =>
-								updateElement({
-									...selectedElement,
-									title: e.currentTarget.value,
-								})
-							}
-						/>
-
-						<label>Element type</label>
-						<select
-							class="form-select"
-							name="element-type"
-							value={selectedElement.type}
-							onInput={updateType}
-						>
-							<option value="check-card">Icinga Card</option>
-							<option value="check-svg">Icinga SVG</option>
-							<option value="check-image">Icinga Image</option>
-							<option value="check-line">Icinga Line</option>
-							<option value="dynamic-text">Dynamic Text</option>
-							<option value="static-text">Static Text</option>
-							<option value="static-svg">Static SVG</option>
-							<option value="static-image">Static Image</option>
-							<option value="static-ticker">Static Ticker</option>
-							<option value="iframe-video">HLS Stream</option>
-							<option value="audio-stream">Audio Stream</option>
-							<option value="clock">Clock</option>
-						</select>
-						<hr />
-
-						{ElementOptions}
-					</form>
-				</div>
+		<div class="editor settings-overlay">
+			<div class="lefty-righty">
+				<h3>{selectedElement.title}</h3>
+				<button
+					class="btn btn-secondary"
+					onClick={(e) => removeParam("selectedElementId")}
+				>
+					Close
+				</button>
 			</div>
+			<form>
+				<label for="name">Name</label>
+				<input
+					class="form-control"
+					id="name"
+					type="text"
+					placeholder="A new element"
+					value={selectedElement.title}
+					onInput={(e) =>
+						updateElement({
+							...selectedElement,
+							title: e.currentTarget.value,
+						})
+					}
+				/>
+
+				<label>Element type</label>
+				<select
+					class="form-select"
+					name="element-type"
+					value={selectedElement.type}
+					onInput={updateType}
+				>
+					<option value="check-card">Icinga Card</option>
+					<option value="check-svg">Icinga SVG</option>
+					<option value="check-image">Icinga Image</option>
+					<option value="check-line">Icinga Line</option>
+					<option value="dynamic-text">Dynamic Text</option>
+					<option value="static-text">Static Text</option>
+					<option value="static-svg">Static SVG</option>
+					<option value="static-image">Static Image</option>
+					<option value="static-ticker">Static Ticker</option>
+					<option value="iframe-video">HLS Stream</option>
+					<option value="audio-stream">Audio Stream</option>
+					<option value="clock">Clock</option>
+				</select>
+				<hr />
+
+				{ElementOptions}
+			</form>
 		</div>
 	);
 }
