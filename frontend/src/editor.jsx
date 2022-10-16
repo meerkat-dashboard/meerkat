@@ -88,9 +88,6 @@ function dashboardReducer(state, action) {
 					JSON.parse(JSON.stringify(action.element))
 				),
 			};
-		case "getDimensions":
-			console.log("Getting Dimensions");
-			return { ...state, height: action.height, width: action.width };
 		case "updateElement":
 			console.log(
 				`Updating element: ${JSON.stringify([
