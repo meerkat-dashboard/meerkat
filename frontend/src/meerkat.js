@@ -17,7 +17,6 @@ export async function getIcingaServices() {
 
 export async function getIcingaHostGroups() {
 	const res = await fetch(`/icinga/hostgroups`);
-
 	return res.json();
 }
 
@@ -52,9 +51,7 @@ export async function getDashboard(slug) {
 
 export async function getAllDashboards() {
 	const res = await fetch("/dashboard");
-	const data = await res.json();
-
-	return data;
+	return res.json();
 }
 
 export async function createDashboard(dashboard) {
@@ -62,7 +59,6 @@ export async function createDashboard(dashboard) {
 		method: "POST",
 		body: JSON.stringify(dashboard),
 	});
-
 	return res.json();
 }
 
