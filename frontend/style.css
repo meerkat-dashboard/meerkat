@@ -24,11 +24,6 @@
 	to { transform: translate(0%, 0); }
 }
 
-@keyframes spin {
-	from { transform: rotate(0deg); }
-	to { transform: rotate(360deg); }
-}
-
 header {
 	display: flex;
 	justify-content: space-between;
@@ -82,27 +77,6 @@ header {
 	fill: none;
 }
 
-div.loading {
-	display: flex;
-	align-items: center;
-	font-style: italic;
-}
-
-div.loading::before {
-	content: '';
-	display: inline-block;
-	width: 20px;
-	height: 20px;
-	background-color: transparent;
-	margin-right: 10px;
-	border-radius: 20px;
-	border: solid 2px transparent;
-	border-top-color: currentColor;
-	animation-name: spin;
-	animation-duration: 500ms;
-	animation-iteration-count: infinite;
-}
-
 input[type="color"] {
 	width: 46px;
 	height: 43px;
@@ -148,30 +122,6 @@ div.selection > .selector:last-child {
 	border-radius: 0 3px 3px 0;
 }
 
-/* COPY SELECTION BOX */
-div.copy-box {
-	position: relative;
-}
-
-div.copy-box > input {
-	background-color: #f9f6f6;
-	padding-right: 32px;
-	cursor: pointer;
-}
-
-div.copy-box > svg {
-	width: 24px;
-	height: 24px;
-	content: '';
-	position: absolute;
-	right: 0;
-	top: 0;
-	display: block;
-	margin: 5px;
-	color: black;
-	cursor: pointer;
-}
-
 /* MODAL */
 div.modal-wrap {
 	background-color: rgba(0,0,0,.4);
@@ -181,10 +131,6 @@ div.modal-wrap {
 	bottom: 0;
 	left: 0;
 	z-index: 2;
-	animation-name: fade-in;
-	animation-iteration-count: initial;
-	animation-fill-mode: forwards;
-	animation-duration: 300ms;
 }
 
 div.modal-wrap .modal-fixed {

@@ -126,7 +126,7 @@ export function Editor({ slug, selectedElementId }) {
 	}, [slug]);
 
 	if (dashboard === null) {
-		return <div class="loading center subtle">Loading dashboard</div>;
+		return;
 	}
 
 	const selectedElement = selectedElementId

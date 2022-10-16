@@ -24,7 +24,7 @@ export function Viewer({ slug, dashboardReducer }) {
 	}, [slug]);
 
 	if (dashboard === null) {
-		return <div class="loading center subtle">Loading dashboard</div>;
+		return;
 	}
 
 	const elements = dashboard.elements.map((element) => {

@@ -84,12 +84,6 @@ export function IcingaCheckList({ currentCheckopts, updateOptions }) {
 				busy
 				value=""
 				data={[]}
-				busySpinner={
-					<div
-						class="loading"
-						style="width: 14px; height: 14px; margin-left: 10px"
-					/>
-				}
 			/>
 		);
 		let opts = null;
@@ -292,12 +286,6 @@ export function IcingaHostVars({ optionsID, updateOptions, options }) {
 				busy
 				value=""
 				data={[]}
-				busySpinner={
-					<div
-						class="loading"
-						style="width: 14px; height: 14px; margin-left: 10px"
-					/>
-				}
 			/>
 		);
 
