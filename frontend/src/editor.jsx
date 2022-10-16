@@ -33,6 +33,24 @@ import { IframeVideo, IframeVideoOptions } from "./elements/video";
 import { AudioStream, AudioOptions } from "./elements/audio";
 import { Clock, ClockOptions } from "./elements/clock";
 
+function defaultElementOptions(typ) {
+	switch (typ) {
+	case "check-svg":
+		return CheckSVGDefaults;
+	case "check-line":
+		return CheckLineDefaults;
+	case "dynamic-text":
+		return DynamicTextDefaults;
+	case "static-text":
+		return StaticTextDefaults;
+	case "static-ticker":
+		return StaticTickerDefaults;
+	case "static-svg":
+		return StaticSVGDefaults;
+	}
+	return {};
+}
+
 function dashboardReducer(state, action) {
 	switch (action.type) {
 		case "setDashboard":
@@ -51,8 +69,7 @@ function dashboardReducer(state, action) {
 					objectType: null,
 					filter: null,
 					selection: "",
-					nameFontSize: 40,
-					statusFontSize: 60,
+					fontSize: 60,
 				},
 			};
 			return {
@@ -733,42 +750,19 @@ export function ElementSettings({ selectedElement, updateElement }) {
 	//sets good default values for each visual type when they're selected
 	const updateType = (e) => {
 		const newType = e.currentTarget.value;
-		let defaults = {};
-
-		switch (newType) {
-			case "check-svg":
-				defaults = CheckSVGDefaults;
-				break;
-			case "check-line":
-				defaults = CheckLineDefaults;
-				break;
-			case "dynamic-text":
-				defaults = DynamicTextDefaults;
-				break;
-			case "static-text":
-				defaults = StaticTextDefaults;
-				break;
-			case "static-ticker":
-				defaults = StaticTickerDefaults;
-				break;
-			case "static-svg":
-				defaults = StaticSVGDefaults;
-				break;
-		}
-
-		const tickerRect = {
-			x: 0,
-			y: 82.84371327849588,
-			w: 100,
-			h: 16,
-		};
 
 		if (newType == "static-ticker") {
+			const rect = {
+				x: 0,
+				y: 82.84371327849588,
+				w: 100,
+				h: 16,
+			}
 			updateElement({
 				...selectedElement,
 				type: newType,
-				rect: tickerRect,
-				options: Object.assign(selectedElement.options, defaults),
+				rect: rect,
+				options: defaultElementOptions(newType),
 			});
 			return;
 		}
@@ -776,7 +770,7 @@ export function ElementSettings({ selectedElement, updateElement }) {
 		updateElement({
 			...selectedElement,
 			type: newType,
-			options: Object.assign(selectedElement.options, defaults),
+			options: defaultElementOptions(newType),
 		});
 	};
 

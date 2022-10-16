@@ -116,7 +116,7 @@ export function CheckCard({ options, dashboard }) {
 			>
 				<div
 					class="check-state"
-					style={`font-size: ${options.statusFontSize}px`}
+					style={`font-size: ${options.fontSize}px`}
 				>
 					<CheckState state={checkState} acknowledged={acknowledged} />
 				</div>
@@ -127,7 +127,7 @@ export function CheckCard({ options, dashboard }) {
 		<div
 			class={`check-content card ${checkState} ${checkState}-${acknowledged}`}
 		>
-			<div class="check-state" style={`font-size: ${options.statusFontSize}px`}>
+			<div class="check-state" style={`font-size: ${options.fontSize}px`}>
 				checkValue
 			</div>
 		</div>
@@ -146,9 +146,9 @@ export function CheckCardOptions({ options, updateOptions }) {
 				onInput={(e) => updateOptions({ linkURL: e.currentTarget.value })}
 			/>
 			<FontSizeInput
-				value={options.statusFontSize}
+				value={options.fontSize}
 				onInput={(e) =>
-					updateOptions({ statusFontSize: Number(e.currentTarget.value) })
+					updateOptions({ fontSize: Number(e.currentTarget.value) })
 				}
 			/>
 			<CheckDataOptions options={options} updateOptions={updateOptions} />
