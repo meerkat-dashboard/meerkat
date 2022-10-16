@@ -535,10 +535,6 @@ export function DashboardView({
 }
 
 function SidePanelSettings({ dashboardDispatch, dashboard }) {
-	const [showAdvanced, setAdvanced] = useState(false);
-	const onClickAdvanced = () =>
-		showAdvanced ? setAdvanced(false) : setAdvanced(true);
-
 	const handleBackgroundImg = async (e) => {
 		try {
 			const res = await meerkat.uploadFile(e.target.files[0]);

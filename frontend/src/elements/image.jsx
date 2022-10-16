@@ -9,10 +9,6 @@ import {
 import { ExternalURL } from "./options";
 
 export function CheckImageOptions({ options, updateOptions }) {
-	const [showAdvanced, setAdvanced] = useState(false);
-	const onClickAdvanced = () =>
-		showAdvanced ? setAdvanced(false) : setAdvanced(true);
-
 	const handleImageUpload = async (fieldName, files) => {
 		const res = await meerkat.uploadFile(files[0]);
 		const opts = {};
@@ -143,15 +139,6 @@ export function CheckImageOptions({ options, updateOptions }) {
 				onInput={(e) =>
 					handleImageUpload("criticalAcknowledgedImage", e.target.files)
 				}
-			/>
-			<br />
-			<button class="rounded btn-primary btn-large" onClick={onClickAdvanced}>
-				{showAdvanced ? "Hide Options" : "Advanced Options"}
-			</button>
-			<AdvancedImageOptions
-				options={options}
-				updateOptions={updateOptions}
-				display={showAdvanced}
 			/>
 		</Fragment>
 	);

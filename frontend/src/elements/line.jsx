@@ -6,10 +6,6 @@ import { icingaResultCodeToCheckState, IcingaCheckList } from "../util";
 import { ExternalURL } from "./options";
 
 export function CheckLineOptions({ options, updateOptions }) {
-	const [showAdvanced, setAdvanced] = useState(false);
-	const onClickAdvanced = () =>
-		showAdvanced ? setAdvanced(false) : setAdvanced(true);
-
 	return (
 		<div class="card-options">
 			<IcingaCheckList
@@ -67,14 +63,6 @@ export function CheckLineOptions({ options, updateOptions }) {
 					</label>
 				</div>
 			</fieldset>
-			<button class="btn btn-secondary" onClick={onClickAdvanced}>
-				{showAdvanced ? "Hide Options" : "Advanced Options"}
-			</button>
-			<AdvancedLineOptions
-				options={options}
-				updateOptions={updateOptions}
-				display={showAdvanced}
-			/>
 		</div>
 	);
 }
