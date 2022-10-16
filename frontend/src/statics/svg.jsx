@@ -1,5 +1,4 @@
 import { h, Fragment } from "preact";
-import { useState, useEffect } from "preact/hooks";
 
 import { svgList } from "../svg-list";
 
