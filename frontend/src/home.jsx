@@ -1,7 +1,6 @@
-import { h, Fragment } from "preact";
+import { h, Fragment, Component } from "preact";
 import { route } from "preact-router";
 import { useState, useEffect } from "preact/hooks";
-import { Modal } from "./modal";
 
 import * as meerkat from "./meerkat";
 
@@ -257,4 +256,13 @@ export function Home() {
 			/>
 		</div>
 	);
+}
+
+class Modal extends Component {
+	render() {
+		if (!this.props.show) {
+			return null;
+		}
+		return <div id="modal-element">{this.props.children}</div>;
+	}
 }
