@@ -232,15 +232,6 @@ export function CheckSVGOptions({ options, updateOptions }) {
 					disabled
 				/>
 			</div>
-			<br />
-			<button class="rounded btn-primary btn-large" onClick={onClickAdvanced}>
-				{showAdvanced ? "Hide Options" : "Advanced Options"}
-			</button>
-			<AdvancedSVGOptions
-				options={options}
-				updateOptions={updateOptions}
-				display={showAdvanced}
-			/>
 		</div>
 	);
 }
