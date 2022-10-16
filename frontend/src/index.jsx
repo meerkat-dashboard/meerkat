@@ -1,4 +1,4 @@
-import { h, render, Fragment } from "preact";
+import { h, render } from "preact";
 import { Router } from "preact-router";
 
 import { Home } from "./home";

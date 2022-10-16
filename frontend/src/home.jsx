@@ -263,22 +263,19 @@ export function Home() {
 			<AppHeader />
 			<hr />
 			<input
-				class="form-control"
-				style="margin-bottom: 10px"
+				class="form-control mb-3"
 				type="text"
 				id="filter"
 				onInput={(e) => setFilter(e.currentTarget.value)}
 				placeholder="Filter dashboards"
 			/>
 
-			<div class="filter-results">
-				<DashboardList
-					loadDashboards={loadDashboards}
-					dashboards={dashboards}
-					filter={filter}
-					authEnabled={authentication}
-				/>
-			</div>
+			<DashboardList
+				loadDashboards={loadDashboards}
+				dashboards={dashboards}
+				filter={filter}
+				authEnabled={authentication}
+			/>
 		</div>
 	);
 }
