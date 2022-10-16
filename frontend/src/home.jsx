@@ -29,9 +29,7 @@ const titleToSlug = (title) => {
 	result = result.toLowerCase();
 	result = result.trim();
 	result = result.replace(/[_\s]/g, "-");
-	result = result.replace(/[^a-z0-9\-]/g, "");
-
-	return result;
+	return result.replace(/[^a-z0-9\-]/g, "");
 };
 
 function CreateDashboardModal({ hide }) {
@@ -165,11 +163,7 @@ function CloneDashboard({ dashboard, dashboards }) {
 		}
 	};
 
-	return (
-		<Fragment>
-			<a onClick={(e) => clone(e)}>Clone</a>
-		</Fragment>
-	);
+	return <a onClick={(e) => clone(e)}>Clone</a>;
 }
 
 function DashboardList({ dashboards, loadDashboards, filter, authEnabled }) {
