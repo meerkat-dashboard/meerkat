@@ -119,30 +119,29 @@ function DeleteConfirmation({ slug, loadDashboards }) {
 				>
 					<div class="modal-wrap" id={`id-${slug}`}>
 						<div class="modal-fixed" onMouseDown={(e) => e.stopPropagation()}>
-							<label class="template-label">
+							<p>
 								Are you sure you want to delete this dashboard?
-							</label>
-							<br />
+								This cannot be undone.
+							</p>
 							<button
-								class="rounded btn-primary btn-large mr-2"
+								class="btn btn-primary"
 								type="submit"
 								onClick={(e) => closeModal(e)}
 							>
-								No
+								Cancel
 							</button>
 							<button
-								class="rounded btn-primary btn-large"
+								class="btn btn-danger ms-2"
 								type="submit"
 								onClick={(e) => deleteDashboard(e, slug)}
 							>
-								Yes
+								Delete
 							</button>
 						</div>
 					</div>
 				</Modal>
-			) : (
-				""
-			)}
+			) : null
+		}
 		</Fragment>
 	);
 }
