@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/tls"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -318,10 +319,8 @@ func initIcingaCheckStateCache() {
 				log.Printf("Failed to create HTTP request: %v", err)
 				return err
 			}
-
 			req.SetBasicAuth(config.IcingaUsername, config.IcingaPassword)
 
-			//Make request
 			res, err := client.Do(req)
 			if err != nil {
 				log.Printf("Icinga2 API error: %v", err.Error())
@@ -331,16 +330,13 @@ func initIcingaCheckStateCache() {
 			defer res.Body.Close()
 
 			var results icingaAPIResults
-			dec := json.NewDecoder(res.Body)
-			err = dec.Decode(&results)
-
-			if err != nil {
+			if err := json.NewDecoder(res.Body).Decode(&results); err != nil {
 				log.Printf("Error decoding Icinga2 API response: %v", err)
 				return err
 			}
 
 			if len(results.Results) == 0 {
-				return err
+				return errors.New("no objects matching filter")
 			}
 
 			max_state := int64(0)
