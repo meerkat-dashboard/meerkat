@@ -25,7 +25,7 @@ export async function getIcingaServiceGroups() {
 	return res.json();
 }
 
-export async function getIcingaObjectState(objectType, filter, dashboard) {
+export async function getIcingaObjectState(objectType, filter) {
 	return fetchHandler(
 		`/icinga/check_state?object_type=${encodeURIComponent(
 			objectType
