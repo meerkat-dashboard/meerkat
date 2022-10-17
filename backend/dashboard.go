@@ -32,63 +32,11 @@ type Dashboard struct {
 
 //Element contains any service/host information needed
 type Element struct {
-	Type     string  `json:"type"`
-	Title    string  `json:"title"`
-	Rect     Rect    `json:"rect"`
-	Options  Option  `json:"options"`
-	Rotation float64 `json:"rotation"`
-}
-
-//Option contains element options
-type Option struct {
-	Filter                          string `json:"filter"`
-	ObjectType                      string `json:"objectType"`
-	Selection                       string `json:"selection"`
-	CheckID                         string `json:"checkId"`
-	NameFontSize                    int    `json:"nameFontSize"`
-	StatusFontSize                  int    `json:"statusFontSize"`
-	RightArrow                      bool   `json:"rightArrow"`
-	LeftArrow                       bool   `json:"leftArrow"`
-	StrokeWidth                     int    `json:"strokeWidth"`
-	Image                           string `json:"image"`
-	OKSvg                           string `json:"okSvg"`
-	OKStrokeAcknowledgedColor       string `json:"okStrokeAcknowledgedColor"`
-	OKStrokeColor                   string `json:"okStrokeColor"`
-	WarningAcknowledgedStrokeColor  string `json:"warningAcknowledgedStrokeColor"`
-	WarningSvg                      string `json:"warningSvg"`
-	UnknownAcknowledgedStrokeColor  string `json:"unknownAcknowledgedStrokeColor"`
-	UnknownSvg                      string `json:"unknownSvg"`
-	CriticalStrokeColor             string `json:"criticalStrokeColor"`
-	CriticalAcknowledgedStrokeColor string `json:"criticalAcknowledgedStrokeColor"`
-	CriticalSvg                     string `json:"criticalSvg"`
-	CriticalImage                   string `json:"criticalImage"`
-	CriticalAcknowledgedImage       string `json:"criticalAcknowledgedImage"`
-	OkImage                         string `json:"okImage"`
-	UnknownImage                    string `json:"unknownImage"`
-	UnknownAcknowledgedImage        string `json:"unknownAcknowledgedImage"`
-	WarningImage                    string `json:"warningImage"`
-	WarningAcknowledgedImage        string `json:"warningAcknowledgedImage"`
-	Svg                             string `json:"svg"`
-	StrokeColor                     string `json:"strokeColor"`
-	Source                          string `json:"source"`
-	AudioSource                     string `json:"audioSource"`
-	Text                            string `json:"text"`
-	BackgroundColor                 string `json:"backgroundColor"`
-	TextAlign                       string `json:"textAlign"`
-	TextVerticalAlign               string `json:"textVerticalAlign"`
-	FontColor                       string `json:"fontColor"`
-	FontSize                        string `json:"fontSize"`
-	ScrollPeriod                    string `json:"scrollPeriod"`
-	LinkURL                         string `json:"linkURL"`
-	CheckDataSelection              string `json:"checkDataSelection"`
-	CheckDataPattern                string `json:"checkDataPattern"`
-	CheckDataDefault                string `json:"checkDataDefault"`
-	Dynamic                         bool   `json:"dynamic"`
-	ID                              string `json:"id"`
-	DynamicText                     string `json:"dynamicText"`
-	DynamicText2                    string `json:"dynamicText2"`
-	DynamicText2Structure           bool   `json:"dynamicText2Structure"`
-	BoldText                        bool   `json:"boldText"`
+	Type     string                 `json:"type"`
+	Title    string                 `json:"title"`
+	Rect     Rect                   `json:"rect"`
+	Options  map[string]interface{} `json:"options"`
+	Rotation float64                `json:"rotation"`
 }
 
 //Rect helper struct for positions
