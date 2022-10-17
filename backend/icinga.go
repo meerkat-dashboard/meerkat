@@ -121,11 +121,6 @@ type varsBefore struct {
 	StateType float64 `json:"state_type"`
 }
 
-type together struct {
-	MaxState     int64
-	Acknowledged int64
-}
-
 func handleCheckResult(w http.ResponseWriter, r *http.Request) {
 	object := r.URL.Query().Get("object")
 	attrs := r.URL.Query().Get("attrs")
