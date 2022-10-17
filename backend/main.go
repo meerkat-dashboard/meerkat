@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/BurntSushi/toml"
 	"github.com/go-chi/chi"
 	"github.com/mailgun/groupcache/v2"
 )
@@ -42,21 +41,6 @@ Files:
 	}
 
 	return nil
-}
-
-type Config struct {
-	HTTPAddr string
-
-	IcingaURL         string
-	IcingaUsername    string
-	IcingaPassword    string
-	IcingaInsecureTLS bool
-
-	AdminUsername string
-	AdminPassword string
-
-	CacheExpiryDurationSeconds int64
-	CacheSizeBytes             int64
 }
 
 var config Config
@@ -143,35 +127,4 @@ func createFileHandler(frontendPath string) func(w http.ResponseWriter, r *http.
 	return func(w http.ResponseWriter, r *http.Request) {
 		fs.ServeHTTP(w, r)
 	}
-}
-
-func LoadConfig(name string) (Config, error) {
-	var conf Config
-	var err error
-	if name != "" {
-		_, err = toml.DecodeFile(name, &conf)
-	}
-
-	if conf.HTTPAddr == "" {
-		conf.HTTPAddr = ":8080"
-	}
-
-	if conf.IcingaURL == "" {
-		conf.IcingaURL = "https://127.0.0.1:5665"
-	}
-	if conf.IcingaUsername == "" {
-		conf.IcingaUsername = "meerkat"
-	}
-	if conf.IcingaPassword == "" {
-		conf.IcingaPassword = "meerkat"
-	}
-
-	if config.CacheExpiryDurationSeconds == 0 {
-		config.CacheExpiryDurationSeconds = 16
-	}
-	if config.CacheSizeBytes == 0 {
-		config.CacheSizeBytes = 20971520
-	}
-
-	return conf, err
 }

@@ -4,7 +4,6 @@ import (
 	"context"
 	"crypto/tls"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -15,6 +14,7 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/mailgun/groupcache/v2"
+	"olowe.co/icinga"
 )
 
 type icingaAPIResults struct {
@@ -252,35 +252,12 @@ func handleIcingaCheckState(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var enc []byte
-	/**
-	 * meerkat has two modes of operation:
-	 * 1. edit: dashboard is being customized
-	 * 2. view: dashboard is being viewed on a screen
-	 *
-	 * when editing, on cache miss, check state is re-fetched, and cached value updated
-	 * when viewing, simply read and return cached value, because cache is assumed to be warm
-	 *
-	 * TODO implement re-fetching when editing dashboard
-	 */
 	key := strings.Join([]string{object_type, filter}, string(rune(0)))
 	if err := cache.Get(r.Context(), key, groupcache.AllocatingByteSliceSink(&enc)); err != nil {
 		log.Printf("Cache retrieval failed: %v", err)
 		http.Error(w, "Cache retrieval failed", http.StatusInternalServerError)
 		return
 	}
-
-	/**
-	 * FIXME remove hack once cache is properly maintained for editing and viewing dashboard
-	 *
-	 * silence error in frontend
-	 * SyntaxError: Unexpected end of JSON input
-	 * read more at https://gitlab.sol1.net/oss/meerkat/-/issues/56
-	 */
-	if len(enc) == 0 {
-		enc = []byte("{}") // or {"MaxState":0,"Acknowledged":0}
-	}
-	// /FIXME remove hack once cache is properly maintained for editing and viewing dashboard
-
 	w.Write(enc)
 }
 
@@ -296,73 +273,35 @@ func initIcingaCheckStateCache() {
 			object_type := bits[0]
 			filter := bits[1]
 
-			client := &http.Client{}
-			//Disable TLS verification if config says so
-			if config.IcingaInsecureTLS {
-				client.Transport = &http.Transport{
-					TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-				}
-			}
-
-			//Create HTTP request
-			req_url, err := url.Parse(config.IcingaURL)
+			client, err := dialURL(config.IcingaURL, config.IcingaUsername, config.IcingaPassword, config.IcingaInsecureTLS)
 			if err != nil {
-				log.Printf("Failed to parse IcingaURL: %v", err)
-				return err
+				return fmt.Errorf("dial icinga: %v", err)
 			}
 
-			req_url.Path = path.Join(req_url.Path, "/v1/objects", object_type+"s")
-			req_url.RawQuery = strings.ReplaceAll(url.Values{"filter": []string{filter}}.Encode(), "+", "%20")
-
-			req, err := http.NewRequest("GET", req_url.String(), nil)
+			var worst together
+			switch object_type {
+			case "host":
+				var hosts []icinga.Host
+				hosts, err = client.Hosts(filter)
+				worst = worstHost(hosts)
+			case "service":
+				var services []icinga.Service
+				services, err = client.Services(filter)
+				worst = worstService(services)
+			default:
+				return fmt.Errorf("cannot lookup state for object type %s", object_type)
+			}
 			if err != nil {
-				log.Printf("Failed to create HTTP request: %v", err)
-				return err
+				return fmt.Errorf("search objects: %w", err)
 			}
-			req.SetBasicAuth(config.IcingaUsername, config.IcingaPassword)
 
-			res, err := client.Do(req)
+			buf, err := json.Marshal(&worst)
 			if err != nil {
-				log.Printf("Icinga2 API error: %v", err.Error())
 				return err
 			}
-
-			defer res.Body.Close()
-
-			var results icingaAPIResults
-			if err := json.NewDecoder(res.Body).Decode(&results); err != nil {
-				log.Printf("Error decoding Icinga2 API response: %v", err)
-				return err
-			}
-
-			if len(results.Results) == 0 {
-				return errors.New("no objects matching filter")
-			}
-
-			max_state := int64(0)
-			acknowledged := int64(0)
-
-			for _, obj := range results.Results {
-				if int64(obj.Attributes.Acknowledgement) == 1 || int64(obj.Attributes.Acknowledgement) == 2 {
-					acknowledged = int64(obj.Attributes.Acknowledgement)
-				}
-				if int64(obj.Attributes.State) > max_state {
-					max_state = int64(obj.Attributes.State)
-					if int64(obj.Attributes.State) == 2 {
-						max_state = int64(obj.Attributes.State)
-					}
-				}
-			}
-
-			t := together{MaxState: max_state}
-			t.Acknowledged = acknowledged
-
-			if enc, err := json.Marshal(&t); err != nil {
-				log.Printf("Failed to encode IcingaCheckState value: %v", err)
-				return err
-			} else {
-				return dest.SetBytes(enc, time.Now().Add(time.Duration(config.CacheExpiryDurationSeconds)*time.Second))
-			}
+			dur := time.Duration(config.CacheExpiryDurationSeconds) * time.Second
+			expiry := time.Now().Add(dur)
+			return dest.SetBytes(buf, expiry)
 		},
 	))
 }
