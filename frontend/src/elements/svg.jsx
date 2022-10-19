@@ -306,7 +306,7 @@ export function CheckSVG({ options, dashboard }) {
 	return (
 		<div class="check-content svg">
 			<svg class="feather" style={styles}>
-				<use xlinkHref={`/res/svgs/feather-sprite.svg#${svgName}`} />
+				<use xlinkHref={`/feather-sprite.svg#${svgName}`} />
 			</svg>
 		</div>
 	);

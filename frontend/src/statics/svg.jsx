@@ -74,7 +74,7 @@ export function StaticSVG({ options }) {
 	return (
 		<div class="check-content svg">
 			<svg class="feather" style={styles}>
-				<use xlinkHref={`/res/svgs/feather-sprite.svg#${options.svg}`} />
+				<use xlinkHref={`/feather-sprite.svg#${options.svg}`} />
 			</svg>
 		</div>
 	);

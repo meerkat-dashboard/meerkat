@@ -11,3 +11,10 @@ if ! test -f dist/video-js.min.css
 then
 	curl https://vjs.zencdn.net/7.20.3/video-js.min.css > dist/video-js.min.css
 fi
+
+if ! test -f dist/feather-sprite.svg
+then
+	curl https://unpkg.com/feather-icons@4.29.0/dist/feather-sprite.svg > dist/feather-sprite.svg
+fi
+
+cp react-widgets.css style.css dist/
