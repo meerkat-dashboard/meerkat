@@ -142,8 +142,8 @@ function CloneDashboard({ dashboard, dashboards }) {
 }
 
 function DashboardList({ dashboards, loadDashboards, filter, authEnabled }) {
-	if (dashboards === null) {
-		return;
+	if (dashboards === null || dashboards.length == 0) {
+		return <div class="subtle">No dashboards found</div>;
 	}
 
 	const filteredDashboards = dashboards.filter((dashboard) => {
@@ -153,10 +153,6 @@ function DashboardList({ dashboards, loadDashboards, filter, authEnabled }) {
 			return dashboard.title.toLowerCase().includes(filter.toLowerCase());
 		}
 	});
-
-	if (filteredDashboards.length < 1) {
-		return <div class="subtle">No dashboards found</div>;
-	}
 
 	const dbs = filteredDashboards.map((dashboard) => {
 		const slug = titleToSlug(dashboard.title);

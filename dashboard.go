@@ -67,56 +67,59 @@ func arrayContains(array []string, value string) bool {
 	return false
 }
 
+func ReadDashboardDir(dirname string) ([]Dashboard, error) {
+	files, err := os.ReadDir(dirname)
+	if err != nil {
+		return nil, err
+	}
+	var dashboards []Dashboard
+	for _, file := range files {
+		if !strings.HasSuffix(file.Name(), ".json") {
+			continue
+		}
+		f, err := os.Open(path.Join("dashboards", file.Name()))
+		if err != nil {
+			return dashboards, err
+		}
+		defer f.Close()
+		var dash Dashboard
+		if err := json.NewDecoder(f).Decode(&dash); err != nil {
+			return dashboards, fmt.Errorf("decode dashboard %s: %w", f.Name(), err)
+		}
+		dash.Slug = slugFromFileName(f.Name())
+		dashboards = append(dashboards, dash)
+	}
+	return dashboards, nil
+}
+
+func Tagged(dashboards []Dashboard, tag string) []Dashboard {
+	var matches []Dashboard
+	for _, dash := range dashboards {
+		if arrayContains(dash.Tags, tag) {
+			matches = append(matches, dash)
+		}
+	}
+	return matches
+}
+
 func slugFromFileName(fileName string) string {
 	return strings.TrimSuffix(fileName, filepath.Ext(fileName))
 }
 
 func handleListDashboards(w http.ResponseWriter, r *http.Request) {
-	files, err := ioutil.ReadDir("dashboards")
+	dashboards, err := ReadDashboardDir("dashboards")
 	if err != nil {
-		log.Println("Failed to read directory:", err)
-		http.Error(w, "Failed to read directory: "+err.Error(), http.StatusInternalServerError)
-		return
+		msg := fmt.Sprintf("read dashboard directory: %v", err)
+		log.Println(msg)
+		http.Error(w, msg, http.StatusInternalServerError)
 	}
 
-	var dashboards = []Dashboard{}
-	tagParam := r.URL.Query().Get("tag")
-
-	for _, f := range files {
-		if strings.HasSuffix(f.Name(), ".json") {
-			data, err := ioutil.ReadFile(path.Join("dashboards", f.Name()))
-			if err != nil {
-				log.Println("Error reading file contents:", err)
-				http.Error(w, "Error reading file contents: "+err.Error(), http.StatusInternalServerError)
-				return
-			}
-
-			var dashboard Dashboard
-			err = json.Unmarshal(data, &dashboard)
-			//skip files with invalid json
-			if err != nil {
-				log.Printf("Invalid dashboard file %s: %v", f.Name(), err)
-				http.Error(w, "Invalid file: "+err.Error(), http.StatusInternalServerError)
-				continue
-			}
-
-			dashboard.Slug = slugFromFileName(f.Name())
-
-			if tagParam != "" {
-				if arrayContains(dashboard.Tags, tagParam) {
-					dashboards = append(dashboards, dashboard)
-				}
-			} else {
-				dashboards = append(dashboards, dashboard)
-			}
-		}
+	tag := r.URL.Query().Get("tag")
+	if tag != "" {
+		dashboards = Tagged(dashboards, tag)
 	}
 
-	enc := json.NewEncoder(w)
-	err = enc.Encode(dashboards)
-	if err != nil {
-		log.Println("Error encoding response:", err)
-	}
+	json.NewEncoder(w).Encode(dashboards)
 }
 
 func handleListDashboard(w http.ResponseWriter, r *http.Request) {

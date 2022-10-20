@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "dev": "webpack --mode development --watch",
+    "dev": "webpack --mode development",
     "build": "./grabstyle && webpack --mode production"
   },
   "license": "AGPL-3.0-or-later",
