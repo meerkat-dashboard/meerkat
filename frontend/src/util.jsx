@@ -475,16 +475,19 @@ export function TagEditor({ tags, updateTags }) {
 		updateTags(tags);
 	};
 
-	const tagElements = tags.map((tag, i) => {
-		return (
-			<div class="pill tag btn-dark">
-				<span>{tag}</span>
-				<span class="close-icon" onClick={(e) => removeTag(i)}>
-					x
-				</span>
-			</div>
-		);
-	});
+	let tagElements;
+	if (tags) {
+		tagElements = tags.map((tag, i) => {
+			return (
+				<div class="pill tag btn-dark">
+					<span>{tag}</span>
+					<span class="close-icon" onClick={(e) => removeTag(i)}>
+						x
+					</span>
+				</div>
+			);
+		});
+	}
 
 	return (
 		<form onSubmit={addTag}>

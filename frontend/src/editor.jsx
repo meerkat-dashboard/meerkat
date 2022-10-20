@@ -73,11 +73,16 @@ function dashboardReducer(state, action) {
 		case "setBackground":
 			return { ...state, background: action.background };
 		case "addElement":
+			if (state.elements) {
+				return {
+					...state,
+					elements: state.elements.concat(defaultElement),
+				};
+			}
 			return {
 				...state,
-				elements: state.elements.concat(defaultElement),
+				elements: [defaultElement],
 			};
-
 		case "deleteElement":
 			const nstate = { ...state };
 			nstate.elements.splice(action.index, 1);
@@ -154,37 +159,36 @@ export function Editor({ slug, selectedElementId }) {
 
 	return (
 		<Fragment>
-			<header>
-				<div class="editor">
-					<h2>{dashboard.title}</h2>
-					<SidePanelSettings
-						dashboard={dashboard}
-						dashboardDispatch={dashboardDispatch}
-					/>
-					<hr />
-					<SidePanelElements
-						dashboard={dashboard}
-						dashboardDispatch={dashboardDispatch}
-						slug={slug}
-						setSelectedElement={setSelectedElement}
-						setHighlightedElementId={setHighlightedElementId}
-					/>
+			<header class="editor bg-dark">
+				<h2>{dashboard.title}</h2>
+				<SidePanelSettings
+					dashboard={dashboard}
+					dashboardDispatch={dashboardDispatch}
+				/>
+				<hr />
+				<SidePanelElements
+					dashboard={dashboard}
+					dashboardDispatch={dashboardDispatch}
+					slug={slug}
+					setSelectedElement={setSelectedElement}
+					setHighlightedElementId={setHighlightedElementId}
+				/>
 
-					<ElementSettings
-						element={selectedElement}
-						updateElement={updateElement}
-						closeElement={handleClose}
-					/>
-				</div>
-				<div class="side-bar-footer lefty-righty">
-					<a href="/" class="btn btn-secondary">
-						Home
-					</a>
-					<button onClick={saveDashboard} class="btn btn-success">
-						Save Dashboard
-					</button>
-				</div>
+				<ElementSettings
+					element={selectedElement}
+					updateElement={updateElement}
+					closeElement={handleClose}
+				/>
 			</header>
+			<footer class="side-bar-footer lefty-righty bg-dark">
+				<a href="/" class="btn btn-secondary">
+					Home
+				</a>
+				<button onClick={saveDashboard} class="btn btn-success">
+					Save Dashboard
+				</button>
+			</footer>
+			<main class="dashboard-wrap">
 			<DashboardView
 				dashboard={dashboard}
 				slug={slug}
@@ -194,6 +198,7 @@ export function Editor({ slug, selectedElementId }) {
 				setSelectedElement={setSelectedElement}
 				setHighlightedElementId={setHighlightedElementId}
 			/>
+			</main>
 		</Fragment>
 	);
 }
@@ -387,6 +392,9 @@ function DashboardElements({
 	setHighlightedElementId,
 	setSelectedElement,
 }) {
+	if (!elements) {
+		return null;
+	}
 	return elements.map((element, index) => {
 		const updateRect = (rect) => {
 			element.rect = rect;
@@ -501,7 +509,6 @@ export function DashboardView({
 
 	return (
 		<div
-			class="dashboard-wrap"
 			style={{
 				Height: backgroundImage ? dashboard.height : "100vh",
 				Width: backgroundImage ? dashboard.width : "100vw",
@@ -585,7 +592,7 @@ function SidePanelSettings({ dashboardDispatch, dashboard }) {
 	};
 
 	return (
-		<Fragment>
+		<form>
 			<label class="form-label" for="title">
 				Title
 			</label>
@@ -618,7 +625,7 @@ function SidePanelSettings({ dashboardDispatch, dashboard }) {
 					onChange={handleBackgroundImg}
 				/>
 			</fieldset>
-		</Fragment>
+		</form>
 	);
 }
 
@@ -666,35 +673,34 @@ function SidePanelElements({
 		setHighlightedElementId(id)
 	};
 
-	let elementList = dashboard.elements.map((element, index) => (
-		<div
-			class="element-item"
-			draggable={true}
-			id={index}
-			onDragStart={handleDragStart}
-		>
-			<ElementEntry
-				title={element.title}
-				onSelect={() => handleSelect(index, element)}
-				onDuplicate={() => duplicateElement(index)}
-				onDelete={() => deleteElement(index)}
-			/>
+	let elementList = <div class="subtle">No elements added</div>;
+	if (dashboard.elements) {
+		elementList = dashboard.elements.map((element, index) => (
 			<div
-				class="drop-zone"
-				onDrop={handleDrop}
+				class="element-item"
+				draggable={true}
 				id={index}
-				onDragEnter={(e) => {
-					e.preventDefault();
-					e.currentTarget.classList.add("active");
-				}}
-				onDragOver={(e) => e.preventDefault()}
-				onDragExit={(e) => e.currentTarget.classList.remove("active")}
-			></div>
-		</div>
-	));
-
-	if (elementList.length < 1) {
-		elementList = <div class="subtle">No elements added.</div>;
+				onDragStart={handleDragStart}
+			>
+				<ElementEntry
+					title={element.title}
+					onSelect={() => handleSelect(index, element)}
+					onDuplicate={() => duplicateElement(index)}
+					onDelete={() => deleteElement(index)}
+				/>
+				<div
+					class="drop-zone"
+					onDrop={handleDrop}
+					id={index}
+					onDragEnter={(e) => {
+						e.preventDefault();
+						e.currentTarget.classList.add("active");
+					}}
+					onDragOver={(e) => e.preventDefault()}
+					onDragExit={(e) => e.currentTarget.classList.remove("active")}
+				></div>
+			</div>
+		));
 	}
 
 	return (
@@ -869,7 +875,7 @@ export function ElementSettings({ element, updateElement, closeElement }) {
 	}
 
 	return (
-		<div class="editor settings-overlay">
+		<div class="editor settings-overlay bg-dark">
 			<div class="lefty-righty">
 				<h3>{element.title}</h3>
 				<button

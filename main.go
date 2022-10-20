@@ -115,6 +115,11 @@ func main() {
 
 	r.Get("/{slug}/view", viewHandler)
 	r.Get("/{slug}/edit", editHandler)
+	r.Get("/{slug}/delete", deletePage)
+	r.Post("/{slug}/delete", handleDeleteDashboard)
+	r.Get("/create", createPage)
+	r.Post("/create", handleCreateDashboard)
+	r.Get("/about", aboutPage)
 	r.Get("/*", http.FileServer(http.FS(content)).ServeHTTP)
 	r.Get("/", rootHandler)
 

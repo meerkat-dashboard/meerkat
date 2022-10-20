@@ -1,12 +1,17 @@
-{{ define "head" }}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+{{ block "head" . }}
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta http-equiv="X-UA-Compatible" content="ie=edge">
-
-	<link rel="stylesheet" href="/frontend/dist/style.css">
 	<link rel="stylesheet" href="/frontend/dist/bootstrap.min.css">
-	<link rel="stylesheet" href="/frontend/dist/video-js.min.css">
-	<script src="/frontend/dist/viewer.js" defer></script>
 	<title>Meerkat</title>
 {{ end }}
-<!-- preact ../frontend/src/viewer.jsx  -->
+</head>
+<body>
+{{ block "body" . }}
+Hello, world!
+{{ end }}
+</body>
+</html>

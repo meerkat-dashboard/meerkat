@@ -1,0 +1,16 @@
+{{ define "body" }}
+{{ template "nav" }}
+<main class="container">
+<h3>Create a new dashboard</h3>
+<hr>
+<form method="POST">
+	<div class="form-group mb-3">
+		<label class="form-label" for="title">Name</label>
+		<input class="form-control" type="text" id="title" name="title" minlength="4" placeholder="Network overview" required>
+	</div>
+	<button class="btn btn-primary" type="submit">
+		Create
+	</button>
+</form>
+</main>
+{{ end }}

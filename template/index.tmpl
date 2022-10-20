@@ -1,17 +1,29 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
+{{ define "head" }}
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta http-equiv="X-UA-Compatible" content="ie=edge">
 
-	<link rel="stylesheet" href="/frontend/dist/style.css">
 	<link rel="stylesheet" href="/frontend/dist/bootstrap.min.css">
 	<script src="/frontend/dist/home.js" defer></script>
 
 	<title>Meerkat</title>
-</head>
-<body>
-<!-- preact -->
-</body>
-</html>
+{{ end }}
+{{ define "body" }}
+{{ template "nav" }}
+<header class="container">
+	<div class="d-flex align-items-center justify-content-between">
+		<h3>Dashboards</h3>
+		<span>
+			<a class="btn btn-secondary" href="/clone">
+				Clone
+			</a>
+			<a class="ms-2 btn btn-primary btn-success" href="/create">
+				Create
+			</a>
+		</span>
+	</div>
+	<hr>
+</header>
+<!-- preact ../frontend/src/home.jsx  -->
+<main id="app"></main>
+{{ end }}

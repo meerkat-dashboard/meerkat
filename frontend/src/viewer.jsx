@@ -25,6 +25,8 @@ function Viewer({ slug }) {
 
 	if (dashboard === null) {
 		return;
+	} else if (!dashboard.elements) {
+		return;
 	}
 
 	const elements = dashboard.elements.map((element) => {

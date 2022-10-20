@@ -1,0 +1,19 @@
+{{ define "body" }}
+{{ template "nav" }}
+<main class="container">
+<h3>Delete <em>{{ . }}</em></h3>
+<hr>
+<p>
+Are you sure you want to delete the dashboard <em>{{ . }}</em>?
+This cannot be undone.
+</p>
+<form method="POST">
+	<a class="btn btn-secondary" href="/">
+		Cancel
+	</a>
+	<button class="btn btn-danger" type="submit">
+		Delete
+	</button>
+</form>
+</main>
+{{ end }}
