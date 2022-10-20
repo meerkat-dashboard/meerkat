@@ -1,7 +1,7 @@
 import { h, Fragment } from "preact";
 import { useState, useEffect } from "preact/hooks";
 import { IcingaHostVars, dynamicTextHelper, flattenObject } from "../util";
-import { FontSizeInput, ExternalURL } from "./options";
+import { FontSizeInput, ExternalURL, AlignmentInput } from "./options";
 import * as meerkat from "../meerkat";
 
 export function DynamicTextOptions({ options, updateOptions }) {
@@ -30,54 +30,7 @@ export function DynamicTextOptions({ options, updateOptions }) {
 				}
 			/>
 
-			<label>Text Alignment</label>
-			<div class="selection" style="margin-bottom: 5px;">
-				<button
-					class={`selector ${options.textAlign === "start" ? "active" : ""}`}
-					onClick={(e) => updateOptions({ textAlign: "start" })}
-				>
-					Left
-				</button>
-				<button
-					class={`selector ${options.textAlign === "center" ? "active" : ""}`}
-					onClick={(e) => updateOptions({ textAlign: "center" })}
-				>
-					Center
-				</button>
-				<button
-					class={`selector ${options.textAlign === "flex-end" ? "active" : ""}`}
-					onClick={(e) => updateOptions({ textAlign: "flex-end" })}
-				>
-					Right
-				</button>
-			</div>
-
-			<div class="selection spacer">
-				<button
-					class={`selector ${
-						options.textVerticalAlign === "start" ? "active" : ""
-					}`}
-					onClick={(e) => updateOptions({ textVerticalAlign: "start" })}
-				>
-					Top
-				</button>
-				<button
-					class={`selector ${
-						options.textVerticalAlign === "center" ? "active" : ""
-					}`}
-					onClick={(e) => updateOptions({ textVerticalAlign: "center" })}
-				>
-					Middle
-				</button>
-				<button
-					class={`selector ${
-						options.textVerticalAlign === "end" ? "active" : ""
-					}`}
-					onClick={(e) => updateOptions({ textVerticalAlign: "end" })}
-				>
-					Bottom
-				</button>
-			</div>
+			<AlignmentInput />
 
 			<ExternalURL
 				value={options.linkURL}

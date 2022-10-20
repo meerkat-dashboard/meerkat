@@ -1,6 +1,6 @@
 import { h, Fragment } from "preact";
 
-import { FontSizeInput, ExternalURL } from "../elements/options";
+import { FontSizeInput, ExternalURL, AlignmentInput } from "../elements/options";
 
 export function StaticTextOptions({ options, updateOptions }) {
 	const clearField = (e, field) => {
@@ -38,54 +38,7 @@ export function StaticTextOptions({ options, updateOptions }) {
 				<label class="form-check-label" for="bold">Bold text</label>
 			</div>
 
-			<label>Text alignment</label>
-			<div class="selection" style="margin-bottom: 5px;">
-				<button
-					class={`selector ${options.textAlign === "start" ? "active" : ""}`}
-					onClick={(e) => updateOptions({ textAlign: "start" })}
-				>
-					Left
-				</button>
-				<button
-					class={`selector ${options.textAlign === "center" ? "active" : ""}`}
-					onClick={(e) => updateOptions({ textAlign: "center" })}
-				>
-					Center
-				</button>
-				<button
-					class={`selector ${options.textAlign === "flex-end" ? "active" : ""}`}
-					onClick={(e) => updateOptions({ textAlign: "flex-end" })}
-				>
-					Right
-				</button>
-			</div>
-
-			<div class="selection spacer">
-				<button
-					class={`selector ${
-						options.textVerticalAlign === "start" ? "active" : ""
-					}`}
-					onClick={(e) => updateOptions({ textVerticalAlign: "start" })}
-				>
-					Top
-				</button>
-				<button
-					class={`selector ${
-						options.textVerticalAlign === "center" ? "active" : ""
-					}`}
-					onClick={(e) => updateOptions({ textVerticalAlign: "center" })}
-				>
-					Middle
-				</button>
-				<button
-					class={`selector ${
-						options.textVerticalAlign === "end" ? "active" : ""
-					}`}
-					onClick={(e) => updateOptions({ textVerticalAlign: "end" })}
-				>
-					Bottom
-				</button>
-			</div>
+			<AlignmentInput />
 
 			<ExternalURL
 				value={options.linkURL}

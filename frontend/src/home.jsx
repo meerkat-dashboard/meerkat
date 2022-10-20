@@ -1,5 +1,4 @@
-import { h, Fragment, Component } from "preact";
-import { route } from "preact-router";
+import { h, Fragment, Component, render } from "preact";
 import { useState, useEffect } from "preact/hooks";
 
 import * as meerkat from "./meerkat";
@@ -27,7 +26,6 @@ function CreateDashboardModal({ hide }) {
 			};
 
 			const res = await meerkat.createDashboard(newDashboard);
-			route(`/edit/${res.slug}`);
 		} catch (e) {
 			console.log("Failed to create modal");
 			console.log(e);
@@ -135,7 +133,6 @@ function CloneDashboard({ dashboard, dashboards }) {
 
 		try {
 			const res = await meerkat.createDashboard(dashboard);
-			route(`/edit/${res.slug}`);
 		} catch (e) {
 			console.log(`Failed to clone dashboard: ${e}`);
 		}
@@ -166,7 +163,7 @@ function DashboardList({ dashboards, loadDashboards, filter, authEnabled }) {
 		if (authEnabled && document.cookie == "") {
 			return (
 				<div class="dashboard-listing">
-					<a href={`/view/${slug}`}>
+					<a href={`${slug}/view`}>
 						<big>{dashboard.title}</big>
 					</a>
 				</div>
@@ -174,7 +171,7 @@ function DashboardList({ dashboards, loadDashboards, filter, authEnabled }) {
 		}
 		return (
 			<div class="dashboard-listing">
-				<a href={`/view/${slug}`}>
+				<a href={`${slug}/view`}>
 					<big>{dashboard.title}</big>
 				</a>
 				<DashboardActions
@@ -193,7 +190,7 @@ function DashboardActions({ dashboard, dashboards, loadDashboards }) {
 	const slug = titleToSlug(dashboard.title);
 	return (
 		<div>
-			<a href={`/edit/${slug}`}>
+			<a href={`${slug}/edit`}>
 				<button class="btn btn-primary btn-sm">Edit</button>
 			</a>
 			<button
@@ -266,3 +263,5 @@ class Modal extends Component {
 		return <div id="modal-element">{this.props.children}</div>;
 	}
 }
+
+render(<Home />, document.body);

@@ -1,4 +1,4 @@
-import { h } from "preact";
+import { h, render } from "preact";
 import { useState, useEffect } from "preact/hooks";
 import { linkHelper } from "./util";
 
@@ -16,7 +16,7 @@ import { StaticTicker } from "./statics/ticker";
 import { StaticSVG } from "./statics/svg";
 import { StaticImage } from "./statics/image";
 
-export function Viewer({ slug, dashboardReducer }) {
+function Viewer({ slug }) {
 	let [dashboard, setDashboard] = useState(null);
 
 	useEffect(() => {
@@ -152,3 +152,8 @@ export function Viewer({ slug, dashboardReducer }) {
 		</div>
 	);
 }
+
+// Paths are of the form /my-dashboard/view
+const elems = window.location.pathname.split("/");
+const slug = elems[elems.length - 2]
+render(<Viewer slug={slug} />, document.body);

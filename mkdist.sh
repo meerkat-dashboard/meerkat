@@ -26,8 +26,6 @@ then
 	exit 1
 fi
 
-( cd backend && go build )
-
 (
 	cd frontend
 	npm ci
@@ -37,18 +35,12 @@ fi
 workdir="$tmp/meerkat"
 mkdir -p $workdir
 
+go build -o $workdir/
 cp README.md LICENSE $workdir
 cp -R dashboards-data $workdir
 cp Dockerfile $workdir
 cp -R contrib $workdir
 cp -R docs $workdir
-
-cp backend/meerkat $workdir
-
-mkdir -p "$workdir/frontend"
-cp -R frontend/index.html frontend/style.css frontend/res frontend/assets "$workdir/frontend"
-cp -R frontend/react-widgets.css frontend/fonts "$workdir/frontend"
-cp -R frontend/dist "$workdir/frontend"
 
 tarball="$outdir/meerkat.tar.gz"
 ( cd "$workdir/.."  && tar cv meerkat | gzip -c )  > "$tarball"

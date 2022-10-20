@@ -12,16 +12,13 @@ First, build the frontend. Install dependencies, then build the application bund
 	npm install
 	npm run build
 
-Next, build the backend.
-The meerkat executable serves the frontend bundle from "frontend" directory,
-so write the binary to the repository root:
+Next, build the backend:
 
-	cd backend
-	go build -o ..
+	cd ..
+	go build
 
 Finally, run meerkat and provide a configuration file:
 
-	cd ..
 	./meerkat -config config/meerkat.toml
 
 Or on Windows

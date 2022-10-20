@@ -1,5 +1,13 @@
 module.exports = {
-  entry: './src/index.jsx',
+  entry: {
+    home: "./src/index.jsx",
+    viewer: "./src/viewer.jsx",
+    editor: "./src/edit.jsx",
+  },
+  output: {
+    filename: "[name].js",
+    path: __dirname + '/dist',
+  },
   module: {
     rules: [
       {
@@ -27,7 +35,6 @@ module.exports = {
       "react-dom": "preact/compat",
     }
   },
-  devtool: 'source-map',
   performance: {
     // we used to be at 875K. Let's never go bigger than that again!
     maxAssetSize: 870*1024,

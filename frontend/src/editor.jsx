@@ -1,9 +1,8 @@
 import { h, Fragment } from "preact";
-import { route } from "preact-router";
 import { useEffect, useReducer, useState } from "preact/hooks";
 
 import * as meerkat from "./meerkat";
-import { routeParam, removeParam, TagEditor } from "./util";
+import { TagEditor } from "./util";
 import { CheckCard, CheckCardOptions } from "./elements/card";
 import { CheckSVG, CheckSVGOptions, CheckSVGDefaults } from "./elements/svg";
 import { CheckImage, CheckImageOptions } from "./elements/image";
@@ -35,21 +34,33 @@ import { Clock, ClockOptions } from "./elements/clock";
 
 function defaultElementOptions(typ) {
 	switch (typ) {
-	case "check-svg":
-		return CheckSVGDefaults;
-	case "check-line":
-		return CheckLineDefaults;
-	case "dynamic-text":
-		return DynamicTextDefaults;
-	case "static-text":
-		return StaticTextDefaults;
-	case "static-ticker":
-		return StaticTickerDefaults;
-	case "static-svg":
-		return StaticSVGDefaults;
+		case "check-svg":
+			return CheckSVGDefaults;
+		case "check-line":
+			return CheckLineDefaults;
+		case "dynamic-text":
+			return DynamicTextDefaults;
+		case "static-text":
+			return StaticTextDefaults;
+		case "static-ticker":
+			return StaticTickerDefaults;
+		case "static-svg":
+			return StaticSVGDefaults;
 	}
 	return {};
 }
+
+const defaultElement = {
+	title: "New element",
+	type: "static-text",
+	rect: { x: 0, y: 0, w: 30, h: 12 },
+	options: {
+		fontSize: 36,
+		text: "Hello, world!",
+		fontColor: "black",
+		backgroundColor: "white",
+	},
+};
 
 function dashboardReducer(state, action) {
 	switch (action.type) {
@@ -62,19 +73,9 @@ function dashboardReducer(state, action) {
 		case "setBackground":
 			return { ...state, background: action.background };
 		case "addElement":
-			const newElement = {
-				type: "check-card",
-				rect: { x: 0, y: 0, w: 15, h: 12 },
-				options: {
-					objectType: null,
-					filter: null,
-					selection: "",
-					fontSize: 60,
-				},
-			};
 			return {
 				...state,
-				elements: state.elements.concat(newElement),
+				elements: state.elements.concat(defaultElement),
 			};
 
 		case "deleteElement":
@@ -116,8 +117,8 @@ function dashboardReducer(state, action) {
 
 export function Editor({ slug, selectedElementId }) {
 	const [dashboard, dashboardDispatch] = useReducer(dashboardReducer, null);
-	const [savingDashboard, setSavingDashboard] = useState(false);
 	const [highlightedElementId, setHighlightedElementId] = useState(null);
+	const [selectedElement, setSelectedElement] = useState(null);
 
 	useEffect(() => {
 		meerkat.getDashboard(slug).then(async (d) => {
@@ -129,35 +130,27 @@ export function Editor({ slug, selectedElementId }) {
 		return;
 	}
 
-	const selectedElement = selectedElementId
-		? dashboard.elements[selectedElementId]
-		: null;
-	if (typeof selectedElement === "undefined") {
-		removeParam("selectedElementId");
-		return;
-	}
-	const updateElement = (element, index) => {
+	const updateElement = (element) => {
+		setSelectedElement(element);
 		dashboardDispatch({
 			type: "updateElement",
-			elementIndex: selectedElementId,
+			elementIndex: highlightedElementId,
 			element: element,
 		});
 	};
 
 	const saveDashboard = async (e) => {
-		setSavingDashboard(true);
 		try {
-			const data = await meerkat.saveDashboard(slug, dashboard);
-			route(
-				`/edit/${JSON.parse(JSON.stringify(data.slug))}${
-					window.location.search
-				}`
-			);
+			await meerkat.saveDashboard(slug, dashboard);
 		} catch (e) {
 			console.log("error saving dashboard:", e);
 		}
-		setSavingDashboard(false);
 	};
+
+	function handleClose() {
+		setSelectedElement(null);
+		setHighlightedElementId(-1);
+	}
 
 	return (
 		<Fragment>
@@ -173,18 +166,20 @@ export function Editor({ slug, selectedElementId }) {
 						dashboard={dashboard}
 						dashboardDispatch={dashboardDispatch}
 						slug={slug}
+						setSelectedElement={setSelectedElement}
 						setHighlightedElementId={setHighlightedElementId}
 					/>
 
 					<ElementSettings
-						selectedElement={selectedElement}
+						element={selectedElement}
 						updateElement={updateElement}
+						closeElement={handleClose}
 					/>
 				</div>
 				<div class="side-bar-footer lefty-righty">
-					<button class="btn btn-secondary " onClick={(e) => route("/")}>
+					<a href="/" class="btn btn-secondary">
 						Home
-					</button>
+					</a>
 					<button onClick={saveDashboard} class="btn btn-success">
 						Save Dashboard
 					</button>
@@ -193,9 +188,11 @@ export function Editor({ slug, selectedElementId }) {
 			<DashboardView
 				dashboard={dashboard}
 				slug={slug}
-				dashboardDispatch={dashboardDispatch}
+				updateElement={updateElement}
 				selectedElementId={selectedElementId ? Number(selectedElementId) : null}
 				highlightedElementId={highlightedElementId}
+				setSelectedElement={setSelectedElement}
+				setHighlightedElementId={setHighlightedElementId}
 			/>
 		</Fragment>
 	);
@@ -208,13 +205,10 @@ function TransformableElement({
 	rotation,
 	updateRotation,
 	children,
-	glow,
 	highlight,
 	index,
+	onClick,
 }) {
-	// Open editor on left sidepanel
-	const handleEdit = (event) => routeParam("selectedElementId", index);
-
 	//Handle dragging elements
 	const handleMove = (downEvent) => {
 		const mousemove = (moveEvent) => {
@@ -330,6 +324,12 @@ function TransformableElement({
 		window.addEventListener("mousemove", mousemove);
 	};
 
+	// if we click an element, we want to "highlight" it, and set it as the selected element.
+
+	function handleClick() {
+		setHighlightedElementId(index);
+	}
+
 	const left = `${rect.x}%`;
 	const top = `${rect.y}%`;
 	const width = `${rect.w}%`;
@@ -339,23 +339,17 @@ function TransformableElement({
 
 	return checkType === "static-ticker" ? (
 		<div
-			class={`ticker ticker-editing ${glow || highlight ? "glow" : ""}`}
+			class={`ticker ticker-editing ${highlight ? "glow" : ""}`}
 			style={{ left: left, top: top, width: "100%", height: height }}
 			onMouseDown={handleMove}
+			onClick={onClick}
 		>
 			{children}
-			<button
-				type="button"
-				class="edit btn btn-primary btn-sm"
-				onClick={handleEdit}
-			>
-				Edit
-			</button>
 			<div class="resize" onMouseDown={handleResize}></div>
 		</div>
 	) : (
 		<div
-			class={`check check-editing ${glow || highlight ? "glow" : ""}`}
+			class={`check check-editing ${highlight ? "glow" : ""}`}
 			style={{
 				left: left,
 				top: top,
@@ -363,110 +357,118 @@ function TransformableElement({
 				height: height,
 				transform: _rotation,
 			}}
-			onMouseDown={handleMove}
+			onMouseDown={ highlight ? handleMove : null}
+			onClick={onClick}
 		>
 			{children}
-			<button
-				type="button"
-				class="edit btn btn-primary btn-sm"
-				onClick={handleEdit}
-			>
-				Edit
-			</button>
-			<div class="resize" onMouseDown={handleResize}></div>
-			<div class="rotate" onMouseDown={handleRotate}></div>
+			<Grabbers active={highlight} handleResize={handleResize} handleRotate={handleRotate} />
 		</div>
 	);
 }
 
+function Grabbers({ active, handleResize, handleRotate }) {
+	if (!active) {
+		return null;
+	}
+	return (
+		<Fragment>
+			<div class="resize" onMouseDown={handleResize}></div>
+			<div class="rotate" onMouseDown={handleRotate}></div>
+		</Fragment>
+	);
+}
+
 function DashboardElements({
-	dashboardDispatch,
-	selectedElementId,
+	updateElement,
 	elements,
 	highlightedElementId,
 	dashboard,
 	slug,
+	setHighlightedElementId,
+	setSelectedElement,
 }) {
 	return elements.map((element, index) => {
 		const updateRect = (rect) => {
-			dashboardDispatch({
-				type: "updateElement",
-				elementIndex: index,
-				element: {
-					...element,
-					rect: rect,
-				},
-			});
-		};
+			element.rect = rect;
+			updateElement(element);
+		}
 
 		const updateRotation = (radian) => {
-			dashboardDispatch({
-				type: "updateElement",
-				elementIndex: index,
-				element: {
-					...element,
-					rotation: radian,
-				},
-			});
-		};
+			element.rotation = radian;
+			updateElement(element);
+		}
+
+		function handleClick() {
+			setHighlightedElementId(index);
+			setSelectedElement(element);
+		}
 
 		let ele;
-		switch(element.type) {
-		case "check-card":
-			ele = (
-				<CheckCard
-					options={element.options}
-					slug={slug}
-					dashboard={dashboard}
-				/>
-			);
-			break;
-		case "check-svg":
-			ele = (
-				<CheckSVG options={element.options} slug={slug} dashboard={dashboard} />
-			);
-			break;
-		case "check-image":
-			ele = (
-				<CheckImage
-					options={element.options}
-					slug={slug}
-					dashboard={dashboard}
-				/>
-			);
-			break;
-		case "check-line":
-			ele = (
-				<CheckLine
-					options={element.options}
-					slug={slug}
-					dashboard={dashboard}
-				/>
-			);
-			break;
-		case "clock":
-			ele = <Clock timeZone={element.options.timeZone} fontSize={element.options.fontSize} />;
-			break;
-		case "static-text":
-			ele = <StaticText options={element.options} />;
-			break;
-		case "dynamic-text":
-			ele = <DynamicText options={element.options} />;
-			break;
-		case "static-ticker":
-			ele = <StaticTicker options={element.options} />;
-			break;
-		case "static-svg":
-			ele = <StaticSVG options={element.options} />;
-			break;
-		case "static-image":
-			ele = <StaticImage options={element.options} />;
-			break;
-		case "iframe-video":
-			ele = <IframeVideo options={element.options} />;
-			break;
-		case "audio-stream":
-			ele = <AudioStream options={element.options} />;
+		switch (element.type) {
+			case "check-card":
+				ele = (
+					<CheckCard
+						options={element.options}
+						slug={slug}
+						dashboard={dashboard}
+					/>
+				);
+				break;
+			case "check-svg":
+				ele = (
+					<CheckSVG
+						options={element.options}
+						slug={slug}
+						dashboard={dashboard}
+					/>
+				);
+				break;
+			case "check-image":
+				ele = (
+					<CheckImage
+						options={element.options}
+						slug={slug}
+						dashboard={dashboard}
+					/>
+				);
+				break;
+			case "check-line":
+				ele = (
+					<CheckLine
+						options={element.options}
+						slug={slug}
+						dashboard={dashboard}
+					/>
+				);
+				break;
+			case "clock":
+				ele = (
+					<Clock
+						timeZone={element.options.timeZone}
+						fontSize={element.options.fontSize}
+					/>
+				);
+				break;
+			case "static-text":
+				ele = <StaticText options={element.options} />;
+				break;
+			case "dynamic-text":
+				ele = <DynamicText options={element.options} />;
+				break;
+			case "static-ticker":
+				ele = <StaticTicker options={element.options} />;
+				break;
+			case "static-svg":
+				ele = <StaticSVG options={element.options} />;
+				break;
+			case "static-image":
+				ele = <StaticImage options={element.options} />;
+				break;
+			case "iframe-video":
+				ele = <IframeVideo options={element.options} />;
+				break;
+			case "audio-stream":
+				ele = <AudioStream options={element.options} />;
 		}
 
 		return (
@@ -474,11 +476,11 @@ function DashboardElements({
 				rect={element.rect}
 				updateRect={updateRect}
 				checkType={element.type}
-				glow={selectedElementId === index}
 				highlight={highlightedElementId === index}
 				updateRotation={updateRotation}
 				rotation={element.rotation}
 				index={index}
+				onClick={handleClick}
 			>
 				{ele}
 			</TransformableElement>
@@ -488,10 +490,12 @@ function DashboardElements({
 
 export function DashboardView({
 	dashboard,
-	dashboardDispatch,
+	updateElement,
 	selectedElementId,
 	highlightedElementId,
 	slug,
+	setSelectedElement,
+	setHighlightedElementId,
 }) {
 	const backgroundImage = dashboard.background ? dashboard.background : null;
 
@@ -525,9 +529,10 @@ export function DashboardView({
 					slug={slug}
 					elements={dashboard.elements}
 					dashboard={dashboard}
-					selectedElementId={selectedElementId}
-					dashboardDispatch={dashboardDispatch}
+					updateElement={updateElement}
 					highlightedElementId={highlightedElementId}
+					setSelectedElement={setSelectedElement}
+					setHighlightedElementId={setHighlightedElementId}
 				/>
 			</div>
 		</div>
@@ -620,33 +625,24 @@ function SidePanelSettings({ dashboardDispatch, dashboard }) {
 function SidePanelElements({
 	dashboard,
 	dashboardDispatch,
+	setSelectedElement,
 	setHighlightedElementId,
-	selectedElementId,
-	state,
 	slug,
 }) {
-	const addElement = (e) => {
-		const newId = dashboard.elements.length;
+	const addElement = () => {
 		dashboardDispatch({ type: "addElement" });
-		routeParam("selectedElementId", newId);
-	};
-
-	const deleteElement = (e, index) => {
-		e.preventDefault();
+	}
+	const deleteElement = (id) => {
 		dashboardDispatch({
 			type: "deleteElement",
-			index: index,
+			index: id,
 		});
 	};
-
-	const duplicateElement = (e, index) => {
-		e.preventDefault();
-		const newId = dashboard.elements.length;
+	const duplicateElement = (id) => {
 		dashboardDispatch({
 			type: "duplicateElement",
-			element: dashboard.elements[index],
+			element: dashboard.elements[id],
 		});
-		routeParam("selectedElementId", newId);
 	};
 
 	const handleDragStart = (e) => {
@@ -665,6 +661,11 @@ function SidePanelElements({
 		});
 	};
 
+	const handleSelect = (id, element) => {
+		setSelectedElement(element)
+		setHighlightedElementId(id)
+	};
+
 	let elementList = dashboard.elements.map((element, index) => (
 		<div
 			class="element-item"
@@ -672,22 +673,12 @@ function SidePanelElements({
 			id={index}
 			onDragStart={handleDragStart}
 		>
-			<div onClick={(e) => routeParam("selectedElementId", index.toString())}>
-				{element.title}
-			</div>
-			<button
-				class="btn btn-primary btn-sm"
-				onClick={(e) => duplicateElement(e, index)}
-			>
-				Duplicate
-			</button>
-			<button
-				style="margin-left: 5px"
-				class="btn btn-danger btn-sm"
-				onClick={(e) => deleteElement(e, index)}
-			>
-				Delete
-			</button>
+			<ElementEntry
+				title={element.title}
+				onSelect={() => handleSelect(index, element)}
+				onDuplicate={() => duplicateElement(index)}
+				onDelete={() => deleteElement(index)}
+			/>
 			<div
 				class="drop-zone"
 				onDrop={handleDrop}
@@ -719,14 +710,36 @@ function SidePanelElements({
 	);
 }
 
-export function ElementSettings({ selectedElement, updateElement }) {
-	if (selectedElement === null) {
+function ElementEntry({ title, onSelect, onDuplicate, onDelete }) {
+	return (
+		<Fragment>
+			<div onClick={onSelect}>
+				{title}
+			</div>
+			<button
+				class="btn btn-primary btn-sm"
+				onClick={onDuplicate}
+			>
+				Duplicate
+			</button>
+			<button
+				class="btn btn-danger btn-sm ms-1"
+				onClick={onDelete}
+			>
+				Delete
+			</button>
+		</Fragment>
+	);
+}
+
+export function ElementSettings({ element, updateElement, closeElement }) {
+	if (element === null) {
 		return null;
 	}
 
 	const updateElementOptions = (options) => {
-		const newOptions = Object.assign(selectedElement.options, options);
-		updateElement({ ...selectedElement, options: newOptions });
+		const newOptions = Object.assign(element.options, options);
+		updateElement({ ...element, options: newOptions });
 	};
 
 	//sets good default values for each visual type when they're selected
@@ -739,9 +752,9 @@ export function ElementSettings({ selectedElement, updateElement }) {
 				y: 82.84371327849588,
 				w: 100,
 				h: 16,
-			}
+			};
 			updateElement({
-				...selectedElement,
+				...element,
 				type: newType,
 				rect: rect,
 				options: defaultElementOptions(newType),
@@ -750,107 +763,107 @@ export function ElementSettings({ selectedElement, updateElement }) {
 		}
 
 		updateElement({
-			...selectedElement,
+			...element,
 			type: newType,
 			options: defaultElementOptions(newType),
 		});
 	};
 
 	let ElementOptions = null;
-	if (selectedElement.type === "check-card") {
+	if (element.type === "check-card") {
 		ElementOptions = (
 			<CheckCardOptions
 				updateOptions={updateElementOptions}
-				options={selectedElement.options}
+				options={element.options}
 			/>
 		);
 	}
-	if (selectedElement.type === "check-svg") {
+	if (element.type === "check-svg") {
 		ElementOptions = (
 			<CheckSVGOptions
 				updateOptions={updateElementOptions}
-				options={selectedElement.options}
+				options={element.options}
 			/>
 		);
 	}
-	if (selectedElement.type === "clock") {
+	if (element.type === "clock") {
 		ElementOptions = (
 			<ClockOptions
 				onChange={updateElementOptions}
-				timeZone={selectedElement.options.timeZone}
-				fontSize={selectedElement.options.fontSize}
+				timeZone={element.options.timeZone}
+				fontSize={element.options.fontSize}
 			/>
 		);
 	}
-	if (selectedElement.type === "check-image") {
+	if (element.type === "check-image") {
 		ElementOptions = (
 			<CheckImageOptions
 				updateOptions={updateElementOptions}
-				options={selectedElement.options}
+				options={element.options}
 			/>
 		);
 	}
-	if (selectedElement.type === "check-line") {
+	if (element.type === "check-line") {
 		ElementOptions = (
 			<CheckLineOptions
 				updateOptions={updateElementOptions}
-				options={selectedElement.options}
+				options={element.options}
 			/>
 		);
 	}
-	if (selectedElement.type === "static-text") {
+	if (element.type === "static-text") {
 		ElementOptions = (
 			<StaticTextOptions
 				updateOptions={updateElementOptions}
-				options={selectedElement.options}
+				options={element.options}
 			/>
 		);
 	}
-	if (selectedElement.type === "dynamic-text") {
+	if (element.type === "dynamic-text") {
 		ElementOptions = (
 			<DynamicTextOptions
 				updateOptions={updateElementOptions}
-				options={selectedElement.options}
+				options={element.options}
 			/>
 		);
 	}
-	if (selectedElement.type === "static-svg") {
+	if (element.type === "static-svg") {
 		ElementOptions = (
 			<StaticSVGOptions
 				updateOptions={updateElementOptions}
-				options={selectedElement.options}
+				options={element.options}
 			/>
 		);
 	}
-	if (selectedElement.type === "static-image") {
+	if (element.type === "static-image") {
 		ElementOptions = (
 			<StaticImageOptions
 				updateOptions={updateElementOptions}
-				options={selectedElement.options}
+				options={element.options}
 			/>
 		);
 	}
-	if (selectedElement.type === "iframe-video") {
+	if (element.type === "iframe-video") {
 		ElementOptions = (
 			<IframeVideoOptions
 				updateOptions={updateElementOptions}
-				options={selectedElement.options}
+				options={element.options}
 			/>
 		);
 	}
-	if (selectedElement.type === "audio-stream") {
+	if (element.type === "audio-stream") {
 		ElementOptions = (
 			<AudioOptions
 				updateOptions={updateElementOptions}
-				options={selectedElement.options}
+				options={element.options}
 			/>
 		);
 	}
-	if (selectedElement.type === "static-ticker") {
+	if (element.type === "static-ticker") {
 		ElementOptions = (
 			<StaticTickerOptions
 				updateOptions={updateElementOptions}
-				options={selectedElement.options}
+				options={element.options}
 			/>
 		);
 	}
@@ -858,10 +871,10 @@ export function ElementSettings({ selectedElement, updateElement }) {
 	return (
 		<div class="editor settings-overlay">
 			<div class="lefty-righty">
-				<h3>{selectedElement.title}</h3>
+				<h3>{element.title}</h3>
 				<button
 					class="btn btn-secondary"
-					onClick={(e) => removeParam("selectedElementId")}
+					onClick={closeElement}
 				>
 					Close
 				</button>
@@ -873,10 +886,10 @@ export function ElementSettings({ selectedElement, updateElement }) {
 					id="name"
 					type="text"
 					placeholder="A new element"
-					value={selectedElement.title}
+					value={element.title}
 					onInput={(e) =>
 						updateElement({
-							...selectedElement,
+							...element,
 							title: e.currentTarget.value,
 						})
 					}
@@ -886,7 +899,7 @@ export function ElementSettings({ selectedElement, updateElement }) {
 				<select
 					class="form-select"
 					name="element-type"
-					value={selectedElement.type}
+					value={element.type}
 					onInput={updateType}
 				>
 					<option value="check-card">Icinga Card</option>

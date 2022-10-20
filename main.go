@@ -113,18 +113,11 @@ func main() {
 	// serve static assets, referenced in dashboard json configurations
 	r.Handle("/dashboards-data/*", http.StripPrefix("/dashboards-data/", http.FileServer(http.Dir("./dashboards-data"))))
 
-	// serve frontend stuff
-	r.NotFound(createFileHandler("./frontend"))
+	r.Get("/{slug}/view", viewHandler)
+	r.Get("/{slug}/edit", editHandler)
+	r.Get("/*", http.FileServer(http.FS(content)).ServeHTTP)
+	r.Get("/", rootHandler)
 
 	fmt.Printf("Starting web server: %s\n", config.HTTPAddr)
 	log.Fatal(http.ListenAndServe(config.HTTPAddr, r))
-}
-
-func createFileHandler(frontendPath string) func(w http.ResponseWriter, r *http.Request) {
-	frontendDir := http.Dir(frontendPath)
-	fs := http.FileServer(frontendDir)
-
-	return func(w http.ResponseWriter, r *http.Request) {
-		fs.ServeHTTP(w, r)
-	}
 }

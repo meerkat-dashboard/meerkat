@@ -92,10 +92,10 @@ export async function authConfigured() {
 	const res = await fetch("/authentication", {
 		method: "HEAD",
 	});
-	if (res.status == 404) {
-		return false;
+	if (res.status == 204) {
+		return true;
 	}
-	return true;
+	return false;
 }
 
 export async function authenticate() {

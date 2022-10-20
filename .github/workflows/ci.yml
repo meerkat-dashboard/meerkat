@@ -37,7 +37,6 @@ jobs:
       - name: gofmt
         # if gofmt reports any files need formatting, print them then exit with error
         run: |
-          cd backend
           if ! [ -z "`gofmt -l .`" ]; then gofmt -l . && exit 1; fi
 
       - name: test

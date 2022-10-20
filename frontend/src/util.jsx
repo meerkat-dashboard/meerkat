@@ -1,29 +1,8 @@
 import { h, Fragment, createRef } from "preact";
 import { useState, useEffect, useRef } from "preact/hooks";
-import { route } from "preact-router";
 import { Combobox } from "react-widgets";
 
 import * as meerkat from "./meerkat";
-
-//Set the a URL paramater, this will keep the current URL and parameters intact,
-//and update the one given. Useful to add search filters etc.
-export function routeParam(name, value) {
-	const params = new URLSearchParams(window.location.search);
-	params.set(name, value);
-
-	route(`${window.location.pathname}?${params}`);
-}
-
-export function removeParam(name) {
-	const params = new URLSearchParams(window.location.search);
-	params.delete(name);
-
-	if (params.keys.length < 1) {
-		route(window.location.pathname);
-	} else {
-		route(`${window.location.pathname}?${params}`);
-	}
-}
 
 export function icingaResultCodeToCheckState(checkType, resultCode) {
 	if (checkType === "service") {
