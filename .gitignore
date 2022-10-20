@@ -1,9 +1,5 @@
 /meerkat
 /meerkat.exe
-/backend/meerkat
-/backend/meerkat.exe
-/backend/dashboards
-/backend/dashboards-data
 /frontend/node_modules
 /frontend/dist
 /config/meerkat.toml
