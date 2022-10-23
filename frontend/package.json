@@ -1,7 +1,8 @@
 {
   "scripts": {
     "dev": "webpack --mode development",
-    "build": "./grabstyle && webpack --mode production"
+    "build": "./grabstyle && webpack --mode production",
+    "lint": "eslint src"
   },
   "license": "AGPL-3.0-or-later",
   "author": "Matthew Streatfield (https://github.com/StreatCodes)",
@@ -18,7 +19,7 @@
   "devDependencies": {
     "eslint": "^8.19.0",
     "eslint-config-prettier": "^8.5.0",
-    "eslint-plugin-react": "^7.30.1",
+    "eslint-plugin-react": "^7.31.10",
     "prettier": "^2.7.1"
   },
   "prettier": {

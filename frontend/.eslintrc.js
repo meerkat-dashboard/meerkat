@@ -9,9 +9,6 @@ module.exports = {
         "prettier",
     ],
     "parserOptions": {
-        "ecmaFeatures": {
-            "jsx": true
-        },
         "sourceType": "module"
     },
     "plugins": [
