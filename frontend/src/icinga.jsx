@@ -29,15 +29,12 @@ export class ObjectSelect extends Component {
 		super(props);
 		this.state = {
 			names: null,
-			objectType: props.objectType,
-			objectName: props.objectName,
 		};
 		// if we're initialised with an object type, get a list of all the names so we're ready to go
 		if (props.objectType) {
 			getObjectNames(props.objectType).then((names) => {
 				this.setState({
 					names: names,
-					objectType: props.objectType,
 				});
 			});
 		}
@@ -48,17 +45,12 @@ export class ObjectSelect extends Component {
 	async handleSelect(event) {
 		const objectType = event.target.value;
 		this.props.updateOptions({ objectType: objectType });
-		const names = await getObjectNames(objectType);
-		this.setState({
-			names: names,
-			objectType: objectType,
-			objectName: null,
-		});
+		const names =  await getObjectNames(objectType);
+		this.setState({ names: names });
 	}
 
 	handleObjectChange(event) {
 		const objectName = event.target.value;
-		this.setState({ objectName: objectName });
 		this.props.updateOptions({ id: objectName });
 	}
 
@@ -67,12 +59,12 @@ export class ObjectSelect extends Component {
 			<fieldset>
 				<legend>Icinga object</legend>
 				<ObjectTypeSelect
-					selected={this.state.objectType}
+					selected={this.props.objectType}
 					onChange={this.handleSelect}
 				/>
 				<ObjectList
 					names={this.state.names}
-					value={this.state.objectName}
+					value={this.props.objectName}
 					onChange={this.handleObjectChange}
 				/>
 			</fieldset>
