@@ -13,7 +13,7 @@ const titleToSlug = (title) => {
 
 function DashboardList({ dashboards, loadDashboards, filter, authEnabled }) {
 	if (dashboards === null || dashboards.length == 0) {
-		return <div class="subtle">No dashboards found</div>;
+		return;
 	}
 
 	const filteredDashboards = dashboards.filter((dashboard) => {
