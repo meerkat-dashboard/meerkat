@@ -18,13 +18,11 @@ export function AudioOptions({ options, updateOptions }) {
 
 export function AudioStream({ options }) {
 	return (
-		<div class="audio-container">
-			<audio
-				class="audio-player"
-				controls
-				src={options.audioSource}
-				type="audio/mpeg"
-			></audio>
-		</div>
+		<audio
+			class="audio-player"
+			controls
+			src={options.audioSource}
+			type="audio/mpeg"
+		></audio>
 	);
 }
