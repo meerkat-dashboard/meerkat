@@ -1,5 +1,5 @@
 import { h, Fragment, createRef } from "preact";
-import { useState, useEffect, useRef } from "preact/hooks";
+import { useState, useEffect } from "preact/hooks";
 import { Combobox } from "react-widgets";
 
 import * as meerkat from "./meerkat";
@@ -429,14 +429,6 @@ export function getCheckData(options, callback) {
 
 		callback(checkData);
 	});
-}
-
-export function usePrevious(value) {
-	const ref = useRef();
-	useEffect(() => {
-		ref.current = value;
-	});
-	return ref.current;
 }
 
 export function linkHelper(element, ele, dashboard) {

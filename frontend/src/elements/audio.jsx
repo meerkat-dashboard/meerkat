@@ -1,6 +1,4 @@
-import { h, Fragment } from "preact";
-import { useState, useEffect, useRef, useCallback } from "preact/hooks";
-import * as meerkat from "../meerkat";
+import { h } from "preact";
 
 export function AudioOptions({ options, updateOptions }) {
 	return (
