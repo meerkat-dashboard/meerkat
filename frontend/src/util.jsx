@@ -447,22 +447,6 @@ export function linkHelper(element, ele, dashboard) {
 	return <a href={link}>{ele}</a>;
 }
 
-export async function fetchHandler(string) {
-	if (navigator.onLine) {
-		try {
-			const res = await fetch(string);
-			if (res.status !== 200) {
-				return 3;
-			}
-			return res.json();
-		} catch (e) {
-			return false;
-		}
-	} else {
-		return false;
-	}
-}
-
 export function TagEditor({ tags, updateTags }) {
 	const inputRef = createRef();
 	const addTag = (e) => {

@@ -1,4 +1,18 @@
-import { fetchHandler } from "./util";
+async function fetchHandler(string) {
+	if (navigator.onLine) {
+		try {
+			const res = await fetch(string);
+			if (res.status !== 200) {
+				return 3;
+			}
+			return res.json();
+		} catch (e) {
+			return false;
+		}
+	} else {
+		return false;
+	}
+}
 
 export async function getIcingaHosts() {
 	const res = await fetch(`/icinga/hosts`);
