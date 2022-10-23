@@ -68,27 +68,12 @@ export async function getAllDashboards() {
 	return res.json();
 }
 
-export async function createDashboard(dashboard) {
-	const res = await fetch(`/dashboard`, {
-		method: "POST",
-		body: JSON.stringify(dashboard),
-	});
-	return res.json();
-}
-
 export async function saveDashboard(slug, dashboard) {
 	const res = await fetch(`/dashboard/${slug}`, {
 		method: "POST",
 		body: JSON.stringify(dashboard),
 	});
 	return res.json();
-}
-
-export async function deleteDashboard(slug) {
-	const res = await fetch(`/dashboard/${slug}`, {
-		method: "DELETE",
-	});
-	return res;
 }
 
 export async function uploadFile(file) {

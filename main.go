@@ -119,6 +119,8 @@ func main() {
 	r.Post("/{slug}/delete", handleDeleteDashboard)
 	r.Get("/create", createPage)
 	r.Post("/create", handleCreateDashboard)
+	r.Get("/clone", clonePage)
+	r.Post("/clone", handleCloneDashboard)
 	r.Get("/about", aboutPage)
 	r.Get("/*", http.FileServer(http.FS(content)).ServeHTTP)
 	r.Get("/", rootHandler)

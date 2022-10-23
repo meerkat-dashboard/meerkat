@@ -12,7 +12,6 @@ import (
 	"net/http"
 	"os"
 	"path"
-	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -98,8 +97,21 @@ func ReadDashboard(name string) (Dashboard, error) {
 	if err := json.NewDecoder(f).Decode(&dashboard); err != nil {
 		return Dashboard{}, fmt.Errorf("decode dashboard %s: %w", f.Name(), err)
 	}
-	dashboard.Slug = slugFromFileName(f.Name())
+	dashboard.Slug = titleToSlug(dashboard.Title)
 	return dashboard, nil
+}
+
+func CreateDashboard(name string, dashboard *Dashboard) error {
+	dashboard.Slug = titleToSlug(dashboard.Title)
+	f, err := os.Create(name)
+	if err != nil {
+		return fmt.Errorf("create dashboard file: %v", err)
+	}
+	defer f.Close()
+	if err := json.NewEncoder(f).Encode(&dashboard); err != nil {
+		return fmt.Errorf("write dashboard file: %w", err)
+	}
+	return nil
 }
 
 func Tagged(dashboards []Dashboard, tag string) []Dashboard {
@@ -110,10 +122,6 @@ func Tagged(dashboards []Dashboard, tag string) []Dashboard {
 		}
 	}
 	return matches
-}
-
-func slugFromFileName(fileName string) string {
-	return strings.TrimSuffix(fileName, filepath.Ext(fileName))
 }
 
 func handleListDashboards(w http.ResponseWriter, r *http.Request) {
@@ -176,26 +184,57 @@ func handleCreateDashboard(w http.ResponseWriter, req *http.Request) {
 		switch v := req.PostForm.Get(k); k {
 		case "title":
 			dashboard.Title = v
+			dashboard.Slug = titleToSlug(dashboard.Title)
 		default:
 			http.Error(w, fmt.Sprintf("unknown parameter %s", k), http.StatusBadRequest)
 			return
 		}
 	}
-	dashboard.Slug = titleToSlug(dashboard.Title)
 
-	f, err := os.Create(path.Join("dashboards", dashboard.Slug+".json"))
-	if err != nil {
+	fpath := path.Join("dashboards", dashboard.Slug+".json")
+	if err := CreateDashboard(fpath, &dashboard); err != nil {
 		msg := fmt.Sprintf("create dashboard %s: %v", dashboard.Slug, err)
-		http.Error(w, msg, http.StatusInternalServerError)
-		return
-	}
-	if err := json.NewEncoder(f).Encode(&dashboard); err != nil {
-		msg := fmt.Sprintf("write dashboard file %s: %v", f.Name(), err)
 		http.Error(w, msg, http.StatusInternalServerError)
 		return
 	}
 
 	new := path.Join("/", dashboard.Slug, "edit")
+	next := http.RedirectHandler(new, http.StatusFound)
+	next.ServeHTTP(w, req)
+}
+
+func handleCloneDashboard(w http.ResponseWriter, req *http.Request) {
+	if err := req.ParseForm(); err != nil {
+		msg := fmt.Sprintf("parse form: %v", err)
+		http.Error(w, msg, http.StatusBadRequest)
+		return
+	}
+	if req.PostForm.Get("title") == "" {
+		http.Error(w, "empty title", http.StatusBadRequest)
+		return
+	} else if req.PostForm.Get("src") == "" {
+		http.Error(w, "missing soure dashboard slug", http.StatusBadRequest)
+		return
+	}
+
+	srcPath := path.Join("dashboards", req.PostForm.Get("src")+".json")
+	src, err := ReadDashboard(srcPath)
+	if err != nil {
+		msg := fmt.Sprintf("read source dashboard from %s: %v", srcPath, err)
+		http.Error(w, msg, http.StatusInternalServerError)
+		return
+	}
+	dest := src
+	dest.Title = req.PostForm.Get("title")
+	dest.Slug = titleToSlug(dest.Title)
+	destPath := path.Join("dashboards", dest.Slug+".json")
+	if err := CreateDashboard(destPath, &dest); err != nil {
+		msg := fmt.Sprintf("create dashboard from %s: %v", srcPath, err)
+		http.Error(w, msg, http.StatusInternalServerError)
+		return
+	}
+
+	new := path.Join("/", dest.Slug, "edit")
 	next := http.RedirectHandler(new, http.StatusFound)
 	next.ServeHTTP(w, req)
 }

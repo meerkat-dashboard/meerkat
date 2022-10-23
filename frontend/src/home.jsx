@@ -11,27 +11,6 @@ const titleToSlug = (title) => {
 	return result.replace(/[^a-z0-9\-]/g, "");
 };
 
-function CloneDashboard({ dashboard, dashboards }) {
-	const clone = async (e) => {
-		e.preventDefault();
-
-		dashboards.forEach((board) => {
-			if (board.title === dashboard.title) {
-				dashboard.title += " clone";
-				return;
-			}
-		});
-
-		try {
-			const res = await meerkat.createDashboard(dashboard);
-		} catch (e) {
-			console.log(`Failed to clone dashboard: ${e}`);
-		}
-	};
-
-	return <a onClick={(e) => clone(e)}>Clone</a>;
-}
-
 function DashboardList({ dashboards, loadDashboards, filter, authEnabled }) {
 	if (dashboards === null || dashboards.length == 0) {
 		return <div class="subtle">No dashboards found</div>;
@@ -84,10 +63,7 @@ function DashboardActions({ dashboard, dashboards, loadDashboards }) {
 			<a href={`${slug}/edit`}>
 				<button class="btn btn-primary btn-sm">Edit</button>
 			</a>
-			<button class="btn btn-secondary btn-sm mx-2">
-				<CloneDashboard dashboard={dashboard} dashboards={dashboards} />
-			</button>
-			<a class="btn btn-danger btn-sm" href={`${slug}/delete`}>Delete</a>
+			<a class="btn btn-danger btn-sm ms-2" href={`${slug}/delete`}>Delete</a>
 		</div>
 	);
 }
@@ -100,7 +76,6 @@ export function Home() {
 	const loadDashboards = () =>
 		meerkat.getAllDashboards().then((dbs) => setDashboards(dbs));
 	meerkat.authConfigured().then((v) => {
-		console.log("auth configured promise resolved with", v);
 		setAuthentication(v);
 	});
 

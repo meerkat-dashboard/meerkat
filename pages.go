@@ -3,6 +3,7 @@ package main
 import (
 	"embed"
 	"errors"
+	"fmt"
 	"html/template"
 	"io/fs"
 	"log"
@@ -67,12 +68,29 @@ func deletePage(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	tmpl, err := template.ParseFS(content, "template/delete.tmpl", "template/nav.tmpl")
+	tmpl, err := template.ParseFS(content, "template/layout.tmpl", "template/delete.tmpl", "template/nav.tmpl")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	if err := tmpl.Execute(w, dashboard.Title); err != nil {
+		log.Println(err)
+	}
+}
+
+func clonePage(w http.ResponseWriter, req *http.Request) {
+	dashboards, err := ReadDashboardDir("dashboards")
+	if err != nil {
+		msg := fmt.Sprintf("read dashboard dir: %v", err)
+		http.Error(w, msg, http.StatusInternalServerError)
+		return
+	}
+	tmpl, err := template.ParseFS(content, "template/layout.tmpl", "template/clone.tmpl", "template/nav.tmpl")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	if err := tmpl.Execute(w, dashboards); err != nil {
 		log.Println(err)
 	}
 }

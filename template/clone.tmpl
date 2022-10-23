@@ -1,0 +1,27 @@
+{{ define "body" }}
+{{ template "nav" }}
+</header>
+<main class="container">
+<h3>Clone an existing dashboard</h3>
+<p>
+Cloning a dashboard creates a new dashboard with all the elements from
+an existing dashboard.
+</p>
+<hr>
+<form method="POST">
+	<fieldset class="form-group mb-3">
+		<label class="form-label" for="src">Clone from</label>
+		<select class="form-select" id="src" name="src" required>
+			{{ range . }}
+			<option value="{{ .Slug }}">{{ .Title }}</option>
+			{{ end }}
+		</select>
+		<label class="form-label" for="title">Title</label>
+		<input class="form-control" type="text" id="title" name="title" minlength="4" placeholder="Network overview" required>
+	</fieldset>
+	<button class="btn btn-primary btn-success" type="submit">
+		Create
+	</button>
+</form>
+</main>
+{{ end }}
