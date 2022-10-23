@@ -7,11 +7,6 @@ then
 	curl -s https://bootswatch.com/5/darkly/bootstrap.min.css > dist/bootstrap.min.css
 fi
 
-if ! test -f dist/video-js.min.css
-then
-	curl -s https://vjs.zencdn.net/7.20.3/video-js.min.css > dist/video-js.min.css
-fi
-
 if ! test -f dist/feather-sprite.svg
 then
 	curl -s https://unpkg.com/feather-icons@4.29.0/dist/feather-sprite.svg > dist/feather-sprite.svg

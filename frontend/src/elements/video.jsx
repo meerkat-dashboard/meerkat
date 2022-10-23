@@ -1,7 +1,7 @@
-import { h, Fragment, render } from "preact";
-import { useState, useEffect, useRef, useCallback } from "preact/hooks";
-import videojs from "video.js";
-import * as meerkat from "../meerkat";
+import { h } from "preact";
+import { useEffect, useRef } from "preact/hooks";
+// import hls.light.js rather than hls.js; no advanced client-side features required for monitoring.
+import Hls from "hls.js/dist/hls.light.js";
 
 export function IframeVideoOptions({ options, updateOptions }) {
 	return (
@@ -18,65 +18,22 @@ export function IframeVideoOptions({ options, updateOptions }) {
 	);
 }
 
-export function IframeVideo({ options }, props) {
-	const { videoSrc } = props;
-	const playerRef = useRef(null);
-	const [source, setPlaying] = useState("");
-
+export function IframeVideo({ options }) {
+	let videoRef = useRef(null);
 	useEffect(() => {
-		buildPlayer();
-	}, []);
-
-	const noDefaultBehavior = (e) => {
-		e.preventDefault();
-		e.target.removeEventListener("mouseover", true);
-	};
-
-	const buildPlayer = () => {
-		const player = videojs(
-			playerRef.current,
-			{
-				autoplay: true,
-				controls: true,
-				muted: true,
-				disableVideoPlayPauseClick: true,
-				controlBar: {
-					fullscreenToggle: false,
-				},
-				sources: [
-					{
-						src: `${options.source}`,
-						type: "application/x-mpegURL",
-					},
-					{
-						src: `${options.source}`,
-						type: "audio/mp3",
-					},
-				],
-			},
-			() => {
-				player.src(videoSrc);
-			}
-		);
-		return () => {
-			player.dispose();
-		};
-	};
-
+		if (Hls.isSupported()) {
+			const hls = new Hls({ enableWorker: false });
+			hls.loadSource(options.source);
+			hls.attachMedia(videoRef.current);
+		}
+		// otherwise we're running in a browser with native HLS support
+	});
 	return (
-		<div class="video-overlay">
-			<div data-vjs-player>
-				<video-js
-					onClick={noDefaultBehavior}
-					ref={playerRef}
-					id="livestream"
-					style="pointer-events: none"
-					className="video-js vjs-16-9 vjs-big-play-centered video-player"
-					playsInline
-				>
-					<source src={options.source} type="application/x-mpegURL" />
-				</video-js>
-			</div>
-		</div>
+		<video
+			style="width: 90%; height: 90%"
+			ref={videoRef}
+			src={options.source}
+			controls
+		></video>
 	);
 }

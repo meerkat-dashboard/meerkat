@@ -185,14 +185,6 @@ audio::-webkit-media-controls-time-remaining-display {
 	user-select: none; /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */
 }
 
-.video-overlay {
-	pointer-events: none;
-}
-
-.video-player {
-	pointer-events: auto;
-}
-
 .dashboard.view-only .check {
 	cursor: default;
 }
