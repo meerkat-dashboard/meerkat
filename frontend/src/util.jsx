@@ -24,8 +24,7 @@ export function icingaResultCodeToCheckState(checkType, resultCode) {
 				return "down";
 		}
 	}
-
-	return "invalid";
+	return "";
 }
 
 function sortHost(a, b) {
