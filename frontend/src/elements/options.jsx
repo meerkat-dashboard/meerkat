@@ -20,7 +20,6 @@ export function FontSizeInput({ value, onInput }) {
 }
 
 export function ExternalURL({ value, onInput }) {
-	console.debug("external URL input value is", value);
 	return (
 		<fieldset>
 			<label class="form-label" for="card-linking-url">
