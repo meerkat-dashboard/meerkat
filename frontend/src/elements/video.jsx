@@ -5,7 +5,7 @@ import Hls from "hls.js/dist/hls.light.js";
 
 export function IframeVideoOptions({ options, updateOptions }) {
 	return (
-		<Fragment>
+		<fieldset>
 			<label for="src">Source</label>
 			<input
 				class="form-control"
@@ -14,7 +14,7 @@ export function IframeVideoOptions({ options, updateOptions }) {
 				value={options.source}
 				onInput={(e) => updateOptions({ source: e.currentTarget.value })}
 			></input>
-		</Fragment>
+		</fieldset>
 	);
 }
 

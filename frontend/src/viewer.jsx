@@ -3,7 +3,7 @@ import { useState, useEffect } from "preact/hooks";
 import { linkHelper } from "./util";
 
 import * as meerkat from "./meerkat";
-import { CheckCard } from "./elements/card";
+import { ObjectStateCard } from "./elements/card";
 import { CheckImage } from "./elements/image";
 import { CheckSVG } from "./elements/svg";
 import { CheckLine } from "./elements/line";
@@ -41,10 +41,10 @@ function Viewer({ slug }) {
 		let ele;
 		if (element.type === "check-card") {
 			ele = (
-				<CheckCard
-					options={element.options}
-					dashboard={dashboard}
-					slug={slug}
+				<ObjectStateCard
+					objectType={element.options.objectType}
+					filter={element.options.filter}
+					fontSize={element.options.fontSize}
 				/>
 			);
 		}

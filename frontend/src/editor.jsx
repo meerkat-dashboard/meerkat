@@ -3,7 +3,7 @@ import { useEffect, useReducer, useState } from "preact/hooks";
 
 import * as meerkat from "./meerkat";
 import { TagEditor } from "./util";
-import { CheckCard, CheckCardOptions } from "./elements/card";
+import { ObjectStateCard, CheckCardOptions } from "./elements/card";
 import { CheckSVG, CheckSVGOptions, CheckSVGDefaults } from "./elements/svg";
 import { CheckImage, CheckImageOptions } from "./elements/image";
 import {
@@ -415,10 +415,10 @@ function DashboardElements({
 		switch (element.type) {
 			case "check-card":
 				ele = (
-					<CheckCard
-						options={element.options}
-						slug={slug}
-						dashboard={dashboard}
+					<ObjectStateCard
+						objectType={element.options.objectType}
+						filter={element.options.filter}
+						fontSize={element.options.fontSize}
 					/>
 				);
 				break;

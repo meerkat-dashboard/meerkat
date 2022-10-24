@@ -1,4 +1,4 @@
-import { h, Fragment } from "preact";
+import { h, Fragment, Component } from "preact";
 import { useState, useEffect, useCallback, useMemo } from "preact/hooks";
 
 import * as meerkat from "../meerkat";
@@ -9,134 +9,9 @@ import {
 } from "../util";
 import { FontSizeInput, ExternalURL } from "./options";
 
-function useCheckCard({ options, dashboard }) {
-	const [checkState, setCheckState] = useState(null);
-	const [checkValue, setCheckValue] = useState(null);
-	const [acknowledged, setAcknowledged] = useState("");
-
-	const extractAndSetCheckValue = useCallback(
-		(checkData) => {
-			let newCheckValue = options.checkDataDefault || "useCheckState";
-
-			// extract and use plugin output
-			if (
-				options.checkDataSelection === "pluginOutput" &&
-				checkData.pluginOutput
-			) {
-				if (options.checkDataPattern) {
-					try {
-						const pattern = new RegExp(options.checkDataPattern, "im");
-						const extractedValues = checkData.pluginOutput.match(pattern);
-						if (extractedValues) {
-							newCheckValue =
-								extractedValues.length > 1
-									? extractedValues[extractedValues.length - 1]
-									: extractedValues[0];
-						}
-					} catch (e) {
-						// catch invalid regexp
-						console.error(e);
-					}
-				} else if (!options.checkDataDefault) {
-					newCheckValue = checkData.pluginOutput;
-				}
-
-				// extract and use performance data
-			} else if (options.checkDataSelection && checkData.performance) {
-				const value = checkData.performance[options.checkDataSelection];
-
-				if (value) {
-					newCheckValue = Number(value.replace(/[^\d.-]/g, ""));
-				}
-			}
-
-			setCheckValue(newCheckValue);
-		},
-		[
-			options.checkDataSelection,
-			options.checkDataPattern,
-			options.checkDataDefault,
-		]
-	);
-
-	const updateCheckState = useCallback(async () => {
-		getCheckData(options, extractAndSetCheckValue);
-
-		if (options.objectType !== null && options.filter !== null) {
-			try {
-				const res = await meerkat.getIcingaObjectState(
-					options.objectType,
-					options.filter,
-					dashboard
-				);
-				res.Acknowledged ? setAcknowledged("ack") : setAcknowledged("");
-				setCheckState(
-					icingaResultCodeToCheckState(options.objectType, res.MaxState)
-				);
-			} catch (error) {
-				window.flash(`This dashboard isn't updating: ${error}`, "error");
-			}
-		}
-	}, [options.objectType, options.filter, extractAndSetCheckValue]);
-
-	useEffect(() => {
-		if (options.objectType !== null && options.filter !== null) {
-			setCheckValue(null);
-			updateCheckState();
-			const intervalID = window.setInterval(updateCheckState, 30 * 1000);
-			return () => window.clearInterval(intervalID);
-		}
-	}, [updateCheckState]);
-
-	return [checkState, acknowledged, checkValue];
-}
-
-function CheckState(state, acknowledged) {
-	if (acknowledged) {
-		return (
-			<Fragment>
-				{state}
-				<span>(ACK)</span>
-			</Fragment>
-		);
-	}
-	return {state};
-}
-
-export function CheckCard({ options, dashboard }) {
-	const [checkState, acknowledged, checkValue] = useCheckCard({
-		options,
-		dashboard,
-	});
-
-	if (checkValue === "useCheckState") {
-		return (
-			<div
-				class={`check-content card ${checkState} ${checkState}-${acknowledged}`}
-			>
-				<div
-					class="check-state"
-					style={`font-size: ${options.fontSize}px`}
-				>
-					<CheckState state={checkState} acknowledged={acknowledged} />
-				</div>
-			</div>
-		);
-	}
-	return (
-		<div
-			class={`check-content card ${checkState} ${checkState}-${acknowledged}`}
-		>
-			<div class="check-state" style={`font-size: ${options.fontSize}px`}>
-				checkValue
-			</div>
-		</div>
-	);
-}
-
 export function CheckCardOptions({ options, updateOptions }) {
 	return (
-		<div class="card-options">
+		<Fragment>
 			<IcingaCheckList
 				currentCheckopts={options}
 				updateOptions={updateOptions}
@@ -152,7 +27,7 @@ export function CheckCardOptions({ options, updateOptions }) {
 				}
 			/>
 			<CheckDataOptions options={options} updateOptions={updateOptions} />
-		</div>
+		</Fragment>
 	);
 }
 
@@ -187,12 +62,7 @@ const CheckDataOptions = ({ options, updateOptions }) => {
 	}, [checkData.performance, checkData.pluginOutput]);
 
 	const handleInput = (e) => updateOptions({ [e.target.name]: e.target.value });
-	let input = (
-		<NoMatchInput
-			value={options.checkDataDefault}
-			onInput={handleInput}
-		/>
-	);
+	let input;
 	if (options.checkDataSelection == "pluginOutput") {
 		input = (
 			<RegexpInput
@@ -203,11 +73,11 @@ const CheckDataOptions = ({ options, updateOptions }) => {
 		);
 	}
 
-	return optionsSpec.length === 0 ? (
-		<label for="check-data-mode">No Check Data Available</label>
-	) : (
-		<Fragment>
-			<label for="check-data-mode">Check Data Mode</label>
+	return (
+		<fieldset>
+			<label class="form-label" for="check-data-mode">
+				Card text
+			</label>
 			<select
 				class="form-select"
 				id="check-data-mode"
@@ -215,7 +85,7 @@ const CheckDataOptions = ({ options, updateOptions }) => {
 					updateOptions({ checkDataSelection: e.currentTarget.value })
 				}
 			>
-				<option>Choose away...</option>
+				<option>Object state</option>
 				{optionsSpec.map((spec) => (
 					<option key={spec.key} value={spec.value} selected={spec.selected}>
 						{spec.text}
@@ -223,7 +93,7 @@ const CheckDataOptions = ({ options, updateOptions }) => {
 				))}
 			</select>
 			{input}
-		</Fragment>
+		</fieldset>
 	);
 };
 
@@ -238,13 +108,15 @@ function RegexpInput({ expr, nomatch, onInput }) {
 				id="check-data-regexp"
 				name="checkDataPattern"
 				type="text"
+				style="font-family: monospace"
 				placeholder="[0-9]+"
 				onInput={onInput}
 				value={expr}
 			/>
 			<NoMatchInput value={nomatch} onInput={onInput} />
 			<small class="form-text">
-				If the regular expression results in no matches, this value will be displayed.
+				If the regular expression results in no matches, this value will be
+				displayed.
 			</small>
 		</fieldset>
 	);
@@ -267,4 +139,59 @@ function NoMatchInput({ value, onInput }) {
 			/>
 		</Fragment>
 	);
+}
+
+export class ObjectStateCard extends Component {
+	/*
+	 * objectType: "host", "service"...
+	 * filter "host.name == "www.example.com""
+	 * fontSize
+	 */
+	constructor(props) {
+		super(props);
+		this.state = {
+			stat: -1,
+			acknowledged: false,
+		};
+	}
+
+	fetchObject(typ, filter) {
+		meerkat.getIcingaObjectState(typ, filter).then((worst) => {
+			this.setState({
+				stat: worst.MaxState,
+				acknowledged: worst.Acknowledged,
+			});
+		});
+	}
+
+	componentDidMount() {
+		this.fetchObject(this.props.objectType, this.props.filter);
+		this.timer = setInterval(() => {
+			this.fetchObject(this.props.objectType, this.props.filter);
+		}, 30 * 1000);
+	}
+
+	componentWillUnmount() {
+		clearInterval(this.timer);
+	}
+
+	render() {
+		let stat = icingaResultCodeToCheckState(
+			this.props.objectType,
+			this.state.stat
+		);
+		let classes = ["check-content", "card", stat];
+		let cardText = stat;
+		if (this.state.acknowledged) {
+			cardText += " (ACK)";
+			classes.push(`${stat}-ack`);
+		}
+		return (
+			<div class={classes.join(" ")}>
+				<div class="check-state" style={`font-size: ${this.props.fontSize}px`}>
+					{cardText}
+				</div>
+			</div>
+		);
+	}
 }
