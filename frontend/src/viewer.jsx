@@ -1,6 +1,5 @@
 import { h, render } from "preact";
 import { useState, useEffect } from "preact/hooks";
-import { linkHelper } from "./util";
 
 import * as meerkat from "./meerkat";
 import { ObjectStateCard } from "./elements/card";
@@ -101,7 +100,9 @@ function Viewer({ slug }) {
 			ele = <AudioStream options={element.options} />;
 		}
 
-		ele = linkHelper(element, ele, dashboard);
+		if (element.options.linkURL) {
+			ele = linkWrap(ele, element.options.linkURL);
+		}
 
 		if (element.type === "static-ticker") {
 			return (
@@ -153,6 +154,10 @@ function Viewer({ slug }) {
 			{elements}
 		</div>
 	);
+}
+
+function linkWrap(ele, link) {
+	return <a href={link}>{ele}</a>;
 }
 
 // Paths are of the form /my-dashboard/view
