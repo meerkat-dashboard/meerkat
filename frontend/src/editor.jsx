@@ -31,6 +31,7 @@ import { StaticImage, StaticImageOptions } from "./statics/image";
 import { IframeVideo, IframeVideoOptions } from "./elements/video";
 import { AudioStream, AudioOptions } from "./elements/audio";
 import { Clock, ClockOptions } from "./elements/clock";
+import { ObjectCard, ObjectCardOptions } from "./elements/i2object";
 
 function defaultElementOptions(typ) {
 	switch (typ) {
@@ -120,7 +121,7 @@ function dashboardReducer(state, action) {
 	}
 }
 
-export function Editor({ slug, selectedElementId }) {
+export function Editor({ slug }) {
 	const [dashboard, dashboardDispatch] = useReducer(dashboardReducer, null);
 	const [highlightedElementId, setHighlightedElementId] = useState(null);
 	const [selectedElement, setSelectedElement] = useState(null);
@@ -193,7 +194,6 @@ export function Editor({ slug, selectedElementId }) {
 				dashboard={dashboard}
 				slug={slug}
 				updateElement={updateElement}
-				selectedElementId={selectedElementId ? Number(selectedElementId) : null}
 				highlightedElementId={highlightedElementId}
 				setSelectedElement={setSelectedElement}
 				setHighlightedElementId={setHighlightedElementId}
@@ -477,6 +477,16 @@ function DashboardElements({
 				break;
 			case "audio-stream":
 				ele = <AudioStream options={element.options} />;
+				break;
+			case "object-card":
+				ele = (
+					<ObjectCard
+						objectType={element.options.objectType}
+						objectName={element.options.objectName}
+						fontSize={element.options.fontSize}
+					/>
+				);
+				break;
 		}
 
 		return (
@@ -499,7 +509,6 @@ function DashboardElements({
 export function DashboardView({
 	dashboard,
 	updateElement,
-	selectedElementId,
 	highlightedElementId,
 	slug,
 	setSelectedElement,
@@ -872,6 +881,13 @@ export function ElementSettings({ element, updateElement, closeElement }) {
 				options={element.options}
 			/>
 		);
+	} else if (element.type == "object-card") {
+		ElementOptions = (
+			<ObjectCardOptions
+				options={element.options}
+				updateOptions={updateElementOptions}
+			/>
+		);
 	}
 
 	return (
@@ -920,6 +936,7 @@ export function ElementSettings({ element, updateElement, closeElement }) {
 					<option value="iframe-video">HLS Stream</option>
 					<option value="audio-stream">Audio Stream</option>
 					<option value="clock">Clock</option>
+					<option value="object-card">Icinga object (experimental)</option>
 				</select>
 				<hr />
 

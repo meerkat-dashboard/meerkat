@@ -1,13 +1,11 @@
 package main
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"io/fs"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -20,7 +18,7 @@ import (
 	"github.com/go-chi/chi"
 )
 
-//Dashboard contains all information to render a dashboard
+// Dashboard contains all information to render a dashboard
 type Dashboard struct {
 	Title      string    `json:"title"`
 	Slug       string    `json:"slug"`
@@ -31,7 +29,7 @@ type Dashboard struct {
 	Elements   []Element `json:"elements"`
 }
 
-//Element contains any service/host information needed
+// Element contains any service/host information needed
 type Element struct {
 	Type     string                 `json:"type"`
 	Title    string                 `json:"title"`
@@ -40,7 +38,7 @@ type Element struct {
 	Rotation float64                `json:"rotation"`
 }
 
-//Rect helper struct for positions
+// Rect helper struct for positions
 type Rect struct {
 	X float64 `json:"x"`
 	Y float64 `json:"y"`
@@ -163,11 +161,6 @@ func handleListDashboard(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-//SlugResponse contains the slug for the client to route to
-type SlugResponse struct {
-	Slug string `json:"slug"`
-}
-
 func handleCreateDashboard(w http.ResponseWriter, req *http.Request) {
 	if err := req.ParseForm(); err != nil {
 		msg := fmt.Sprintf("parse form: %v", err)
@@ -253,14 +246,9 @@ func handleUpdateDashboard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//Decode body
 	var dashboard Dashboard
-	buf := new(bytes.Buffer)
-	buf.ReadFrom(r.Body)
-	err := json.Unmarshal(buf.Bytes(), &dashboard)
-	if err != nil {
-		log.Println("JSON decode failure:", err)
-		http.Error(w, "Error decoding json body: "+err.Error(), http.StatusBadRequest)
+	if err := json.NewDecoder(r.Body).Decode(&dashboard); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -272,23 +260,19 @@ func handleUpdateDashboard(w http.ResponseWriter, r *http.Request) {
 	dashboard.Height = strconv.Itoa(height)
 	dashboard.Width = strconv.Itoa(width)
 
-	//Convert title to slug
 	slugNew := titleToSlug(dashboard.Title)
 	if len(slug) < 1 {
-		log.Println("Slugless URL")
-		http.Error(w, "Generated URL must be atleast one character", http.StatusBadRequest)
+		http.Error(w, "empty slug from dashboard title", http.StatusBadRequest)
 		return
 	}
 
-	//Write updated file
-	err = ioutil.WriteFile(path.Join("dashboards", slugNew+".json"), buf.Bytes(), 0655)
+	err = CreateDashboard(path.Join("dashboards", slugNew+".json"), &dashboard)
 	if err != nil {
-		log.Println("Error writing file:", err)
-		http.Error(w, "Error writing file: "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	//Delete old file if slug updated
+	// Delete old file if slug updated
 	if slug != slugNew {
 		fmt.Printf("Slug updated %s -> %s deleting old data\n", slug, slugNew)
 		err := os.Remove(path.Join("dashboards", slug+".json"))
@@ -298,10 +282,6 @@ func handleUpdateDashboard(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-
-	//Write slug to response so we can route to it
-	enc := json.NewEncoder(w)
-	enc.Encode(SlugResponse{Slug: slugNew})
 }
 
 func handleDeleteDashboard(w http.ResponseWriter, req *http.Request) {

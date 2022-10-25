@@ -8,14 +8,8 @@ async function getObjectNames(objectType) {
 		case "host":
 			objects = await meerkat.getIcingaHosts();
 			break;
-		case "host-group":
-			objects = await meerkat.getIcingaHostGroups();
-			break;
 		case "service":
 			objects = await meerkat.getIcingaServices();
-			break;
-		case "service-group":
-			objects = await meerkat.getIcingaServiceGroups();
 			break;
 	}
 	const names = objects.map((obj) => obj.id);
@@ -51,7 +45,7 @@ export class ObjectSelect extends Component {
 
 	handleObjectChange(event) {
 		const objectName = event.target.value;
-		this.props.updateOptions({ id: objectName });
+		this.props.updateOptions({ objectName: objectName });
 	}
 
 	render() {
@@ -88,12 +82,6 @@ function ObjectTypeSelect({ selected, onChange }) {
 				</option>
 				<option key="service" value="service">
 					Service
-				</option>
-				<option key="host-group" value="host-group">
-					Host Group
-				</option>
-				<option key="service-group" value="service-group">
-					Service Group
 				</option>
 			</select>
 		</Fragment>

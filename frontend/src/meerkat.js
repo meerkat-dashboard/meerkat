@@ -69,11 +69,10 @@ export async function getAllDashboards() {
 }
 
 export async function saveDashboard(slug, dashboard) {
-	const res = await fetch(`/dashboard/${slug}`, {
+	await fetch(`/dashboard/${slug}`, {
 		method: "POST",
 		body: JSON.stringify(dashboard),
 	});
-	return res.json();
 }
 
 export async function uploadFile(file) {
