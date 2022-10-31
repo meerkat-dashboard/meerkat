@@ -26,7 +26,11 @@ export class Clock extends Component {
 			hourCycle: "h23",
 			timeZone: this.props.timeZone,
 		}).format(this.state.time);
-		return <time class="clock" style={`font-size: ${this.props.fontSize}px`}>{t}</time>;
+		return (
+			<time class="clock" style={`font-size: ${this.props.fontSize}px`}>
+				{t}
+			</time>
+		);
 	}
 }
 
@@ -67,7 +71,10 @@ export class ClockOptions extends Component {
 	render() {
 		return (
 			<form>
-				<TimezoneInput value={this.props.timeZone} onChange={this.handleChange} />
+				<TimezoneInput
+					value={this.props.timeZone}
+					onChange={this.handleChange}
+				/>
 				<FontSizeInput
 					value={this.props.fontSize}
 					onInput={this.handleChange}

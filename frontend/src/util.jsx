@@ -53,12 +53,7 @@ export function IcingaCheckList({ currentCheckopts, updateOptions }) {
 			return;
 		}
 		setTypeOptions(
-			<Combobox
-				placeholder="Loading..."
-				busy
-				value=""
-				data={[]}
-			/>
+			<Combobox placeholder="Loading..." busy value="" data={[]} />
 		);
 		let opts = null;
 		let input = "";
@@ -254,14 +249,7 @@ export function IcingaHostVars({ optionsID, updateOptions, options }) {
 	const [hostInfoKeys, setHostInfoKeys] = useState("");
 
 	const searchHosts = async () => {
-		setHosts(
-			<Combobox
-				placeholder="Loading..."
-				busy
-				value=""
-				data={[]}
-			/>
-		);
+		setHosts(<Combobox placeholder="Loading..." busy value="" data={[]} />);
 
 		let opts = null;
 		let input = "";

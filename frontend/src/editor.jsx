@@ -190,14 +190,14 @@ export function Editor({ slug }) {
 				</button>
 			</footer>
 			<main class="dashboard-wrap">
-			<DashboardView
-				dashboard={dashboard}
-				slug={slug}
-				updateElement={updateElement}
-				highlightedElementId={highlightedElementId}
-				setSelectedElement={setSelectedElement}
-				setHighlightedElementId={setHighlightedElementId}
-			/>
+				<DashboardView
+					dashboard={dashboard}
+					slug={slug}
+					updateElement={updateElement}
+					highlightedElementId={highlightedElementId}
+					setSelectedElement={setSelectedElement}
+					setHighlightedElementId={setHighlightedElementId}
+				/>
 			</main>
 		</Fragment>
 	);
@@ -362,11 +362,15 @@ function TransformableElement({
 				height: height,
 				transform: _rotation,
 			}}
-			onMouseDown={ highlight ? handleMove : null}
+			onMouseDown={highlight ? handleMove : null}
 			onClick={onClick}
 		>
 			{children}
-			<Grabbers active={highlight} handleResize={handleResize} handleRotate={handleRotate} />
+			<Grabbers
+				active={highlight}
+				handleResize={handleResize}
+				handleRotate={handleRotate}
+			/>
 		</div>
 	);
 }
@@ -399,12 +403,12 @@ function DashboardElements({
 		const updateRect = (rect) => {
 			element.rect = rect;
 			updateElement(element);
-		}
+		};
 
 		const updateRotation = (radian) => {
 			element.rotation = radian;
 			updateElement(element);
-		}
+		};
 
 		function handleClick() {
 			setHighlightedElementId(index);
@@ -647,7 +651,7 @@ function SidePanelElements({
 }) {
 	const addElement = () => {
 		dashboardDispatch({ type: "addElement" });
-	}
+	};
 	const deleteElement = (id) => {
 		dashboardDispatch({
 			type: "deleteElement",
@@ -678,8 +682,8 @@ function SidePanelElements({
 	};
 
 	const handleSelect = (id, element) => {
-		setSelectedElement(element)
-		setHighlightedElementId(id)
+		setSelectedElement(element);
+		setHighlightedElementId(id);
 	};
 
 	let elementList = <div class="subtle">No elements added</div>;
@@ -728,19 +732,11 @@ function SidePanelElements({
 function ElementEntry({ title, onSelect, onDuplicate, onDelete }) {
 	return (
 		<Fragment>
-			<div onClick={onSelect}>
-				{title}
-			</div>
-			<button
-				class="btn btn-primary btn-sm"
-				onClick={onDuplicate}
-			>
+			<div onClick={onSelect}>{title}</div>
+			<button class="btn btn-primary btn-sm" onClick={onDuplicate}>
 				Duplicate
 			</button>
-			<button
-				class="btn btn-danger btn-sm ms-1"
-				onClick={onDelete}
-			>
+			<button class="btn btn-danger btn-sm ms-1" onClick={onDelete}>
 				Delete
 			</button>
 		</Fragment>
@@ -894,10 +890,7 @@ export function ElementSettings({ element, updateElement, closeElement }) {
 		<div class="editor settings-overlay bg-dark">
 			<div class="lefty-righty">
 				<h3>{element.title}</h3>
-				<button
-					class="btn btn-secondary"
-					onClick={closeElement}
-				>
+				<button class="btn btn-secondary" onClick={closeElement}>
 					Close
 				</button>
 			</div>

@@ -1,6 +1,10 @@
 import { h, Fragment } from "preact";
 
-import { FontSizeInput, ExternalURL, AlignmentInput } from "../elements/options";
+import {
+	FontSizeInput,
+	ExternalURL,
+	AlignmentInput,
+} from "../elements/options";
 
 export function StaticTextOptions({ options, updateOptions }) {
 	const clearField = (e, field) => {
@@ -12,7 +16,9 @@ export function StaticTextOptions({ options, updateOptions }) {
 
 	return (
 		<Fragment>
-			<label class="form-label" for="text">Text</label>
+			<label class="form-label" for="text">
+				Text
+			</label>
 			<textarea
 				class="form-control"
 				id="text"
@@ -35,7 +41,9 @@ export function StaticTextOptions({ options, updateOptions }) {
 					defaultChecked={options.boldText}
 					onChange={(e) => updateOptions({ boldText: e.target.checked })}
 				/>
-				<label class="form-check-label" for="bold">Bold text</label>
+				<label class="form-check-label" for="bold">
+					Bold text
+				</label>
 			</div>
 
 			<AlignmentInput />

@@ -43,11 +43,11 @@ function DashboardList({ dashboards, loadDashboards, filter, authEnabled }) {
 					</a>
 				</div>
 				<div class="col-md-auto">
-				<DashboardActions
-					dashboard={dashboard}
-					dashboards={dashboards}
-					loadDashboards={loadDashboards}
-				/>
+					<DashboardActions
+						dashboard={dashboard}
+						dashboards={dashboards}
+						loadDashboards={loadDashboards}
+					/>
 				</div>
 			</div>
 		);
@@ -63,7 +63,9 @@ function DashboardActions({ dashboard, dashboards, loadDashboards }) {
 			<a href={`${slug}/edit`}>
 				<button class="btn btn-primary btn-sm">Edit</button>
 			</a>
-			<a class="btn btn-danger btn-sm ms-2" href={`${slug}/delete`}>Delete</a>
+			<a class="btn btn-danger btn-sm ms-2" href={`${slug}/delete`}>
+				Delete
+			</a>
 		</div>
 	);
 }

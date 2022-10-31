@@ -57,7 +57,7 @@ export class ObjectCard extends Component {
 
 	render() {
 		let objState = stateText(this.props.objectType, this.state.stat);
-		let text = objState
+		let text = objState;
 		let classes = ["check-content", "card", objState];
 		if (this.state.acknowledged) {
 			text += " (ACK)";

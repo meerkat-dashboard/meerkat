@@ -45,19 +45,34 @@ export function AlignmentInput() {
 			<fieldset>
 				<legend>Horizontal alignment</legend>
 				<div class="form-check">
-					<input class="form-check-input" type="radio" name="horizontal" id="startAlign" />
+					<input
+						class="form-check-input"
+						type="radio"
+						name="horizontal"
+						id="startAlign"
+					/>
 					<label class="form-check-label" for="startAlign">
 						Start
 					</label>
 				</div>
 				<div class="form-check">
-					<input class="form-check-input" type="radio" name="horizontal" id="centerAlign" />
+					<input
+						class="form-check-input"
+						type="radio"
+						name="horizontal"
+						id="centerAlign"
+					/>
 					<label class="form-check-label" for="centerAlign">
 						Centre
 					</label>
 				</div>
 				<div class="form-check">
-					<input class="form-check-input" type="radio" name="horizontal" id="endAlign" />
+					<input
+						class="form-check-input"
+						type="radio"
+						name="horizontal"
+						id="endAlign"
+					/>
 					<label class="form-check-label" for="endAlign">
 						End
 					</label>
@@ -67,19 +82,34 @@ export function AlignmentInput() {
 			<fieldset>
 				<legend>Vertical alignment</legend>
 				<div class="form-check">
-					<input class="form-check-input" type="radio" name="vertical" id="topAlign" />
+					<input
+						class="form-check-input"
+						type="radio"
+						name="vertical"
+						id="topAlign"
+					/>
 					<label class="form-check-label" for="topAlign">
 						Top
 					</label>
 				</div>
 				<div class="form-check">
-					<input class="form-check-input" type="radio" name="vertical" id="vcenterAlign" />
+					<input
+						class="form-check-input"
+						type="radio"
+						name="vertical"
+						id="vcenterAlign"
+					/>
 					<label class="form-check-label" for="vcenterAlign">
 						Centre
 					</label>
 				</div>
 				<div class="form-check">
-					<input class="form-check-input" type="radio" name="vertical" id="bottomAlign" />
+					<input
+						class="form-check-input"
+						type="radio"
+						name="vertical"
+						id="bottomAlign"
+					/>
 					<label class="form-check-label" for="bottomAlign">
 						Bottom
 					</label>

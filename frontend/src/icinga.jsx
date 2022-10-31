@@ -39,7 +39,7 @@ export class ObjectSelect extends Component {
 	async handleSelect(event) {
 		const objectType = event.target.value;
 		this.props.updateOptions({ objectType: objectType });
-		const names =  await getObjectNames(objectType);
+		const names = await getObjectNames(objectType);
 		this.setState({ names: names });
 	}
 

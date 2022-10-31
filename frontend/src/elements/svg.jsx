@@ -2,10 +2,7 @@ import { h, Fragment } from "preact";
 import { useState, useEffect } from "preact/hooks";
 
 import * as meerkat from "../meerkat";
-import {
-	icingaResultCodeToCheckState,
-	IcingaCheckList,
-} from "../util";
+import { icingaResultCodeToCheckState, IcingaCheckList } from "../util";
 import { svgList } from "../svg-list";
 import { ExternalURL } from "./options";
 

@@ -162,5 +162,5 @@ function linkWrap(ele, link) {
 
 // Paths are of the form /my-dashboard/view
 const elems = window.location.pathname.split("/");
-const slug = elems[elems.length - 2]
+const slug = elems[elems.length - 2];
 render(<Viewer slug={slug} />, document.body);
