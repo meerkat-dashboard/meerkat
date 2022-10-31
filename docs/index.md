@@ -5,6 +5,8 @@ nav_order: 1
 
 # Meerkat - A Dashboarding tool for Icinga2
 
+See the demo at [demo.meerkat.run][demo].
+
 Meerkat is a utility to create and share dashboards for Icinga2. It's quick to setup and easy to use. There is a WSIWYG editor interface when you can set a background for a dashboard and start overlaying checks which update in real time by polling the Icinga2 API via the Meerkat backend.
 
 The main driver for Meerkat to exist is to communicate to perhaps non-technical users, the relationship between the infrastructure they are familar with, and the Icinga checks you have worked so hard to build. It can also play sounds to alert people of changes, along with embed video and audio streams. Meerkat isn't a replacement for a complete notification system, but should complement any NOC nicely, and let users very clearly define the checks or groups of checks they care about with context that is relevant for them.
@@ -18,6 +20,8 @@ Or a video workflow from left to right:
 ![Video Work Flow](/videoworkflow.png)
 
 This check uses the Icinga Business Process module to quickly show the overall path is OK, even if one of the paths is having problems.
+
+[demo]: https://demo.meerkat.run
 
 ## Getting Started
 
