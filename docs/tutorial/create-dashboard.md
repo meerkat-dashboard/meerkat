@@ -16,7 +16,7 @@ We have tested png, jpeg and webp.
 The background resolution should match the target resolution of the display, to allow for correct alignment and scaling.
 
 1. Make a new dashboard by clicking Create New Dashboard button and giving it a name. Dashboards can then be edited and viewed from the main page.
-2.Edit your dashboard and add a Background Image.
+2. Edit your dashboard and add a Background Image.
 3. Add new Elements and pick the type of Element you want to add.
 4. Drag and drop your Element over the top of the map to somewhere that makes sense relative to the background. You can resize and rotate elements.
 5. Click Save.
