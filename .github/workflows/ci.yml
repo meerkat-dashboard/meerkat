@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ "main", "v3" ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ "main", "v3" ]
+    branches: [ "main" ]
 
 jobs:
   frontend:
@@ -40,9 +40,7 @@ jobs:
           if ! [ -z "`gofmt -l .`" ]; then gofmt -l . && exit 1; fi
 
       - name: test
-        run: |
-          cd backend
-          go test
+        run: go test
 
   package:
     runs-on: ubuntu-latest
