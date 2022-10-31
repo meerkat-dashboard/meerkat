@@ -48,7 +48,13 @@ var config Config
 func main() {
 	var configFile string
 	flag.StringVar(&configFile, "config", "", "provide an alternative config path")
+	vflag := flag.Bool("v", false, "build version information")
 	flag.Parse()
+
+	if *vflag {
+		printVersionString(os.Stderr)
+		return
+	}
 
 	var err error
 	config, err = LoadConfig(configFile)
