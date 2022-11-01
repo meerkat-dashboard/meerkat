@@ -10,7 +10,7 @@ import (
 	"path"
 	"runtime/debug"
 
-	"gitlab.sol1.net/SOL1/meerkat"
+	"github.com/meerkat-dashboard/meerkat"
 )
 
 func (srv *Server) ViewHandler(w http.ResponseWriter, req *http.Request) {

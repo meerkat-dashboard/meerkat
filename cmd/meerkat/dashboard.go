@@ -15,7 +15,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/go-chi/chi"
-	"gitlab.sol1.net/SOL1/meerkat"
+	"github.com/meerkat-dashboard/meerkat"
 )
 
 func handleListDashboards(w http.ResponseWriter, r *http.Request) {

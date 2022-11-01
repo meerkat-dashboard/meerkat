@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/mailgun/groupcache/v2"
-	"gitlab.sol1.net/SOL1/meerkat/ui"
+	"github.com/meerkat-dashboard/meerkat/ui"
 )
 
 func init() {
