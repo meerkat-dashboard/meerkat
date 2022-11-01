@@ -1,7 +1,7 @@
-/meerkat
-/meerkat.exe
-frontend/node_modules
-frontend/dist/
+cmd/meerkat/meerkat
+meerkat.exe
+ui/node_modules
+ui/dist/
 # macOS metadata
 .DS_Store
 

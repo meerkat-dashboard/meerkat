@@ -27,7 +27,7 @@ then
 fi
 
 (
-	cd frontend
+	cd ui
 	npm ci
 	npm run build
 )
@@ -35,7 +35,7 @@ fi
 workdir="$tmp/meerkat"
 mkdir -p $workdir
 
-go build -o $workdir/
+(cd cmd/meerkat && go build -o $workdir/)
 cp README.md LICENSE $workdir
 cp -R dashboards-data $workdir
 cp Dockerfile $workdir

@@ -1,21 +1,12 @@
-package main
+package meerkat
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
-	"io"
-	"io/fs"
-	"log"
-	"net/http"
 	"os"
 	"path"
 	"regexp"
-	"strconv"
 	"strings"
-	"unicode/utf8"
-
-	"github.com/go-chi/chi"
 )
 
 // Dashboard contains all information to render a dashboard
@@ -44,26 +35,6 @@ type Rect struct {
 	Y float64 `json:"y"`
 	W float64 `json:"w"`
 	H float64 `json:"h"`
-}
-
-func titleToSlug(title string) string {
-	title = strings.ToLower(title)                //convert upper case to lower case
-	title = strings.TrimSpace(title)              //remove preceeding and trailing whitespace
-	dashSpaceMatch := regexp.MustCompile(`[_\s]`) //convert spaces and underscores to dashes
-	title = dashSpaceMatch.ReplaceAllString(title, "-")
-	unwantedMatch := regexp.MustCompile(`[^a-z0-9\-]`) //Remove any other characters
-	title = unwantedMatch.ReplaceAllString(title, "")
-
-	return title
-}
-
-func arrayContains(array []string, value string) bool {
-	for _, v := range array {
-		if v == value {
-			return true
-		}
-	}
-	return false
 }
 
 func ReadDashboardDir(dirname string) ([]Dashboard, error) {
@@ -95,12 +66,14 @@ func ReadDashboard(name string) (Dashboard, error) {
 	if err := json.NewDecoder(f).Decode(&dashboard); err != nil {
 		return Dashboard{}, fmt.Errorf("decode dashboard %s: %w", f.Name(), err)
 	}
-	dashboard.Slug = titleToSlug(dashboard.Title)
+	dashboard.Slug = TitleToSlug(dashboard.Title)
 	return dashboard, nil
 }
 
+// CreateDashboard writes the provided dashboard to the named file.
+// The file is always truncated beforehand.
 func CreateDashboard(name string, dashboard *Dashboard) error {
-	dashboard.Slug = titleToSlug(dashboard.Title)
+	dashboard.Slug = TitleToSlug(dashboard.Title)
 	f, err := os.Create(name)
 	if err != nil {
 		return fmt.Errorf("create dashboard file: %v", err)
@@ -122,179 +95,22 @@ func Tagged(dashboards []Dashboard, tag string) []Dashboard {
 	return matches
 }
 
-func handleListDashboards(w http.ResponseWriter, r *http.Request) {
-	dashboards, err := ReadDashboardDir("dashboards")
-	if err != nil {
-		msg := fmt.Sprintf("read dashboard directory: %v", err)
-		log.Println(msg)
-		http.Error(w, msg, http.StatusInternalServerError)
-	}
+func TitleToSlug(title string) string {
+	title = strings.ToLower(title)                //convert upper case to lower case
+	title = strings.TrimSpace(title)              //remove preceeding and trailing whitespace
+	dashSpaceMatch := regexp.MustCompile(`[_\s]`) //convert spaces and underscores to dashes
+	title = dashSpaceMatch.ReplaceAllString(title, "-")
+	unwantedMatch := regexp.MustCompile(`[^a-z0-9\-]`) //Remove any other characters
+	title = unwantedMatch.ReplaceAllString(title, "")
 
-	tag := r.URL.Query().Get("tag")
-	if tag != "" {
-		dashboards = Tagged(dashboards, tag)
-	}
-
-	json.NewEncoder(w).Encode(dashboards)
+	return title
 }
 
-func handleListDashboard(w http.ResponseWriter, r *http.Request) {
-	slug := chi.URLParam(r, "slug")
-
-	//Check dashboard exists
-	if f, err := os.Open(path.Join("dashboards", slug+".json")); os.IsNotExist(err) {
-		http.Error(w, "Not found", http.StatusNotFound)
-		return
-	} else if err != nil {
-		log.Println("Error checking that file exists:", err)
-		http.Error(w, "Error checking file exists: "+err.Error(), http.StatusInternalServerError)
-		return
-	} else {
-		w.Header().Add("content-type", "application/json")
-		defer f.Close()
-		_, err = io.Copy(w, f)
-		if err != nil {
-			log.Println("Error writing response:", err)
-			http.Error(w, "Error writing response: "+err.Error(), http.StatusInternalServerError)
-			return
+func arrayContains(array []string, value string) bool {
+	for _, v := range array {
+		if v == value {
+			return true
 		}
 	}
-}
-
-func handleCreateDashboard(w http.ResponseWriter, req *http.Request) {
-	if err := req.ParseForm(); err != nil {
-		msg := fmt.Sprintf("parse form: %v", err)
-		http.Error(w, msg, http.StatusBadRequest)
-		return
-	}
-	if req.PostForm.Get("title") == "" {
-		http.Error(w, "empty name", http.StatusBadRequest)
-		return
-	}
-
-	var dashboard Dashboard
-	for k := range req.PostForm {
-		switch v := req.PostForm.Get(k); k {
-		case "title":
-			dashboard.Title = v
-			dashboard.Slug = titleToSlug(dashboard.Title)
-		default:
-			http.Error(w, fmt.Sprintf("unknown parameter %s", k), http.StatusBadRequest)
-			return
-		}
-	}
-
-	fpath := path.Join("dashboards", dashboard.Slug+".json")
-	if err := CreateDashboard(fpath, &dashboard); err != nil {
-		msg := fmt.Sprintf("create dashboard %s: %v", dashboard.Slug, err)
-		http.Error(w, msg, http.StatusInternalServerError)
-		return
-	}
-
-	new := path.Join("/", dashboard.Slug, "edit")
-	next := http.RedirectHandler(new, http.StatusFound)
-	next.ServeHTTP(w, req)
-}
-
-func handleCloneDashboard(w http.ResponseWriter, req *http.Request) {
-	if err := req.ParseForm(); err != nil {
-		msg := fmt.Sprintf("parse form: %v", err)
-		http.Error(w, msg, http.StatusBadRequest)
-		return
-	}
-	if req.PostForm.Get("title") == "" {
-		http.Error(w, "empty title", http.StatusBadRequest)
-		return
-	} else if req.PostForm.Get("src") == "" {
-		http.Error(w, "missing soure dashboard slug", http.StatusBadRequest)
-		return
-	}
-
-	srcPath := path.Join("dashboards", req.PostForm.Get("src")+".json")
-	src, err := ReadDashboard(srcPath)
-	if err != nil {
-		msg := fmt.Sprintf("read source dashboard from %s: %v", srcPath, err)
-		http.Error(w, msg, http.StatusInternalServerError)
-		return
-	}
-	dest := src
-	dest.Title = req.PostForm.Get("title")
-	dest.Slug = titleToSlug(dest.Title)
-	destPath := path.Join("dashboards", dest.Slug+".json")
-	if err := CreateDashboard(destPath, &dest); err != nil {
-		msg := fmt.Sprintf("create dashboard from %s: %v", srcPath, err)
-		http.Error(w, msg, http.StatusInternalServerError)
-		return
-	}
-
-	new := path.Join("/", dest.Slug, "edit")
-	next := http.RedirectHandler(new, http.StatusFound)
-	next.ServeHTTP(w, req)
-}
-
-func trimFirstRune(s string) string {
-	_, i := utf8.DecodeRuneInString(s)
-	return s[i:]
-}
-
-func handleUpdateDashboard(w http.ResponseWriter, r *http.Request) {
-	slug := chi.URLParam(r, "slug")
-
-	//Check dashboard exists
-	if _, err := os.Stat(path.Join("dashboards", slug+".json")); os.IsNotExist(err) {
-		http.Error(w, "Not found", http.StatusNotFound)
-		return
-	}
-
-	var dashboard Dashboard
-	if err := json.NewDecoder(r.Body).Decode(&dashboard); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	//Set dimension of background
-	width, height, err := getImageDimension(trimFirstRune(dashboard.Background))
-	if err != nil {
-		dashboard.Background = ""
-	}
-	dashboard.Height = strconv.Itoa(height)
-	dashboard.Width = strconv.Itoa(width)
-
-	slugNew := titleToSlug(dashboard.Title)
-	if len(slug) < 1 {
-		http.Error(w, "empty slug from dashboard title", http.StatusBadRequest)
-		return
-	}
-
-	err = CreateDashboard(path.Join("dashboards", slugNew+".json"), &dashboard)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	// Delete old file if slug updated
-	if slug != slugNew {
-		fmt.Printf("Slug updated %s -> %s deleting old data\n", slug, slugNew)
-		err := os.Remove(path.Join("dashboards", slug+".json"))
-		if err != nil {
-			log.Println("Failed to remove old file:", err)
-			http.Error(w, "Failed to remove old file: "+err.Error(), http.StatusInternalServerError)
-			return
-		}
-	}
-}
-
-func handleDeleteDashboard(w http.ResponseWriter, req *http.Request) {
-	slug, _ := path.Split(req.URL.Path)
-	slug = path.Clean(slug)
-	fname := path.Join("dashboards", slug+".json")
-	err := os.Remove(fname)
-	if errors.Is(err, fs.ErrNotExist) {
-		http.Error(w, "no such dashboard "+fname, http.StatusNotFound)
-		return
-	} else if err != nil {
-		http.Error(w, "remove dashboard: "+err.Error(), http.StatusInternalServerError)
-		return
-	}
-	http.RedirectHandler("/", http.StatusFound).ServeHTTP(w, req)
+	return false
 }

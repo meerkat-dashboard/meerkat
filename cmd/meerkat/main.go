@@ -10,6 +10,7 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/mailgun/groupcache/v2"
+	"gitlab.sol1.net/SOL1/meerkat/ui"
 )
 
 func init() {
@@ -49,6 +50,7 @@ func main() {
 	var configFile string
 	flag.StringVar(&configFile, "config", "", "provide an alternative config path")
 	vflag := flag.Bool("v", false, "build version information")
+	fflag := flag.String("ui", "", "user interface directory")
 	flag.Parse()
 
 	if *vflag {
@@ -119,17 +121,21 @@ func main() {
 	// serve static assets, referenced in dashboard json configurations
 	r.Handle("/dashboards-data/*", http.StripPrefix("/dashboards-data/", http.FileServer(http.Dir("./dashboards-data"))))
 
-	r.Get("/{slug}/view", viewHandler)
-	r.Get("/{slug}/edit", editHandler)
-	r.Get("/{slug}/delete", deletePage)
+	srv := ui.NewServer(nil)
+	if *fflag != "" {
+		srv = ui.NewServer(os.DirFS(*fflag))
+	}
+	r.Get("/{slug}/view", srv.ViewHandler)
+	r.Get("/{slug}/edit", srv.EditHandler)
+	r.Get("/{slug}/delete", srv.DeletePage)
 	r.Post("/{slug}/delete", handleDeleteDashboard)
-	r.Get("/create", createPage)
-	r.Post("/create", handleCreateDashboard)
-	r.Get("/clone", clonePage)
+	r.Get("/create", srv.CreatePage)
+	r.Post("/create", createDashboard)
+	r.Get("/clone", srv.ClonePage)
 	r.Post("/clone", handleCloneDashboard)
-	r.Get("/about", aboutPage)
-	r.Get("/*", http.FileServer(http.FS(content)).ServeHTTP)
-	r.Get("/", rootHandler)
+	r.Get("/about", srv.AboutPage)
+	r.Get("/*", srv.FileServer().ServeHTTP)
+	r.Get("/", srv.RootHandler)
 
 	fmt.Printf("Starting web server: %s\n", config.HTTPAddr)
 	log.Fatal(http.ListenAndServe(config.HTTPAddr, r))

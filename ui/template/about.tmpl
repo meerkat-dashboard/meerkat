@@ -1,0 +1,14 @@
+{{ define "body" }}
+{{ template "nav" }}
+<main class="container">
+<h3>About Meerkat</h3>
+<hr>
+<p>
+Meerkat build:	<code>{{ .Path }} {{ .Version }}</code>
+</p>
+<h4>Open source</h4>
+Meerkat is open source software.
+See its <a href="https://github.com/meerkat-dashboard/meerkat">source code repository</a>.
+Meerkat is released under the <a href="https://raw.githubusercontent.com/meerkat-dashboard/meerkat/main/LICENSE">AGPLv3 license</a>.
+</main>
+{{ end }}

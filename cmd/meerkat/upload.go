@@ -5,36 +5,18 @@ import (
 	"crypto/sha256"
 	"encoding/json"
 	"fmt"
-	"image"
 	_ "image/jpeg"
 	_ "image/png"
 	"io/ioutil"
-	"log"
 	"net/http"
-	"os"
 	"path"
 	"path/filepath"
 )
 
-//ResponseURL helper struct to send return URLs to the client
-//TODO change to hash, and fix frontend
+// ResponseURL helper struct to send return URLs to the client
+// TODO change to hash, and fix frontend
 type ResponseURL struct {
 	URL string `json:"url"`
-}
-
-func getImageDimension(imagePath string) (int, int, error) {
-	file, err := os.Open(imagePath)
-	if err != nil {
-		log.Println(err)
-		return 0, 0, err
-	}
-
-	image, _, err := image.DecodeConfig(file)
-	if err != nil {
-		log.Println(imagePath, err)
-		return 0, 0, err
-	}
-	return image.Width, image.Height, nil
 }
 
 func handleUpload(w http.ResponseWriter, r *http.Request) {

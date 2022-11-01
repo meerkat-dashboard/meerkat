@@ -1,7 +1,6 @@
-package main
+package ui
 
 import (
-	"embed"
 	"errors"
 	"fmt"
 	"html/template"
@@ -10,13 +9,12 @@ import (
 	"net/http"
 	"path"
 	"runtime/debug"
+
+	"gitlab.sol1.net/SOL1/meerkat"
 )
 
-//go:embed template frontend/dist
-var content embed.FS
-
-func viewHandler(w http.ResponseWriter, req *http.Request) {
-	tmpl, err := template.ParseFS(content, "template/layout.tmpl", "template/view.tmpl")
+func (srv *Server) ViewHandler(w http.ResponseWriter, req *http.Request) {
+	tmpl, err := template.ParseFS(srv.fsys, "template/layout.tmpl", "template/view.tmpl")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -24,8 +22,8 @@ func viewHandler(w http.ResponseWriter, req *http.Request) {
 	tmpl.Execute(w, nil)
 }
 
-func editHandler(w http.ResponseWriter, req *http.Request) {
-	tmpl, err := template.ParseFS(content, "template/layout.tmpl", "template/edit.tmpl")
+func (srv *Server) EditHandler(w http.ResponseWriter, req *http.Request) {
+	tmpl, err := template.ParseFS(srv.fsys, "template/layout.tmpl", "template/edit.tmpl")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -33,8 +31,8 @@ func editHandler(w http.ResponseWriter, req *http.Request) {
 	tmpl.Execute(w, nil)
 }
 
-func rootHandler(w http.ResponseWriter, req *http.Request) {
-	tmpl, err := template.ParseFS(content, "template/layout.tmpl", "template/nav.tmpl", "template/index.tmpl")
+func (srv *Server) RootHandler(w http.ResponseWriter, req *http.Request) {
+	tmpl, err := template.ParseFS(srv.fsys, "template/layout.tmpl", "template/nav.tmpl", "template/index.tmpl")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -44,8 +42,8 @@ func rootHandler(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func createPage(w http.ResponseWriter, req *http.Request) {
-	tmpl, err := template.ParseFS(content, "template/layout.tmpl", "template/nav.tmpl", "template/create.tmpl")
+func (srv *Server) CreatePage(w http.ResponseWriter, req *http.Request) {
+	tmpl, err := template.ParseFS(srv.fsys, "template/layout.tmpl", "template/nav.tmpl", "template/create.tmpl")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -55,11 +53,11 @@ func createPage(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func deletePage(w http.ResponseWriter, req *http.Request) {
+func (srv *Server) DeletePage(w http.ResponseWriter, req *http.Request) {
 	slug, _ := path.Split(req.URL.Path)
 	slug = path.Clean(slug)
 	fname := path.Join("dashboards", slug+".json")
-	dashboard, err := ReadDashboard(fname)
+	dashboard, err := meerkat.ReadDashboard(fname)
 	if errors.Is(err, fs.ErrNotExist) {
 		http.Error(w, "no such dashboard "+fname, http.StatusNotFound)
 		return
@@ -68,7 +66,7 @@ func deletePage(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	tmpl, err := template.ParseFS(content, "template/layout.tmpl", "template/delete.tmpl", "template/nav.tmpl")
+	tmpl, err := template.ParseFS(srv.fsys, "template/layout.tmpl", "template/delete.tmpl", "template/nav.tmpl")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -78,14 +76,14 @@ func deletePage(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func clonePage(w http.ResponseWriter, req *http.Request) {
-	dashboards, err := ReadDashboardDir("dashboards")
+func (srv *Server) ClonePage(w http.ResponseWriter, req *http.Request) {
+	dashboards, err := meerkat.ReadDashboardDir("dashboards")
 	if err != nil {
 		msg := fmt.Sprintf("read dashboard dir: %v", err)
 		http.Error(w, msg, http.StatusInternalServerError)
 		return
 	}
-	tmpl, err := template.ParseFS(content, "template/layout.tmpl", "template/clone.tmpl", "template/nav.tmpl")
+	tmpl, err := template.ParseFS(srv.fsys, "template/layout.tmpl", "template/clone.tmpl", "template/nav.tmpl")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -95,8 +93,8 @@ func clonePage(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func aboutPage(w http.ResponseWriter, req *http.Request) {
-	tmpl, err := template.ParseFS(content, "template/layout.tmpl", "template/about.tmpl", "template/nav.tmpl")
+func (srv *Server) AboutPage(w http.ResponseWriter, req *http.Request) {
+	tmpl, err := template.ParseFS(srv.fsys, "template/layout.tmpl", "template/about.tmpl", "template/nav.tmpl")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -110,4 +108,8 @@ func aboutPage(w http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		log.Println(err)
 	}
+}
+
+func (srv *Server) FileServer() http.Handler {
+	return http.FileServer(http.FS(srv.fsys))
 }

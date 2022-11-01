@@ -7,7 +7,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-  frontend:
+  ui:
     runs-on: ubuntu-latest
 
     steps:
@@ -18,11 +18,11 @@ jobs:
         node-version: 16.x
 
     - name: Install dependencies
-      run: cd frontend && npm install
+      run: cd ui && npm install
 
     - name: lint
       run: |
-        cd frontend
+        cd ui
         npx eslint src
         npx prettier -l src
 
@@ -44,7 +44,7 @@ jobs:
 
   package:
     runs-on: ubuntu-latest
-    needs: [frontend, backend]
+    needs: [ui, backend]
 
     steps:
       - uses: actions/checkout@v3

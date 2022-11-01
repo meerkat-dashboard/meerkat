@@ -6,15 +6,15 @@ Meerkat is a utility to create and share dashboards for Icinga 2 checks and host
 
 ## Development
 
-First, build the frontend. Install dependencies, then build the application bundle:
+First, build the UI. Install dependencies, then build the application bundle:
 
-	cd frontend
+	cd ui
 	npm install
 	npm run build
 
 Next, build the backend:
 
-	cd ..
+	cd ../cmd/meerkat
 	go build
 
 Finally, run meerkat and provide a configuration file:
@@ -28,6 +28,17 @@ Or on Windows
 
 See `config/meerkat.toml.example` for an example configuration file.
 For a full configuration reference, see [Configuration](https://meerkat.run/configuration) on the project website.
+
+### Fast frontend development
+
+By default, the meerkat command serves the UI from an embedded filesystem created at build time.
+This means that changes to the UI are only served after rebuilding the entire command.
+For convenience, we can instead serve the UI from the local OS' filesystem.
+This way changes we make are served immediately by meerkat without rebuilding.
+The meerkat command accepts the `-ui` flag, with a directory containing all the UI files.
+For example:
+
+	./cmd/meerkat/meerkat -ui ui/
 
 ## Configuring Icinga
 
