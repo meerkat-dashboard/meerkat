@@ -144,12 +144,11 @@ function Viewer({ slug }) {
 			{backgroundImage ? (
 				<img
 					src={backgroundImage}
-					class="noselect"
 					style="height: 100%; width: 100%;"
 					id="dashboard-dimensions"
 				/>
 			) : (
-				<div class="noselect" style="height: 100vh; width: 100vw"></div>
+				<div style="height: 100vh; width: 100vw"></div>
 			)}
 			{elements}
 		</div>

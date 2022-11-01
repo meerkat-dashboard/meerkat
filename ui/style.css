@@ -125,11 +125,10 @@ div.selection > .selector:last-child {
 .dashboard-wrap {
 	margin: 20px;
 	margin-left: 400px; /* allow for the editor side panel */
-	display: flex;
 }
 
 .dashboard-wrap .dashboard {
-	border: 1.5px solid rgba(0, 0, 0, 0.2);;
+	border: 1.5px solid white;
 	flex-grow: 1;
 	border-radius: 4px;
 	position: relative;
@@ -139,6 +138,7 @@ div.selection > .selector:last-child {
 }
 
 .dashboard.view-only {
+	user-select: none;
 	position: relative;
 	flex-grow: 1;
 	display: flex;
@@ -174,15 +174,6 @@ audio::-webkit-media-controls-current-time-display {
 
 audio::-webkit-media-controls-time-remaining-display {
 	display: none;
-}
-
-.noselect {
-	-webkit-touch-callout: none; /* iOS Safari */
-	-webkit-user-select: none; /* Safari */
-	-khtml-user-select: none; /* Konqueror HTML */
-	-moz-user-select: none; /* Old versions of Firefox */
-	-ms-user-select: none; /* Internet Explorer/Edge */
-	user-select: none; /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */
 }
 
 .dashboard.view-only .check {

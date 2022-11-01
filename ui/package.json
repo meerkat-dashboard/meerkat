@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "dev": "webpack --mode development",
+    "dev": "./grabstyle && webpack --mode development",
     "build": "./grabstyle && webpack --mode production",
     "lint": "eslint src"
   },
