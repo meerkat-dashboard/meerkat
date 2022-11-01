@@ -14,7 +14,7 @@ import (
 	"strconv"
 	"unicode/utf8"
 
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
 	"github.com/meerkat-dashboard/meerkat"
 )
 

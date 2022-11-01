@@ -7,8 +7,9 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path"
 
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
 	"github.com/mailgun/groupcache/v2"
 	"github.com/meerkat-dashboard/meerkat/ui"
 )
@@ -123,7 +124,7 @@ func main() {
 
 	srv := ui.NewServer(nil)
 	if *fflag != "" {
-		srv = ui.NewServer(os.DirFS(*fflag))
+		srv = ui.NewServer(os.DirFS(path.Clean(*fflag)))
 	}
 	r.Get("/{slug}/view", srv.ViewHandler)
 	r.Get("/{slug}/edit", srv.EditHandler)
