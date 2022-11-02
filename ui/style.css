@@ -206,23 +206,6 @@ audio::-webkit-media-controls-time-remaining-display {
 	min-width: 380px;
 }
 
-div.pill {
-	border-radius: 5px;
-	padding: 0 5px;
-	background-color: #343a40;
-	color: white;
-	display: inline-flex;
-	align-items: center;
-	margin: 0 5px 5px 9px;
-	font-size: 10px;
-	text-transform: uppercase;
-}
-
-div.tag .close-icon {
-	padding: 4px 0 4px 4px;
-	cursor: pointer;
-}
-
 /* DASHBOARD ELEMENTS */
 .ticker > .check-content,
 .check > .check-content {

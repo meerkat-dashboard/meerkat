@@ -2,7 +2,6 @@ import { h, Fragment } from "preact";
 import { useEffect, useReducer, useState } from "preact/hooks";
 
 import * as meerkat from "./meerkat";
-import { TagEditor } from "./util";
 import { ObjectStateCard, CheckCardOptions } from "./elements/card";
 import { CheckSVG, CheckSVGOptions, CheckSVGDefaults } from "./elements/svg";
 import { CheckImage, CheckImageOptions } from "./elements/image";
@@ -69,8 +68,6 @@ function dashboardReducer(state, action) {
 			return action.dashboard;
 		case "setTitle":
 			return { ...state, title: action.title };
-		case "setTags":
-			return { ...state, tags: action.tags };
 		case "setBackground":
 			return { ...state, background: action.background };
 		case "addElement":
@@ -574,13 +571,6 @@ function SidePanelSettings({ dashboardDispatch, dashboard }) {
 		}
 	};
 
-	const updateTags = (tags) => {
-		dashboardDispatch({
-			type: "setTags",
-			tags: tags.map((v) => v.toLowerCase().trim()),
-		});
-	};
-
 	const clearBackground = (e) => {
 		e.preventDefault();
 		dashboardDispatch({
@@ -618,11 +608,6 @@ function SidePanelSettings({ dashboardDispatch, dashboard }) {
 				onInput={(e) =>
 					dashboardDispatch({ type: "setTitle", title: e.currentTarget.value })
 				}
-			/>
-
-			<TagEditor
-				tags={dashboard.tags}
-				updateTags={(tags) => updateTags(tags)}
 			/>
 
 			<fieldset class="form-group">

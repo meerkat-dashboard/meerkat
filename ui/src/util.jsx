@@ -426,53 +426,6 @@ export function linkHelper(element, ele, dashboard) {
 	return <a href={link}>{ele}</a>;
 }
 
-export function TagEditor({ tags, updateTags }) {
-	const inputRef = createRef();
-	const addTag = (e) => {
-		e.preventDefault();
-		updateTags(tags.concat(e.currentTarget["add-tag"].value));
-		inputRef.current.value = "";
-	};
-	const removeTag = (index) => {
-		tags.splice(index, 1);
-		updateTags(tags);
-	};
-
-	let tagElements;
-	if (tags) {
-		tagElements = tags.map((tag, i) => {
-			return (
-				<div class="pill tag btn-dark">
-					<span>{tag}</span>
-					<span class="close-icon" onClick={(e) => removeTag(i)}>
-						x
-					</span>
-				</div>
-			);
-		});
-	}
-
-	return (
-		<form onSubmit={addTag}>
-			<label class="form-label" for="add-tag">
-				Tags
-			</label>
-			{tagElements}
-			<input
-				class="form-control"
-				type="text"
-				id="add-tag"
-				name="add-tag"
-				ref={inputRef}
-				placeholder="networking"
-				pattern="[a-z\d\-_]+"
-				title="only lower case letters, numbers, '-' and '_' are allowed"
-			/>
-			<small class="form-text">Press enter to add a tag.</small>
-		</form>
-	);
-}
-
 // adapted from https://github.com/lodash/lodash/blob/4.17.15/lodash.js#L10304
 export function debounce(func, wait, options) {
 	var lastArgs,

@@ -16,7 +16,6 @@ type Dashboard struct {
 	Background string    `json:"background"`
 	Width      string    `json:"width"`
 	Height     string    `json:"height"`
-	Tags       []string  `json:"tags"`
 	Elements   []Element `json:"elements"`
 }
 
@@ -83,16 +82,6 @@ func CreateDashboard(name string, dashboard *Dashboard) error {
 		return fmt.Errorf("write dashboard file: %w", err)
 	}
 	return nil
-}
-
-func Tagged(dashboards []Dashboard, tag string) []Dashboard {
-	var matches []Dashboard
-	for _, dash := range dashboards {
-		if arrayContains(dash.Tags, tag) {
-			matches = append(matches, dash)
-		}
-	}
-	return matches
 }
 
 func TitleToSlug(title string) string {

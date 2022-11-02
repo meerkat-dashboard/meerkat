@@ -25,12 +25,6 @@ func handleListDashboards(w http.ResponseWriter, r *http.Request) {
 		log.Println(msg)
 		http.Error(w, msg, http.StatusInternalServerError)
 	}
-
-	tag := r.URL.Query().Get("tag")
-	if tag != "" {
-		dashboards = meerkat.Tagged(dashboards, tag)
-	}
-
 	json.NewEncoder(w).Encode(dashboards)
 }
 
@@ -101,7 +95,7 @@ func handleCloneDashboard(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, "empty title", http.StatusBadRequest)
 		return
 	} else if req.PostForm.Get("src") == "" {
-		http.Error(w, "missing soure dashboard slug", http.StatusBadRequest)
+		http.Error(w, "missing source dashboard slug", http.StatusBadRequest)
 		return
 	}
 
