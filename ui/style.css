@@ -386,6 +386,7 @@ div.check-content.svg {
 .check-state {
 	-webkit-text-stroke-width: 0.03em;
 	-webkit-text-stroke-color: black;
+	font-size: 48px;
 }
 
 a {
