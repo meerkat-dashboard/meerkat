@@ -17,7 +17,7 @@ tar -C /usr/local -xzf meerkat.tar.gz
 ```
 You will probably need to run this command as root or through `sudo`.
 
-2. Write a configuration file. The example configuration file is enough to create very basic dashboards.
+2. Write a configuration file. The example configuration file is enough to create basic dashboards.
 ```
 cp /usr/local/meerkat/meerkat.toml.example /usr/local/meerkat/meerkat.toml
 ```
@@ -32,10 +32,10 @@ cp /usr/local/meerkat/meerkat.toml.example /usr/local/meerkat/meerkat.toml
 /usr/local/meerkat/meerkat -config /usr/local/meerkat/meerkat.toml
 ```
 
-Open a web browser and browse to the IP address of the machine.
+Open a web browser and browse to the address of the machine.
 
 We're done!
 
-This set up is only sufficient for the most basic dashboards, testing, or fiddling around.
+This set up is only sufficient for basic dashboards, testing, and fiddling around.
 Meerkat's primary use case is to display information from [Icinga2](https://icinga.com).
 Follow the [Connecting Icinga tutorial](connect-icinga) to set this up.

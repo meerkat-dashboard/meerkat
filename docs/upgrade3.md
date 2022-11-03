@@ -1,7 +1,10 @@
 # Upgrading to Meerkat 3
+{: .no_toc }
 
 1. TOC
 {:toc}
+
+---
 
 ## Change Summary
 
@@ -16,10 +19,9 @@ Readability and usability improvements:
 * More inline tips and placeholders scattered throughout the interface for guidance
 * Increased text contrast on coloured elements
 * Replace `<div>` HTML elements with more meaningful `<section>`, `<fieldset>` etc. HTML elements.
+* Standard HTML forms and pages replace custom interface elements like Javascript modals.
 
 HLS Stream elements are rendered with standard HTML5 `<video>` tags rather than a Javascript player.
-
-Standard HTML forms and pages replace custom interface elements, like Javascript modals.
 
 All Javascript vulnerabilities reported by npm are resolved.
 

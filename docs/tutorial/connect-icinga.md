@@ -18,6 +18,7 @@ Meerkat uses the Icinga2 HTTP API.
 ## 1. Create a `ApiUser` object for Meerkat
 
 Create an [ApiUser][apiuser] object with read-only privileges.
+In a default installation, this configuration may be written to the file `/etc/icinga2/conf.d/api-users.conf`.
 We will use the example username and password "meerkat".
 
 	object ApiUser "meerkat" {
@@ -26,8 +27,6 @@ We will use the example username and password "meerkat".
 	}
 
 [apiuser]: https://icinga.com/docs/icinga-2/latest/doc/09-object-types/#apiuser
-
-In a default installation, this configuration may be written to the file `/etc/icinga2/conf.d/api-users.conf`.
 
 Reload the Icinga daemon. On Linux systems using systemd, this can be done with:
 

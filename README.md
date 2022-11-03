@@ -6,6 +6,10 @@ Meerkat is a utility to create and share dashboards for Icinga 2 checks and host
 
 ## Development
 
+Meerkat development requires supported releases of Go and Node.js.
+See the [Go installation][goinstall] and [Node.js install][nodeinstall] documentation.
+Devolopment with older toolchains may be ok but we can't guarantee the behaviour.
+
 First, build the UI. Install dependencies, then build the application bundle:
 
 	cd ui
@@ -28,6 +32,9 @@ Or on Windows
 
 See `config/meerkat.toml.example` for an example configuration file.
 For a full configuration reference, see [Configuration](https://meerkat.run/configuration) on the project website.
+
+[goinstall]: https://go.dev/doc/install
+[nodeinstall]: https://nodejs.org/en/download/package-manager/
 
 ### Fast frontend development
 

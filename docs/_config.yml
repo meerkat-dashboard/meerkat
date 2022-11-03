@@ -1,5 +1,5 @@
 remote_theme: just-the-docs/just-the-docs
 logo: "meerkatlogo.png"
 aux_links:
-  "Meerkat on Github":
+  "Meerkat on GitHub":
     - "//github.com/meerkat-dashboard/meerkat"
