@@ -1,4 +1,6 @@
 # Upgrading to Meerkat 3
+
+1. TOC
 {:toc}
 
 ## Change Summary
@@ -53,18 +55,18 @@ Follow the [install instructions][install].
 
 [install]: /install
 
-## Post-upgrade steps
+## Post-install steps
 
 These instructions assume Meerkat is installed in the default installation directory `/usr/local/meerkat`.
 
-### 1. Frontend directory
+### 1. Remove frontend directory
 
 The file tree providing the frontend GUI is now embedded into the `meerkat` command.
 The frontend directory is now ignored and can be safely removed:
 
 	rm -r /usr/local/meerkat/frontend
 
-### 2. Font size option
+### 2. Rename font size option
 
 The `statusFontSize` element option has been renamed to `fontSize`.
 To update existing elements, run the following command to rename the options:
