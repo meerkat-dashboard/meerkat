@@ -11,6 +11,7 @@ export function IframeVideoOptions({ options, updateOptions }) {
 				class="form-control"
 				id="src"
 				name="src"
+				placeholder="http://v.example.com/stream.m3u8"
 				value={options.source}
 				onInput={(e) => updateOptions({ source: e.currentTarget.value })}
 			></input>
