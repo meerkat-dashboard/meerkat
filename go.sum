@@ -23,3 +23,5 @@ golang.org/x/sys v0.0.0-20220520151302-bc2c85ada10a h1:dGzPydgVsqGcTRVwiLJ1jVbuf
 golang.org/x/sys v0.0.0-20220520151302-bc2c85ada10a/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
 olowe.co/icinga v0.0.0-20220212001120-cb667a50cb18 h1:J2/xWkbGY9091VUHdOnW7oF4Xag+/wx1zlZKbudnzRE=
 olowe.co/icinga v0.0.0-20220212001120-cb667a50cb18/go.mod h1:lmrhjtuBB/b6c47iy9fU3LteW5zhKEb8axVB5Imy0CI=
+olowe.co/icinga v0.0.0-20221101234915-f21c51c74509 h1:vjAl72gwvmCr1BFHEPPYoL6lV2ShaxX0A4xdiVhWxh4=
+olowe.co/icinga v0.0.0-20221101234915-f21c51c74509/go.mod h1:lmrhjtuBB/b6c47iy9fU3LteW5zhKEb8axVB5Imy0CI=

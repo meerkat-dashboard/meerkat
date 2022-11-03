@@ -6,7 +6,7 @@ require (
 	github.com/BurntSushi/toml v1.2.1
 	github.com/go-chi/chi/v5 v5.0.7
 	github.com/mailgun/groupcache/v2 v2.4.1
-	olowe.co/icinga v0.0.0-20220212001120-cb667a50cb18
+	olowe.co/icinga v0.0.0-20221101234915-f21c51c74509
 )
 
 require (
