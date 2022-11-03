@@ -15,14 +15,3 @@ export function AudioOptions({ options, updateOptions }) {
 		</fieldset>
 	);
 }
-
-export function AudioStream({ options }) {
-	return (
-		<audio
-			class="audio-player"
-			controls
-			src={options.audioSource}
-			type="audio/mpeg"
-		></audio>
-	);
-}

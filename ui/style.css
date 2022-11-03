@@ -152,30 +152,6 @@ div.selection > .selector:last-child {
 	}
 }
 
-.audio-player {
-	width: 150px;
-}
-
-audio::-webkit-media-controls-overlay-play-button{
-    display: none;
-}
-
-audio::-webkit-media-controls-overlay-enclosure{
-	width: 25px;
-}
-
-audio::-webkit-media-controls-timeline {
-	display: none !important;
-}
-
-audio::-webkit-media-controls-current-time-display {
-	display: none;
-}
-
-audio::-webkit-media-controls-time-remaining-display {
-	display: none;
-}
-
 .dashboard.view-only .check {
 	cursor: default;
 }

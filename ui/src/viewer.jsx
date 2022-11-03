@@ -6,7 +6,6 @@ import { ObjectStateCard } from "./elements/card";
 import { CheckImage } from "./elements/image";
 import { CheckSVG } from "./elements/svg";
 import { CheckLine } from "./elements/line";
-import { AudioStream } from "./elements/audio";
 import { IframeVideo } from "./elements/video";
 import { DynamicText } from "./elements/text";
 import { Clock } from "./elements/clock";
@@ -97,7 +96,7 @@ function Viewer({ slug }) {
 			ele = <IframeVideo options={element.options} />;
 		}
 		if (element.type === "audio-stream") {
-			ele = <AudioStream options={element.options} />;
+			ele = <audio controls src={element.options.audioSource}></audio>;
 		}
 
 		if (element.options.linkURL) {

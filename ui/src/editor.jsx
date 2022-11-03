@@ -28,7 +28,7 @@ import {
 import { StaticSVG, StaticSVGOptions, StaticSVGDefaults } from "./statics/svg";
 import { StaticImage, StaticImageOptions } from "./statics/image";
 import { IframeVideo, IframeVideoOptions } from "./elements/video";
-import { AudioStream, AudioOptions } from "./elements/audio";
+import { AudioOptions } from "./elements/audio";
 import { Clock, ClockOptions } from "./elements/clock";
 import { ObjectCard, ObjectCardOptions } from "./elements/i2object";
 
@@ -477,7 +477,7 @@ function DashboardElements({
 				ele = <IframeVideo options={element.options} />;
 				break;
 			case "audio-stream":
-				ele = <AudioStream options={element.options} />;
+				ele = <audio controls src={element.options.audioSource}></audio>;
 				break;
 			case "object-card":
 				ele = (
