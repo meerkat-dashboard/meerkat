@@ -78,7 +78,11 @@ func CreateDashboard(name string, dashboard *Dashboard) error {
 		return fmt.Errorf("create dashboard file: %v", err)
 	}
 	defer f.Close()
-	if err := json.NewEncoder(f).Encode(&dashboard); err != nil {
+	buf, err := json.MarshalIndent(&dashboard, "", "  ")
+	if err != nil {
+		return err
+	}
+	if _, err := f.Write(buf); err != nil {
 		return fmt.Errorf("write dashboard file: %w", err)
 	}
 	return nil
