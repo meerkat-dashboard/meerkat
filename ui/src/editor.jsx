@@ -146,7 +146,7 @@ export function Editor({ slug }) {
 		try {
 			await meerkat.saveDashboard(slug, dashboard);
 		} catch (e) {
-			console.log("error saving dashboard:", e);
+			alert("Error saving dashboard:", e.message);
 		}
 	};
 
