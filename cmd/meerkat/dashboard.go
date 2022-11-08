@@ -57,8 +57,12 @@ func handleCreateDashboard(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, msg, http.StatusBadRequest)
 		return
 	}
-	if req.PostForm.Get("title") == "" {
+	switch title := req.PostForm.Get("title"); title {
+	case "":
 		http.Error(w, "empty name", http.StatusBadRequest)
+		return
+	case "edit", "view":
+		http.Error(w, "reserved title for old Meerkat URL paths", http.StatusBadRequest)
 		return
 	}
 
@@ -200,4 +204,23 @@ func imageDimension(imagePath string) (int, int, error) {
 		return 0, 0, err
 	}
 	return image.Width, image.Height, nil
+}
+
+func oldPathHandler(w http.ResponseWriter, req *http.Request) {
+	// handle redirect loops
+	if path.Base(req.URL.Path) == "view" || path.Base(req.URL.Path) == "edit" {
+		http.Error(w, "reserved dashboard name for old Meerkat URLs", http.StatusBadRequest)
+		return
+	}
+	new := swapPath(req.URL.Path)
+	http.RedirectHandler(new, http.StatusMovedPermanently).ServeHTTP(w, req)
+}
+
+// swapPath takes a file path to a dashboard from a previous Meerkat
+// release and returns a path in the newer format.
+// For example given the old path "/view/my-network", the new path is "/my-network/view".
+func swapPath(old string) string {
+	new := path.Join("/", path.Base(old), path.Dir(old))
+	fmt.Println(new)
+	return new
 }

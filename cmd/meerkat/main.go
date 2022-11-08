@@ -128,6 +128,8 @@ func main() {
 	}
 	r.Get("/{slug}/view", srv.ViewHandler)
 	r.Get("/{slug}/edit", srv.EditHandler)
+	r.Get("/view/*", oldPathHandler)
+	r.Get("/edit/*", oldPathHandler)
 	r.Get("/{slug}/delete", srv.DeletePage)
 	r.Post("/{slug}/delete", handleDeleteDashboard)
 	r.Get("/create", srv.CreatePage)

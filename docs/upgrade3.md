@@ -34,6 +34,10 @@ For example, to view, edit, delete a dashboard named "networking", the correspon
 * https://demo.meerkat.run/test/edit
 * https://demo.meerkat.run/test/delete
 
+Paths of a dashboard's URL have changed  from previous releases.
+URLs in the previous format continue to work via a permanent redirect.
+Nonetheless, where possible, it is encouraged to update URLs to the new format.
+
 A new [About page][about] shows the installed version of Meerkat and build time.
 
 Installation is easier.
