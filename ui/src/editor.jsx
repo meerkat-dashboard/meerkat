@@ -142,11 +142,12 @@ export function Editor({ slug }) {
 		});
 	};
 
-	const saveDashboard = async (e) => {
+	const saveAndView = async (e) => {
 		try {
 			await meerkat.saveDashboard(slug, dashboard);
+			location.href = `/${dashboard.slug}/view`;
 		} catch (e) {
-			alert("Error saving dashboard:", e.message);
+			alert(`Error saving dashboard: ${e.message}`);
 		}
 	};
 
@@ -182,8 +183,8 @@ export function Editor({ slug }) {
 				<a href="/" class="btn btn-secondary">
 					Home
 				</a>
-				<button onClick={saveDashboard} class="btn btn-success">
-					Save Dashboard
+				<button onClick={saveAndView} class="btn btn-success">
+					Save & View
 				</button>
 			</footer>
 			<main class="dashboard-wrap">
