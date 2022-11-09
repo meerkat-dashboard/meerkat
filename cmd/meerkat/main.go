@@ -11,6 +11,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/mailgun/groupcache/v2"
+	"github.com/meerkat-dashboard/meerkat"
 	"github.com/meerkat-dashboard/meerkat/ui"
 )
 
@@ -55,7 +56,7 @@ func main() {
 	flag.Parse()
 
 	if *vflag {
-		printVersionString(os.Stderr)
+		fmt.Fprintln(os.Stderr, meerkat.BuildString())
 		return
 	}
 

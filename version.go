@@ -1,16 +1,16 @@
-package main
+package meerkat
 
 import (
 	"fmt"
-	"io"
 	"runtime/debug"
 )
 
-func printVersionString(w io.Writer) {
+func BuildString() string {
 	info, ok := debug.ReadBuildInfo()
 	if !ok {
-		fmt.Fprintln(w, "no build information")
+		return "no build information"
 	}
+	fmt.Println(info)
 	var revision, time string
 	var dirty bool
 	for _, setting := range info.Settings {
@@ -29,5 +29,5 @@ func printVersionString(w io.Writer) {
 	if dirty {
 		s += " (dirty)"
 	}
-	fmt.Fprintln(w, s)
+	return s
 }

@@ -8,7 +8,6 @@ import (
 	"log"
 	"net/http"
 	"path"
-	"runtime/debug"
 
 	"github.com/meerkat-dashboard/meerkat"
 )
@@ -99,12 +98,7 @@ func (srv *Server) AboutPage(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	info, ok := debug.ReadBuildInfo()
-	if !ok {
-		err = tmpl.Execute(w, nil)
-	} else {
-		err = tmpl.Execute(w, info.Main)
-	}
+	err = tmpl.Execute(w, meerkat.BuildString())
 	if err != nil {
 		log.Println(err)
 	}
