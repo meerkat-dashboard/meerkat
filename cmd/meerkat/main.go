@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -19,38 +18,17 @@ func init() {
 	log.SetFlags(log.LstdFlags | log.Llongfile)
 }
 
-func initDirs() error {
-	requiredDirs := []string{"dashboards", "dashboards-data"}
-
-	files, err := ioutil.ReadDir("./")
-	if err != nil {
-		return fmt.Errorf("Failed to read directory - %s", err)
+func mkDirs() error {
+	if err := os.MkdirAll("dashboards", 0755); err != nil {
+		return err
 	}
-
-	//Check directories exist, if not create
-Files:
-	for _, p := range requiredDirs {
-		for _, f := range files {
-			if f.Name() == p {
-				continue Files
-			}
-		}
-
-		fmt.Printf("%s directory not found, creating\n", p)
-		err = os.Mkdir(p, os.ModePerm)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
+	return os.MkdirAll("dashboards-data", 0755)
 }
 
 var config Config
 
 func main() {
-	var configFile string
-	flag.StringVar(&configFile, "config", "", "provide an alternative config path")
+	configFile := flag.String("config", "", "load configuration from this file")
 	vflag := flag.Bool("v", false, "build version information")
 	fflag := flag.String("ui", "", "user interface directory")
 	flag.Parse()
@@ -61,17 +39,15 @@ func main() {
 	}
 
 	var err error
-	config, err = LoadConfig(configFile)
+	config, err = LoadConfig(*configFile)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
 	initialiseIcingaCaches()
 
-	//Initialize directories
-	err = initDirs()
-	if err != nil {
-		log.Fatalf("Error initializing dashboards directory - %s\n", err)
+	if err := mkDirs(); err != nil {
+		log.Fatalln("Error creating dashboards directory:", err)
 	}
 
 	cachepool := groupcache.NewHTTPPool("http://localhost:8585")
@@ -141,6 +117,6 @@ func main() {
 	r.Get("/*", srv.FileServer().ServeHTTP)
 	r.Get("/", srv.RootHandler)
 
-	fmt.Printf("Starting web server: %s\n", config.HTTPAddr)
+	log.Println("Starting web server on", config.HTTPAddr)
 	log.Fatal(http.ListenAndServe(config.HTTPAddr, r))
 }
