@@ -14,10 +14,6 @@ import (
 	"github.com/meerkat-dashboard/meerkat/ui"
 )
 
-func init() {
-	log.SetFlags(log.LstdFlags | log.Llongfile)
-}
-
 func mkDirs() error {
 	if err := os.MkdirAll("dashboards", 0755); err != nil {
 		return err
