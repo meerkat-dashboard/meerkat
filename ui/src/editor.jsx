@@ -561,14 +561,12 @@ function SidePanelSettings({ dashboardDispatch, dashboard }) {
 	const handleBackgroundImg = async (e) => {
 		try {
 			const res = await meerkat.uploadFile(e.target.files[0]);
-
 			dashboardDispatch({
 				type: "setBackground",
 				background: res.url,
 			});
 		} catch (e) {
-			console.log("failed to upload image and set background");
-			console.log(e);
+			alert(`Cannot set background image: ${e.message}`);
 		}
 	};
 

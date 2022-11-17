@@ -7,38 +7,48 @@ import (
 	"fmt"
 	_ "image/jpeg"
 	_ "image/png"
-	"io/ioutil"
+	"io"
 	"net/http"
+	"os"
 	"path"
 	"path/filepath"
 )
 
-// ResponseURL helper struct to send return URLs to the client
-// TODO change to hash, and fix frontend
-type ResponseURL struct {
-	URL string `json:"url"`
+type uploadResponse struct {
+	URL   string `json:"url"`
+	Error string `json:"error"`
 }
 
 func handleUpload(w http.ResponseWriter, r *http.Request) {
-	extension := filepath.Ext(r.Header.Get("filename"))
-
-	buf := new(bytes.Buffer)
-	buf.ReadFrom(r.Body)
-	contents := buf.Bytes()
-
-	h := sha256.New()
-	h.Write(contents)
-	hash := fmt.Sprintf("%x", h.Sum(nil)[0:16])
-
-	filepath := path.Join("dashboards-data", hash+extension)
-	err := ioutil.WriteFile(filepath, contents, 0655)
-	if err != nil {
-		fmt.Printf("error writing to file %s\n", err)
-		http.Error(w, "error writing to file %s\n", http.StatusInternalServerError)
-		return
+	defer r.Body.Close()
+	newFile, err := writeUploadedFile(r.Header.Get("filename"), r.Body)
+	resp := uploadResponse{
+		URL: path.Join("/", newFile),
 	}
+	if err != nil {
+		resp.Error = err.Error()
+	}
+	json.NewEncoder(w).Encode(resp)
+}
 
-	fmt.Printf("Created file %s\n", filepath)
-	enc := json.NewEncoder(w)
-	enc.Encode(ResponseURL{URL: path.Join("/", filepath)})
+// writeUploadedFile writes the named file to the default dashboard data directory.
+// The path to the file along with any errors are returned.
+func writeUploadedFile(name string, src io.Reader) (string, error) {
+	buf := &bytes.Buffer{}
+	_, err := io.Copy(buf, src)
+	if err != nil {
+		return "", fmt.Errorf("read uploaded file: %w", err)
+	}
+	hash := sha256Hash(buf.Bytes())
+	diskName := path.Join("dashboards-data", hash+filepath.Ext(name))
+	err = os.WriteFile(diskName, buf.Bytes(), 0644)
+	return diskName, err
+}
+
+// sha256Hash returns sha256 hash of all data from r as a string
+// truncated to 16 characters.
+func sha256Hash(buf []byte) string {
+	hash := sha256.New()
+	hash.Write(buf)
+	return fmt.Sprintf("%x", hash.Sum(nil)[:16])
 }

@@ -83,7 +83,11 @@ export async function uploadFile(file) {
 		method: "POST",
 		body: file,
 	});
-	return res.json();
+	const resp = await res.json();
+	if (resp.error != "") {
+		throw new Error(resp.error);
+	}
+	return resp;
 }
 
 export async function authConfigured() {
