@@ -26,6 +26,7 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 		URL: path.Join("/", newFile),
 	}
 	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
 		resp.Error = err.Error()
 	}
 	json.NewEncoder(w).Encode(resp)
