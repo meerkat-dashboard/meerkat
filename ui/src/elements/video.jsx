@@ -1,7 +1,6 @@
 import { h } from "preact";
 import { useEffect, useRef } from "preact/hooks";
-// import hls.light.js rather than hls.js; no advanced client-side features required for monitoring.
-import Hls from "hls.js/dist/hls.light.js";
+import Hls from "hls.js/dist/hls.js";
 
 export function IframeVideoOptions({ options, updateOptions }) {
 	return (
