@@ -7,20 +7,20 @@
   "license": "AGPL-3.0-or-later",
   "author": "Matthew Streatfield (https://github.com/StreatCodes)",
   "dependencies": {
-    "hls.js": "1.2.4",
-    "preact": "10.11.2",
+    "hls.js": "1.2.7",
+    "preact": "^10.11.3",
     "react-widgets": "4.4.4"
   },
   "devDependencies": {
-    "@babel/core": "7.19.6",
+    "@babel/core": "7.20.2",
     "@babel/plugin-transform-react-jsx": "7.19.0",
-    "babel-loader": "^9.0.1",
-    "eslint": "^8.26.0",
+    "babel-loader": "^9.1.0",
+    "eslint": "^8.28.0",
     "eslint-config-prettier": "^8.5.0",
-    "eslint-plugin-react": "^7.31.10",
-    "prettier": "^2.7.1",
-    "webpack": "^5.74.0",
-    "webpack-cli": "^4.10.0"
+    "eslint-plugin-react": "^7.31.11",
+    "prettier": "^2.8.0",
+    "webpack": "^5.75.0",
+    "webpack-cli": "^5.0.0"
   },
   "prettier": {
     "useTabs": true
