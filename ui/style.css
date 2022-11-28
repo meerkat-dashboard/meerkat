@@ -182,21 +182,14 @@ div.selection > .selector:last-child {
 	min-width: 380px;
 }
 
-/* DASHBOARD ELEMENTS */
-.ticker > .check-content,
-.check > .check-content {
+.ticker > .check-content {
 	overflow: hidden;
 }
 
 .check {
 	cursor: move;
 	position: absolute;
-	overflow: hidden;
 	text-transform: uppercase;
-}
-
-.check-editing {
-	overflow: visible;
 }
 
 .check.glow {
@@ -278,19 +271,35 @@ div.selection > .selector:last-child {
 	background-color: var(--color-icinga-red);
 }
 
+svg.critical {
+	stroke: var(--color-icinga-red);
+}
+
 .card.ok, .card.up {
 	background-color: var(--color-icinga-green);
+}
+
+svg.ok {
+	stroke: var(--color-icinga-green);
 }
 
 .card.unknown {
 	background-color: var(--color-icinga-purple);
 }
 
+svg.unknown {
+	stroke: var(--color-icinga-purple);
+}
+
 .card.warning {
 	background-color: var(--color-icinga-yellow);
 }
 
-.check > a > div.check-content.svg > svg.feather {
+svg.warning {
+	stroke: var(--color-icinga-yellow);
+}
+
+svg.feather {
 	display:block;
 	line-height: 0;
 	left: 100% !important;
