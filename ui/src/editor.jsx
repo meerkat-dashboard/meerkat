@@ -4,7 +4,7 @@ import { useEffect, useReducer, useState } from "preact/hooks";
 import * as meerkat from "./meerkat";
 import { ObjectStateCard, CheckCardOptions } from "./elements/card";
 import { CheckSVG, CheckSVGOptions, CheckSVGDefaults } from "./elements/svg";
-import { CheckImage, CheckImageOptions } from "./elements/image";
+import { Image, ImageOptions, CheckImage, CheckImageOptions } from "./elements/image";
 import {
 	CheckLine,
 	CheckLineOptions,
@@ -21,7 +21,6 @@ import {
 	StaticTickerDefaults,
 } from "./statics/ticker";
 import { StaticSVG, StaticSVGOptions, StaticSVGDefaults } from "./statics/svg";
-import { StaticImage, StaticImageOptions } from "./statics/image";
 import { Video, VideoOptions } from "./elements/video";
 import { AudioOptions } from "./elements/audio";
 import { Clock, ClockOptions } from "./elements/clock";
@@ -461,8 +460,8 @@ function DashboardElements({
 			case "static-svg":
 				ele = <StaticSVG options={element.options} />;
 				break;
-			case "static-image":
-				ele = <StaticImage options={element.options} />;
+			case "image":
+				ele = <Image source={element.options.image} />;
 				break;
 			case "video":
 				ele = <Video options={element.options} />;
@@ -812,9 +811,9 @@ export function ElementSettings({ element, updateElement, closeElement }) {
 			/>
 		);
 	}
-	if (element.type === "static-image") {
+	if (element.type === "image") {
 		ElementOptions = (
-			<StaticImageOptions
+			<ImageOptions
 				updateOptions={updateElementOptions}
 				options={element.options}
 			/>
@@ -889,7 +888,7 @@ export function ElementSettings({ element, updateElement, closeElement }) {
 					<option value="check-line">Icinga Line</option>
 					<option value="static-text">Static Text</option>
 					<option value="static-svg">Static SVG</option>
-					<option value="static-image">Static Image</option>
+					<option value="image">Image</option>
 					<option value="static-ticker">Static Ticker</option>
 					<option value="video">Video</option>
 					<option value="audio">Audio</option>

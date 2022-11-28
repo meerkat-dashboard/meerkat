@@ -3,7 +3,7 @@ import { useState, useEffect } from "preact/hooks";
 
 import * as meerkat from "./meerkat";
 import { ObjectStateCard } from "./elements/card";
-import { CheckImage } from "./elements/image";
+import { Image, CheckImage } from "./elements/image";
 import { CheckSVG } from "./elements/svg";
 import { CheckLine } from "./elements/line";
 import { Video } from "./elements/video";
@@ -11,7 +11,6 @@ import { Clock } from "./elements/clock";
 import { StaticText } from "./statics/text";
 import { StaticTicker } from "./statics/ticker";
 import { StaticSVG } from "./statics/svg";
-import { StaticImage } from "./statics/image";
 
 function Viewer({ slug }) {
 	let [dashboard, setDashboard] = useState(null);
@@ -85,8 +84,8 @@ function Viewer({ slug }) {
 		if (element.type === "static-svg") {
 			ele = <StaticSVG options={element.options} />;
 		}
-		if (element.type === "static-image") {
-			ele = <StaticImage options={element.options} />;
+		if (element.type === "image") {
+			ele = <Image source={element.options.image} />;
 		}
 		if (element.type === "video") {
 			ele = <Video options={element.options} />;

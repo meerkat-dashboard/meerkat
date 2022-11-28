@@ -87,12 +87,14 @@ To remove the options:
 
 	sed -i '/StrokeColor/d' /usr/local/meerkat/dashboards/*.json
 
-### 4. Rename video, audio element types
+### 4. Rename video, audio, image element types
 
 The on-disk value representing the video/HLS stream element type has changed from "iframe-video" to "video".
 Similarly for audio; the type value has changed from "audio-stream" to "audio".
+For images; "static-image" to "image".
 
 To update existing elements, run:
 
 	sed -i '/iframe-video/video/g' /usr/local/meerkat/dashboards/*.json
 	sed -i '/audio-stream/audio/g' /usr/local/meerkat/dashboards/*.json
+	sed -i '/static-image/image/g' /usr/local/meerkat/dashboards/*.json
