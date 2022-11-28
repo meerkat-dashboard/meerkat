@@ -1,6 +1,5 @@
-import { h, Component, Fragment } from "preact";
-
-import { FontSizeInput } from "./options";
+import { h, Component, createRef, Fragment } from "preact";
+import * as fitty from "fitty";
 
 export class Clock extends Component {
 	constructor(props) {
@@ -8,9 +7,12 @@ export class Clock extends Component {
 		this.state = {
 			time: Date.now(),
 		};
+		this.ref = createRef();
 	}
 
 	componentDidMount() {
+		console.log(this.ref);
+		fitty.default(this.ref.current);
 		this.timer = setInterval(() => {
 			this.setState({ time: Date.now() });
 		}, 1000);
@@ -27,8 +29,8 @@ export class Clock extends Component {
 			timeZone: this.props.timeZone,
 		}).format(this.state.time);
 		return (
-			<time class="clock" style={`font-size: ${this.props.fontSize}px`}>
-				{t}
+			<time ref={this.ref} class="clock">
+				<div>{t}</div>
 			</time>
 		);
 	}
@@ -74,10 +76,6 @@ export class ClockOptions extends Component {
 				<TimezoneInput
 					value={this.props.timeZone}
 					onChange={this.handleChange}
-				/>
-				<FontSizeInput
-					value={this.props.fontSize}
-					onInput={this.handleChange}
 				/>
 			</form>
 		);
