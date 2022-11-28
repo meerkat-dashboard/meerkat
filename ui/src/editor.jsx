@@ -22,7 +22,7 @@ import {
 } from "./statics/ticker";
 import { StaticSVG, StaticSVGOptions, StaticSVGDefaults } from "./statics/svg";
 import { StaticImage, StaticImageOptions } from "./statics/image";
-import { IframeVideo, IframeVideoOptions } from "./elements/video";
+import { Video, VideoOptions } from "./elements/video";
 import { AudioOptions } from "./elements/audio";
 import { Clock, ClockOptions } from "./elements/clock";
 import { ObjectCard, ObjectCardOptions } from "./elements/i2object";
@@ -464,10 +464,10 @@ function DashboardElements({
 			case "static-image":
 				ele = <StaticImage options={element.options} />;
 				break;
-			case "iframe-video":
-				ele = <IframeVideo options={element.options} />;
+			case "video":
+				ele = <Video options={element.options} />;
 				break;
-			case "audio-stream":
+			case "audio":
 				ele = <audio controls src={element.options.audioSource}></audio>;
 				break;
 			case "object-card":
@@ -820,15 +820,15 @@ export function ElementSettings({ element, updateElement, closeElement }) {
 			/>
 		);
 	}
-	if (element.type === "iframe-video") {
+	if (element.type === "video") {
 		ElementOptions = (
-			<IframeVideoOptions
+			<VideoOptions
 				updateOptions={updateElementOptions}
 				options={element.options}
 			/>
 		);
 	}
-	if (element.type === "audio-stream") {
+	if (element.type === "audio") {
 		ElementOptions = (
 			<AudioOptions
 				updateOptions={updateElementOptions}
@@ -891,8 +891,8 @@ export function ElementSettings({ element, updateElement, closeElement }) {
 					<option value="static-svg">Static SVG</option>
 					<option value="static-image">Static Image</option>
 					<option value="static-ticker">Static Ticker</option>
-					<option value="iframe-video">HLS Stream</option>
-					<option value="audio-stream">Audio Stream</option>
+					<option value="video">Video</option>
+					<option value="audio">Audio</option>
 					<option value="clock">Clock</option>
 					<option value="object-card">Icinga object (experimental)</option>
 				</select>

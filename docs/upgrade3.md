@@ -81,8 +81,18 @@ To update existing elements, run the following command to rename the options:
 
 ### 3. Delete removed Icinga SVG element options
 
-The colour of Icinga SVG elements matches other Icinga elements which represent object state e.g. green for OK, amber for warning.
-The stroke colour (i.e. colour of icons) is no longer configurable, so element options setting  stroke colour are ignored.
+The colour of Icinga SVG elements now matches other Icinga elements which represent object state e.g. green for OK, amber for warning.
+The stroke colour (i.e. colour of icons) is no longer configurable, so element options setting stroke colour are ignored.
 To remove the options:
 
 	sed -i '/StrokeColor/d' /usr/local/meerkat/dashboards/*.json
+
+### 4. Rename video, audio element types
+
+The on-disk value representing the video/HLS stream element type has changed from "iframe-video" to "video".
+Similarly for audio; the type value has changed from "audio-stream" to "audio".
+
+To update existing elements, run:
+
+	sed -i '/iframe-video/video/g' /usr/local/meerkat/dashboards/*.json
+	sed -i '/audio-stream/audio/g' /usr/local/meerkat/dashboards/*.json

@@ -6,7 +6,7 @@ import { ObjectStateCard } from "./elements/card";
 import { CheckImage } from "./elements/image";
 import { CheckSVG } from "./elements/svg";
 import { CheckLine } from "./elements/line";
-import { IframeVideo } from "./elements/video";
+import { Video } from "./elements/video";
 import { Clock } from "./elements/clock";
 import { StaticText } from "./statics/text";
 import { StaticTicker } from "./statics/ticker";
@@ -88,10 +88,10 @@ function Viewer({ slug }) {
 		if (element.type === "static-image") {
 			ele = <StaticImage options={element.options} />;
 		}
-		if (element.type === "iframe-video") {
-			ele = <IframeVideo options={element.options} />;
+		if (element.type === "video") {
+			ele = <Video options={element.options} />;
 		}
-		if (element.type === "audio-stream") {
+		if (element.type === "audio") {
 			ele = <audio controls src={element.options.audioSource}></audio>;
 		}
 
