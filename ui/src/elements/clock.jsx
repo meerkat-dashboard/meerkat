@@ -11,7 +11,6 @@ export class Clock extends Component {
 	}
 
 	componentDidMount() {
-		console.log(this.ref);
 		fitty.default(this.ref.current);
 		this.timer = setInterval(() => {
 			this.setState({ time: Date.now() });

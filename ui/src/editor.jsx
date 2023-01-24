@@ -97,7 +97,6 @@ function dashboardReducer(state, action) {
 			);
 			return newState;
 		case "reorderElements":
-			console.log("Reordering elements");
 			const ns = { ...state };
 
 			const element = ns.elements[action.sourcePosition];
