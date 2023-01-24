@@ -45,6 +45,10 @@ The GUI is now served directly from the binary,
 rather than from a directory on the filesystem.
 Installation is therefore just copying a single file (the binary).
 
+Image resources such as those used as dashboard backgrounds and elements now must be referenced by a URL.
+This makes Meerkat easier to run in more ephemeral environments such as Kubernetes.
+It also allows Meerkat to be more safely exposed to the internet.
+
 [bootstrap-browsers]: https://getbootstrap.com/docs/5.2/getting-started/browsers-devices
 [about]: https://demo.meerkat.run/about
 
@@ -98,3 +102,13 @@ To update existing elements, run:
 	sed -i '/iframe-video/video/g' /usr/local/meerkat/dashboards/*.json
 	sed -i '/audio-stream/audio/g' /usr/local/meerkat/dashboards/*.json
 	sed -i '/static-image/image/g' /usr/local/meerkat/dashboards/*.json
+
+### 5. Move images from dashboards-data to a file server
+
+Images used in dashboard backgrounds and elements must be referenced by a URL.
+It is recommended to serve any images previously uploaded to Meerkat from a HTTP file server, CDN or S3-compatible storage.
+In a default installation, the path to the directory is /usr/local/meerkat/dashboards-data.
+
+For backwards compatibility previously uploaded images in the `dashboards-data` directory are still served from disk.
+They can be referenced by path in the "Background image" field.
+For example "/dashboards-data/test.jpeg".

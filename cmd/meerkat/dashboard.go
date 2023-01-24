@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"image"
+	_ "image/jpeg"
+	_ "image/png"
 	"io"
 	"io/fs"
 	"log"
@@ -12,7 +14,7 @@ import (
 	"os"
 	"path"
 	"strconv"
-	"unicode/utf8"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/meerkat-dashboard/meerkat"
@@ -124,11 +126,6 @@ func handleCloneDashboard(w http.ResponseWriter, req *http.Request) {
 	next.ServeHTTP(w, req)
 }
 
-func trimFirstRune(s string) string {
-	_, i := utf8.DecodeRuneInString(s)
-	return s[i:]
-}
-
 func handleUpdateDashboard(w http.ResponseWriter, r *http.Request) {
 	slug := chi.URLParam(r, "slug")
 
@@ -144,10 +141,12 @@ func handleUpdateDashboard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//Set dimension of background
-	width, height, err := imageDimension(trimFirstRune(dashboard.Background))
+	width, height, err := imageDimensions(dashboard.Background)
 	if err != nil {
-		dashboard.Background = ""
+		msg := fmt.Sprintf("read background image %s dimensions: %v", dashboard.Background, err)
+		log.Println(msg)
+		http.Error(w, msg, http.StatusBadRequest)
+		return
 	}
 	dashboard.Height = strconv.Itoa(height)
 	dashboard.Width = strconv.Itoa(width)
@@ -191,19 +190,41 @@ func handleDeleteDashboard(w http.ResponseWriter, req *http.Request) {
 	http.RedirectHandler("/", http.StatusFound).ServeHTTP(w, req)
 }
 
-func imageDimension(imagePath string) (int, int, error) {
-	file, err := os.Open(imagePath)
-	if err != nil {
-		log.Println(err)
-		return 0, 0, err
+func imageDimensions(ref string) (width, height int, err error) {
+	if strings.HasPrefix(ref, "/dashboards-data") {
+		// trim leading "/", files on disk are at "dashboards-data/example.png"
+		return imageDimensionsFile(strings.TrimPrefix(ref, "/"))
 	}
+	return imageDimensionsURL(ref)
+}
 
-	image, _, err := image.DecodeConfig(file)
+func imageDimensionsFile(name string) (int, int, error) {
+	f, err := os.Open(name)
 	if err != nil {
-		log.Println(imagePath, err)
 		return 0, 0, err
 	}
-	return image.Width, image.Height, nil
+	defer f.Close()
+	return readImageDimensions(f)
+}
+
+func imageDimensionsURL(url string) (int, int, error) {
+	resp, err := http.Get(url)
+	if err != nil {
+		return 0, 0, err
+	}
+	if resp.StatusCode >= 400 {
+		return 0, 0, fmt.Errorf("get %s: response status code %s", url, resp.Status)
+	}
+	defer resp.Body.Close()
+	return readImageDimensions(resp.Body)
+}
+
+func readImageDimensions(r io.Reader) (width, height int, err error) {
+	img, format, err := image.DecodeConfig(r)
+	if err != nil {
+		err = fmt.Errorf("decode as %s: %v", format, err)
+	}
+	return img.Width, img.Height, err
 }
 
 func oldPathHandler(w http.ResponseWriter, req *http.Request) {

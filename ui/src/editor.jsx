@@ -547,40 +547,19 @@ export function DashboardView({
 }
 
 function SidePanelSettings({ dashboardDispatch, dashboard }) {
-	const handleBackgroundImg = async (e) => {
-		try {
-			const res = await meerkat.uploadFile(e.target.files[0]);
-			dashboardDispatch({
-				type: "setBackground",
-				background: res.url,
-			});
-		} catch (e) {
-			alert(`Cannot set background image: ${e.message}`);
-		}
-	};
-
-	const clearBackground = (e) => {
-		e.preventDefault();
+	const handleBackgroundImg = (e) => {
 		dashboardDispatch({
 			type: "setBackground",
-			background: null,
+			background: e.currentTarget.value,
 		});
 	};
 
-	const imgControls = (src) => {
-		if (src) {
-			return (
-				<Fragment>
-					<a onClick={clearBackground}>clear</a>
-					&nbsp;
-					<a target="_blank" href={src}>
-						view
-					</a>
-				</Fragment>
-			);
-		}
-		return null;
-	};
+	function handleTitleChange(e) {
+		dashboardDispatch({
+			type: "setTitle",
+			title: e.currentTarget.value,
+		});
+	}
 
 	return (
 		<form>
@@ -593,21 +572,19 @@ function SidePanelSettings({ dashboardDispatch, dashboard }) {
 				id="title"
 				placeholder="Network Overview"
 				value={dashboard.title}
-				onInput={(e) =>
-					dashboardDispatch({ type: "setTitle", title: e.currentTarget.value })
-				}
+				onInput={handleTitleChange}
 			/>
 
 			<fieldset class="form-group">
 				<label class="form-label" for="background-image">
-					Background image {imgControls(dashboard.background)}
+					Background image
 				</label>
 				<input
 					class="form-control"
 					id="background-image"
-					type="file"
-					placeholder="Upload a background image"
-					accept="image/*"
+					type="url"
+					placeholder="http://www.example.com/background.png"
+					value={dashboard.background}
 					onChange={handleBackgroundImg}
 				/>
 			</fieldset>

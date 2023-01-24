@@ -6,34 +6,6 @@ import { icingaResultCodeToCheckState, IcingaCheckList } from "../util";
 import { ExternalURL } from "./options";
 
 export function CheckImageOptions({ options, updateOptions }) {
-	const handleImageUpload = async (fieldName, files) => {
-		const res = await meerkat.uploadFile(files[0]);
-		const opts = {};
-		opts[fieldName] = res.url;
-		updateOptions(opts);
-	};
-
-	const clearField = (e, field) => {
-		e.preventDefault();
-		let opts = {};
-		opts[field] = null;
-		updateOptions(opts);
-	};
-
-	const imgControls = (field) => {
-		if (options[field]) {
-			return (
-				<Fragment>
-					<a onClick={(e) => clearField(e, field)}>clear</a>&nbsp;
-					<a target="_blank" href={options[field]}>
-						view
-					</a>
-				</Fragment>
-			);
-		}
-		return null;
-	};
-
 	return (
 		<Fragment>
 			<IcingaCheckList
@@ -45,97 +17,59 @@ export function CheckImageOptions({ options, updateOptions }) {
 				onInput={(e) => updateOptions({ linkURL: e.currentTarget.value })}
 			/>
 
-			<hr />
-
-			<label for="ok-image">OK State Image {imgControls("okImage")}</label>
-			<input
-				class="form-control"
-				id="ok-image"
-				name="ok-image"
-				type="file"
-				accept="image/*"
-				onInput={(e) => handleImageUpload("okImage", e.target.files)}
+			<CheckImageInput
+				objState="ok"
+				value={options.okImage}
+				onInput={(e) => updateOptions({ okImage: e.currentTarget.value })}
 			/>
-
-			<label for="warning-image">
-				Warning State Image {imgControls("warningImage")}
-			</label>
-			<input
-				class="form-control"
-				id="warning-image"
-				name="warning-image"
-				type="file"
-				accept="image/*"
-				onInput={(e) => handleImageUpload("warningImage", e.target.files)}
+			<CheckImageInput
+				objState="warning"
+				value={options.warningImage}
+				onInput={(e) => updateOptions({ warningImage: e.currentTarget.value })}
 			/>
-
-			<label for="warning-image">
-				Warning Acknowledged State Image{" "}
-				{imgControls("warningAcknowledgedImage")}
-			</label>
-			<input
-				class="form-control"
-				id="warning-image"
-				name="warning-image"
-				type="file"
-				accept="image/*"
-				onInput={(e) =>
-					handleImageUpload("warningAcknowledgedImage", e.target.files)
-				}
+			<CheckImageInput
+				objState="warning (acknowledged)"
+				value={options.warningAcknowledgedImage}
+				onInput={(e) => updateOptions({ warningAcknowledgedImage: e.currentTarget.value })}
 			/>
-
-			<label for="unknown-image">
-				Unknown State Image {imgControls("unknownImage")}
-			</label>
-			<input
-				class="form-control"
-				id="unknown-image"
-				name="unknown-image"
-				type="file"
-				accept="image/*"
-				onInput={(e) => handleImageUpload("unknownImage", e.target.files)}
+			<CheckImageInput
+				objState="critical"
+				value={options.criticalImage}
+				onInput={(e) => updateOptions({ criticalImage: e.currentTarget.value })}
 			/>
-
-			<label for="unknown-image">
-				Unknown Acknowledged State Image{" "}
-				{imgControls("unknownAcknowledgedImage")}
-			</label>
-			<input
-				class="form-control"
-				id="unknown-image"
-				name="unknown-image"
-				type="file"
-				accept="image/*"
-				onInput={(e) =>
-					handleImageUpload("unknownAcknowledgedImage", e.target.files)
-				}
+			<CheckImageInput
+				objState="critical (acknowledged)"
+				value={options.criticalAcknowledgedImage}
+				onInput={(e) => updateOptions({ criticalAcknowledgedImage: e.currentTarget.value })}
 			/>
-
-			<label for="critical-image">
-				Critical State Image {imgControls("criticalImage")}
-			</label>
-			<input
-				class="form-control"
-				id="critical-image"
-				name="critical-image"
-				type="file"
-				accept="image/*"
-				onInput={(e) => handleImageUpload("criticalImage", e.target.files)}
+			<CheckImageInput
+				objState="unknown"
+				value={options.unknownImage}
+				onInput={(e) => updateOptions({ unknownImage: e.currentTarget.value })}
 			/>
+			<CheckImageInput
+				objState="unknown (acknowledged)"
+				value={options.unknownAcknowledgedImage}
+				onInput={(e) => updateOptions({ unknownAcknowledgedImage: e.currentTarget.value })}
+			/>
+		</Fragment>
+	);
+}
 
-			<label for="critical-image">
-				Critical Acknowledged State Image{" "}
-				{imgControls("criticalAcknowledgedImage")}
-			</label>
+function CheckImageInput({ objState, value, onInput }) {
+	// trim acknowledged suffix, to get "http://example.com/critical.png"
+	let placeholder = "http://example.com/" + objState.replace(/ \(acknowledged\)$/, "") + ".png"
+	return (
+		<Fragment>
+			<label style="text-transform: capitalize" for={objState}>{objState} image</label>
 			<input
 				class="form-control"
-				id="critical-image"
-				name="critical-image"
-				type="file"
-				accept="image/*"
-				onInput={(e) =>
-					handleImageUpload("criticalAcknowledgedImage", e.target.files)
-				}
+				id={objState}
+				name={objState}
+				value={value}
+				placeholder={placeholder}
+				type="url"
+				onInput={onInput}
 			/>
 		</Fragment>
 	);
@@ -143,7 +77,7 @@ export function CheckImageOptions({ options, updateOptions }) {
 
 export function CheckImage({ options, dashboard }) {
 	const [checkState, setCheckState] = useState(null);
-	const [acknowledged, setAcknowledged] = useState("");
+	const [acknowledged, setAcknowledged] = useState(false);
 
 	const updateState = async () => {
 		if (options.objectType !== null && options.filter !== null) {
@@ -153,9 +87,10 @@ export function CheckImage({ options, dashboard }) {
 					options.filter,
 					dashboard
 				);
-				if (res === false)
+				if (res === false) {
 					window.flash(`This dashboard isn't updating`, "error");
-				res.Acknowledged ? setAcknowledged("ack") : setAcknowledged("");
+				}
+				setAcknowledged(res.Acknowledged);
 				setCheckState(
 					icingaResultCodeToCheckState(options.objectType, res.MaxState)
 				);
@@ -176,23 +111,19 @@ export function CheckImage({ options, dashboard }) {
 	let source = null;
 	if (checkState === "ok" || checkState === "up") {
 		source = options.okImage;
-	}
-	if (checkState === "warning") {
+	} else if (checkState === "warning") {
 		source = acknowledged
 			? options.warningAcknowledgedImage
 			: options.warningImage;
-	}
-	if (checkState === "unknown") {
+	} else if (checkState === "unknown") {
 		source = acknowledged
 			? options.unknownAcknowledgedImage
 			: options.unknownImage;
-	}
-	if (checkState === "critical" || checkState === "down") {
+	} else if (checkState === "critical" || checkState === "down") {
 		source = acknowledged
 			? options.criticalAcknowledgedImage
 			: options.criticalImage;
 	}
-
 	return <Image source={source} />;
 }
 

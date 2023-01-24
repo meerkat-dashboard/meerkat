@@ -14,13 +14,6 @@ import (
 	"github.com/meerkat-dashboard/meerkat/ui"
 )
 
-func mkDirs() error {
-	if err := os.MkdirAll("dashboards", 0755); err != nil {
-		return err
-	}
-	return os.MkdirAll("dashboards-data", 0755)
-}
-
 var config Config
 
 func main() {
@@ -42,7 +35,7 @@ func main() {
 
 	initialiseIcingaCaches()
 
-	if err := mkDirs(); err != nil {
+	if err := os.MkdirAll("dashboards", 0755); err != nil {
 		log.Fatalln("Error creating dashboards directory:", err)
 	}
 
@@ -88,11 +81,12 @@ func main() {
 	r.Get("/icinga/check_state", handleIcingaCheckState)
 	r.Get("/icinga/check_result", handleCheckResult)
 
-	// persist user uploaded files onto server's local filesystem
-	r.Post("/upload", handleUpload)
-
-	// serve static assets, referenced in dashboard json configurations
-	r.Handle("/dashboards-data/*", http.StripPrefix("/dashboards-data/", http.FileServer(http.Dir("./dashboards-data"))))
+	// Previous versions of meerkat served user-uploaded files from this directory.
+	// Keep serving them for backwards compatibility.
+	_, err = os.Stat("./dashboards-data")
+	if err == nil {
+		r.Handle("/dashboards-data/*", http.StripPrefix("/dashboards-data/", http.FileServer(http.Dir("./dashboards-data"))))
+	}
 
 	srv := ui.NewServer(nil)
 	if *fflag != "" {

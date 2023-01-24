@@ -64,25 +64,13 @@ export async function getAllDashboards() {
 }
 
 export async function saveDashboard(slug, dashboard) {
-	await fetch(`/dashboard/${slug}`, {
+	const resp = await fetch(`/dashboard/${slug}`, {
 		method: "POST",
 		body: JSON.stringify(dashboard),
 	});
-}
-
-export async function uploadFile(file) {
-	const res = await fetch("/upload", {
-		headers: {
-			filename: file.name,
-		},
-		method: "POST",
-		body: file,
-	});
-	const resp = await res.json();
-	if (resp.error != "") {
-		throw new Error(resp.error);
+	if (!resp.ok) {
+		throw new Error(await resp.text());
 	}
-	return resp;
 }
 
 export async function authConfigured() {
