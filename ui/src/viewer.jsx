@@ -7,7 +7,6 @@ import { CheckImage } from "./elements/image";
 import { CheckSVG } from "./elements/svg";
 import { CheckLine } from "./elements/line";
 import { IframeVideo } from "./elements/video";
-import { DynamicText } from "./elements/text";
 import { Clock } from "./elements/clock";
 import { StaticText } from "./statics/text";
 import { StaticTicker } from "./statics/ticker";
@@ -79,9 +78,6 @@ function Viewer({ slug }) {
 		}
 		if (element.type === "static-text") {
 			ele = <StaticText options={element.options} />;
-		}
-		if (element.type === "dynamic-text") {
-			ele = <DynamicText options={element.options} />;
 		}
 		if (element.type === "static-ticker") {
 			ele = <StaticTicker options={element.options} />;

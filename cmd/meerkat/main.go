@@ -84,7 +84,6 @@ func main() {
 	// relay to icinga server
 	// browser <-> meerkat <-> icinga
 	r.Get("/icinga/{check-type}", handleIcingaCheck)
-	r.Get("/icinga/dynamic_text/{host-name}", handleIcingaVars)
 	r.Get("/icinga/{check-type}/{object-id}", handleIcingaCheck)
 	r.Get("/icinga/check_state", handleIcingaCheckState)
 	r.Get("/icinga/check_result", handleCheckResult)

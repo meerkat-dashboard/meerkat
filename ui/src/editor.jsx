@@ -11,11 +11,6 @@ import {
 	CheckLineDefaults,
 } from "./elements/line";
 import {
-	DynamicText,
-	DynamicTextOptions,
-	DynamicTextDefaults,
-} from "./elements/text";
-import {
 	StaticText,
 	StaticTextOptions,
 	StaticTextDefaults,
@@ -38,8 +33,6 @@ function defaultElementOptions(typ) {
 			return CheckSVGDefaults;
 		case "check-line":
 			return CheckLineDefaults;
-		case "dynamic-text":
-			return DynamicTextDefaults;
 		case "static-text":
 			return StaticTextDefaults;
 		case "static-ticker":
@@ -462,9 +455,6 @@ function DashboardElements({
 			case "static-text":
 				ele = <StaticText options={element.options} />;
 				break;
-			case "dynamic-text":
-				ele = <DynamicText options={element.options} />;
-				break;
 			case "static-ticker":
 				ele = <StaticTicker options={element.options} />;
 				break;
@@ -814,14 +804,6 @@ export function ElementSettings({ element, updateElement, closeElement }) {
 			/>
 		);
 	}
-	if (element.type === "dynamic-text") {
-		ElementOptions = (
-			<DynamicTextOptions
-				updateOptions={updateElementOptions}
-				options={element.options}
-			/>
-		);
-	}
 	if (element.type === "static-svg") {
 		ElementOptions = (
 			<StaticSVGOptions
@@ -905,7 +887,6 @@ export function ElementSettings({ element, updateElement, closeElement }) {
 					<option value="check-svg">Icinga SVG</option>
 					<option value="check-image">Icinga Image</option>
 					<option value="check-line">Icinga Line</option>
-					<option value="dynamic-text">Dynamic Text</option>
 					<option value="static-text">Static Text</option>
 					<option value="static-svg">Static SVG</option>
 					<option value="static-image">Static Image</option>
