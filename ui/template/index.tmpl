@@ -14,7 +14,23 @@
 	</div>
 	<hr>
 </header>
-<!-- preact ../src/home.jsx  -->
-<main id="app"></main>
-<script src="/dist/home.js"></script>
+<main class="container">
+{{ range . }}
+	<div class="row mb-2 py-2 bg-dark rounded">
+		<div class="col">
+			<a href="/{{ .Slug }}/info">
+				<big>{{ .Title }}</big>
+			</a>
+		</div>
+		<div class="col-md-auto">
+			<a href="/{{ .Slug }}/edit">
+				<button class="btn btn-secondary btn-sm ms-2">Edit</button>
+			</a>
+			<a href="/{{ .Slug }}/view">
+				<button class="btn btn-primary btn-sm ms-2">View</button>
+			</a>
+		</div>
+	</div>
+{{ end }}
+</main>
 {{ end }}

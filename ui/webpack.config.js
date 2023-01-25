@@ -1,6 +1,5 @@
 module.exports = {
   entry: {
-    home: "./src/index.jsx",
     viewer: "./src/viewer.jsx",
     editor: "./src/edit.jsx",
   },

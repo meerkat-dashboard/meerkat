@@ -58,11 +58,6 @@ export async function getDashboard(slug) {
 	return fetchHandler(`/dashboard/${slug}`);
 }
 
-export async function getAllDashboards() {
-	const res = await fetch("/dashboard");
-	return res.json();
-}
-
 export async function saveDashboard(slug, dashboard) {
 	const resp = await fetch(`/dashboard/${slug}`, {
 		method: "POST",

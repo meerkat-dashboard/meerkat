@@ -20,37 +20,9 @@ import (
 	"github.com/meerkat-dashboard/meerkat"
 )
 
-func handleListDashboards(w http.ResponseWriter, r *http.Request) {
-	dashboards, err := meerkat.ReadDashboardDir("dashboards")
-	if err != nil {
-		msg := fmt.Sprintf("read dashboard directory: %v", err)
-		log.Println(msg)
-		http.Error(w, msg, http.StatusInternalServerError)
-	}
-	json.NewEncoder(w).Encode(dashboards)
-}
-
 func handleListDashboard(w http.ResponseWriter, r *http.Request) {
 	slug := chi.URLParam(r, "slug")
-
-	//Check dashboard exists
-	if f, err := os.Open(path.Join("dashboards", slug+".json")); os.IsNotExist(err) {
-		http.Error(w, "Not found", http.StatusNotFound)
-		return
-	} else if err != nil {
-		log.Println("Error checking that file exists:", err)
-		http.Error(w, "Error checking file exists: "+err.Error(), http.StatusInternalServerError)
-		return
-	} else {
-		w.Header().Add("content-type", "application/json")
-		defer f.Close()
-		_, err = io.Copy(w, f)
-		if err != nil {
-			log.Println("Error writing response:", err)
-			http.Error(w, "Error writing response: "+err.Error(), http.StatusInternalServerError)
-			return
-		}
-	}
+	http.ServeFile(w, r, path.Join("dashboards", slug+".json"))
 }
 
 func handleCreateDashboard(w http.ResponseWriter, req *http.Request) {
@@ -59,25 +31,11 @@ func handleCreateDashboard(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, msg, http.StatusBadRequest)
 		return
 	}
-	switch title := req.PostForm.Get("title"); title {
-	case "":
-		http.Error(w, "empty name", http.StatusBadRequest)
+	dashboard, err := meerkat.ParseDashboardForm(req.PostForm)
+	if err != nil {
+		msg := fmt.Sprintf("parse dashboard from form: %v", err)
+		http.Error(w, msg, http.StatusBadRequest)
 		return
-	case "edit", "view":
-		http.Error(w, "reserved title for old Meerkat URL paths", http.StatusBadRequest)
-		return
-	}
-
-	var dashboard meerkat.Dashboard
-	for k := range req.PostForm {
-		switch v := req.PostForm.Get(k); k {
-		case "title":
-			dashboard.Title = v
-			dashboard.Slug = meerkat.TitleToSlug(dashboard.Title)
-		default:
-			http.Error(w, fmt.Sprintf("unknown parameter %s", k), http.StatusBadRequest)
-			return
-		}
 	}
 	fpath := path.Join("dashboards", dashboard.Slug+".json")
 	if err := meerkat.CreateDashboard(fpath, &dashboard); err != nil {
@@ -86,9 +44,8 @@ func handleCreateDashboard(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	new := path.Join("/", dashboard.Slug, "edit")
-	next := http.RedirectHandler(new, http.StatusFound)
-	next.ServeHTTP(w, req)
+	u := path.Join("/", dashboard.Slug, "edit")
+	http.Redirect(w, req, u, http.StatusFound)
 }
 
 func handleCloneDashboard(w http.ResponseWriter, req *http.Request) {
@@ -128,50 +85,34 @@ func handleCloneDashboard(w http.ResponseWriter, req *http.Request) {
 
 func handleUpdateDashboard(w http.ResponseWriter, r *http.Request) {
 	slug := chi.URLParam(r, "slug")
-
-	//Check dashboard exists
-	if _, err := os.Stat(path.Join("dashboards", slug+".json")); os.IsNotExist(err) {
-		http.Error(w, "Not found", http.StatusNotFound)
+	_, err := meerkat.ReadDashboard(path.Join("dashboards", slug+".json"))
+	if errors.Is(err, fs.ErrNotExist) {
+		http.NotFound(w, r)
 		return
 	}
 
 	var dashboard meerkat.Dashboard
+	defer r.Body.Close()
 	if err := json.NewDecoder(r.Body).Decode(&dashboard); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-
-	width, height, err := imageDimensions(dashboard.Background)
-	if err != nil {
-		msg := fmt.Sprintf("read background image %s dimensions: %v", dashboard.Background, err)
-		log.Println(msg)
-		http.Error(w, msg, http.StatusBadRequest)
-		return
-	}
-	dashboard.Height = strconv.Itoa(height)
-	dashboard.Width = strconv.Itoa(width)
-
-	slugNew := meerkat.TitleToSlug(dashboard.Title)
-	if len(slug) < 1 {
-		http.Error(w, "empty slug from dashboard title", http.StatusBadRequest)
-		return
+	if dashboard.Background != "" {
+		width, height, err := imageDimensions(dashboard.Background)
+		if err != nil {
+			msg := fmt.Sprintf("read background image %s dimensions: %v", dashboard.Background, err)
+			log.Println(msg)
+			http.Error(w, msg, http.StatusBadRequest)
+			return
+		}
+		dashboard.Height = strconv.Itoa(height)
+		dashboard.Width = strconv.Itoa(width)
 	}
 
-	err = meerkat.CreateDashboard(path.Join("dashboards", slugNew+".json"), &dashboard)
+	err = meerkat.CreateDashboard(path.Join("dashboards", slug+".json"), &dashboard)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
-	}
-
-	// Delete old file if slug updated
-	if slug != slugNew {
-		fmt.Printf("Slug updated %s -> %s deleting old data\n", slug, slugNew)
-		err := os.Remove(path.Join("dashboards", slug+".json"))
-		if err != nil {
-			log.Println("Failed to remove old file:", err)
-			http.Error(w, "Failed to remove old file: "+err.Error(), http.StatusInternalServerError)
-			return
-		}
 	}
 }
 

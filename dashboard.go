@@ -2,7 +2,10 @@ package meerkat
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
+	"io/fs"
+	"net/url"
 	"os"
 	"path"
 	"regexp"
@@ -34,6 +37,11 @@ type Rect struct {
 	Y float64 `json:"y"`
 	W float64 `json:"w"`
 	H float64 `json:"h"`
+}
+
+// Stat satisfies the fs.File interface.
+func (d *Dashboard) Stat() (fs.FileInfo, error) {
+	return os.Stat(path.Join("dashboards", TitleToSlug(d.Title)+".json"))
 }
 
 func ReadDashboardDir(dirname string) ([]Dashboard, error) {
@@ -73,15 +81,15 @@ func ReadDashboard(name string) (Dashboard, error) {
 // The file is always truncated beforehand.
 func CreateDashboard(name string, dashboard *Dashboard) error {
 	dashboard.Slug = TitleToSlug(dashboard.Title)
+	buf, err := json.MarshalIndent(&dashboard, "", "  ")
+	if err != nil {
+		return err
+	}
 	f, err := os.Create(name)
 	if err != nil {
 		return fmt.Errorf("create dashboard file: %v", err)
 	}
 	defer f.Close()
-	buf, err := json.MarshalIndent(&dashboard, "", "  ")
-	if err != nil {
-		return err
-	}
 	if _, err := f.Write(buf); err != nil {
 		return fmt.Errorf("write dashboard file: %w", err)
 	}
@@ -97,6 +105,30 @@ func TitleToSlug(title string) string {
 	title = unwantedMatch.ReplaceAllString(title, "")
 
 	return title
+}
+
+func ParseDashboardForm(form url.Values) (Dashboard, error) {
+	var dashboard Dashboard
+	for k := range form {
+		switch v := form.Get(k); k {
+		case "title":
+			if v == "" {
+				return Dashboard{}, errors.New("empty title")
+			} else if v == "edit" || v == "view" {
+				return Dashboard{}, errors.New("reserved title for backwards compatibility")
+			}
+			dashboard.Title = v
+			dashboard.Slug = TitleToSlug(v)
+			if dashboard.Slug == "" {
+				return Dashboard{}, fmt.Errorf("empty slug from title %s", v)
+			}
+		case "background":
+			dashboard.Background = v
+		default:
+			return Dashboard{}, fmt.Errorf("unknown form parameter %s", k)
+		}
+	}
+	return dashboard, nil
 }
 
 func arrayContains(array []string, value string) bool {

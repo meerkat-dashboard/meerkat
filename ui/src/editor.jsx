@@ -58,10 +58,6 @@ function dashboardReducer(state, action) {
 	switch (action.type) {
 		case "setDashboard":
 			return action.dashboard;
-		case "setTitle":
-			return { ...state, title: action.title };
-		case "setBackground":
-			return { ...state, background: action.background };
 		case "addElement":
 			if (state.elements) {
 				return {
@@ -151,10 +147,6 @@ export function Editor({ slug }) {
 		<Fragment>
 			<header class="editor bg-dark">
 				<h2>{dashboard.title}</h2>
-				<SidePanelSettings
-					dashboard={dashboard}
-					dashboardDispatch={dashboardDispatch}
-				/>
 				<hr />
 				<SidePanelElements
 					dashboard={dashboard}
@@ -545,51 +537,6 @@ export function DashboardView({
 	);
 }
 
-function SidePanelSettings({ dashboardDispatch, dashboard }) {
-	const handleBackgroundImg = (e) => {
-		dashboardDispatch({
-			type: "setBackground",
-			background: e.currentTarget.value,
-		});
-	};
-
-	function handleTitleChange(e) {
-		dashboardDispatch({
-			type: "setTitle",
-			title: e.currentTarget.value,
-		});
-	}
-
-	return (
-		<form>
-			<label class="form-label" for="title">
-				Title
-			</label>
-			<input
-				class="form-control"
-				type="text"
-				id="title"
-				placeholder="Network Overview"
-				value={dashboard.title}
-				onInput={handleTitleChange}
-			/>
-
-			<fieldset class="form-group">
-				<label class="form-label" for="background-image">
-					Background image
-				</label>
-				<input
-					class="form-control"
-					id="background-image"
-					type="url"
-					placeholder="http://www.example.com/background.png"
-					value={dashboard.background}
-					onChange={handleBackgroundImg}
-				/>
-			</fieldset>
-		</form>
-	);
-}
 
 function SidePanelElements({
 	dashboard,

@@ -1,0 +1,56 @@
+{{ define "body" }}
+{{ template "nav" }}
+</header>
+<main class="container">
+<h2>{{ .Title }}</h2>
+<section class="container">
+<div class="row">
+<div class="col-9">
+	<p>
+		Some description. TODO: render Description field from the dashboard.
+	</p>
+	<table class="table">
+	<tr>
+		<th>Background</th>
+		<td>{{ .Background }}</td>
+	</tr>
+	<tr>
+		<th>Dimensions</th>
+		<td>{{ .Width }}x{{ .Height }}</td>
+	</tr>
+	<tr>
+		<th>View count</th>
+		<td>69</td>
+	</tr>
+	</table>
+</div>
+
+<div class="col-3">
+	<div class="d-grid gap-2 d-md-flex justify-content-md-end">
+	<a class="btn btn-danger" href="delete">Delete</a>
+	<a class="btn btn-secondary" href="edit">Edit</a>
+	<a class="btn btn-primary" href="view">View</a>
+	</div>
+</div>
+</div>
+</section>
+
+<hr>
+<h3>Modify dashboard</h3>
+<form method="POST">
+	<fieldset class="form-group mb-3">
+		<label class="form-label" for="title">Title</label>
+		<input class="form-control" type="text" id="title" name="title" minlength="4" value={{ .Title }} placeholder="Network overview" required>
+
+		<label class="form-label" for="description">Description</label>
+		<input class="form-control" type="text" id="description" name="description" minlength="4" placeholder="Not implemented yet" disabled>
+
+		<label class="form-label" for="background">Background image</label>
+		<input class="form-control" type="url" id="background" name="background" minlength="8" value="{{ .Background }}" placeholder="http://www.example.com/background.png">
+	</fieldset>
+	<button class="btn btn-primary btn-success" type="submit">
+		Save
+	</button>
+</form>
+</main>
+{{ end }}

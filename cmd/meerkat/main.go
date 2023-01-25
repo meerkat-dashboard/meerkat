@@ -46,7 +46,6 @@ func main() {
 
 	r.Handle("/_groupcache/", cachepool)
 
-	r.Get("/dashboard", handleListDashboards)
 	r.Get("/dashboard/{slug}", handleListDashboard)
 
 	var (
@@ -94,6 +93,8 @@ func main() {
 	}
 	r.Get("/{slug}/view", srv.ViewHandler)
 	r.Get("/{slug}/edit", srv.EditHandler)
+	r.Get("/{slug}/info", srv.InfoPage)
+	r.Post("/{slug}/info", srv.EditInfoHandler)
 	r.Get("/view/*", oldPathHandler)
 	r.Get("/edit/*", oldPathHandler)
 	r.Get("/{slug}/delete", srv.DeletePage)
