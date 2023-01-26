@@ -9,4 +9,3 @@ User=nagios
 
 [Install]
 WantedBy=multi-user.target
-
