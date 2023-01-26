@@ -2,7 +2,7 @@
   "scripts": {
     "dev": "./grabstyle && webpack --mode development",
     "build": "./grabstyle && webpack --mode production",
-    "lint": "eslint src"
+    "lint": "prettier -w src && eslint src"
   },
   "license": "AGPL-3.0-or-later",
   "author": "Matthew Streatfield (https://github.com/StreatCodes)",
