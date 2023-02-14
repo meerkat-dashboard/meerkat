@@ -3,7 +3,6 @@ import { useState, useEffect } from "preact/hooks";
 
 import * as meerkat from "./meerkat";
 import { ObjectStateCard } from "./elements/card";
-import { Image, CheckImage } from "./elements/image";
 import { CheckSVG } from "./elements/svg";
 import { CheckLine } from "./elements/line";
 import { Video } from "./elements/video";
@@ -56,15 +55,6 @@ function Viewer({ slug }) {
 				<CheckSVG options={element.options} dashboard={dashboard} slug={slug} />
 			);
 		}
-		if (element.type === "check-image") {
-			ele = (
-				<CheckImage
-					options={element.options}
-					dashboard={dashboard}
-					slug={slug}
-				/>
-			);
-		}
 		if (element.type === "check-line") {
 			ele = (
 				<CheckLine
@@ -81,7 +71,7 @@ function Viewer({ slug }) {
 			ele = <StaticSVG options={element.options} />;
 		}
 		if (element.type === "image") {
-			ele = <Image source={element.options.image} />;
+			ele = <img src={element.options.image} />;
 		}
 		if (element.type === "video") {
 			ele = <Video options={element.options} />;

@@ -22,9 +22,6 @@ In performance data mode, performance data numbers can be displayed, along with 
 ### Icinga SVG
 You can select an SVG to toggle between for the various states. The default SVGs are sensible, however feel free to choose whatever makes sense to you. There isn't a way to change the global defaults just yet.
 
-### Icinga Image
-Select a set of images you want to toggle between on state change.
-
 ### Icinga Line
 Allows you to draw lines, you can rotate and resize them, and set the weight. They only toggle between OK, Warning, Critical, Unknown at present.
 

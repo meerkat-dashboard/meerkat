@@ -5,16 +5,11 @@ import * as meerkat from "./meerkat";
 import { ObjectStateCard, CheckCardOptions } from "./elements/card";
 import { CheckSVG, CheckSVGOptions, CheckSVGDefaults } from "./elements/svg";
 import {
-	Image,
-	ImageOptions,
-	CheckImage,
-	CheckImageOptions,
-} from "./elements/image";
-import {
 	CheckLine,
 	CheckLineOptions,
 	CheckLineDefaults,
 } from "./elements/line";
+import { ImageOptions } from "./elements/image";
 import {
 	StaticText,
 	StaticTextOptions,
@@ -404,15 +399,6 @@ function DashboardElements({
 					/>
 				);
 				break;
-			case "check-image":
-				ele = (
-					<CheckImage
-						options={element.options}
-						slug={slug}
-						dashboard={dashboard}
-					/>
-				);
-				break;
 			case "check-line":
 				ele = (
 					<CheckLine
@@ -437,7 +423,7 @@ function DashboardElements({
 				ele = <StaticSVG options={element.options} />;
 				break;
 			case "image":
-				ele = <Image source={element.options.image} />;
+				ele = <img src={element.options.image} />;
 				break;
 			case "video":
 				ele = <Video options={element.options} />;
@@ -669,14 +655,6 @@ export function ElementSettings({ element, updateElement, closeElement }) {
 			/>
 		);
 	}
-	if (element.type === "check-image") {
-		ElementOptions = (
-			<CheckImageOptions
-				updateOptions={updateElementOptions}
-				options={element.options}
-			/>
-		);
-	}
 	if (element.type === "check-line") {
 		ElementOptions = (
 			<CheckLineOptions
@@ -766,7 +744,6 @@ export function ElementSettings({ element, updateElement, closeElement }) {
 				>
 					<option value="check-card">Icinga Card</option>
 					<option value="check-svg">Icinga SVG</option>
-					<option value="check-image">Icinga Image</option>
 					<option value="check-line">Icinga Line</option>
 					<option value="static-text">Static Text</option>
 					<option value="static-svg">Static SVG</option>
