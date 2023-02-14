@@ -10,7 +10,6 @@ func BuildString() string {
 	if !ok {
 		return "no build information"
 	}
-	fmt.Println(info)
 	var revision, time string
 	var dirty bool
 	for _, setting := range info.Settings {
