@@ -182,10 +182,6 @@ div.selection > .selector:last-child {
 	min-width: 380px;
 }
 
-.ticker > .check-content {
-	overflow: hidden;
-}
-
 .check {
 	cursor: move;
 	position: absolute;
@@ -310,80 +306,6 @@ svg.feather {
 
 .check-content {
 	display: flex;
-}
-
-.ticker {
-	cursor: move;
-	position: absolute;
-	overflow: hidden;
-	width: 100vw;
-}
-
-.ticker-editing {
-	overflow: visible;
-}
-
-.ticker > .check-content {
-	pointer-events: none;
-	user-select: none;
-	width: 100%;
-	height: 100%;
-}
-
-.ticker > .edit {
-	top: -20px;
-	right: 2px;
-}
-
-.ticker > div.resize {
-	position: absolute;
-	right: 50%;
-	bottom: 0;
-	width: 10px;
-	height: 10px;
-	background-color: #2196F3;
-	cursor: ns-resize;
-	border-radius: 3px;
-}
-
-.ticker > .check-content.ticker {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	vertical-align: top;
-}
-
-.view-ticker {
-	cursor: default;
-	position: absolute;
-	overflow: hidden;
-	width: 100vw;
-}
-
-.view-ticker > .check-content {
-	pointer-events: none;
-	user-select: none;
-	width: 100%;
-	height: 100%;
-}
-
-.view-ticker > .check-content.ticker {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	vertical-align: top;
-}
-
-.scrolling-text {
-	cursor: default;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	vertical-align: top;
-	animation: marqueeX 15s linear infinite;
-	white-space: nowrap;
-	width: 100%;
-	height: 100%;
 }
 
 div.check-content.svg {

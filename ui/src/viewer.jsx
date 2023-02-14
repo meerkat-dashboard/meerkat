@@ -9,7 +9,6 @@ import { CheckLine } from "./elements/line";
 import { Video } from "./elements/video";
 import { Clock } from "./elements/clock";
 import { StaticText } from "./statics/text";
-import { StaticTicker } from "./statics/ticker";
 import { StaticSVG } from "./statics/svg";
 
 function Viewer({ slug }) {
@@ -78,9 +77,6 @@ function Viewer({ slug }) {
 		if (element.type === "static-text") {
 			ele = <StaticText options={element.options} />;
 		}
-		if (element.type === "static-ticker") {
-			ele = <StaticTicker options={element.options} />;
-		}
 		if (element.type === "static-svg") {
 			ele = <StaticSVG options={element.options} />;
 		}
@@ -96,23 +92,6 @@ function Viewer({ slug }) {
 
 		if (element.options.linkURL) {
 			ele = linkWrap(ele, element.options.linkURL);
-		}
-
-		if (element.type === "static-ticker") {
-			return (
-				<div
-					class="view-ticker"
-					style={{
-						left: 0,
-						top: top,
-						width: "100vw",
-						height: height,
-						transform: rotation,
-					}}
-				>
-					{ele}
-				</div>
-			);
 		}
 
 		return (

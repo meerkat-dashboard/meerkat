@@ -4,7 +4,12 @@ import { useEffect, useReducer, useState } from "preact/hooks";
 import * as meerkat from "./meerkat";
 import { ObjectStateCard, CheckCardOptions } from "./elements/card";
 import { CheckSVG, CheckSVGOptions, CheckSVGDefaults } from "./elements/svg";
-import { Image, ImageOptions, CheckImage, CheckImageOptions } from "./elements/image";
+import {
+	Image,
+	ImageOptions,
+	CheckImage,
+	CheckImageOptions,
+} from "./elements/image";
 import {
 	CheckLine,
 	CheckLineOptions,
@@ -15,11 +20,6 @@ import {
 	StaticTextOptions,
 	StaticTextDefaults,
 } from "./statics/text";
-import {
-	StaticTicker,
-	StaticTickerOptions,
-	StaticTickerDefaults,
-} from "./statics/ticker";
 import { StaticSVG, StaticSVGOptions, StaticSVGDefaults } from "./statics/svg";
 import { Video, VideoOptions } from "./elements/video";
 import { AudioOptions } from "./elements/audio";
@@ -34,8 +34,6 @@ function defaultElementOptions(typ) {
 			return CheckLineDefaults;
 		case "static-text":
 			return StaticTextDefaults;
-		case "static-ticker":
-			return StaticTickerDefaults;
 		case "static-svg":
 			return StaticSVGDefaults;
 	}
@@ -323,17 +321,7 @@ function TransformableElement({
 
 	const _rotation = rotation ? `rotate(${rotation}rad)` : `rotate(0rad)`;
 
-	return checkType === "static-ticker" ? (
-		<div
-			class={`ticker ticker-editing ${highlight ? "glow" : ""}`}
-			style={{ left: left, top: top, width: "100%", height: height }}
-			onMouseDown={handleMove}
-			onClick={onClick}
-		>
-			{children}
-			<div class="resize" onMouseDown={handleResize}></div>
-		</div>
-	) : (
+	return (
 		<div
 			class={`check check-editing ${highlight ? "glow" : ""}`}
 			style={{
@@ -445,9 +433,6 @@ function DashboardElements({
 			case "static-text":
 				ele = <StaticText options={element.options} />;
 				break;
-			case "static-ticker":
-				ele = <StaticTicker options={element.options} />;
-				break;
 			case "static-svg":
 				ele = <StaticSVG options={element.options} />;
 				break;
@@ -536,7 +521,6 @@ export function DashboardView({
 		</div>
 	);
 }
-
 
 function SidePanelElements({
 	dashboard,
@@ -652,23 +636,6 @@ export function ElementSettings({ element, updateElement, closeElement }) {
 	//sets good default values for each visual type when they're selected
 	const updateType = (e) => {
 		const newType = e.currentTarget.value;
-
-		if (newType == "static-ticker") {
-			const rect = {
-				x: 0,
-				y: 82.84371327849588,
-				w: 100,
-				h: 16,
-			};
-			updateElement({
-				...element,
-				type: newType,
-				rect: rect,
-				options: defaultElementOptions(newType),
-			});
-			return;
-		}
-
 		updateElement({
 			...element,
 			type: newType,
@@ -757,14 +724,6 @@ export function ElementSettings({ element, updateElement, closeElement }) {
 				options={element.options}
 			/>
 		);
-	}
-	if (element.type === "static-ticker") {
-		ElementOptions = (
-			<StaticTickerOptions
-				updateOptions={updateElementOptions}
-				options={element.options}
-			/>
-		);
 	} else if (element.type == "object-card") {
 		ElementOptions = (
 			<ObjectCardOptions
@@ -812,7 +771,6 @@ export function ElementSettings({ element, updateElement, closeElement }) {
 					<option value="static-text">Static Text</option>
 					<option value="static-svg">Static SVG</option>
 					<option value="image">Image</option>
-					<option value="static-ticker">Static Ticker</option>
 					<option value="video">Video</option>
 					<option value="audio">Audio</option>
 					<option value="clock">Clock</option>
