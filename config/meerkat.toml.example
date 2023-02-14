@@ -7,8 +7,3 @@ IcingaUsername = "api-user"
 IcingaPassword = "api-password"
 # Set to true when, for example, Icinga serves a self-signed certificate.
 IcingaInsecureTLS = false
-
-# If set, editing dashboards requires authenticating as this username and password
-# using HTTP Basic Authentication.
-# AdminUsername = "admin"
-# AdminPassword = "password"

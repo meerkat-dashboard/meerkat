@@ -27,10 +27,6 @@ The default value for both is `meerkat`.
 This is often required when Icinga is configured with self-signed certificates.
 The default is false.
 
-`AdminUsername`, `AdminPassword`: Setting this username and password pair enables the *in-development* meerkat authentication feature.
-When enabled, all dashboards are read-only unless a user authenticates successfully.
-By default these are unset.
-
 `CacheExpiryDurationSeconds`: number of seconds which meerkat will cache Icinga objects before requesting from the Icinga server again.
 The default is 16 seconds.
 

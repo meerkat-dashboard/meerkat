@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"path"
 
@@ -32,6 +33,10 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
+	icingaURL, err := url.Parse(config.IcingaURL)
+	if err != nil {
+		log.Fatalln("parse icinga url:", err)
+	}
 
 	initialiseIcingaCaches()
 
@@ -48,37 +53,18 @@ func main() {
 
 	r.Get("/dashboard/{slug}", handleListDashboard)
 
-	var (
-		createDashboard http.HandlerFunc
-		updateDashboard http.HandlerFunc
-		deleteDashboard http.HandlerFunc
-	)
-	if config.AdminUsername != "" && config.AdminPassword != "" {
-		user, pass := config.AdminUsername, config.AdminPassword
-		store := newTokenStore()
-		createDashboard = basicAuthHandler(user, pass, store, http.HandlerFunc(handleCreateDashboard)).ServeHTTP
-		updateDashboard = basicAuthHandler(user, pass, store, http.HandlerFunc(handleUpdateDashboard)).ServeHTTP
-		deleteDashboard = basicAuthHandler(user, pass, store, http.HandlerFunc(handleDeleteDashboard)).ServeHTTP
+	r.Post("/dashboard", handleCreateDashboard)
+	r.Post("/dashboard/{slug}", handleUpdateDashboard)
+	r.Delete("/dashboard/{slug}", handleDeleteDashboard)
 
-		rdr := http.RedirectHandler("/", http.StatusFound)
-		r.Get("/authenticate", basicAuthHandler(user, pass, store, rdr).ServeHTTP)
-		// a hint for the frontend to see if authentication is configured.
-		r.Head("/authentication", emptyHandler)
-	} else {
-		createDashboard = handleCreateDashboard
-		updateDashboard = handleUpdateDashboard
-		deleteDashboard = handleDeleteDashboard
-	}
-	r.Post("/dashboard", createDashboard)
-	r.Post("/dashboard/{slug}", updateDashboard)
-	r.Delete("/dashboard/{slug}", deleteDashboard)
-
-	// relay to icinga server
-	// browser <-> meerkat <-> icinga
 	r.Get("/icinga/{check-type}", handleIcingaCheck)
 	r.Get("/icinga/{check-type}/{object-id}", handleIcingaCheck)
 	r.Get("/icinga/check_state", handleIcingaCheckState)
 	r.Get("/icinga/check_result", handleCheckResult)
+
+	// Serve the Icinga API, stripping the leading "/icinga" prefix from the Meerkat UI.
+	proxy := http.StripPrefix("/icinga", NewIcingaProxy(icingaURL, config.IcingaUsername, config.IcingaPassword, config.IcingaInsecureTLS))
+	r.Handle("/icinga/v1/*", proxy)
 
 	// Previous versions of meerkat served user-uploaded files from this directory.
 	// Keep serving them for backwards compatibility.
@@ -100,7 +86,7 @@ func main() {
 	r.Get("/{slug}/delete", srv.DeletePage)
 	r.Post("/{slug}/delete", handleDeleteDashboard)
 	r.Get("/create", srv.CreatePage)
-	r.Post("/create", createDashboard)
+	r.Post("/create", handleCreateDashboard)
 	r.Get("/clone", srv.ClonePage)
 	r.Post("/clone", handleCloneDashboard)
 	r.Get("/about", srv.AboutPage)
