@@ -17,6 +17,7 @@ outdir="$tmp"
 if test -n "$1"
 then
 	outdir="$1"
+	rmdir $tmp
 fi
 
 if ! test -d "$outdir"
