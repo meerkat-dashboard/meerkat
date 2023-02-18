@@ -2,14 +2,21 @@
 
 mkdir -p dist
 
+hget="curl"
+# if we don't have curl we may have wget(1) from busybox(1)
+if ! which curl >/dev/null
+then
+	hget="wget -O -"
+fi
+
 if ! test -f dist/bootstrap.min.css
 then
-	curl -s https://bootswatch.com/5/darkly/bootstrap.min.css > dist/bootstrap.min.css
+	$hget https://bootswatch.com/5/darkly/bootstrap.min.css 2>/dev/null > dist/bootstrap.min.css
 fi
 
 if ! test -f dist/feather-sprite.svg
 then
-	curl -s https://unpkg.com/feather-icons@4.29.0/dist/feather-sprite.svg > dist/feather-sprite.svg
+	$hget https://unpkg.com/feather-icons@4.29.0/dist/feather-sprite.svg 2>/dev/null > dist/feather-sprite.svg
 fi
 
 cp react-widgets.css style.css dist/
