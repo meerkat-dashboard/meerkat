@@ -15,13 +15,15 @@ async function fetchHandler(string) {
 }
 
 export async function getIcingaHosts() {
-	const res = await fetch(`/icinga/hosts`);
+	const res = await fetch(`/icinga/v1/objects/hosts`);
 	return res.json();
 }
 
-export async function getIcingaServices() {
-	const res = await fetch(`/icinga/services`);
-	return res.json();
+export async function getAll(objectType) {
+	objectType = pluralise(objectType);
+	const resp = await fetch(`/icinga/v1/objects/${objectType}?attrs=name`);
+	let decoded = await resp.json();
+	return decoded.results;
 }
 
 export async function getIcingaHostGroups() {
@@ -34,12 +36,25 @@ export async function getIcingaServiceGroups() {
 	return res.json();
 }
 
-export async function getIcingaObjectState(objectType, filter) {
-	return fetchHandler(
-		`/icinga/check_state?object_type=${encodeURIComponent(
-			objectType
-		)}&filter=${encodeURIComponent(filter)}`
-	);
+export async function getIcingaObject(name, typ) {
+	typ = pluralise(typ);
+	name = encodeURIComponent(name);
+	let path = `/icinga/v1/objects/${typ}/${name}`;
+	const resp = await fetch(path);
+	const decoded = await resp.json();
+	if (!resp.ok) {
+		if (decoded.status) {
+			throw new Error(decoded.status);
+		} else if (decoded.errors) {
+			throw new Error(decoded.errors.join(", "));
+		}
+		throw new Error(`non-ok status from Icinga API: ${resp.statusText}`);
+	}
+
+	if (decoded.results.length == 0) {
+		throw new Error("no such object");
+	}
+	return decoded.results[0];
 }
 
 export async function getCheckResult(
@@ -80,4 +95,10 @@ export async function authConfigured() {
 
 export async function authenticate() {
 	return await fetch("/authenticate");
+}
+
+function pluralise(str) {
+	if (str.slice(-1) != "s") {
+		return str + "s";
+	}
 }

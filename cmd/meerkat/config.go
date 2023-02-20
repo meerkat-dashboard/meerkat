@@ -1,13 +1,7 @@
 package main
 
 import (
-	"crypto/tls"
-	"fmt"
-	"net/http"
-	"net/url"
-
 	"github.com/BurntSushi/toml"
-	"olowe.co/icinga"
 )
 
 type Config struct {
@@ -20,9 +14,6 @@ type Config struct {
 
 	AdminUsername string
 	AdminPassword string
-
-	CacheExpiryDurationSeconds int64
-	CacheSizeBytes             int64
 }
 
 func LoadConfig(name string) (Config, error) {
@@ -46,27 +37,5 @@ func LoadConfig(name string) (Config, error) {
 		conf.IcingaPassword = "meerkat"
 	}
 
-	if config.CacheExpiryDurationSeconds == 0 {
-		config.CacheExpiryDurationSeconds = 16
-	}
-	if config.CacheSizeBytes == 0 {
-		config.CacheSizeBytes = 20971520
-	}
-
 	return conf, err
-}
-
-func dialURL(link, username, password string, skipVerify bool) (*icinga.Client, error) {
-	u, err := url.Parse(link)
-	if err != nil {
-		return nil, fmt.Errorf("parse icinga URL: %w", err)
-	}
-
-	hClient := http.DefaultClient
-	if skipVerify {
-		t := http.DefaultTransport.(*http.Transport)
-		t.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
-		hClient.Transport = t
-	}
-	return icinga.Dial(u.Host, username, password, hClient)
 }

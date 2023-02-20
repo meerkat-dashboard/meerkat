@@ -2,13 +2,13 @@ import { h, render } from "preact";
 import { useState, useEffect } from "preact/hooks";
 
 import * as meerkat from "./meerkat";
-import { ObjectStateCard } from "./elements/card";
 import { CheckSVG } from "./elements/svg";
 import { CheckLine } from "./elements/line";
 import { Video } from "./elements/video";
 import { Clock } from "./elements/clock";
 import { StaticText } from "./statics/text";
 import { StaticSVG } from "./statics/svg";
+import { ObjectCard } from "./elements/i2object";
 
 function Viewer({ slug }) {
 	let [dashboard, setDashboard] = useState(null);
@@ -33,19 +33,19 @@ function Viewer({ slug }) {
 			: `rotate(0rad)`;
 
 		let ele;
-		if (element.type === "check-card") {
-			ele = (
-				<ObjectStateCard
-					objectType={element.options.objectType}
-					filter={element.options.filter}
-					fontSize={element.options.fontSize}
-				/>
-			);
-		}
 		if (element.type === "clock") {
 			ele = (
 				<Clock
 					timeZone={element.options.timeZone}
+					fontSize={element.options.fontSize}
+				/>
+			);
+		}
+		if (element.type == "check-card") {
+			ele = (
+				<ObjectCard
+					objectType={element.options.objectType}
+					objectName={element.options.objectName}
 					fontSize={element.options.fontSize}
 				/>
 			);

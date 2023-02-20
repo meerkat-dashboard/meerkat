@@ -2,19 +2,66 @@ import { h, Fragment, Component } from "preact";
 
 import * as meerkat from "./meerkat";
 
+// DefaultCheckInterval is the default duration, in milliseconds,
+// which a standard Icinga installation will execute check commands if
+// none is set explicitly.
+export const DefaultCheckInterval = 60 * 1000;
+
 async function getObjectNames(objectType) {
-	let objects;
-	switch (objectType) {
-		case "host":
-			objects = await meerkat.getIcingaHosts();
-			break;
-		case "service":
-			objects = await meerkat.getIcingaServices();
-			break;
+	const objects = await meerkat.getAll(objectType);
+	const names = objects.map((obj) => obj.name);
+	return names.sort();
+}
+
+export function StateText(state, objectType) {
+	if (objectType.toLowerCase() == "host") {
+		switch (state) {
+			case 0:
+				return "ok";
+			case 1:
+				return "critical";
+			default:
+				return "unknown";
+		}
 	}
-	const names = objects.map((obj) => obj.id);
-	// TODO sort names alphabetically
-	return names;
+
+	switch (state) {
+		case 0:
+			return "ok";
+		case 1:
+			return "warning";
+		case 2:
+			return "critical";
+		default:
+			return "unknown";
+	}
+}
+
+// NextRefresh returns an estimated duration until the Icinga HTTP API
+// may be queried to detect a change of object state. Date should be the
+// date when Icinga will perform its next check (see the next_check field
+// from the API).
+//
+// Lag is the estimated proportion of the duration until the next check
+// required for Icinga to update the object state.
+// Lag accounts for durations such as check command execution time.
+// For example, if the next check is 60 seconds away and lag is set to 0.2,
+// the estimated duration returned would be 72 seconds.
+// If unset, the default lag is 10% (0.1) of the duration until the next check.
+//
+// If the next check is in the past (e.g. when objects have been
+// unreachable from Icinga for some time), DefaultCheckInterval is
+// returned.
+export function NextRefresh(date, lag = 0.1) {
+	let dur = until(date) + lag*until(date);
+	if (dur < 0) {
+		return DefaultCheckInterval;
+	}
+	return dur;
+}
+
+function until(date) {
+	return date - new Date();
 }
 
 export class ObjectSelect extends Component {
@@ -53,19 +100,19 @@ export class ObjectSelect extends Component {
 				<legend>Icinga object</legend>
 				<ObjectTypeSelect
 					selected={this.props.objectType}
-					onChange={this.handleSelect}
+					onInput={this.handleSelect}
 				/>
 				<ObjectList
 					names={this.state.names}
 					value={this.props.objectName}
-					onChange={this.handleObjectChange}
+					onInput={this.handleObjectChange}
 				/>
 			</fieldset>
 		);
 	}
 }
 
-function ObjectTypeSelect({ selected, onChange }) {
+function ObjectTypeSelect({ selected, onInput }) {
 	return (
 		<Fragment>
 			<label class="form-label">Type</label>
@@ -73,7 +120,7 @@ function ObjectTypeSelect({ selected, onChange }) {
 				class="form-select"
 				name="objectType"
 				value={selected}
-				onChange={onChange}
+				onInput={onInput}
 				required
 			>
 				<option key="host" value="host">
@@ -81,6 +128,12 @@ function ObjectTypeSelect({ selected, onChange }) {
 				</option>
 				<option key="service" value="service">
 					Service
+				</option>
+				<option key="hostgroup" value="hostgroup">
+					Host Group
+				</option>
+				<option key="servicegroup" value="servicegroup">
+					Service Group
 				</option>
 			</select>
 		</Fragment>
@@ -99,23 +152,22 @@ const disabledInput = (
 	</Fragment>
 );
 
-function ObjectList({ names, value, onChange }) {
+function ObjectList({ names, value, onInput }) {
 	if (!names) {
 		return disabledInput;
 	}
-	let options = names.map((name) => <option value={name}></option>);
+	let options = names.map((name) => <option value={name}>{name}</option>);
 	return (
 		<Fragment>
 			<label class="form-label">Name</label>
-			<input
-				class="form-control"
-				list="object-list"
-				name="objectName"
+			<select
+				class="form-select"
+				id="object-list"
 				value={value}
-				placeholder="Enter text to search..."
-				onChange={onChange}
-			/>
-			<datalist id="object-list">{options}</datalist>
+				onInput={onInput}
+			>
+				{options}
+			</select>
 		</Fragment>
 	);
 }

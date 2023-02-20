@@ -8,9 +8,9 @@ import (
 	"net/url"
 	"os"
 	"path"
+	"time"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/mailgun/groupcache/v2"
 	"github.com/meerkat-dashboard/meerkat"
 	"github.com/meerkat-dashboard/meerkat/ui"
 )
@@ -38,14 +38,9 @@ func main() {
 		log.Fatalln("parse icinga url:", err)
 	}
 
-	initialiseIcingaCaches()
-
 	if err := os.MkdirAll("dashboards", 0755); err != nil {
 		log.Fatalln("Error creating dashboards directory:", err)
 	}
-
-	cachepool := groupcache.NewHTTPPool("http://localhost:8585")
-	cachepool.Set("http://localhost:8585")
 
 	r := chi.NewRouter()
 
@@ -57,14 +52,16 @@ func main() {
 	r.Post("/dashboard/{slug}", handleUpdateDashboard)
 	r.Delete("/dashboard/{slug}", handleDeleteDashboard)
 
-	r.Get("/icinga/{check-type}", handleIcingaCheck)
-	r.Get("/icinga/{check-type}/{object-id}", handleIcingaCheck)
-	r.Get("/icinga/check_state", handleIcingaCheckState)
-	r.Get("/icinga/check_result", handleCheckResult)
+	// Serve the Icinga API
+	rproxy := NewIcingaProxy(icingaURL, config.IcingaUsername, config.IcingaPassword, config.IcingaInsecureTLS)
 
-	// Serve the Icinga API, stripping the leading "/icinga" prefix from the Meerkat UI.
-	proxy := http.StripPrefix("/icinga", NewIcingaProxy(icingaURL, config.IcingaUsername, config.IcingaPassword, config.IcingaInsecureTLS))
-	r.Handle("/icinga/v1/*", proxy)
+	// Let clients cache these slower expensive requests for some time.
+	r.Handle("/icinga/v1/objects/hosts", setMaxAge(time.Hour, http.StripPrefix("/icinga", rproxy)))
+	r.Handle("/icinga/v1/objects/services", setMaxAge(time.Hour, http.StripPrefix("/icinga", rproxy)))
+
+	// Let the server cache responses from icinga to ease load on request bursts.
+	cache := NewCachingProxy(rproxy, 10*time.Second)
+	r.Handle("/icinga/v1/*", http.StripPrefix("/icinga", cache))
 
 	// Previous versions of meerkat served user-uploaded files from this directory.
 	// Keep serving them for backwards compatibility.

@@ -34,21 +34,45 @@ export class ObjectCard extends Component {
 	 */
 	constructor(props) {
 		super(props);
-		this.state = {
-			stat: -1,
-			acknowledged: false,
-		};
+		this.state = {};
+		this.updateObject = this.updateObject.bind(this);
 	}
 
-	fetchObject(typ, name) {
-		meerkat.getIcingaObjectState(typ, name);
+	async updateObject() {
+		if (!this.props.objectName || !this.props.objectType) {
+			return; // nothing selected yet
+		}
+		try {
+			const obj = await meerkat.getIcingaObject(
+				this.props.objectName,
+				this.props.objectType
+			);
+			this.setState(obj);
+
+			const next = new Date(obj.attrs.next_check * 1000);
+			const dur = Icinga.NextRefresh(next);
+			this.timer = setTimeout(async () => {
+				await this.updateObject();
+			}, dur);
+			console.debug(
+				`updating ${this.props.objectName} after ${dur / 1000} seconds`
+			);
+		} catch (err) {
+			console.error(
+				`fetch ${this.props.objectType} ${this.props.objectName}: ${err}`
+			);
+		}
 	}
 
 	componentDidMount() {
-		this.fetchObject(this.props.objectType, this.props.objectName);
-		this.timer = setInterval(() => {
-			this.fetchObject(this.props.objectType, this.props.objectName);
-		}, 30 * 1000);
+		this.updateObject();
+	}
+
+	componentDidUpdate(prevProps) {
+		if (this.props.objectName != prevProps.objectName && this.props.objectType != prevProps.objectType) {
+			clearInterval(this.timer);
+			this.updateObject();
+		}
 	}
 
 	componentWillUnmount() {
@@ -56,7 +80,10 @@ export class ObjectCard extends Component {
 	}
 
 	render() {
-		let objState = stateText(this.props.objectType, this.state.stat);
+		if (!this.state.attrs) {
+			return null;
+		}
+		let objState = stateText(this.props.objectType, this.state.attrs.state);
 		let text = objState;
 		let classes = ["check-content", "card", objState];
 		if (this.state.acknowledged) {

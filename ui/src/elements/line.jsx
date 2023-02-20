@@ -2,14 +2,16 @@ import { h, Fragment } from "preact";
 import { useState, useEffect, useRef } from "preact/hooks";
 
 import * as meerkat from "../meerkat";
+import * as Icinga from "../icinga";
 import { icingaResultCodeToCheckState, IcingaCheckList } from "../util";
 import { ExternalURL } from "./options";
 
 export function CheckLineOptions({ options, updateOptions }) {
 	return (
 		<div class="card-options">
-			<IcingaCheckList
-				currentCheckopts={options}
+			<Icinga.ObjectList
+				objectType={options.objectType}
+				objectName={options.objectName}
 				updateOptions={updateOptions}
 			/>
 
@@ -93,7 +95,7 @@ export function CheckLine({ options, dashboard, slug }) {
 	};
 
 	useEffect(() => {
-		if (options.objectType !== null && options.filter !== null) {
+		if (options.objectType && options.objectName) {
 			updateState();
 			const intervalID = window.setInterval(updateState, 30 * 1000);
 			return () => window.clearInterval(intervalID);

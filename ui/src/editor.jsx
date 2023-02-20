@@ -2,7 +2,6 @@ import { h, Fragment } from "preact";
 import { useEffect, useReducer, useState } from "preact/hooks";
 
 import * as meerkat from "./meerkat";
-import { ObjectStateCard, CheckCardOptions } from "./elements/card";
 import { CheckSVG, CheckSVGOptions, CheckSVGDefaults } from "./elements/svg";
 import {
 	CheckLine,
@@ -23,8 +22,6 @@ import { ObjectCard, ObjectCardOptions } from "./elements/i2object";
 
 function defaultElementOptions(typ) {
 	switch (typ) {
-		case "check-svg":
-			return CheckSVGDefaults;
 		case "check-line":
 			return CheckLineDefaults;
 		case "static-text":
@@ -192,14 +189,7 @@ function TransformableElement({
 	const handleMove = (downEvent) => {
 		const mousemove = (moveEvent) => {
 			let elementNode = downEvent.target;
-			if (elementNode.className === "video-overlay") {
-				elementNode = elementNode.parentElement;
-			}
-			if (elementNode.className === "audio-container") {
-				elementNode = elementNode.parentElement;
-			}
-
-			const dashboardNode = elementNode.parentElement;
+			const dashboardNode = document.getElementById("dashboard");
 
 			//Get max dimensions
 			let left = elementNode.offsetLeft + moveEvent.movementX;
@@ -381,15 +371,6 @@ function DashboardElements({
 
 		let ele;
 		switch (element.type) {
-			case "check-card":
-				ele = (
-					<ObjectStateCard
-						objectType={element.options.objectType}
-						filter={element.options.filter}
-						fontSize={element.options.fontSize}
-					/>
-				);
-				break;
 			case "check-svg":
 				ele = (
 					<CheckSVG
@@ -431,7 +412,7 @@ function DashboardElements({
 			case "audio":
 				ele = <audio controls src={element.options.audioSource}></audio>;
 				break;
-			case "object-card":
+			case "check-card":
 				ele = (
 					<ObjectCard
 						objectType={element.options.objectType}
@@ -477,6 +458,7 @@ export function DashboardView({
 			}}
 		>
 			<div
+				id="dashboard"
 				class="dashboard"
 				style={{
 					Height: backgroundImage ? dashboard.height : "100%",
@@ -630,14 +612,6 @@ export function ElementSettings({ element, updateElement, closeElement }) {
 	};
 
 	let ElementOptions = null;
-	if (element.type === "check-card") {
-		ElementOptions = (
-			<CheckCardOptions
-				updateOptions={updateElementOptions}
-				options={element.options}
-			/>
-		);
-	}
 	if (element.type === "check-svg") {
 		ElementOptions = (
 			<CheckSVGOptions
@@ -702,7 +676,7 @@ export function ElementSettings({ element, updateElement, closeElement }) {
 				options={element.options}
 			/>
 		);
-	} else if (element.type == "object-card") {
+	} else if (element.type == "check-card") {
 		ElementOptions = (
 			<ObjectCardOptions
 				options={element.options}
@@ -751,7 +725,6 @@ export function ElementSettings({ element, updateElement, closeElement }) {
 					<option value="video">Video</option>
 					<option value="audio">Audio</option>
 					<option value="clock">Clock</option>
-					<option value="object-card">Icinga object (experimental)</option>
 				</select>
 				<hr />
 

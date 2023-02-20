@@ -2,19 +2,45 @@ import { h, Fragment } from "preact";
 import { useState, useEffect } from "preact/hooks";
 
 import * as meerkat from "../meerkat";
-import { icingaResultCodeToCheckState, IcingaCheckList } from "../util";
+import * as Icinga from "../icinga";
+import { icingaResultCodeToCheckState } from "../util";
 import { svgList } from "../svg-list";
 import { ExternalURL } from "./options";
+
+const defaultIcon = {
+	ok: "check-circle",
+	warning: "alert-triangle",
+	critical: "alert-octagon",
+	unknown: "help-circle",
+};
 
 export function CheckSVGOptions({ options, updateOptions }) {
 	const svgOptions = svgList.map((svgName) => (
 		<option value={svgName}>{svgName}</option>
 	));
 
+	let ok = defaultIcon.ok;
+	if (options.okSvg) {
+		ok = options.okSvg;
+	}
+	let warning = defaultIcon.warning;
+	if (options.warningSvg) {
+		warning = options.warningSvg;
+	}
+	let critical = defaultIcon.critical;
+	if (options.criticalSvg) {
+		critical = options.criticalSvg;
+	}
+	let unknown = defaultIcon.unknown;
+	if (options.unknownSvg) {
+		unknown = options.unknownSvg;
+	}
+
 	return (
 		<Fragment>
-			<IcingaCheckList
-				currentCheckopts={options}
+			<Icinga.ObjectSelect
+				objectType={options.objectType}
+				objectName={options.objectName}
 				updateOptions={updateOptions}
 			/>
 
@@ -23,104 +49,107 @@ export function CheckSVGOptions({ options, updateOptions }) {
 				onInput={(e) => updateOptions({ linkURL: e.currentTarget.value })}
 			/>
 
-			<label for="okSvg">OK icon</label>
-			<select
-				class="form-select"
-				id="okSvg"
-				name="okSvg"
-				value={options.okSvg}
+			<SVGSelect
+				objState="ok"
+				value={ok}
 				onInput={(e) => updateOptions({ okSvg: e.currentTarget.value })}
-			>
-				{svgOptions}
-			</select>
-
-			<label for="warningSvg">Warning icon</label>
-			<select
-				class="form-select"
-				id="warningSvg"
-				name="warningSvg"
-				value={options.warningSvg}
+			/>
+			<SVGSelect
+				objState="warning"
+				value={warning}
 				onInput={(e) => updateOptions({ warningSvg: e.currentTarget.value })}
-			>
-				{svgOptions}
-			</select>
-
-			<label for="criticalSvg">Critical icon</label>
-			<select
-				class="form-select"
-				id="criticalSvg"
-				name="criticalSvg"
-				value={options.criticalSvg}
+			/>
+			<SVGSelect
+				objState="critical"
+				value={critical}
 				onInput={(e) => updateOptions({ criticalSvg: e.currentTarget.value })}
-			>
-				{svgOptions}
-			</select>
+			/>
+			<SVGSelect
+				objState="unknown"
+				value={unknown}
+				onInput={(e) => updateOptions({ unknownSvg: e.currentTarget.value })}
+			/>
+		</Fragment>
+	);
+}
 
-			<label for="unknownSvg">Unknown icon</label>
+// SVGSelect returns a select element for the given Icinga object state.
+function SVGSelect({ objState, value, onInput }) {
+	const svgs = svgList.map((svgName) => (
+		<option value={svgName}>{svgName}</option>
+	));
+	let id = `${objState}Svg`;
+	return (
+		<Fragment>
+			<label style="text-transform: capitalize;" for={id}>{objState} icon</label>
 			<select
 				class="form-select"
-				id="unknownSvg"
-				name="unknownSvg"
-				value={options.unknownSvg}
-				onInput={(e) => updateOptions({ unknownSvg: e.currentTarget.value })}
+				id={id}
+				name={id}
+				value={value}
+				onInput={onInput}
 			>
-				{svgOptions}
+				{svgs}
 			</select>
 		</Fragment>
 	);
 }
 
 export function CheckSVG({ options, dashboard }) {
-	const [checkState, setCheckState] = useState(null);
+	const [i2Obj, seti2Obj] = useState();
 
-	const updateState = async () => {
-		if (options.objectType !== null && options.filter !== null) {
-			try {
-				const res = await meerkat.getIcingaObjectState(
-					options.objectType,
-					options.filter,
-					dashboard
-				);
-				if (res === false)
-					window.flash(`This dashboard isn't updating`, "error");
-				setCheckState(
-					icingaResultCodeToCheckState(options.objectType, res.MaxState)
-				);
-			} catch (error) {
-				window.flash("This dashboard isn't updating", "error");
-			}
+	const updateObject = async () => {
+		let timer;
+		try {
+			const obj = await meerkat.getIcingaObject(
+				options.objectName,
+				options.objectType
+			);
+			seti2Obj(obj);
+			const next = new Date(obj.attrs.next_check * 1000);
+			let dur = Icinga.NextRefresh(next);
+			timer = setTimeout(async () => {
+				await updateObject();
+			}, dur);
+			console.debug(
+				`updating ${options.objectName} after ${dur / 1000} seconds`
+			);
+		} catch(err) {
+			console.error(
+				`fetch ${options.objectType} ${options.objectName}: ${err}`
+			);
 		}
+		return timer;
 	};
 
 	useEffect(() => {
-		if (options.objectType !== null && options.filter != null) {
-			updateState();
-			const intervalID = window.setInterval(updateState, 30 * 1000);
-			return () => window.clearInterval(intervalID);
+		if (options.objectType && options.objectName) {
+			let timer = updateObject();
+			return () => window.clearInterval(timer);
 		}
-	}, [options.objectType, options.filter]);
+	}, [options.objectType, options.objectName]);
 
-	let svgName = "";
-	if (checkState === "ok" || checkState === "up") {
-		svgName = options.okSvg;
-	} else if (checkState === "warning") {
-		svgName = options.warningSvg;
-	} else if (checkState === "unknown") {
-		svgName = options.unknownSvg;
-	} else if (checkState === "critical" || checkState === "down") {
-		svgName = options.criticalSvg;
+	if (!i2Obj) {
+		return null;
 	}
 
+	let svg = options.unknownSvg;
+	if (i2Obj.attrs.state == 0) {
+		svg = options.okSvg;
+	} else if (i2Obj.attrs.state == 1) {
+		if (options.objectType == "host") {
+			svg = options.criticalSvg;
+		} else {
+			svg = options.warningSvg;
+		}
+	} else if (i2Obj.attrs.state == 2) {
+		svg = options.criticalSvg;
+	}
+
+	let classes = ["feather", Icinga.StateText(i2Obj.attrs.state, i2Obj.type)];
 	return (
-		<svg class={`feather ${checkState}`}>
-			<use xlinkHref={`/dist/feather-sprite.svg#${svgName}`} />
+		<svg class={classes.join(" ")}>
+			<use xlinkHref={`/dist/feather-sprite.svg#${svg}`} />
 		</svg>
 	);
 }
-
-export const CheckSVGDefaults = {
-	okSvg: "check-circle",
-	warningSvg: "alert-triangle",
-	criticalSvg: "alert-octagon",
-	unknownSvg: "help-circle",
-};
