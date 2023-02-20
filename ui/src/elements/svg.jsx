@@ -81,7 +81,9 @@ function SVGSelect({ objState, value, onInput }) {
 	let id = `${objState}Svg`;
 	return (
 		<Fragment>
-			<label style="text-transform: capitalize;" for={id}>{objState} icon</label>
+			<label style="text-transform: capitalize;" for={id}>
+				{objState} icon
+			</label>
 			<select
 				class="form-select"
 				id={id}
@@ -114,7 +116,7 @@ export function CheckSVG({ options, dashboard }) {
 			console.debug(
 				`updating ${options.objectName} after ${dur / 1000} seconds`
 			);
-		} catch(err) {
+		} catch (err) {
 			console.error(
 				`fetch ${options.objectType} ${options.objectName}: ${err}`
 			);
