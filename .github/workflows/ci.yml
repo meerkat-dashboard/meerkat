@@ -34,13 +34,11 @@ jobs:
 
       - uses: actions/setup-go@v3
 
-      - name: gofmt
+      - name: test
         # if gofmt reports any files need formatting, print them then exit with error
         run: |
           if ! [ -z "`gofmt -l .`" ]; then gofmt -l . && exit 1; fi
-
-      - name: test
-        run: go test
+          go test ./...
 
   package:
     runs-on: ubuntu-latest
