@@ -42,26 +42,27 @@ export class ObjectCard extends Component {
 		if (!this.props.objectName || !this.props.objectType) {
 			return; // nothing selected yet
 		}
+
+		let dur = 30 * 1000;
 		try {
 			const obj = await meerkat.getIcingaObject(
 				this.props.objectName,
 				this.props.objectType
 			);
 			this.setState(obj);
-
 			const next = new Date(obj.attrs.next_check * 1000);
-			const dur = Icinga.NextRefresh(next);
-			this.timer = setTimeout(async () => {
-				await this.updateObject();
-			}, dur);
-			console.debug(
-				`updating ${this.props.objectName} after ${dur / 1000} seconds`
-			);
+			dur = Icinga.NextRefresh(next);
 		} catch (err) {
 			console.error(
 				`fetch ${this.props.objectType} ${this.props.objectName}: ${err}`
 			);
 		}
+		this.timer = setTimeout(async () => {
+			await this.updateObject();
+		}, dur);
+		console.debug(
+			`updating ${this.props.objectName} after ${dur / 1000} seconds`
+		);
 	}
 
 	componentDidMount() {
@@ -69,7 +70,10 @@ export class ObjectCard extends Component {
 	}
 
 	componentDidUpdate(prevProps) {
-		if (this.props.objectName != prevProps.objectName && this.props.objectType != prevProps.objectType) {
+		if (
+			this.props.objectName != prevProps.objectName &&
+			this.props.objectType != prevProps.objectType
+		) {
 			clearInterval(this.timer);
 			this.updateObject();
 		}

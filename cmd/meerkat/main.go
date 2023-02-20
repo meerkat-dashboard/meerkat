@@ -44,8 +44,6 @@ func main() {
 
 	r := chi.NewRouter()
 
-	r.Handle("/_groupcache/", cachepool)
-
 	r.Get("/dashboard/{slug}", handleListDashboard)
 
 	r.Post("/dashboard", handleCreateDashboard)
