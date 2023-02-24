@@ -56,45 +56,29 @@ export function StaticTextOptions({ options, updateOptions }) {
 			<label for="font-color">
 				Font Color <a onClick={(e) => clearField(e, "fontColor")}>clear</a>
 			</label>
-			<div class="lefty-righty spacer">
-				<input
-					class="form-control"
-					id="font-color"
-					name="font-color"
-					type="color"
-					value={options.fontColor}
-					onInput={(e) => updateOptions({ fontColor: e.currentTarget.value })}
-				/>
-				<input
-					class="form-control"
-					type="text"
-					value={options.fontColor}
-					disabled
-				/>
-			</div>
+			<input
+				class="form-control"
+				id="font-color"
+				name="font-color"
+				type="color"
+				value={options.fontColor}
+				onInput={(e) => updateOptions({ fontColor: e.currentTarget.value })}
+			/>
 
 			<label for="background-color">
 				Background Color{" "}
 				<a onClick={(e) => clearField(e, "backgroundColor")}>clear</a>
 			</label>
-			<div class="lefty-righty spacer">
-				<input
-					class="form-control"
-					id="background-color"
-					name="background-color"
-					type="color"
-					value={options.backgroundColor}
-					onInput={(e) =>
-						updateOptions({ backgroundColor: e.currentTarget.value })
-					}
-				/>
-				<input
-					class="form-control"
-					type="text"
-					value={options.backgroundColor}
-					disabled
-				/>
-			</div>
+			<input
+				class="form-control"
+				id="background-color"
+				name="background-color"
+				type="color"
+				value={options.backgroundColor}
+				onInput={(e) =>
+					updateOptions({ backgroundColor: e.currentTarget.value })
+				}
+			/>
 		</Fragment>
 	);
 }
