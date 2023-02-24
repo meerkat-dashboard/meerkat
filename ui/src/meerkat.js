@@ -22,18 +22,20 @@ export async function getIcingaHosts() {
 export async function getAll(objectType) {
 	objectType = pluralise(objectType);
 	const resp = await fetch(`/icinga/v1/objects/${objectType}?attrs=name`);
-	let decoded = await resp.json();
-	return decoded.results;
+	return await readResults(resp);
 }
 
-export async function getIcingaHostGroups() {
-	const res = await fetch(`/icinga/hostgroups`);
-	return res.json();
-}
+export async function getAllInGroup(name, objectType) {
+	// "example" in service.groups
+	const expr = `"${name}" in ${objectType}.groups`;
+	// %22example%22%20in%20service.groups
+	const filter = encodeURIComponent(expr);
+	// /icinga/v1/objects/services?filter=%22example%22%20in%20service.groups
+	const path = `/icinga/v1/objects/${pluralise(objectType)}`;
 
-export async function getIcingaServiceGroups() {
-	const res = await fetch(`/icinga/servicegroups`);
-	return res.json();
+	const resp = await fetch(path+"?filter="+filter);
+	const results = await readResults(resp);
+	return results;
 }
 
 export async function getIcingaObject(name, typ) {
@@ -41,32 +43,8 @@ export async function getIcingaObject(name, typ) {
 	name = encodeURIComponent(name);
 	let path = `/icinga/v1/objects/${typ}/${name}`;
 	const resp = await fetch(path);
-	const decoded = await resp.json();
-	if (!resp.ok) {
-		if (decoded.status) {
-			throw new Error(decoded.status);
-		} else if (decoded.errors) {
-			throw new Error(decoded.errors.join(", "));
-		}
-		throw new Error(`non-ok status from Icinga API: ${resp.statusText}`);
-	}
-
-	if (decoded.results.length == 0) {
-		throw new Error("no such object");
-	}
-	return decoded.results[0];
-}
-
-export async function getCheckResult(
-	objType,
-	object,
-	attrs = "last_check_result"
-) {
-	return fetchHandler(
-		`/icinga/check_result?objtype=${objType}&object=${encodeURIComponent(
-			object
-		)}&attrs=${encodeURIComponent(attrs)}`
-	);
+	const results = await readResults(resp);
+	return results[0];
 }
 
 export async function getDashboard(slug) {
@@ -87,4 +65,25 @@ function pluralise(str) {
 	if (str.slice(-1) != "s") {
 		return str + "s";
 	}
+}
+
+/**
+ * readResults decodes and returns the results from resp.
+ * It throws on any error present in resp, or if there are no results.
+ */
+async function readResults(resp) {
+	const decoded = await resp.json();
+	if (!resp.ok) {
+		if (decoded.status) {
+			throw new Error(decoded.status);
+		} else if (decoded.errors) {
+			throw new Error(decoded.errors.join(", "));
+		}
+		throw new Error(`non-ok status from Icinga API: ${resp.statusText}`);
+	}
+
+	if (decoded.results.length == 0) {
+		throw new Error("no objects");
+	}
+	return decoded.results;
 }
