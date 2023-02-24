@@ -2,14 +2,14 @@ import { h, Fragment } from "preact";
 import { useState, useEffect, useRef } from "preact/hooks";
 
 import * as meerkat from "../meerkat";
-import * as Icinga from "../icinga";
-import { icingaResultCodeToCheckState, IcingaCheckList } from "../util";
+import * as Icinga from "./icinga";
+import * as IcingaJS from "../icinga/icinga";
 import { ExternalURL } from "./options";
 
 export function CheckLineOptions({ options, updateOptions }) {
 	return (
 		<div class="card-options">
-			<Icinga.ObjectList
+			<Icinga.ObjectSelect
 				objectType={options.objectType}
 				objectName={options.objectName}
 				updateOptions={updateOptions}
@@ -86,7 +86,7 @@ export function CheckLine({ options, dashboard, slug }) {
 					window.flash(`This dashboard isn't updating`, "error");
 				res.Acknowledged ? setAcknowledged("ack") : setAcknowledged("");
 				setCheckState(
-					icingaResultCodeToCheckState(options.objectType, res.MaxState)
+					IcingaJS.StateText(options.objectType, res.MaxState)
 				);
 			} catch (error) {
 				window.flash("This dashboard isn't updating", "error");

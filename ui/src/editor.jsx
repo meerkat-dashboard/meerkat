@@ -417,6 +417,7 @@ function DashboardElements({
 					<ObjectCard
 						objectType={element.options.objectType}
 						objectName={element.options.objectName}
+						objectAttr={element.options.objectAttr}
 						fontSize={element.options.fontSize}
 					/>
 				);

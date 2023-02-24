@@ -2,7 +2,8 @@ import { h, Fragment } from "preact";
 import { useState, useEffect } from "preact/hooks";
 
 import * as meerkat from "../meerkat";
-import * as Icinga from "../icinga";
+import * as Icinga from "./icinga";
+import * as IcingaJS from "../icinga/icinga";
 import { icingaResultCodeToCheckState } from "../util";
 import { svgList } from "../svg-list";
 import { ExternalURL } from "./options";
@@ -109,7 +110,7 @@ export function CheckSVG({ options, dashboard }) {
 			);
 			seti2Obj(obj);
 			const next = new Date(obj.attrs.next_check * 1000);
-			let dur = Icinga.NextRefresh(next);
+			let dur = IcingaJS.NextRefresh(next);
 			timer = setTimeout(async () => {
 				await updateObject();
 			}, dur);
@@ -148,7 +149,7 @@ export function CheckSVG({ options, dashboard }) {
 		svg = options.criticalSvg;
 	}
 
-	let classes = ["feather", Icinga.StateText(i2Obj.attrs.state, i2Obj.type)];
+	let classes = ["feather", IcingaJS.StateText(i2Obj.attrs.state, i2Obj.type)];
 	return (
 		<svg class={classes.join(" ")}>
 			<use xlinkHref={`/dist/feather-sprite.svg#${svg}`} />

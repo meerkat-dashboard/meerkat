@@ -1,8 +1,10 @@
 import { h, Fragment, Component } from "preact";
+import { useEffect, useState } from "preact/hooks";
 
 import { FontSizeInput, ExternalURL } from "./options";
 import * as meerkat from "../meerkat";
-import * as Icinga from "../icinga";
+import * as Icinga from "./icinga";
+import * as IcingaJS from "../icinga/icinga";
 
 export function ObjectCardOptions({ options, updateOptions }) {
 	return (
@@ -11,6 +13,12 @@ export function ObjectCardOptions({ options, updateOptions }) {
 				objectType={options.objectType}
 				objectName={options.objectName}
 				updateOptions={updateOptions}
+			/>
+			<Icinga.AttrSelect
+				objectName={options.objectName}
+				objectType={options.objectType}
+				selected={options.objectAttr}
+				onInput={(e) => updateOptions({ objectAttr: e.currentTarget.value })}
 			/>
 			<ExternalURL
 				value={options.linkURL}
@@ -30,6 +38,7 @@ export class ObjectCard extends Component {
 	/*
 	 * objectType: "host", "service"...
 	 * objectName "www.example.com!ping4"
+	 * objectAttr
 	 * fontSize
 	 */
 	constructor(props) {
@@ -51,7 +60,7 @@ export class ObjectCard extends Component {
 			);
 			this.setState(obj);
 			const next = new Date(obj.attrs.next_check * 1000);
-			dur = Icinga.NextRefresh(next);
+			dur = IcingaJS.NextRefresh(next);
 		} catch (err) {
 			console.error(
 				`fetch ${this.props.objectType} ${this.props.objectName}: ${err}`
@@ -70,10 +79,8 @@ export class ObjectCard extends Component {
 	}
 
 	componentDidUpdate(prevProps) {
-		if (
-			this.props.objectName != prevProps.objectName &&
-			this.props.objectType != prevProps.objectType
-		) {
+		if (this.props.objectName != prevProps.objectName) {
+			console.log(`clearing timer for ${prevProps.objectName}`);
 			clearInterval(this.timer);
 			this.updateObject();
 		}
@@ -87,8 +94,13 @@ export class ObjectCard extends Component {
 		if (!this.state.attrs) {
 			return null;
 		}
-		let objState = stateText(this.props.objectType, this.state.attrs.state);
-		let text = objState;
+		let text;
+		const objState = stateText(this.props.objectType, this.state.attrs.state);
+		if (!this.props.objectAttr || this.props.objectAttr == "state") {
+			text = objState;
+		} else {
+			text = `Render ${this.props.objectAttr} not implemented`;
+		}
 		let classes = ["check-content", "card", objState];
 		if (this.state.acknowledged) {
 			text += " (ACK)";

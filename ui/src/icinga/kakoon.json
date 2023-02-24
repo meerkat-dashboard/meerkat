@@ -1,0 +1,38 @@
+{
+    "results": [
+        {
+            "attrs": {
+                "__name": "Kakoon Services",
+                "action_url": "",
+                "active": true,
+                "display_name": "Kakoon Services",
+                "groups": null,
+                "ha_mode": 0,
+                "name": "Kakoon Services",
+                "notes": "",
+                "notes_url": "",
+                "original_attributes": null,
+                "package": "_etc",
+                "paused": false,
+                "source_location": {
+                    "first_column": 1,
+                    "first_line": 52,
+                    "last_column": 37,
+                    "last_line": 52,
+                    "path": "/etc/icinga2/zones.d/master/groups.conf"
+                },
+                "templates": [
+                    "Kakoon Services"
+                ],
+                "type": "ServiceGroup",
+                "vars": null,
+                "version": 0,
+                "zone": "master"
+            },
+            "joins": {},
+            "meta": {},
+            "name": "Kakoon Services",
+            "type": "ServiceGroup"
+        }
+    ]
+}

@@ -19,4 +19,4 @@ then
 	$hget https://unpkg.com/feather-icons@4.29.0/dist/feather-sprite.svg 2>/dev/null > dist/feather-sprite.svg
 fi
 
-cp react-widgets.css style.css dist/
+cp style.css dist/

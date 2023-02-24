@@ -1,67 +1,12 @@
 import { h, Fragment, Component } from "preact";
+import { useEffect, useState } from "preact/hooks";
 
-import * as meerkat from "./meerkat";
-
-// DefaultCheckInterval is the default duration, in milliseconds,
-// which a standard Icinga installation will execute check commands if
-// none is set explicitly.
-export const DefaultCheckInterval = 60 * 1000;
+import * as meerkat from "../meerkat";
 
 async function getObjectNames(objectType) {
 	const objects = await meerkat.getAll(objectType);
 	const names = objects.map((obj) => obj.name);
 	return names.sort();
-}
-
-export function StateText(state, objectType) {
-	if (objectType.toLowerCase() == "host") {
-		switch (state) {
-			case 0:
-				return "ok";
-			case 1:
-				return "critical";
-			default:
-				return "unknown";
-		}
-	}
-
-	switch (state) {
-		case 0:
-			return "ok";
-		case 1:
-			return "warning";
-		case 2:
-			return "critical";
-		default:
-			return "unknown";
-	}
-}
-
-// NextRefresh returns an estimated duration until the Icinga HTTP API
-// may be queried to detect a change of object state. Date should be the
-// date when Icinga will perform its next check (see the next_check field
-// from the API).
-//
-// Lag is the estimated proportion of the duration until the next check
-// required for Icinga to update the object state.
-// Lag accounts for durations such as check command execution time.
-// For example, if the next check is 60 seconds away and lag is set to 0.2,
-// the estimated duration returned would be 72 seconds.
-// If unset, the default lag is 10% (0.1) of the duration until the next check.
-//
-// If the next check is in the past (e.g. when objects have been
-// unreachable from Icinga for some time), DefaultCheckInterval is
-// returned.
-export function NextRefresh(date, lag = 0.1) {
-	let dur = until(date) + lag*until(date);
-	if (dur < 0) {
-		return DefaultCheckInterval;
-	}
-	return dur;
-}
-
-function until(date) {
-	return date - new Date();
 }
 
 export class ObjectSelect extends Component {
@@ -113,6 +58,9 @@ export class ObjectSelect extends Component {
 }
 
 function ObjectTypeSelect({ selected, onInput }) {
+	if (!selected) {
+		selected = "";
+	}
 	return (
 		<Fragment>
 			<label class="form-label">Type</label>
@@ -123,6 +71,7 @@ function ObjectTypeSelect({ selected, onInput }) {
 				onInput={onInput}
 				required
 			>
+				<option key="default" disabled value="">Choose an object type...</option>
 				<option key="host" value="host">
 					Host
 				</option>
@@ -147,6 +96,7 @@ const disabledInput = (
 			class="form-control"
 			type="text"
 			placeholder="No object type selected"
+			id="objectName"
 			disabled
 		/>
 	</Fragment>
@@ -159,15 +109,85 @@ function ObjectList({ names, value, onInput }) {
 	let options = names.map((name) => <option value={name}>{name}</option>);
 	return (
 		<Fragment>
-			<label class="form-label">Name</label>
+			<label class="form-label" for="objectName">
+				Name
+			</label>
 			<select
 				class="form-select"
-				id="object-list"
+				id="objectName"
+				name="objectName"
 				value={value}
 				onInput={onInput}
+				required
 			>
 				{options}
 			</select>
 		</Fragment>
 	);
 }
+
+export function AttrSelect({ objectName, objectType, selected, onInput }) {
+	const [attrs, setAttrs] = useState();
+
+	if (!objectName) {
+		return noneSelected;
+	}
+
+	useEffect(() => {
+		meerkat
+			.getIcingaObject(objectName, objectType)
+			.then((obj) => {
+				setAttrs(obj.attrs);
+			})
+			.catch((err) => {
+				console.error(err);
+			});
+	}, [objectName, objectType]);
+
+	if (!attrs) {
+		return noneSelected;
+	}
+
+	let keys = Object.keys(attrs);
+	const options = keys.map((k) => <option value={k}>{k}</option>);
+	if (!selected) {
+		selected = "state";
+	}
+	return (
+		<Fragment>
+			<label class="form-label" for="attrSelect">
+				Attribute
+			</label>
+			<select
+				class="form-select"
+				name="attrSelect"
+				value={selected}
+				onInput={onInput}
+			>
+				{options}
+			</select>
+			<small class="form-text">
+				The selected object attribute will be rendered as the card's text.
+			</small>
+		</Fragment>
+	);
+}
+
+const noneSelected = (
+	<Fragment>
+		<label class="form-label" for="attrSelect">
+			Attribute
+		</label>
+		<input
+			class="form-control"
+			type="text"
+			name="attrSelect"
+			id="attrSelect"
+			placeholder="No object selected"
+			disabled
+		/>
+		<small class="form-text">
+			The selected object attribute will be rendered as the card's text.
+		</small>
+	</Fragment>
+);
