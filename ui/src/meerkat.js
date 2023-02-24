@@ -83,20 +83,6 @@ export async function saveDashboard(slug, dashboard) {
 	}
 }
 
-export async function authConfigured() {
-	const res = await fetch("/authentication", {
-		method: "HEAD",
-	});
-	if (res.status == 204) {
-		return true;
-	}
-	return false;
-}
-
-export async function authenticate() {
-	return await fetch("/authenticate");
-}
-
 function pluralise(str) {
 	if (str.slice(-1) != "s") {
 		return str + "s";
