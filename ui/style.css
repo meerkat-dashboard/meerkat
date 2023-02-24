@@ -30,14 +30,6 @@
 	fill: none;
 }
 
-input[type="color"] {
-	width: 46px;
-	height: 43px;
-	margin-right: 5px;
-	border-radius: 5px;
-	border-style: none;
-}
-
 div.selection {
 	display: flex;
 	font-size: 15px;

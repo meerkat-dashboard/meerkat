@@ -57,7 +57,7 @@ export function StaticTextOptions({ options, updateOptions }) {
 				Font Color <a onClick={(e) => clearField(e, "fontColor")}>clear</a>
 			</label>
 			<input
-				class="form-control"
+				class="form-control form-control-color"
 				id="font-color"
 				name="font-color"
 				type="color"
@@ -70,7 +70,7 @@ export function StaticTextOptions({ options, updateOptions }) {
 				<a onClick={(e) => clearField(e, "backgroundColor")}>clear</a>
 			</label>
 			<input
-				class="form-control"
+				class="form-control form-control-color"
 				id="background-color"
 				name="background-color"
 				type="color"
