@@ -535,7 +535,7 @@ function SidePanelElements({
 		setHighlightedElementId(id);
 	};
 
-	let elementList = <div class="subtle">No elements added</div>;
+	let elementList;
 	if (dashboard.elements) {
 		elementList = dashboard.elements.map((element, index) => (
 			<div
