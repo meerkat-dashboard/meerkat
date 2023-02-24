@@ -1,11 +1,21 @@
-module.exports = {
+import path from "path";
+import { fileURLToPath } from "url";
+
+// returns a rooted path name to the current working directory.
+function getwd() {
+	return path.resolve(".");
+}
+
+export default {
   entry: {
     viewer: "./src/viewer.jsx",
     editor: "./src/edit.jsx",
   },
   output: {
     filename: "[name].js",
-    path: __dirname + '/dist',
+    // Can't use __dirname like in webpack docs as we're in an ES
+    // module.
+    path: path.join(getwd(), "dist"),
   },
   module: {
     rules: [
