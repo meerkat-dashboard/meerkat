@@ -33,7 +33,7 @@ export async function getAllInGroup(name, objectType) {
 	// /icinga/v1/objects/services?filter=%22example%22%20in%20service.groups
 	const path = `/icinga/v1/objects/${pluralise(objectType)}`;
 
-	const resp = await fetch(path+"?filter="+filter);
+	const resp = await fetch(path + "?filter=" + filter);
 	const results = await readResults(resp);
 	return results;
 }

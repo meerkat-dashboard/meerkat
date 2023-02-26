@@ -26,5 +26,27 @@
   },
   "prettier": {
     "useTabs": true
+  },
+  "eslintConfig": {
+    "env": {
+        "browser": true,
+        "es2021": true
+    },
+    "extends": [
+        "eslint:recommended",
+        "plugin:react/recommended",
+        "prettier"
+    ],
+    "parserOptions": {
+        "sourceType": "module"
+    },
+    "plugins": [
+        "react"
+    ],
+    "settings": {
+        "react": {
+          "version": "detect"
+        }
+    }
   }
 }

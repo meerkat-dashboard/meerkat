@@ -85,9 +85,7 @@ export function CheckLine({ options, dashboard, slug }) {
 				if (res === false)
 					window.flash(`This dashboard isn't updating`, "error");
 				res.Acknowledged ? setAcknowledged("ack") : setAcknowledged("");
-				setCheckState(
-					IcingaJS.StateText(options.objectType, res.MaxState)
-				);
+				setCheckState(IcingaJS.StateText(options.objectType, res.MaxState));
 			} catch (error) {
 				window.flash("This dashboard isn't updating", "error");
 			}

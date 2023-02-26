@@ -1,5 +1,3 @@
-import * as meerkat from "../meerkat.js";
-
 // DefaultCheckInterval is the default duration, in milliseconds,
 // which a standard Icinga installation will execute check commands if
 // none is set explicitly.

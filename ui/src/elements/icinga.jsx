@@ -71,7 +71,9 @@ function ObjectTypeSelect({ selected, onInput }) {
 				onInput={onInput}
 				required
 			>
-				<option key="default" disabled value="">Choose an object type...</option>
+				<option key="default" disabled value="">
+					Choose an object type...
+				</option>
 				<option key="host" value="host">
 					Host
 				</option>
