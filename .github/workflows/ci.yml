@@ -18,13 +18,14 @@ jobs:
         node-version: 16.x
 
     - name: Install dependencies
-      run: cd ui && npm install
+      run: cd ui && npm ci
 
-    - name: lint
+    - name: test
       run: |
         cd ui
         npx eslint src
         npx prettier -l src
+        npm test
 
   backend:
     runs-on: ubuntu-latest
