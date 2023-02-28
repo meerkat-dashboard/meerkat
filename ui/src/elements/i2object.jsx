@@ -117,7 +117,7 @@ export class ObjectCard extends Component {
 }
 
 function stateText(typ, state) {
-	if (typ == "host") {
+	if (typ.match(/^host/)) {
 		switch (state) {
 			case 0:
 				return "up";
@@ -125,7 +125,7 @@ function stateText(typ, state) {
 				return "down";
 		}
 	}
-	if (typ == "service") {
+	if (typ.match(/^service/)) {
 		switch (state) {
 			case 0:
 				return "ok";
