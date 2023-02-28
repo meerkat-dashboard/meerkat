@@ -16,27 +16,6 @@ const defaultIcon = {
 };
 
 export function CheckSVGOptions({ options, updateOptions }) {
-	const svgOptions = svgList.map((svgName) => (
-		<option value={svgName}>{svgName}</option>
-	));
-
-	let ok = defaultIcon.ok;
-	if (options.okSvg) {
-		ok = options.okSvg;
-	}
-	let warning = defaultIcon.warning;
-	if (options.warningSvg) {
-		warning = options.warningSvg;
-	}
-	let critical = defaultIcon.critical;
-	if (options.criticalSvg) {
-		critical = options.criticalSvg;
-	}
-	let unknown = defaultIcon.unknown;
-	if (options.unknownSvg) {
-		unknown = options.unknownSvg;
-	}
-
 	return (
 		<Fragment>
 			<Icinga.ObjectSelect
@@ -49,51 +28,6 @@ export function CheckSVGOptions({ options, updateOptions }) {
 				value={options.linkURL}
 				onInput={(e) => updateOptions({ linkURL: e.currentTarget.value })}
 			/>
-
-			<SVGSelect
-				objState="ok"
-				value={ok}
-				onInput={(e) => updateOptions({ okSvg: e.currentTarget.value })}
-			/>
-			<SVGSelect
-				objState="warning"
-				value={warning}
-				onInput={(e) => updateOptions({ warningSvg: e.currentTarget.value })}
-			/>
-			<SVGSelect
-				objState="critical"
-				value={critical}
-				onInput={(e) => updateOptions({ criticalSvg: e.currentTarget.value })}
-			/>
-			<SVGSelect
-				objState="unknown"
-				value={unknown}
-				onInput={(e) => updateOptions({ unknownSvg: e.currentTarget.value })}
-			/>
-		</Fragment>
-	);
-}
-
-// SVGSelect returns a select element for the given Icinga object state.
-function SVGSelect({ objState, value, onInput }) {
-	const svgs = svgList.map((svgName) => (
-		<option value={svgName}>{svgName}</option>
-	));
-	let id = `${objState}Svg`;
-	return (
-		<Fragment>
-			<label style="text-transform: capitalize;" for={id}>
-				{objState} icon
-			</label>
-			<select
-				class="form-select"
-				id={id}
-				name={id}
-				value={value}
-				onInput={onInput}
-			>
-				{svgs}
-			</select>
 		</Fragment>
 	);
 }
@@ -136,17 +70,17 @@ export function CheckSVG({ options, dashboard }) {
 		return null;
 	}
 
-	let svg = options.unknownSvg;
+	let svg = "help-circle";
 	if (i2Obj.attrs.state == 0) {
-		svg = options.okSvg;
+		svg = "check-circle";
 	} else if (i2Obj.attrs.state == 1) {
 		if (options.objectType == "host") {
-			svg = options.criticalSvg;
+			svg = "alert-octagon";
 		} else {
-			svg = options.warningSvg;
+			svg = "alert-triangle";
 		}
 	} else if (i2Obj.attrs.state == 2) {
-		svg = options.criticalSvg;
+		svg = "alert-octagon";
 	}
 
 	let classes = ["feather", IcingaJS.StateText(i2Obj.attrs.state, i2Obj.type)];
