@@ -114,16 +114,15 @@ function ObjectList({ names, value, onInput }) {
 			<label class="form-label" for="objectName">
 				Name
 			</label>
-			<select
-				class="form-select"
-				id="objectName"
-				name="objectName"
+			<input
+				class="form-control"
+				list="objectName"
+				placeholder="Type to search..."
 				value={value}
 				onInput={onInput}
 				required
-			>
-				{options}
-			</select>
+			/>
+			<datalist id="objectName">{options}</datalist>
 		</Fragment>
 	);
 }
