@@ -50,7 +50,7 @@ export async function getIcingaObject(name, typ) {
 	const results = await readResults(resp);
 	let obj = results[0];
 	if (typ == "hostgroups" || typ == "servicegroups") {
-		const members = await getAllInGroup(name, typ)
+		const members = await getAllInGroup(name, typ);
 		obj = icinga.groupToObject(obj, members);
 	}
 	return obj;
@@ -80,7 +80,8 @@ function pluralise(str) {
 function singular(objType) {
 	if (objType == "servicegroups" || objType == "servicegroup") {
 		return "service";
-	} if (objType == "hostgroups" || objType == "hostgroup") {
+	}
+	if (objType == "hostgroups" || objType == "hostgroup") {
 		return "host";
 	}
 	throw new Error(`no single form of object type ${objType}`);

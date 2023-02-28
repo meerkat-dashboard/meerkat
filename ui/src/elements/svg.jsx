@@ -8,13 +8,6 @@ import { icingaResultCodeToCheckState } from "../util";
 import { svgList } from "../svg-list";
 import { ExternalURL } from "./options";
 
-const defaultIcon = {
-	ok: "check-circle",
-	warning: "alert-triangle",
-	critical: "alert-octagon",
-	unknown: "help-circle",
-};
-
 export function CheckSVGOptions({ options, updateOptions }) {
 	return (
 		<Fragment>
@@ -74,10 +67,10 @@ export function CheckSVG({ options, dashboard }) {
 	if (i2Obj.attrs.state == 0) {
 		svg = "check-circle";
 	} else if (i2Obj.attrs.state == 1) {
-		if (options.objectType == "host") {
-			svg = "alert-octagon";
+		if (options.objectType.match(/^host/)) {
+			svg = "alert-octagon"; // host is down
 		} else {
-			svg = "alert-triangle";
+			svg = "alert-triangle"; // service is warning
 		}
 	} else if (i2Obj.attrs.state == 2) {
 		svg = "alert-octagon";

@@ -69,50 +69,56 @@ export function CheckLineOptions({ options, updateOptions }) {
 	);
 }
 
-export function CheckLine({ options, dashboard, slug }) {
+export function CheckLine({ options }) {
 	const svgRef = useRef({ clientWidth: 100, clientHeight: 40 });
-	const [checkState, setCheckState] = useState(null);
-	const [acknowledged, setAcknowledged] = useState("");
+	const [i2Obj, seti2Obj] = useState();
 
-	const updateState = async () => {
-		if (options.objectType !== null && options.filter !== null) {
-			try {
-				const res = await meerkat.getIcingaObjectState(
-					options.objectType,
-					options.filter,
-					dashboard
-				);
-				if (res === false)
-					window.flash(`This dashboard isn't updating`, "error");
-				res.Acknowledged ? setAcknowledged("ack") : setAcknowledged("");
-				setCheckState(IcingaJS.StateText(options.objectType, res.MaxState));
-			} catch (error) {
-				window.flash("This dashboard isn't updating", "error");
-			}
+	const updateObject = async () => {
+		let timer;
+		try {
+			const obj = await meerkat.getIcingaObject(
+				options.objectName,
+				options.objectType
+			);
+			seti2Obj(obj);
+			const next = new Date(obj.attrs.next_check * 1000);
+			let dur = IcingaJS.NextRefresh(next);
+			timer = setTimeout(async () => {
+				await updateObject();
+			}, dur);
+			console.debug(
+				`updating ${options.objectName} after ${dur / 1000} seconds`
+			);
+		} catch (err) {
+			console.error(
+				`fetch ${options.objectType} ${options.objectName}: ${err}`
+			);
 		}
+		return timer;
 	};
 
 	useEffect(() => {
 		if (options.objectType && options.objectName) {
-			updateState();
-			const intervalID = window.setInterval(updateState, 30 * 1000);
-			return () => window.clearInterval(intervalID);
+			let timer = updateObject();
+			return () => window.clearInterval(timer);
 		}
-	}, [options.objectType, options.filter]);
+	}, [options.objectType, options.objectName]);
 
-	let strokeColor = "";
+	if (!i2Obj) {
+		return null;
+	}
 
-	if (checkState === "ok" || checkState === "up") {
-		strokeColor = `var(--color-icinga-green)`;
-	}
-	if (checkState === "warning") {
-		strokeColor = acknowledged ? `#ffca39` : `var(--color-icinga-yellow)`;
-	}
-	if (checkState === "unknown") {
-		strokeColor = acknowledged ? `#b594b5` : `var(--color-icinga-purple)`;
-	}
-	if (checkState === "critical" || checkState === "down") {
-		strokeColor = acknowledged ? `#de5e84` : `var(--color-icinga-red)`;
+	let strokeColor = "var(--color-icinga-purple)";
+	if (i2Obj.attrs.state == 0) {
+		strokeColor = "var(--color-icinga-green)";
+	} else if (i2Obj.attrs.state == 1) {
+		if (options.objectType.match(/^host/)) {
+			strokeColor = "var(--color-icinga-red)"; // host is down
+		} else {
+			strokeColor = "var(--color-icinga-yellow)"; // service is warning
+		}
+	} else if (i2Obj.attrs.state == 2) {
+		strokeColor = "var(--color-icinga-red)";
 	}
 
 	return (
