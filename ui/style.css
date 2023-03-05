@@ -261,6 +261,9 @@ svg.feather {
 div.check-content.svg {
 	display: block;
 	line-height: 0;
+	left: 100%;
+	top: 100%;
+	width: 100%;
 	height: 100%;
 }
 

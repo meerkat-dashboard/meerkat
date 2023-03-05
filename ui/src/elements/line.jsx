@@ -70,7 +70,6 @@ export function CheckLineOptions({ options, updateOptions }) {
 }
 
 export function CheckLine({ options }) {
-	const svgRef = useRef({ clientWidth: 100, clientHeight: 40 });
 	const [i2Obj, seti2Obj] = useState();
 
 	const updateObject = async () => {
@@ -122,40 +121,33 @@ export function CheckLine({ options }) {
 	}
 
 	return (
-		<div class="check-content svg" ref={svgRef}>
-			<svg
-				xmlns="http://www.w3.org/2000/svg"
-				viewBox={`0 0 ${svgRef.current.clientWidth} ${svgRef.current.clientHeight}`}
-				fill="none"
-				stroke={strokeColor}
-				stroke-width={options.strokeWidth}
-				stroke-linecap="round"
-				stroke-linejoin="round"
+		<svg
+			class="check-content svg"
+			stroke-linecap="rounded"
+			stroke={strokeColor}
+			fill={strokeColor}
+		>
+			<marker
+				id="arrow"
+				refX="0"
+				refY="5"
+				viewBox="0 0 10 10"
+				markerWidth="5"
+				markerHeight="4"
+				orient="auto-start-reverse"
 			>
-				<line
-					x1="5"
-					y1={svgRef.current.clientHeight / 2}
-					x2={svgRef.current.clientWidth - 5}
-					y2={svgRef.current.clientHeight / 2}
-				></line>
-				{options.leftArrow ? (
-					<polyline
-						points={`30 5 5 ${svgRef.current.clientHeight / 2} 30 ${
-							svgRef.current.clientHeight - 5
-						}`}
-					></polyline>
-				) : null}
-				{options.rightArrow ? (
-					<polyline
-						points={`${svgRef.current.clientWidth - 30} 5 ${
-							svgRef.current.clientWidth - 5
-						} ${svgRef.current.clientHeight / 2} ${
-							svgRef.current.clientWidth - 30
-						} ${svgRef.current.clientHeight - 5}`}
-					></polyline>
-				) : null}
-			</svg>
-		</div>
+				<path d="M 0 0 L 10 5 L 0 10 z" />
+			</marker>
+			<line
+				x1="10%"
+				y1="50%"
+				x2="90%"
+				y2="50%"
+				marker-start={options.leftArrow ? "url(#arrow)" : ""}
+				marker-end={options.rightArrow ? "url(#arrow)" : ""}
+				stroke-width={options.strokeWidth}
+			/>
+		</svg>
 	);
 }
 
