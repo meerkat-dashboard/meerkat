@@ -41,6 +41,7 @@ export function Video({ options }) {
 			ref={videoRef}
 			src={options.source}
 			controls
+			autoplay
 		></video>
 	);
 }
