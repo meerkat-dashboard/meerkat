@@ -41,11 +41,17 @@ For a full configuration reference, see [Configuration](https://meerkat.run/conf
 By default, the meerkat command serves the UI from an embedded filesystem created at build time.
 This means that changes to the UI are only served after rebuilding the entire command.
 For convenience, we can instead serve the UI from the local OS' filesystem.
-This way changes we make are served immediately by meerkat without rebuilding.
+This way changes we make are served immediately by meerkat without rebuilding the program.
 The meerkat command accepts the `-ui` flag, with a directory containing all the UI files.
-For example:
 
-	./cmd/meerkat/meerkat -ui ui/
+A typical workflow is to start webpack which watches the filesystem and rebuilds on changes:
+
+	cd ui
+	npx run webpack --mode development --watch
+
+Then run meerkat via `go run`:
+
+	go run ./cmd/meerkat -ui ui/
 
 ## Configuring Icinga
 
