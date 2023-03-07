@@ -96,12 +96,6 @@ div.selection > .selector:last-child {
 	align-items: center;
 }
 
-@keyframes rotate {
-	to {
-	  stroke-dashoffset: 227;
-	}
-}
-
 .dashboard.view-only .check {
 	cursor: default;
 }
