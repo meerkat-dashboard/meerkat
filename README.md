@@ -1,5 +1,7 @@
 # Meerkat
 
+![pkgsite](https://pkg.go.dev/badge/github.com/meerkat-dashboard/meerkat "link to Go doc")
+
 Meerkat is a utility to create and share dashboards for Icinga 2 checks and hosts. It is comprised of a lightweight Go server and a browser front-end written in Preact. It's quick to setup and easy to use.
 
 **Not developing Meerkat?** See the Meerkat website at https://meerkat.run
@@ -10,48 +12,50 @@ Meerkat development requires supported releases of Go and Node.js.
 See the [Go installation][goinstall] and [Node.js install][nodeinstall] documentation.
 Devolopment with older toolchains may be ok but we can't guarantee the behaviour.
 
-First, build the UI. Install dependencies, then build the application bundle:
+### Quickstart
 
-	cd ui
-	npm install
-	npm run build
-
-Next, build the backend:
-
-	cd ../cmd/meerkat
-	go build
-
-Finally, run meerkat and provide a configuration file:
-
-	./meerkat -config config/meerkat.toml
-
-Or on Windows
-
-	cd ..
-	.\meerkat.exe -config config\meerkat.toml
-
-See `config/meerkat.toml.example` for an example configuration file.
-For a full configuration reference, see [Configuration](https://meerkat.run/configuration) on the project website.
-
-[goinstall]: https://go.dev/doc/install
-[nodeinstall]: https://nodejs.org/en/download/package-manager/
-
-### Fast frontend development
-
-By default, the meerkat command serves the UI from an embedded filesystem created at build time.
-This means that changes to the UI are only served after rebuilding the entire command.
-For convenience, we can instead serve the UI from the local OS' filesystem.
-This way changes we make are served immediately by meerkat without rebuilding the program.
-The meerkat command accepts the `-ui` flag, with a directory containing all the UI files.
-
-A typical workflow is to start webpack which watches the filesystem and rebuilds on changes:
+A typical workflow involves starting a filesystem watcher to rebuild the UI on changes:
 
 	cd ui
 	npx webpack --mode development --watch
 
-Then run meerkat via `go run`:
+Then run another command to start meerkat with `go run`:
 
-	go run ./cmd/meerkat -ui ui/
+	go run ./cmd/meerkat -ui ui
+
+The ui flag sets meerkat to serve the UI bundle from the ui directory.
+This means subsequent changes to the UI will be served without
+requiring a rebuild of the entire command.
+
+For more detail on each stage, keep reading.
+
+### UI development
+
+Install dependencies, run the tests, and build the UI:
+
+	cd ui
+	npm ci
+	npm test
+	npm run build
+
+### Server development
+
+First, run tests:
+
+	go test ./...
+
+Then build the command:
+
+	cd cmd/meerkat
+	go build
+
+For command usage, see [cmd/meerkat].
+For a configuration file reference, see [Configuration].
+
+[Configuration]: https://meerkat.run/configuration
+[goinstall]: https://go.dev/doc/install
+[nodeinstall]: https://nodejs.org/en/download/package-manager/
+[cmd/meerkat]: https://godocs.io/github.com/meerkat-dashboard/meerkat/cmd/meerkat
 
 ## Configuring Icinga
 
@@ -66,7 +70,7 @@ Here is an example `ApiUser` object with limited, read-only privileges:
 
 In a default Icinga2 installation, you can write this definition to `/etc/icinga2/conf.d/api-users.conf`.
 
-### Support
+## Support
 
 Sol1 is an official Icinga Enterprise Partner, and can offer commercial support for Meerkat and Icinga and friends. We are a friendly bunch of people, so please don't hesitate to get in touch at https://sol1.com.au.
 
