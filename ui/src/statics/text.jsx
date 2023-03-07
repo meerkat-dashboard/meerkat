@@ -83,7 +83,7 @@ export function StaticTextOptions({ options, updateOptions }) {
 	);
 }
 
-export function StaticText({ options, vars }) {
+export function StaticText({ options }) {
 	let styles = "height: 100%; ";
 	let text = options.text;
 
@@ -104,15 +104,6 @@ export function StaticText({ options, vars }) {
 	}
 	if (typeof options.boldText !== "undefined" && options.boldText) {
 		styles += `font-weight: bold; `;
-	}
-
-	if (typeof vars === "object" && vars != null) {
-		for (const [key, property] of Object.entries(vars)) {
-			if (options.text.includes(`~${key}~`)) {
-				let reg = new RegExp("~(" + key + ")~", "g");
-				text = text.replaceAll(reg, property);
-			}
-		}
 	}
 
 	return (
