@@ -47,7 +47,7 @@ The meerkat command accepts the `-ui` flag, with a directory containing all the 
 A typical workflow is to start webpack which watches the filesystem and rebuilds on changes:
 
 	cd ui
-	npx run webpack --mode development --watch
+	npx webpack --mode development --watch
 
 Then run meerkat via `go run`:
 
