@@ -2,6 +2,7 @@ import { h, Fragment, Component } from "preact";
 import { useEffect, useState } from "preact/hooks";
 
 import * as meerkat from "../meerkat";
+import * as flatten from "../icinga/flatten.js";
 
 async function getObjectNames(objectType) {
 	const objects = await meerkat.getAll(objectType);
@@ -128,7 +129,7 @@ function ObjectList({ names, value, onInput }) {
 }
 
 export function AttrSelect({ objectName, objectType, selected, onInput }) {
-	const [attrs, setAttrs] = useState();
+	const [obj, setObj] = useState();
 
 	if (!objectName) {
 		return noneSelected;
@@ -137,19 +138,19 @@ export function AttrSelect({ objectName, objectType, selected, onInput }) {
 	useEffect(() => {
 		meerkat
 			.getIcingaObject(objectName, objectType)
-			.then((obj) => {
-				setAttrs(obj.attrs);
+			.then((o) => {
+				setObj(o);
 			})
 			.catch((err) => {
 				console.error(err);
 			});
 	}, [objectName, objectType]);
 
-	if (!attrs) {
+	if (!obj) {
 		return noneSelected;
 	}
 
-	let keys = Object.keys(attrs);
+	let keys = flatten.selectExpressions([], obj);
 	const options = keys.map((k) => <option value={k}>{k}</option>);
 	if (!selected) {
 		selected = "state";

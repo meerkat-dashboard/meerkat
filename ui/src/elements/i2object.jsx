@@ -5,6 +5,7 @@ import { FontSizeInput, ExternalURL } from "./options";
 import * as meerkat from "../meerkat";
 import * as Icinga from "./icinga";
 import * as IcingaJS from "../icinga/icinga";
+import * as flatten from "../icinga/flatten.js";
 
 export function ObjectCardOptions({ options, updateOptions }) {
 	return (
@@ -99,7 +100,7 @@ export class ObjectCard extends Component {
 		if (!this.props.objectAttr || this.props.objectAttr == "state") {
 			text = objState;
 		} else {
-			text = `Render ${this.props.objectAttr} not implemented`;
+			text = flatten.selectByExpr(this.props.objectAttr, this.state);
 		}
 		let classes = ["check-content", "card", objState];
 		if (this.state.acknowledged) {
