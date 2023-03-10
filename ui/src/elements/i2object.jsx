@@ -99,12 +99,15 @@ export class ObjectCard extends Component {
 		const objState = stateText(this.props.objectType, this.state.attrs.state);
 		if (!this.props.objectAttr || this.props.objectAttr == "state") {
 			text = objState;
+			if (this.state.attrs.acknowledged) {
+				text += " (ACK)";
+			}
 		} else {
 			text = flatten.selectByExpr(this.props.objectAttr, this.state);
 		}
+
 		let classes = ["check-content", "card", objState];
-		if (this.state.acknowledged) {
-			text += " (ACK)";
+		if (this.state.attrs.acknowledged) {
 			classes.push(`${objState}-ack`);
 		}
 		return (
