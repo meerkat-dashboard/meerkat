@@ -4,8 +4,6 @@ import { useState, useEffect } from "preact/hooks";
 import * as meerkat from "../meerkat";
 import * as Icinga from "./icinga";
 import * as IcingaJS from "../icinga/icinga";
-import { icingaResultCodeToCheckState } from "../util";
-import { svgList } from "../svg-list";
 import { ExternalURL } from "./options";
 
 export function CheckSVGOptions({ options, updateOptions }) {
