@@ -20,43 +20,6 @@
 	fill: none;
 }
 
-div.selection {
-	display: flex;
-	font-size: 15px;
-}
-
-label~div.selection {
-	margin-bottom: 15px;
-}
-
-div.selection > .selector {
-	padding: 4px 8px;
-	background-color: white;
-	border: solid 1.5px #ced4da;
-	border-left: 0;
-	cursor: pointer;
-	color: black;
-	border-radius: 1px;
-}
-
-div.selection > .selector:hover {
-	background-color: #eee;
-}
-
-div.selection > .selector.active {
-	background-color: #007bff;
-	color: white;
-}
-
-div.selection > .selector:first-child {
-	border-radius: 3px 0 0 3px;
-	border: solid 1.5px #ced4da;
-}
-
-div.selection > .selector:last-child {
-	border-radius: 0 3px 3px 0;
-}
-
 .clock {
 	font-variant-numeric: tabular-nums;
 	pointer-events: none;
