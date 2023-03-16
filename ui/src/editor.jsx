@@ -152,7 +152,7 @@ export function Editor({ slug }) {
 					closeElement={handleClose}
 				/>
 			</header>
-			<footer class="side-bar-footer lefty-righty bg-dark">
+			<footer class="side-bar-footer bg-dark">
 				<a href="/" class="btn btn-secondary">
 					Home
 				</a>
@@ -567,7 +567,7 @@ function SidePanelElements({
 
 	return (
 		<Fragment>
-			<div class="lefty-righty">
+			<div class="d-flex justify-content-between align-items-center">
 				<h3>Elements</h3>
 				<button class="btn btn-primary btn-sm" onClick={addElement}>
 					New
@@ -688,7 +688,7 @@ export function ElementSettings({ element, updateElement, closeElement }) {
 
 	return (
 		<div class="editor settings-overlay bg-dark">
-			<div class="lefty-righty">
+			<div class="d-flex justify-content-between align-items-center">
 				<h3>{element.title}</h3>
 				<button class="btn btn-secondary" onClick={closeElement}>
 					Close

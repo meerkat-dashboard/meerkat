@@ -10,16 +10,6 @@
 	to { transform: translate(0%, 0); }
 }
 
-.lefty-righty {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-}
-
-.lefty-righty > * {
-	margin-bottom: 0;
-}
-
 .feather {
 	width: 24px;
 	height: 24px;
@@ -119,6 +109,8 @@ div.selection > .selector:last-child {
 }
 
 .side-bar-footer {
+	display: flex;
+	justify-content: space-between;
 	position: fixed;
 	bottom: 0;
 	left: 0;
