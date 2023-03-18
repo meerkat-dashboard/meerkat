@@ -16,11 +16,3 @@ export function ImageOptions({ options, updateOptions }) {
 		</Fragment>
 	);
 }
-
-export function Image({ source }) {
-	return (
-		<div class="check-content image">
-			<img src={source} />
-		</div>
-	);
-}
