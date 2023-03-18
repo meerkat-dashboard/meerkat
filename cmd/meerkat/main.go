@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"flag"
 	"fmt"
 	"log"
@@ -13,6 +14,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/meerkat-dashboard/meerkat"
 	"github.com/meerkat-dashboard/meerkat/ui"
+	"olowe.co/icinga"
 )
 
 var config Config
@@ -60,6 +62,28 @@ func main() {
 	// Let the server cache responses from icinga to ease load on request bursts.
 	cache := NewCachingProxy(rproxy, 10*time.Second)
 	r.Handle("/icinga/v1/*", http.StripPrefix("/icinga", cache))
+
+	// Subscribe to object state changes. Some dashboard elements
+	// read events instead of polling.
+	hc := &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: config.IcingaInsecureTLS},
+		},
+	}
+	ic, err := icinga.Dial(icingaURL.Host, config.IcingaUsername, config.IcingaPassword, hc)
+	if err != nil {
+		log.Fatal(err)
+	}
+	stream := meerkat.NewEventStream(ic)
+	go func() {
+		for {
+			if err := stream.Subscribe(); err != nil {
+				log.Println("start event stream: %v", err)
+			}
+			stream = meerkat.NewEventStream(ic)
+		}
+	}()
+	r.Handle("/icinga/stream", stream)
 
 	// Previous versions of meerkat served user-uploaded files from this directory.
 	// Keep serving them for backwards compatibility.

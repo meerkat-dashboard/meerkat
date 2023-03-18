@@ -1,9 +1,7 @@
-import { h, Fragment } from "preact";
-import { useState, useEffect, useRef } from "preact/hooks";
+import { h } from "preact";
 
-import * as meerkat from "../meerkat";
 import * as Icinga from "./icinga";
-import * as IcingaJS from "../icinga/icinga";
+import * as icinga from "../icinga/icinga";
 import { ExternalURL } from "./options";
 
 export function CheckLineOptions({ options, updateOptions }) {
@@ -69,65 +67,15 @@ export function CheckLineOptions({ options, updateOptions }) {
 	);
 }
 
-export function CheckLine({ options }) {
-	const [i2Obj, seti2Obj] = useState();
-
-	const updateObject = async () => {
-		let timer;
-		try {
-			const obj = await meerkat.getIcingaObject(
-				options.objectName,
-				options.objectType
-			);
-			seti2Obj(obj);
-			const next = new Date(obj.attrs.next_check * 1000);
-			let dur = IcingaJS.NextRefresh(next);
-			timer = setTimeout(async () => {
-				await updateObject();
-			}, dur);
-			console.debug(
-				`updating ${options.objectName} after ${dur / 1000} seconds`
-			);
-		} catch (err) {
-			console.error(
-				`fetch ${options.objectType} ${options.objectName}: ${err}`
-			);
-		}
-		return timer;
-	};
-
-	useEffect(() => {
-		if (options.objectType && options.objectName) {
-			let timer = updateObject();
-			return () => window.clearInterval(timer);
-		}
-	}, [options.objectType, options.objectName]);
-
-	if (!i2Obj) {
-		return null;
-	}
-
-	let strokeColor = "var(--color-icinga-purple)";
-	if (i2Obj.attrs.state == 0) {
-		strokeColor = "var(--color-icinga-green)";
-	} else if (i2Obj.attrs.state == 1) {
-		if (options.objectType.match(/^host/)) {
-			strokeColor = "var(--color-icinga-red)"; // host is down
-		} else {
-			strokeColor = "var(--color-icinga-yellow)"; // service is warning
-		}
-	} else if (i2Obj.attrs.state == 2) {
-		strokeColor = "var(--color-icinga-red)";
-	}
-
+export function CheckLine({ state, options }) {
+	const stateText = icinga.StateText(state, options.objectType)
 	return (
 		<svg
-			class="check-content svg"
+			class={`check-content svg ${stateText}`}
 			stroke-linecap="rounded"
-			stroke={strokeColor}
-			fill={strokeColor}
 		>
 			<marker
+				class={stateText}
 				id="arrow"
 				refX="0"
 				refY="5"
@@ -139,6 +87,7 @@ export function CheckLine({ options }) {
 				<path d="M 0 0 L 10 5 L 0 10 z" />
 			</marker>
 			<line
+				class={stateText}
 				x1="10%"
 				y1="50%"
 				x2="90%"

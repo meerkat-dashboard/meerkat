@@ -10,16 +10,8 @@ import { StaticText } from "./statics/text";
 import { StaticSVG } from "./statics/svg";
 import { ObjectCard } from "./elements/i2object";
 
-function Viewer({ slug }) {
-	let [dashboard, setDashboard] = useState(null);
-
-	useEffect(() => {
-		meerkat.getDashboard(slug).then((board) => setDashboard(board));
-	}, [slug]);
-
-	if (dashboard === null) {
-		return;
-	} else if (!dashboard.elements) {
+function Viewer({ dashboard, events }) {
+	if (!dashboard.elements) {
 		return;
 	}
 
@@ -32,56 +24,19 @@ function Viewer({ slug }) {
 			? `rotate(${element.rotation}rad)`
 			: `rotate(0rad)`;
 
-		let ele;
-		if (element.type === "clock") {
+		let ele = <DashElement typ={element.type} options={element.options} />;
+		if (
+			element.type == "check-card" ||
+			element.type == "check-svg" ||
+			element.type == "check-line"
+		) {
 			ele = (
-				<Clock
-					timeZone={element.options.timeZone}
-					fontSize={element.options.fontSize}
-				/>
-			);
-		}
-		if (element.type == "check-card") {
-			ele = (
-				<ObjectCard
-					objectType={element.options.objectType}
-					objectName={element.options.objectName}
-					fontSize={element.options.fontSize}
-				/>
-			);
-		}
-		if (element.type === "check-svg") {
-			ele = (
-				<CheckSVG options={element.options} dashboard={dashboard} slug={slug} />
-			);
-		}
-		if (element.type === "check-line") {
-			ele = (
-				<CheckLine
+				<IcingaElement
+					typ={element.type}
 					options={element.options}
-					dashboard={dashboard}
-					slug={slug}
+					events={events}
 				/>
 			);
-		}
-		if (element.type === "static-text") {
-			ele = <StaticText options={element.options} />;
-		}
-		if (element.type === "static-svg") {
-			ele = <StaticSVG options={element.options} />;
-		}
-		if (element.type === "image") {
-			ele = <img src={element.options.image} />;
-		}
-		if (element.type === "video") {
-			ele = <Video options={element.options} />;
-		}
-		if (element.type === "audio") {
-			ele = <audio controls src={element.options.audioSource}></audio>;
-		}
-
-		if (element.options.linkURL) {
-			ele = linkWrap(ele, element.options.linkURL);
 		}
 
 		return (
@@ -118,6 +73,99 @@ function Viewer({ slug }) {
 	);
 }
 
+function IcingaElement({ typ, options, events }) {
+	// ObjectCards do not read from the event stream, but we put
+	// them here under IcingaElement as they are more closely related
+	// to Icinga than to the other elements like Clock or Video.
+	if (typ == "check-card") {
+		return (
+			<ObjectCard
+				objectType={options.objectType}
+				objectName={options.objectName}
+				fontSize={options.fontSize}
+			/>
+		);
+	}
+
+	let [objState, setObjState] = useState(3); // unknown
+
+	let interests = options.objectName;
+	if (options.objectType.endsWith("group")) {
+		meerkat.getAllInGroup(options.objectName, options.objectType).then((results) => {
+			for (const v of results) {
+				interests.push(v.name);
+			}
+		}).catch((err) => {
+			console.error(
+				`fetch ${options.objectType} ${options.objectName}: ${err}`
+			);
+		});
+	}
+
+	function refresh() {
+		meerkat
+			.getIcingaObject(options.objectName, options.objectType)
+			.then((o) => {
+				setObjState(o.attrs.state);
+			})
+			.catch((err) => {
+				console.error(
+					`fetch ${options.objectType} ${options.objectName}: ${err}`
+				);
+			});
+	}
+
+	useEffect(() => {
+		refresh();
+		events.addEventListener("message", (ev) => {
+			if (interests.includes(ev.data)) {
+				refresh();
+			}
+		});
+	}, [interests]);
+
+	let ele;
+	if (typ === "check-svg") {
+		ele = <CheckSVG state={objState} objType={options.objectType} />;
+	} else if (typ === "check-line") {
+		ele = <CheckLine state={objState} options={options} />;
+	}
+
+	if (options.linkURL) {
+		return linkWrap(ele, options.linkURL);
+	}
+	return ele;
+}
+
+function DashElement({ typ, options }) {
+	let [objState, setObjState] = useState(3); // unknown
+
+	let ele;
+	if (typ === "clock") {
+		ele = <Clock timeZone={options.timeZone} fontSize={options.fontSize} />;
+	}
+	if (typ === "static-text") {
+		ele = <StaticText options={options} />;
+	}
+	if (typ === "static-svg") {
+		ele = <StaticSVG options={options} />;
+	}
+	if (typ === "image") {
+		ele = <img src={options.image} />;
+	}
+	if (typ === "video") {
+		ele = <Video options={options} />;
+	}
+	if (typ === "audio") {
+		ele = <audio controls src={options.audioSource}></audio>;
+	}
+
+	if (options.linkURL) {
+		return linkWrap(ele, options.linkURL);
+	}
+	return ele;
+}
+
 function linkWrap(ele, link) {
 	return <a href={link}>{ele}</a>;
 }
@@ -125,4 +173,7 @@ function linkWrap(ele, link) {
 // Paths are of the form /my-dashboard/view
 const elems = window.location.pathname.split("/");
 const slug = elems[elems.length - 2];
-render(<Viewer slug={slug} />, document.body);
+const events = new EventSource("/icinga/stream");
+meerkat.getDashboard(slug).then((d) => {
+	render(<Viewer dashboard={d} events={events} />, document.body);
+});

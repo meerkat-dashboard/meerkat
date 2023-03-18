@@ -183,6 +183,5 @@ func oldPathHandler(w http.ResponseWriter, req *http.Request) {
 // For example given the old path "/view/my-network", the new path is "/my-network/view".
 func swapPath(old string) string {
 	new := path.Join("/", path.Base(old), path.Dir(old))
-	fmt.Println(new)
 	return new
 }

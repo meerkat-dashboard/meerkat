@@ -1,10 +1,3 @@
-:root {
-	--color-icinga-red: #ff0019;
-	--color-icinga-green: #0ee16a;
-	--color-icinga-purple: #970ee1;
-	--color-icinga-yellow: #ff9000;
-}
-
 @keyframes slide-right {
 	from { transform: translate(-100%, 0); }
 	to { transform: translate(0%, 0); }
@@ -162,36 +155,52 @@
 	white-space: pre-wrap;
 }
 
-.card.critical, .card.down {
-	background-color: var(--color-icinga-red);
-}
-
-svg.critical {
-	stroke: var(--color-icinga-red);
-}
-
 .card.ok, .card.up {
-	background-color: var(--color-icinga-green);
-}
-
-svg.ok {
-	stroke: var(--color-icinga-green);
-}
-
-.card.unknown {
-	background-color: var(--color-icinga-purple);
-}
-
-svg.unknown {
-	stroke: var(--color-icinga-purple);
+	background-color: lime;
 }
 
 .card.warning {
-	background-color: var(--color-icinga-yellow);
+	background-color: darkorange;
+}
+
+.card.critical, .card.down {
+	background-color: red;
+}
+
+.card.unknown {
+	background-color: darkviolet;
+}
+
+svg.ok {
+	stroke: lime;
+}
+
+line.ok, marker.ok {
+	fill: lime;
 }
 
 svg.warning {
-	stroke: var(--color-icinga-yellow);
+	stroke: darkorange;
+}
+
+line.warning, marker.warning {
+	fill: darkorange;
+}
+
+svg.critical {
+	stroke: red;
+}
+
+line.critical, marker.critical {
+	fill: red;
+}
+
+svg.unknown {
+	stroke: darkviolet;
+}
+
+line.unknown, marker.unknown {
+	fill: darkviolet;
 }
 
 svg.feather {

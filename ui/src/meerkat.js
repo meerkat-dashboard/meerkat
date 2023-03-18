@@ -31,10 +31,12 @@ export async function getAllInGroup(name, objectType) {
 	// "example" in service.groups
 	const typ = singular(objectType);
 	const expr = `"${name}" in ${typ}.groups`;
+	return getAllFilter(expr, objectType);
+}
 
+export async function getAllFilter(expr, typ) {
 	// %22example%22%20in%20service.groups
 	const filter = encodeURIComponent(expr);
-
 	// /icinga/v1/objects/services?filter=%22example%22%20in%20service.groups
 	const path = `/icinga/v1/objects/${pluralise(typ)}`;
 	const resp = await fetch(path + "?filter=" + filter);

@@ -4,6 +4,9 @@
 const DefaultCheckInterval = 60 * 1000;
 
 export function StateText(state, objectType) {
+	if (!objectType) {
+		return "unknown";
+	}
 	if (objectType.toLowerCase() == "host") {
 		switch (state) {
 			case 0:
