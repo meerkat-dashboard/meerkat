@@ -1,7 +1,4 @@
 import { h, Fragment } from "preact";
-import { useState, useEffect } from "preact/hooks";
-
-import { ExternalURL } from "./options";
 
 export function ImageOptions({ options, updateOptions }) {
 	return (
