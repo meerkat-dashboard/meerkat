@@ -14,12 +14,24 @@ import (
 )
 
 func (srv *Server) ViewHandler(w http.ResponseWriter, req *http.Request) {
+	slug := path.Dir(req.URL.Path)
+	fname := path.Join("dashboards", slug+".json")
+	dashboard, err := meerkat.ReadDashboard(fname)
+	if errors.Is(err, fs.ErrNotExist) {
+		http.NotFound(w, req)
+		return
+	} else if err != nil {
+		msg := fmt.Sprintf("read dashboard %s: %v", slug, err)
+		log.Print(msg)
+		http.Error(w, msg, http.StatusInternalServerError)
+		return
+	}
 	tmpl, err := template.ParseFS(srv.fsys, "template/layout.tmpl", "template/view.tmpl")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	tmpl.Execute(w, nil)
+	tmpl.Execute(w, dashboard)
 }
 
 func (srv *Server) EditHandler(w http.ResponseWriter, req *http.Request) {

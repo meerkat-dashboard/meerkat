@@ -5,6 +5,16 @@
 	<link rel="stylesheet" href="/dist/style.css">
 	<link rel="stylesheet" href="/dist/bootstrap.min.css">
 	<script src="/dist/viewer.js" defer></script>
-	<title>Meerkat</title>
+	<style>
+	.dashboard {
+		background-image: url("{{.Background}}");
+		background-repeat: no-repeat;
+	}
+	</style>
+	<title>{{.Title}}</title>
 {{ end }}
+
+{{define "body"}}
 <!-- preact ../src/viewer.jsx  -->
+<div id="dashboard" class="dashboard view-only"></div>
+{{end}}

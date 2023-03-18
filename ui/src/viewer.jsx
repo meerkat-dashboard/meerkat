@@ -54,23 +54,7 @@ function Viewer({ dashboard, events }) {
 			</div>
 		);
 	});
-
-	const backgroundImage = dashboard.background ? dashboard.background : null;
-
-	return (
-		<div class="dashboard view-only">
-			{backgroundImage ? (
-				<img
-					src={backgroundImage}
-					style="height: 100%; width: 100%;"
-					id="dashboard-dimensions"
-				/>
-			) : (
-				<div style="height: 100vh; width: 100vw"></div>
-			)}
-			{elements}
-		</div>
-	);
+	return elements;
 }
 
 function IcingaElement({ typ, options, events }) {
@@ -91,15 +75,18 @@ function IcingaElement({ typ, options, events }) {
 
 	let interests = options.objectName;
 	if (options.objectType.endsWith("group")) {
-		meerkat.getAllInGroup(options.objectName, options.objectType).then((results) => {
-			for (const v of results) {
-				interests.push(v.name);
-			}
-		}).catch((err) => {
-			console.error(
-				`fetch ${options.objectType} ${options.objectName}: ${err}`
-			);
-		});
+		meerkat
+			.getAllInGroup(options.objectName, options.objectType)
+			.then((results) => {
+				for (const v of results) {
+					interests.push(v.name);
+				}
+			})
+			.catch((err) => {
+				console.error(
+					`fetch ${options.objectType} ${options.objectName}: ${err}`
+				);
+			});
 	}
 
 	function refresh() {
@@ -175,5 +162,8 @@ const elems = window.location.pathname.split("/");
 const slug = elems[elems.length - 2];
 const events = new EventSource("/icinga/stream");
 meerkat.getDashboard(slug).then((d) => {
-	render(<Viewer dashboard={d} events={events} />, document.body);
+	render(
+		<Viewer dashboard={d} events={events} />,
+		document.getElementById("dashboard")
+	);
 });

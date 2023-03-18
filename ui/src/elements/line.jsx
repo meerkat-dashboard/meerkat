@@ -68,12 +68,9 @@ export function CheckLineOptions({ options, updateOptions }) {
 }
 
 export function CheckLine({ state, options }) {
-	const stateText = icinga.StateText(state, options.objectType)
+	const stateText = icinga.StateText(state, options.objectType);
 	return (
-		<svg
-			class={`check-content svg ${stateText}`}
-			stroke-linecap="rounded"
-		>
+		<svg class={`check-content svg ${stateText}`} stroke-linecap="rounded">
 			<marker
 				class={stateText}
 				id="arrow"
