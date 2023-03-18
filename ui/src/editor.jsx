@@ -141,7 +141,6 @@ export function Editor({ slug }) {
 				<SidePanelElements
 					dashboard={dashboard}
 					dashboardDispatch={dashboardDispatch}
-					slug={slug}
 					setSelectedElement={setSelectedElement}
 					setHighlightedElementId={setHighlightedElementId}
 				/>
@@ -163,7 +162,6 @@ export function Editor({ slug }) {
 			<main class="dashboard-wrap">
 				<DashboardView
 					dashboard={dashboard}
-					slug={slug}
 					updateElement={updateElement}
 					highlightedElementId={highlightedElementId}
 					setSelectedElement={setSelectedElement}
@@ -345,8 +343,6 @@ function DashboardElements({
 	updateElement,
 	elements,
 	highlightedElementId,
-	dashboard,
-	slug,
 	setHighlightedElementId,
 	setSelectedElement,
 }) {
@@ -372,22 +368,10 @@ function DashboardElements({
 		let ele;
 		switch (element.type) {
 			case "check-svg":
-				ele = (
-					<CheckSVG
-						options={element.options}
-						slug={slug}
-						dashboard={dashboard}
-					/>
-				);
+				ele = <CheckSVG />;
 				break;
 			case "check-line":
-				ele = (
-					<CheckLine
-						options={element.options}
-						slug={slug}
-						dashboard={dashboard}
-					/>
-				);
+				ele = <CheckLine options={element.options} />;
 				break;
 			case "clock":
 				ele = (
@@ -441,11 +425,10 @@ function DashboardElements({
 	});
 }
 
-export function DashboardView({
+function DashboardView({
 	dashboard,
 	updateElement,
 	highlightedElementId,
-	slug,
 	setSelectedElement,
 	setHighlightedElementId,
 }) {
@@ -478,9 +461,7 @@ export function DashboardView({
 				)}
 
 				<DashboardElements
-					slug={slug}
 					elements={dashboard.elements}
-					dashboard={dashboard}
 					updateElement={updateElement}
 					highlightedElementId={highlightedElementId}
 					setSelectedElement={setSelectedElement}
@@ -496,7 +477,6 @@ function SidePanelElements({
 	dashboardDispatch,
 	setSelectedElement,
 	setHighlightedElementId,
-	slug,
 }) {
 	const addElement = () => {
 		dashboardDispatch({ type: "addElement" });
@@ -592,7 +572,7 @@ function ElementEntry({ title, onSelect, onDuplicate, onDelete }) {
 	);
 }
 
-export function ElementSettings({ element, updateElement, closeElement }) {
+function ElementSettings({ element, updateElement, closeElement }) {
 	if (element === null) {
 		return null;
 	}
