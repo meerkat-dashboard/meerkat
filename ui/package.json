@@ -1,8 +1,8 @@
 {
   "type": "module",
   "scripts": {
-    "dev": "./grabstyle && webpack --mode development",
-    "build": "./grabstyle && webpack --mode production",
+    "dev": "webpack --mode development",
+    "build": "webpack --mode production",
     "test": "node --test",
     "lint": "prettier -w src && eslint src"
   },

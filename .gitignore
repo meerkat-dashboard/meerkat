@@ -1,7 +1,8 @@
 cmd/meerkat/meerkat
 meerkat.exe
 ui/node_modules
-ui/dist/
+ui/dist/*.js
+ui/dist/*.txt
 # macOS metadata
 .DS_Store
 

@@ -9,14 +9,6 @@ then
 	hget="wget -O -"
 fi
 
-if ! test -f dist/bootstrap.min.css
-then
-	$hget https://bootswatch.com/5/darkly/bootstrap.min.css 2>/dev/null > dist/bootstrap.min.css
-fi
+$hget https://bootswatch.com/5/darkly/bootstrap.min.css 2>/dev/null > dist/bootstrap.min.css
 
-if ! test -f dist/feather-sprite.svg
-then
-	$hget https://unpkg.com/feather-icons@4.29.0/dist/feather-sprite.svg 2>/dev/null > dist/feather-sprite.svg
-fi
-
-cp style.css dist/
+$hget https://unpkg.com/feather-icons@4.29.0/dist/feather-sprite.svg 2>/dev/null > dist/feather-sprite.svg

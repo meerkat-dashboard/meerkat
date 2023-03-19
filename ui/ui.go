@@ -10,6 +10,9 @@ import (
 	"io/fs"
 )
 
+// Fetch third-party style resources like Bootstrap.
+//go:generate ./grabstyle
+
 // A Server serves the Meerkat GUI web application.
 // It must be created with NewServer.
 type Server struct {
