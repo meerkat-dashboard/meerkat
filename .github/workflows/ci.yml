@@ -7,43 +7,30 @@ on:
     branches: [ "main" ]
 
 jobs:
-  ui:
+  test:
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v3
-
+    - uses: actions/setup-go@v3
     - uses: actions/setup-node@v3
       with:
         node-version: 16.x
 
-    - name: Install dependencies
-      run: cd ui && npm ci
-
-    - name: test
+    - name: "JS lint"
       run: |
         cd ui
         npx eslint src
         npx prettier -l src
-        npm test
 
-  backend:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - uses: actions/setup-go@v3
-
-      - name: test
-        # if gofmt reports any files need formatting, print them then exit with error
-        run: |
+    - name: "test"
+      run: |
           if ! [ -z "`gofmt -l .`" ]; then gofmt -l . && exit 1; fi
           go test ./...
 
   package:
     runs-on: ubuntu-latest
-    needs: [ui, backend]
+    needs: [test]
 
     steps:
       - uses: actions/checkout@v3

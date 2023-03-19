@@ -29,25 +29,29 @@ requiring a rebuild of the entire command.
 
 For more detail on each stage, keep reading.
 
-### UI development
+### Development workflow
 
-Install dependencies, run the tests, and build the UI:
+Another workflow involves running local test suites,
+then building and running the program for manual testing.
+
+As before, start by installing javascript dependencies:
 
 	cd ui
-	npm ci
-	npm test
-	npm run build
+	npm install
 
-### Server development
-
-First, run tests:
+Throughout development, tests can be run via `go test`.
+This includes Javascript tests.
+To run all tests:
 
 	go test ./...
 
-Then build the command:
+Finally, build the UI and the server and run the command:
 
-	cd cmd/meerkat
+	cd ui
+	npm run build
+	cd ../cmd/meerkat
 	go build
+	./meerkat
 
 For command usage, see [cmd/meerkat].
 For a configuration file reference, see [Configuration].

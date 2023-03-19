@@ -78,7 +78,7 @@ func main() {
 	go func() {
 		for {
 			if err := stream.Subscribe(); err != nil {
-				log.Println("start event stream: %v", err)
+				log.Println("start event stream:", err)
 			}
 			stream = meerkat.NewEventStream(ic)
 		}
