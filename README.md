@@ -45,13 +45,16 @@ To run all tests:
 
 	go test ./...
 
-Finally, build the UI and the server and run the command:
+Finally, build the UI and the server and run meerkat:
 
 	cd ui
 	npm run build
 	cd ../cmd/meerkat
 	go build
 	./meerkat
+
+By default, meerkat listens on the address http://127.0.0.1:8080.
+Open meerkat and have a click around!
 
 For command usage, see [cmd/meerkat].
 For a configuration file reference, see [Configuration].
@@ -60,6 +63,29 @@ For a configuration file reference, see [Configuration].
 [goinstall]: https://go.dev/doc/install
 [nodeinstall]: https://nodejs.org/en/download/package-manager/
 [cmd/meerkat]: https://godocs.io/github.com/meerkat-dashboard/meerkat/cmd/meerkat
+
+### Contributing
+
+#### Test
+
+Before submitting a change, ensure code is formatted:
+
+	go fmt
+	cd ui
+	npm run lint
+
+Run all the tests from the root of the project:
+
+	go test ./...
+
+#### Commit message
+
+Commit messages follow the same format used by the [Go] project (among others).
+The commit subject starts with the affected package name then a brief description of the change.
+The body may contain an explanation of the change and why it was made.
+See commit 4603601 for an example.
+
+[Go]: https://go.dev/doc/contribute#commit_messages
 
 ## Configuring Icinga
 

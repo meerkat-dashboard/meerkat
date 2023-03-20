@@ -20,6 +20,7 @@ jobs:
     - name: "JS lint"
       run: |
         cd ui
+        npm ci
         npx eslint src
         npx prettier -l src
 
