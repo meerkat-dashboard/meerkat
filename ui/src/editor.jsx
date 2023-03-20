@@ -2,7 +2,7 @@ import { h, Fragment } from "preact";
 import { useEffect, useReducer, useState } from "preact/hooks";
 
 import * as meerkat from "./meerkat";
-import { CheckSVG, CheckSVGOptions, CheckSVGDefaults } from "./elements/svg";
+import { CheckSVG, CheckSVGOptions } from "./elements/svg";
 import {
 	CheckLine,
 	CheckLineOptions,
