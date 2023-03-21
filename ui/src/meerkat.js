@@ -34,9 +34,13 @@ export async function getAllInGroup(name, objectType) {
 	return getAllFilter(expr, objectType);
 }
 
-export async function getAllFilter(expr, typ) {
+export async function getAllFilter(expr, objectType) {
 	// %22example%22%20in%20service.groups
 	const filter = encodeURIComponent(expr);
+	let typ = "service";
+	if (objectType.startsWith("host")) {
+		typ = "host";
+	}
 	// /icinga/v1/objects/services?filter=%22example%22%20in%20service.groups
 	const path = `/icinga/v1/objects/${pluralise(typ)}`;
 	const resp = await fetch(path + "?filter=" + filter);
@@ -45,13 +49,17 @@ export async function getAllFilter(expr, typ) {
 }
 
 export async function getIcingaObject(name, typ) {
+	if (typ.endsWith("filter")) {
+		const results = await getAllFilter(name, typ);
+		return icinga.objectsToSingle(name, results);
+	}
 	typ = pluralise(typ);
 	let encname = encodeURIComponent(name);
 	let path = `/icinga/v1/objects/${typ}/${encname}`;
 	const resp = await fetch(path);
 	const results = await readResults(resp);
 	let obj = results[0];
-	if (typ == "hostgroups" || typ == "servicegroups") {
+	if (typ.endsWith("groups")) {
 		const members = await getAllInGroup(name, typ);
 		obj = icinga.groupToObject(obj, members);
 	}

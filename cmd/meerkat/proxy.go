@@ -24,6 +24,11 @@ func NewCachingProxy(icinga *httputil.ReverseProxy, ttl time.Duration) *proxy.Pr
 
 func setMaxAge(dur time.Duration, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		// Don't cache requests with query parameters as these are highly variable.
+		if req.URL.RawQuery != "" {
+			next.ServeHTTP(w, req)
+			return
+		}
 		if req.Method != http.MethodGet && req.Method != http.MethodHead {
 			next.ServeHTTP(w, req)
 			return

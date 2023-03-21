@@ -41,6 +41,10 @@ export class ObjectSelect extends Component {
 	}
 
 	render() {
+		let filterEnabled = false;
+		if (this.props.objectType && this.props.objectType.endsWith("filter")) {
+			filterEnabled = true;
+		}
 		return (
 			<fieldset>
 				<legend>Icinga object</legend>
@@ -52,6 +56,12 @@ export class ObjectSelect extends Component {
 					names={this.state.names}
 					value={this.props.objectName}
 					onInput={this.handleObjectChange}
+					disabled={filterEnabled}
+				/>
+				<FilterInput
+					value={this.props.objectName}
+					onInput={this.handleObjectChange}
+					disabled={!filterEnabled}
 				/>
 			</fieldset>
 		);
@@ -87,27 +97,38 @@ function ObjectTypeSelect({ selected, onInput }) {
 				<option key="servicegroup" value="servicegroup">
 					Service Group
 				</option>
+				<option key="hostfilter" value="hostfilter">
+					Host Filter
+				</option>
+				<option key="servicefilter" value="servicefilter">
+					Service Filter
+				</option>
 			</select>
 		</Fragment>
 	);
 }
 
-const disabledInput = (
-	<Fragment>
-		<label class="form-label">Name</label>
-		<input
-			class="form-control"
-			type="text"
-			placeholder="No object type selected"
-			id="objectName"
-			disabled
-		/>
-	</Fragment>
-);
+function DisabledInput({ label, placeholder }) {
+	return (
+		<Fragment>
+			<label class="form-label">{label}</label>
+			<input
+				class="form-control"
+				type="text"
+				placeholder={placeholder}
+				disabled
+			/>
+		</Fragment>
+	);
+}
 
-function ObjectList({ names, value, onInput }) {
+function ObjectList({ names, value, onInput, disabled }) {
+	if (disabled) {
+		return <DisabledInput label="Name" placeholder="Filter expression used" />;
+	}
+
 	if (!names) {
-		return disabledInput;
+		return <DisabledInput label="Name" placeholder="No object type selected" />;
 	}
 	let options = names.map((name) => <option value={name}>{name}</option>);
 	return (
@@ -124,6 +145,33 @@ function ObjectList({ names, value, onInput }) {
 				required
 			/>
 			<datalist id="objectName">{options}</datalist>
+		</Fragment>
+	);
+}
+
+function FilterInput({ value, onInput, disabled }) {
+	if (disabled) {
+		return (
+			<DisabledInput
+				label="Filter Expression"
+				placeholder="Object(s) selected by name"
+			/>
+		);
+	}
+	const placeholder = `match("app*.example.com", service.name)`;
+	return (
+		<Fragment>
+			<label class="form-label">Filter Expression</label>
+			<input
+				class="form-control"
+				placeholder={placeholder}
+				value={value}
+				onInput={onInput}
+			/>
+			<small class="form-text">
+				Advanced: see the Icinga2 Documentation on how to write filter
+				expressions.
+			</small>
 		</Fragment>
 	);
 }

@@ -2,6 +2,7 @@ import { h, render } from "preact";
 import { useState, useEffect } from "preact/hooks";
 
 import * as meerkat from "./meerkat";
+import * as icinga from "./icinga/icinga.js";
 import { CheckSVG } from "./elements/svg";
 import { CheckLine } from "./elements/line";
 import { Video } from "./elements/video";
@@ -87,19 +88,33 @@ function IcingaElement({ typ, options, events }) {
 					`fetch ${options.objectType} ${options.objectName}: ${err}`
 				);
 			});
-	}
-
-	function refresh() {
+	} else if (options.objectType.endsWith("filter")) {
 		meerkat
-			.getIcingaObject(options.objectName, options.objectType)
-			.then((o) => {
-				setObjState(o.attrs.state);
+			.getAllFilter(options.objectName, options.objectType)
+			.then((results) => {
+				for (const v of results) {
+					interests.push(v.name);
+				}
 			})
 			.catch((err) => {
 				console.error(
 					`fetch ${options.objectType} ${options.objectName}: ${err}`
 				);
 			});
+	}
+
+	async function refresh() {
+		try {
+			const obj = await meerkat.getIcingaObject(
+				options.objectName,
+				options.objectType
+			);
+			setObjState(obj.attrs.state);
+		} catch (err) {
+			console.error(
+				`fetch ${options.objectType} ${options.objectName}: ${err}`
+			);
+		}
 	}
 
 	useEffect(() => {

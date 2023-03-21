@@ -97,7 +97,7 @@ export class ObjectCard extends Component {
 		}
 		let text;
 		const objState = stateText(this.props.objectType, this.state.attrs.state);
-		if (!this.props.objectAttr || this.props.objectAttr == "state") {
+		if (!this.props.objectAttr || this.props.objectAttr == "attrs.state") {
 			text = objState;
 			if (this.state.attrs.acknowledged) {
 				text += " (ACK)";

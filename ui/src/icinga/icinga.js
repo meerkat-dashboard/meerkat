@@ -64,6 +64,16 @@ export function groupToObject(group, members) {
 	return o;
 }
 
+export function objectsToSingle(name, members) {
+	return {
+		name: name,
+		attrs: {
+			next_check: soonestCheck(members),
+			state: worstState(members),
+		},
+	};
+}
+
 // soonestCheck returns the Unix timestamp of the next check to be scheduled by Icinga from objects.
 // A timestamp is used instead of a native Date type to maintain precision beyond milliseconds
 // for consistency with Icinga.
