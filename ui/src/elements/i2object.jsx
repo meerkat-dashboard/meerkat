@@ -93,7 +93,7 @@ export class ObjectCard extends Component {
 
 	render() {
 		if (!this.state.attrs) {
-			return null;
+			return <div class="check-content card"></div>;
 		}
 		let text;
 		const objState = stateText(this.props.objectType, this.state.attrs.state);
