@@ -61,17 +61,26 @@ export function groupToObject(group, members) {
 	let o = group;
 	o.attrs.next_check = soonestCheck(members);
 	o.attrs.state = worstState(members);
+	o.source = {};
+	for (let i = 0; i < members.length; i++) {
+		o.source[i] = members[i];
+	}
 	return o;
 }
 
-export function objectsToSingle(name, members) {
-	return {
+export function objectsToSingle(name, objects) {
+	let obj = {
 		name: name,
 		attrs: {
-			next_check: soonestCheck(members),
-			state: worstState(members),
+			next_check: soonestCheck(objects),
+			state: worstState(objects),
 		},
+		source: {},
 	};
+	for (let i = 0; i < objects.length; i++) {
+		obj.source[i] = objects[i];
+	}
+	return obj;
 }
 
 // soonestCheck returns the Unix timestamp of the next check to be scheduled by Icinga from objects.
