@@ -156,7 +156,7 @@ function DashElement({ typ, options }) {
 		ele = <img src={options.image} />;
 	}
 	if (typ === "video") {
-		ele = <Video options={options} />;
+		ele = <Video src={options.source} />;
 	}
 	if (typ === "audio") {
 		ele = <audio controls src={options.audioSource}></audio>;

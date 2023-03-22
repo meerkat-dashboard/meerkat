@@ -391,7 +391,7 @@ function DashboardElements({
 				ele = <img src={element.options.image} />;
 				break;
 			case "video":
-				ele = <Video options={element.options} />;
+				ele = <Video src={element.options.source} />;
 				break;
 			case "audio":
 				ele = <audio controls src={element.options.audioSource}></audio>;

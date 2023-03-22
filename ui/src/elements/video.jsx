@@ -22,24 +22,25 @@ export function VideoOptions({ options, updateOptions }) {
 	);
 }
 
-export function Video({ options }) {
-	let videoRef = useRef(null);
-	if (!options.source) {
+export function Video({ src }) {
+	const videoRef = useRef(null);
+	if (!src) {
 		return null;
 	}
+	// Only load hls.js in browsers that don't support it natively.
 	useEffect(() => {
-		if (Hls.isSupported() && options.source.endsWith("m3u8")) {
+		if (Hls.isSupported() && src.endsWith("m3u8")) {
 			const hls = new Hls({ enableWorker: false });
-			hls.loadSource(options.source);
+			hls.loadSource(src);
 			hls.attachMedia(videoRef.current);
 		}
-		// otherwise we're running in a browser with native HLS support
-	});
+	}, [src]);
 	return (
 		<video
 			style="width: 90%; height: 90%"
 			ref={videoRef}
-			src={options.source}
+			key={src}
+			src={src}
 			controls
 			autoplay
 		></video>
