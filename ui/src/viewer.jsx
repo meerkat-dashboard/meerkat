@@ -1,4 +1,4 @@
-import { h, render } from "preact";
+import { h, render, Fragment } from "preact";
 import { useState, useEffect } from "preact/hooks";
 
 import * as meerkat from "./meerkat";
@@ -55,7 +55,15 @@ function Viewer({ dashboard, events }) {
 			</div>
 		);
 	});
-	return elements;
+	if (dashboard.background && dashboard.background != "") {
+		return (
+			<div style="position: relative">
+				<img src={dashboard.background} style="max-width: 100%; object-fit: scale-down;" />
+				{elements}
+			</div>
+		);
+	}
+	return {elements};
 }
 
 function IcingaElement({ typ, options, events }) {
