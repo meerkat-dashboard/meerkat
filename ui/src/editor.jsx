@@ -1,4 +1,4 @@
-import { h, Fragment } from "preact";
+import { h, render, Fragment } from "preact";
 import { useEffect, useReducer, useState } from "preact/hooks";
 
 import * as meerkat from "./meerkat";
@@ -95,7 +95,7 @@ function dashboardReducer(state, action) {
 	}
 }
 
-export function Editor({ slug }) {
+function Editor({ slug }) {
 	const [dashboard, dashboardDispatch] = useReducer(dashboardReducer, null);
 	const [highlightedElementId, setHighlightedElementId] = useState(null);
 	const [selectedElement, setSelectedElement] = useState(null);
@@ -714,3 +714,8 @@ function ElementSettings({ element, updateElement, closeElement }) {
 		</div>
 	);
 }
+
+// Paths are of the form /my-dashboard/view
+const elems = window.location.pathname.split("/");
+const slug = elems[elems.length - 2];
+render(<Editor slug={slug} />, document.body);

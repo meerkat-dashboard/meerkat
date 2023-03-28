@@ -17,7 +17,7 @@ Devolopment with older toolchains may be ok but we can't guarantee the behaviour
 A typical workflow involves starting a filesystem watcher to rebuild the UI on changes:
 
 	cd ui
-	npx webpack --mode development --watch
+	npm run dev
 
 Then run another command to start meerkat with `go run`:
 
@@ -37,7 +37,7 @@ then building and running the program for manual testing.
 As before, start by installing javascript dependencies:
 
 	cd ui
-	npm install
+	npm ci
 
 Throughout development, tests can be run via `go test`.
 This includes Javascript tests.
