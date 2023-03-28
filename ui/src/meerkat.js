@@ -1,21 +1,5 @@
 import * as icinga from "./icinga/icinga.js";
 
-async function fetchHandler(string) {
-	if (navigator.onLine) {
-		try {
-			const res = await fetch(string);
-			if (res.status !== 200) {
-				return 3;
-			}
-			return res.json();
-		} catch (e) {
-			return false;
-		}
-	} else {
-		return false;
-	}
-}
-
 export async function getIcingaHosts() {
 	const res = await fetch(`/icinga/v1/objects/hosts`);
 	return res.json();
@@ -67,7 +51,11 @@ export async function getIcingaObject(name, typ) {
 }
 
 export async function getDashboard(slug) {
-	return fetchHandler(`/dashboard/${slug}`);
+	const resp = await fetch(`/dashboard/${slug}`);
+	if (!resp.ok) {
+		throw new Error(resp.statusText);
+	}
+	return await resp.json();
 }
 
 export async function saveDashboard(slug, dashboard) {
