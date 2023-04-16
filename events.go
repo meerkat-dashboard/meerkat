@@ -24,7 +24,6 @@ import (
 // the message would be:
 //
 //	data: app.prod.company.example!ping
-//
 type EventStream struct {
 	client        *icinga.Client
 	events        chan icinga.Event

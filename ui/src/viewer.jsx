@@ -58,12 +58,15 @@ function Viewer({ dashboard, events }) {
 	if (dashboard.background && dashboard.background != "") {
 		return (
 			<div style="position: relative">
-				<img src={dashboard.background} style="max-width: 100%; object-fit: scale-down;" />
+				<img
+					src={dashboard.background}
+					style="max-width: 100%; object-fit: scale-down;"
+				/>
 				{elements}
 			</div>
 		);
 	}
-	return {elements};
+	return { elements };
 }
 
 function IcingaElement({ typ, options, events }) {
