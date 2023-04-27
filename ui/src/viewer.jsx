@@ -66,7 +66,7 @@ function Viewer({ dashboard, events }) {
 			</div>
 		);
 	}
-	return { elements };
+	return <div style="width: 100vh; height: 100vh">{elements}</div>;
 }
 
 function IcingaElement({ typ, options, events }) {
