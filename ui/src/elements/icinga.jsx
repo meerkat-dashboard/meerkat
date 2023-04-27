@@ -14,7 +14,7 @@ export class ObjectSelect extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			names: null,
+			names: [],
 		};
 		// if we're initialised with an object type, get a list of all the names so we're ready to go
 		if (props.objectType) {
@@ -127,8 +127,8 @@ function ObjectList({ names, value, onInput, disabled }) {
 		return <DisabledInput label="Name" placeholder="Filter expression used" />;
 	}
 
-	if (!names) {
-		return <DisabledInput label="Name" placeholder="No object type selected" />;
+	if (!names && !value) {
+		return <DisabledInput label="Name" placeholder="No objects loaded" />;
 	}
 	let options = names.map((name) => <option value={name}>{name}</option>);
 	return (
@@ -194,28 +194,25 @@ export function AttrSelect({ objectName, objectType, selected, onInput }) {
 			});
 	}, [objectName, objectType]);
 
-	if (!obj) {
-		return noneSelected;
+	let keys = [selected];
+	if (obj) {
+		keys = flatten.selectExpressions([], obj);
 	}
-
-	let keys = flatten.selectExpressions([], obj);
 	const options = keys.map((k) => <option value={k}>{k}</option>);
-	if (!selected) {
-		selected = "state";
-	}
 	return (
 		<Fragment>
 			<label class="form-label" for="attrSelect">
 				Attribute
 			</label>
-			<select
-				class="form-select"
+			<input
+				class="form-control"
 				name="attrSelect"
+				list="attrName"
+				placeholder="Type to search..."
 				value={selected}
 				onInput={onInput}
-			>
-				{options}
-			</select>
+			/>
+			<datalist id="attrSelect">{options}</datalist>
 			<small class="form-text">
 				The selected object attribute will be rendered as the card's text.
 			</small>

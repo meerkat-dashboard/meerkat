@@ -63,9 +63,15 @@ export function groupToObject(group, members) {
 	o.attrs.state = worstState(members);
 	o.source = {};
 	for (let i = 0; i < members.length; i++) {
-		o.source[i] = members[i];
+		// Dots are often used in object names; escape for ./flatten.js later.
+		let name = escapeDots(members[i].name);
+		o.source[name] = members[i];
 	}
 	return o;
+}
+
+function escapeDots(s) {
+	return s.replaceAll(".", "-");
 }
 
 export function objectsToSingle(name, objects) {
@@ -78,7 +84,9 @@ export function objectsToSingle(name, objects) {
 		source: {},
 	};
 	for (let i = 0; i < objects.length; i++) {
-		obj.source[i] = objects[i];
+		// Dots are often used in object names; escape for ./flatten.js later.
+		let name = escapeDots(objects[i].name);
+		obj.source[name] = objects[i];
 	}
 	return obj;
 }
