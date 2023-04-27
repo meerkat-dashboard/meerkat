@@ -26,7 +26,6 @@ import (
 //	data: app.prod.company.example!ping
 type EventStream struct {
 	client        *icinga.Client
-	events        chan icinga.Event
 	subscribe     chan chan<- icinga.Event
 	unsubscribe   chan chan<- icinga.Event
 	subscriptions map[chan<- icinga.Event]bool
@@ -35,7 +34,6 @@ type EventStream struct {
 func NewEventStream(client *icinga.Client) *EventStream {
 	return &EventStream{
 		client:        client,
-		events:        make(chan icinga.Event),
 		subscribe:     make(chan chan<- icinga.Event),
 		unsubscribe:   make(chan chan<- icinga.Event),
 		subscriptions: make(map[chan<- icinga.Event]bool),
@@ -62,9 +60,13 @@ func (es *EventStream) Subscribe() error {
 	if err != nil {
 		return fmt.Errorf("subscribe to %s: %w", name, err)
 	}
+
 	for {
 		select {
 		case ev := <-events:
+			if ev.Error != nil {
+				return ev.Error
+			}
 			for sub := range es.subscriptions {
 				sub <- ev
 			}
@@ -74,6 +76,7 @@ func (es *EventStream) Subscribe() error {
 			delete(es.subscriptions, ch)
 		}
 	}
+	return nil
 }
 
 func (es *EventStream) ServeHTTP(w http.ResponseWriter, req *http.Request) {
