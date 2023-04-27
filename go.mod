@@ -7,4 +7,4 @@ require (
 	github.com/go-chi/chi/v5 v5.0.7
 )
 
-require olowe.co/icinga v0.0.0-20230311063638-6c821dbc0890
+require olowe.co/icinga v0.1.0

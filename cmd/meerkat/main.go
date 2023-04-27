@@ -59,7 +59,7 @@ func main() {
 		}
 		client, err := icinga.Dial(icingaURL.Host, config.IcingaUsername, config.IcingaPassword, hc)
 		if err != nil {
-			log.Fatalln("dial icinga:", err)
+			log.Println("dial icinga:", err)
 		}
 		rproxy := NewIcingaProxy(icingaURL, config.IcingaUsername, config.IcingaPassword, config.IcingaInsecureTLS)
 		// Let the server cache responses from icinga to ease load on request bursts.
