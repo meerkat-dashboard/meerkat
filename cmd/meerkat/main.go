@@ -45,45 +45,43 @@ func main() {
 	}
 
 	r := chi.NewRouter()
-
 	r.Get("/dashboard/{slug}", handleListDashboard)
-
 	r.Post("/dashboard", handleCreateDashboard)
 	r.Post("/dashboard/{slug}", handleUpdateDashboard)
 	r.Delete("/dashboard/{slug}", handleDeleteDashboard)
 
 	// Serve the Icinga API
-	rproxy := NewIcingaProxy(icingaURL, config.IcingaUsername, config.IcingaPassword, config.IcingaInsecureTLS)
-
-	// Let clients cache these slower expensive requests for some time.
-	r.Handle("/icinga/v1/objects/hosts", setMaxAge(time.Hour, http.StripPrefix("/icinga", rproxy)))
-	r.Handle("/icinga/v1/objects/services", setMaxAge(time.Hour, http.StripPrefix("/icinga", rproxy)))
-
-	// Let the server cache responses from icinga to ease load on request bursts.
-	cache := NewCachingProxy(rproxy, 10*time.Second)
-	r.Handle("/icinga/v1/*", http.StripPrefix("/icinga", cache))
-
-	// Subscribe to object state changes. Some dashboard elements
-	// read events instead of polling.
-	hc := &http.Client{
-		Transport: &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: config.IcingaInsecureTLS},
-		},
-	}
-	ic, err := icinga.Dial(icingaURL.Host, config.IcingaUsername, config.IcingaPassword, hc)
-	if err != nil {
-		log.Fatal(err)
-	}
-	stream := meerkat.NewEventStream(ic)
-	go func() {
-		for {
-			if err := stream.Subscribe(); err != nil {
-				log.Println("start event stream:", err)
-			}
-			stream = meerkat.NewEventStream(ic)
+	if icingaURL.Host != "" {
+		hc := &http.Client{
+			Transport: &http.Transport{
+				TLSClientConfig: &tls.Config{InsecureSkipVerify: config.IcingaInsecureTLS},
+			},
 		}
-	}()
-	r.Handle("/icinga/stream", stream)
+		client, err := icinga.Dial(icingaURL.Host, config.IcingaUsername, config.IcingaPassword, hc)
+		if err != nil {
+			log.Fatalln("dial icinga:", err)
+		}
+		rproxy := NewIcingaProxy(icingaURL, config.IcingaUsername, config.IcingaPassword, config.IcingaInsecureTLS)
+		// Let the server cache responses from icinga to ease load on request bursts.
+		cache := NewCachingProxy(rproxy, 10*time.Second)
+		r.Handle("/icinga/v1/*", http.StripPrefix("/icinga", cache))
+
+		// Subscribe to object state changes. Some dashboard elements
+		// read events instead of polling.
+		stream := meerkat.NewEventStream(client)
+		go func() {
+			for {
+				if err := stream.Subscribe(); err != nil {
+					log.Println("subscribe to icinga event stream:", err)
+					dur := 10 * time.Second
+					log.Printf("retrying in %s", dur)
+					time.Sleep(dur)
+					continue
+				}
+			}
+		}()
+		r.Handle("/icinga/stream", stream)
+	}
 
 	// Previous versions of meerkat served user-uploaded files from this directory.
 	// Keep serving them for backwards compatibility.
