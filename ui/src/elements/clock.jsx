@@ -29,7 +29,7 @@ export class Clock extends Component {
 		}).format(this.state.time);
 		return (
 			<time ref={this.ref} class="clock">
-				<div>{t}</div>
+				{t}
 			</time>
 		);
 	}
