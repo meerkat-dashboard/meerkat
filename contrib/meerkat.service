@@ -1,11 +1,12 @@
 [Unit]
 Description=meerkat
+Documentation=https://meerkat.run
 After=network.target
 
 [Service]
 WorkingDirectory=/usr/local/meerkat/
 ExecStart=/usr/local/meerkat/meerkat -config /etc/meerkat.toml
-User=nagios
+User=meerkat
 
 [Install]
 WantedBy=multi-user.target

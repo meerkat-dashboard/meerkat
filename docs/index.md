@@ -41,6 +41,10 @@ Connect Meerkat to Icinga to create dashboards from Icinga objects like Services
 
 How to make a simple dashboard.
 
+### [Tutorial: Meerkat as a systemd service](tutorial/systemd)
+
+Running Meerkat as a long-running service on Linux.
+
 ## Using Meerkat
 
 ### [Dashboard Elements](elements)

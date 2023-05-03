@@ -44,3 +44,6 @@ We're done!
 This set up is only sufficient for basic dashboards, testing, and fiddling around.
 Meerkat's primary use case is to display information from [Icinga2](https://icinga.com).
 Follow the [Connecting Icinga tutorial](connect-icinga) to set this up.
+
+Meerkat is intended to be run as a long-running service.
+See the tutorial [Meerkat as a systemd service](tutorial/systemd) to set this up.
