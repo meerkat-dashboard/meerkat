@@ -16,6 +16,8 @@ type Config struct {
 	AdminPassword string
 }
 
+const defaultConfigPath string = "/etc/meerkat.toml"
+
 func LoadConfig(name string) (Config, error) {
 	var conf Config
 	var err error

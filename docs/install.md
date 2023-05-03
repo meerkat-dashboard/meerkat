@@ -22,19 +22,18 @@ tar -C /usr/local -xzf meerkat.tar.gz
 ```
 You will probably need to run this command as root or through `sudo`.
 
-2. Write a configuration file. The example configuration file is enough to create basic dashboards.
-```
-cp /usr/local/meerkat/meerkat.toml.example /usr/local/meerkat/meerkat.toml
-```
-
-3. Verify the meerkat installation by running the meerkat command and printing its version:
+2. Verify the meerkat installation by running the meerkat command and printing its version:
 ```
 /usr/local/meerkat/meerkat -v
 ```
 
+3. If required, write a [Configuration file](configuration) to `/etc/meerkat.toml`.
+
 ## 3. Start Meerkat
+
+Finally, start meerkat:
 ```
-/usr/local/meerkat/meerkat -config /usr/local/meerkat/meerkat.toml
+/usr/local/meerkat/meerkat
 ```
 
 Open a web browser and browse to the address of the machine.
@@ -43,7 +42,7 @@ We're done!
 
 This set up is only sufficient for basic dashboards, testing, and fiddling around.
 Meerkat's primary use case is to display information from [Icinga2](https://icinga.com).
-Follow the [Connecting Icinga tutorial](connect-icinga) to set this up.
+Follow the [Connecting Icinga tutorial](tutorial/connect-icinga) to set this up.
 
 Meerkat is intended to be run as a long-running service.
 See the tutorial [Meerkat as a systemd service](tutorial/systemd) to set this up.

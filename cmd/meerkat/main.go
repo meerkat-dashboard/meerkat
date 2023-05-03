@@ -2,8 +2,10 @@ package main
 
 import (
 	"crypto/tls"
+	"errors"
 	"flag"
 	"fmt"
+	"io/fs"
 	"log"
 	"net/http"
 	"net/url"
@@ -20,7 +22,7 @@ import (
 var config Config
 
 func main() {
-	configFile := flag.String("config", "", "load configuration from this file")
+	configFile := flag.String("config", defaultConfigPath, "load configuration from this file")
 	vflag := flag.Bool("v", false, "build version information")
 	fflag := flag.String("ui", "", "user interface directory")
 	flag.Parse()
@@ -32,8 +34,11 @@ func main() {
 
 	var err error
 	config, err = LoadConfig(*configFile)
-	if err != nil {
-		log.Fatalln(err)
+	if errors.Is(err, fs.ErrNotExist) && *configFile == defaultConfigPath {
+		// We tried to opportunistically load the default
+		// config file but it's not there. No problem.
+	} else if err != nil {
+		log.Fatalln("load config:", err)
 	}
 	icingaURL, err := url.Parse(config.IcingaURL)
 	if err != nil {
