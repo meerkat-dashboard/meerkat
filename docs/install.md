@@ -6,8 +6,13 @@ For installing from source, see the [Meerkat README](https://github.com/meerkat-
 
 ## 1. Download Meerkat
 
-Download the latest version of Meerkat:
-[Version 2.0 (Savanna)](https://github.com/meerkat-dashboard/meerkat/releases/tag/2.0.3)
+* Linux [meerkat3.0.0-beta.1.linux-amd64.tar.gz]
+* [meerkat2.1.1]
+
+Releases of Meerkat are available from [Releases](https://github.com/meerkat-dashboard/meerkat/releases/).
+
+[meerkat3.0.0-beta.1.linux-amd64.tar.gz]: https://github.com/meerkat-dashboard/meerkat/releases/download/v3.0.0-beta.1/meerkat.3.0.0-beta.1.linux-amd64.tar.gz
+[meerkat2.1.1]: https://github.com/meerkat-dashboard/meerkat/releases/tag/2.1.1
 
 ## 2. Install Meerkat
 

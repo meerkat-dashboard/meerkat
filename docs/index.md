@@ -7,9 +7,13 @@ nav_order: 1
 
 See the demo at [demo.meerkat.run][demo].
 
-Meerkat is a utility to create and share dashboards for Icinga2. It's quick to setup and easy to use. There is a WSIWYG editor interface when you can set a background for a dashboard and start overlaying checks which update in real time by polling the Icinga2 API via the Meerkat backend.
+Meerkat is a utility to create and share dashboards for Icinga2.
+It's quick to setup and easy to use.
+There is a WSIWYG editor interface when you can set a background for a dashboard and start overlaying checks which update in real time by polling the Icinga2 API via the Meerkat backend.
 
-The main driver for Meerkat to exist is to communicate to perhaps non-technical users, the relationship between the infrastructure they are familar with, and the Icinga checks you have worked so hard to build. It can also play sounds to alert people of changes, along with embed video and audio streams. Meerkat isn't a replacement for a complete notification system, but should complement any NOC nicely, and let users very clearly define the checks or groups of checks they care about with context that is relevant for them.
+The main driver for Meerkat to exist is to communicate to perhaps non-technical users, the relationship between the infrastructure they are familar with, and the Icinga checks you have worked so hard to build.
+It can embed video and audio streams.
+Meerkat isn't a replacement for a complete notification system, but should complement any NOC nicely, and let users very clearly define the checks or groups of checks they care about with context that is relevant for them.
 
 Meerkat displays the 'worst' status from a group of checks, for example a world map that consists of groups of checks by country:
 
