@@ -200,7 +200,8 @@ export function AttrSelect({ objectName, objectType, selected, onInput }) {
 	}
 	const options = keys.map((k) => <option value={k}>{k}</option>);
 	return (
-		<Fragment>
+		<fieldset>
+			<legend>Object attribute</legend>
 			<label class="form-label" for="attrSelect">
 				Attribute
 			</label>
@@ -216,7 +217,38 @@ export function AttrSelect({ objectName, objectType, selected, onInput }) {
 			<small class="form-text">
 				The selected object attribute will be rendered as the card's text.
 			</small>
-		</Fragment>
+			<br />
+			<label class="form-label" for="attrSelect">
+				TODO Regular Expression Match
+			</label>
+			<input
+				class="form-control"
+				name="attrMatch"
+				placeholder="[a-zA-Z]+"
+				disabled
+			/>
+			<small class="form-text">
+				Render only the match of this regular expression against the attribute.
+				See also Mozilla's Javascript guide{" "}
+				<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions">
+					Regular Expressions
+				</a>
+				.
+			</small>
+			<br />
+			<label class="form-label" for="attrNoMatch">
+				TODO No match
+			</label>
+			<input
+				class="form-control"
+				name="attrNoMatch"
+				placeholder="TODO"
+				disabled
+			/>
+			<small class="form-text">
+				Render this text if If there is no match of the regular expression.
+			</small>
+		</fieldset>
 	);
 }
 
