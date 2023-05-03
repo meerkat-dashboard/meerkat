@@ -1,13 +1,13 @@
 # Configuration
 
-Meerkat reads configuration from a text file in [TOML][toml] format.
+Meerkat reads configuration from a text file in [TOML] format.
 By default meerkat reads from a file named `meerkat.toml` in the current working directory.
 An alternative file may be specified with the `-config` flag.
 For example:
 
 	meerkat -config /etc/meerkat.toml
 
-[toml]: https://toml.io
+[TOML]: https://toml.io
 
 The following configuration options are available:
 
@@ -26,10 +26,3 @@ The default value for both is `meerkat`.
 `IcingaInsecureTLS`: If set to true, verification of the TLS certificates served by the Icinga API is skipped.
 This is often required when Icinga is configured with self-signed certificates.
 The default is false.
-
-`CacheExpiryDurationSeconds`: number of seconds which meerkat will cache Icinga objects before requesting from the Icinga server again.
-The default is 16 seconds.
-
-`CacheSizeBytes`: Total size of the Icinga object cache in bytes.
-If this size is reached, objects are evicted; oldest first.
-The default is 20971520 (20MB).
