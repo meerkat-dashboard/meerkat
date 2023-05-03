@@ -78,6 +78,7 @@ function IcingaElement({ typ, options, events }) {
 			<ObjectCard
 				objectType={options.objectType}
 				objectName={options.objectName}
+				objectAttr={options.objectAttr}
 				fontSize={options.fontSize}
 			/>
 		);
