@@ -74,7 +74,7 @@ function IcingaElement({ typ, options, events }) {
 	// them here under IcingaElement as they are more closely related
 	// to Icinga than to the other elements like Clock or Video.
 	if (typ == "check-card") {
-		return (
+		const ele = (
 			<ObjectCard
 				objectType={options.objectType}
 				objectName={options.objectName}
@@ -84,6 +84,10 @@ function IcingaElement({ typ, options, events }) {
 				fontSize={options.fontSize}
 			/>
 		);
+		if (options.linkURL) {
+			return linkWrap(ele, options.linkURL);
+		}
+		return ele;
 	}
 
 	let [objState, setObjState] = useState(3); // unknown
