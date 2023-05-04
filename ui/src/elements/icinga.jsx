@@ -208,7 +208,7 @@ export function AttrSelect({ objectName, objectType, selected, onInput }) {
 			<input
 				class="form-control"
 				name="attrSelect"
-				list="attrName"
+				list="attrSelect"
 				placeholder="Type to search..."
 				value={selected}
 				onInput={onInput}
@@ -218,7 +218,7 @@ export function AttrSelect({ objectName, objectType, selected, onInput }) {
 				The selected object attribute will be rendered as the card's text.
 			</small>
 			<br />
-			<label class="form-label" for="attrSelect">
+			<label class="form-label" for="attrMatch">
 				TODO Regular Expression Match
 			</label>
 			<input

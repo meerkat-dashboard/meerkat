@@ -103,7 +103,11 @@ export class ObjectCard extends Component {
 				text += " (ACK)";
 			}
 		} else {
-			text = flatten.selectByExpr(this.props.objectAttr, this.state);
+			try {
+				text = flatten.selectByExpr(this.props.objectAttr, this.state);
+			} catch(err) {
+				console.error(`render attribute text: ${err.message}`);
+			}
 		}
 
 		let classes = ["check-content", "card", objState];
