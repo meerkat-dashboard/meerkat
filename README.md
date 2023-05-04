@@ -1,6 +1,6 @@
 # Meerkat
 
-![pkgsite](https://pkg.go.dev/badge/github.com/meerkat-dashboard/meerkat "link to Go doc")
+![pkgsite](https://pkg.go.dev/badge/github.com/meerkat-dashboard/meerkat)
 
 Meerkat is a utility to create and share dashboards for Icinga 2 checks and hosts. It is comprised of a lightweight Go server and a browser front-end written in Preact. It's quick to setup and easy to use.
 
