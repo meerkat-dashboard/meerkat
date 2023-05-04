@@ -79,6 +79,8 @@ function IcingaElement({ typ, options, events }) {
 				objectType={options.objectType}
 				objectName={options.objectName}
 				objectAttr={options.objectAttr}
+				objectAttrMatch={options.objectAttrMatch}
+				objectAttrNoMatch={options.objectAttrNoMatch}
 				fontSize={options.fontSize}
 			/>
 		);

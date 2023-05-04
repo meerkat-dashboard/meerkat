@@ -176,7 +176,14 @@ function FilterInput({ value, onInput, disabled }) {
 	);
 }
 
-export function AttrSelect({ objectName, objectType, selected, onInput }) {
+export function AttrSelect({
+	objectName,
+	objectType,
+	selected,
+	onInput,
+	objectAttrMatch,
+	objectAttrNoMatch,
+}) {
 	const [obj, setObj] = useState();
 
 	if (!objectName) {
@@ -225,6 +232,7 @@ export function AttrSelect({ objectName, objectType, selected, onInput }) {
 				class="form-control"
 				name="attrMatch"
 				placeholder="[a-zA-Z]+"
+				value={objectAttrMatch}
 				disabled
 			/>
 			<small class="form-text">
@@ -242,7 +250,7 @@ export function AttrSelect({ objectName, objectType, selected, onInput }) {
 			<input
 				class="form-control"
 				name="attrNoMatch"
-				placeholder="TODO"
+				value={objectAttrNoMatch}
 				disabled
 			/>
 			<small class="form-text">

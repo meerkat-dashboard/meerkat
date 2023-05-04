@@ -20,6 +20,8 @@ export function ObjectCardOptions({ options, updateOptions }) {
 				objectType={options.objectType}
 				selected={options.objectAttr}
 				onInput={(e) => updateOptions({ objectAttr: e.currentTarget.value })}
+				objectAttrMatch={options.objectAttrMatch}
+				objectAttrNoMatch={options.objectAttrNoMatch}
 			/>
 			<ExternalURL
 				value={options.linkURL}
@@ -105,8 +107,16 @@ export class ObjectCard extends Component {
 		} else {
 			try {
 				text = flatten.selectByExpr(this.props.objectAttr, this.state);
-			} catch(err) {
+			} catch (err) {
 				console.error(`render attribute text: ${err.message}`);
+			}
+		}
+
+		if (this.props.objectAttrMatch) {
+			const regexp = new RegExp(this.props.objectAttrMatch);
+			text = text.match(regexp);
+			if (!text && this.props.objectAttrNoMatch) {
+				text = this.props.objectAttrNoMatch;
 			}
 		}
 

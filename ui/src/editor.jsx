@@ -402,6 +402,8 @@ function DashboardElements({
 						objectType={element.options.objectType}
 						objectName={element.options.objectName}
 						objectAttr={element.options.objectAttr}
+						objectAttrMatch={element.options.objectAttrMatch}
+						objectAttrNoMatch={element.options.objectAttrNoMatch}
 						fontSize={element.options.fontSize}
 					/>
 				);
