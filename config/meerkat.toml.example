@@ -1,9 +1,0 @@
-# Meerkat web server listens, and accepts requests, from this host and port.
-HTTPAddr = "0.0.0.0:8585"
-
-# Meerkat acts as a reverse proxy to this specified Icinga server.
-IcingaURL      = "https://icinga.example.com:5665"
-IcingaUsername = "api-user"
-IcingaPassword = "api-password"
-# Set to true when, for example, Icinga serves a self-signed certificate.
-IcingaInsecureTLS = false
