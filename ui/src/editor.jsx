@@ -178,7 +178,6 @@ function TransformableElement({
 	checkType,
 	rotation,
 	updateRotation,
-	children,
 	highlight,
 	index,
 	onClick,
@@ -317,7 +316,6 @@ function TransformableElement({
 			onMouseDown={highlight ? handleMove : null}
 			onClick={onClick}
 		>
-			{children}
 			<Grabbers
 				active={highlight}
 				handleResize={handleResize}
