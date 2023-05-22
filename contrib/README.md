@@ -2,6 +2,18 @@
 
 This directory contains extra stuff to help with distributing and running meerkat.
 
+## configure-meerkat.sh
+configure-meerkat.sh does meerkat user setup, application ownership, service installation and default config setup.
+It assumes default values are being used.
+
+```
+USER="meerkat" 
+INSTALL_DIR="/usr/local/meerkat" 
+CONFIG_FILE="/etc/meerkat.toml" 
+```
+
+This script should be able to be re-run at any time if your configuration breaks, the config file `/etc/meerkat.toml` won't be overridden if it already exists.
+
 ## dlbuild.sh
 
 dlbuild.sh ("download build") builds compiled archives from the main branch's latest revision of meerkat from GitHub.
@@ -37,3 +49,7 @@ To use it:
 	systemctl start meerkat
 
 [install]: https://meerkat.run/install
+
+## meerkat.toml.example
+meerkat.toml.example is a sample configuration with sensible defaults. It is copied when running `configure-meerkat.sh` to `/etc/meerkat.toml`.
+**The password should be changed.**

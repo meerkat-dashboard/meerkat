@@ -1,0 +1,13 @@
+
+# The address, in host:port format, to serve meerkat from. For example 0.0.0.0:6969. The default is “:8080” i.e. all IPv4, IPv6 addresses port 8080.
+HTTPAddr = "0.0.0.0:8080"
+
+# A URL pointing to an instance of Icinga serving the Icinga API
+IcingaURL = "https://127.0.0.1:5665"
+
+# The username and password with which to authenticate to Icinga. Normally set in /etc/icinga2/conf.d/api-users.conf on your Icinga2 master.
+IcingaUsername = "meerkat"
+IcingaPassword = "YOUR SECURE PASSWORD HERE"
+
+# If set to true, verification of the TLS certificates served by the Icinga API is skipped. This is often required when Icinga is configured with self-signed certificates.
+#IcingaInsecureTLS = true
