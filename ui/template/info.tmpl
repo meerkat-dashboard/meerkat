@@ -45,12 +45,13 @@
 		<label class="form-label" for="description">Description</label>
 		<input class="form-control" type="text" id="description" name="description" minlength="4" placeholder="Not implemented yet" disabled>
 
-		<label class="form-label" for="background">Background image</label>
-		<input class="form-control" type="url" id="background" name="background" minlength="8" value="{{ .Background }}" placeholder="http://www.example.com/background.png">
+		<label class="form-label" for="background">Background image url</label>
+		<input class="form-control" type="text" pattern="(https?|/).*?" id="background" name="background" minlength="8" value="{{ .Background }}" placeholder="http://www.example.com/background.png">
 	</fieldset>
 	<button class="btn btn-primary btn-success" type="submit">
 		Save
 	</button>
 </form>
+{{ template "filemgr_background" }}
 </main>
 {{ end }}
