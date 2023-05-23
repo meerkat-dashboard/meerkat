@@ -134,6 +134,35 @@ func (srv *Server) InfoPage(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
+func (srv *Server) UploadFileHandler(targetPath string) http.HandlerFunc {
+    return func(w http.ResponseWriter, r *http.Request) {
+        // get the file from the request
+        file, header, err := r.FormFile("file")
+        if err != nil {
+            http.Error(w, "Unable to read file", http.StatusBadRequest)
+            return
+        }
+        defer file.Close()
+
+        // create a new file in the local system
+        dst, err := os.Create(filepath.Join(targetPath, header.Filename))
+        if err != nil {
+            http.Error(w, "Unable to create file", http.StatusInternalServerError)
+            return
+        }
+        defer dst.Close()
+
+        // copy the uploaded file to the new file
+        if _, err := io.Copy(dst, file); err != nil {
+            http.Error(w, "Unable to save file", http.StatusInternalServerError)
+            return
+        }
+
+        // return the file path
+        w.Write([]byte(targetPath + "/" + header.Filename))
+    }
+}
+
 func (srv *Server) EditInfoHandler(w http.ResponseWriter, req *http.Request) {
 	slug, _ := path.Split(req.URL.Path)
 	slug = path.Clean(slug)

@@ -1,0 +1,43 @@
+{{ define "filemgr_background" }}
+<form id="filemgr_background" method="POST">
+	<fieldset class="form-group mb-3">
+		<label class="form-label" for="background-image">Background image upload</label>
+		<input class="form-control" type="file" id="background-image" name="background-image" accept="image/*">
+	</fieldset>
+	<button class="btn btn-primary btn-success" type="submit">
+		Save
+	</button>
+</form>
+<script>
+document.querySelector('#filemgr_background').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    var file = document.querySelector('#background-image').files[0];
+    var formData = new FormData();
+    formData.append('file', file);
+
+    // upload file to server
+    fetch('/file/background', {
+        method: 'POST',
+        body: formData
+    })
+    .then(function(response) {
+        return response.text();
+    })
+    .then(function(data) {
+        // get the URL of the uploaded image
+        var imageURL = data;
+
+        // set the image URL in a hidden input field
+        var hiddenInput = document.createElement('input');
+        hiddenInput.setAttribute('type', 'hidden');
+        hiddenInput.setAttribute('name', 'background-url');
+        hiddenInput.setAttribute('value', imageURL);
+        document.querySelector('#filemgr_background').appendChild(hiddenInput);
+
+        // submit the form
+        document.querySelector('form').submit();
+    });
+});
+</script>
+{{ end }}
