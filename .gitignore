@@ -7,6 +7,6 @@ ui/dist/*.txt
 .DS_Store
 .vscode/**
 
-.migrations/backup/**
+migrations/backup/**
 
 dashboards/
