@@ -4,11 +4,13 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
+	"io"
 	"io/fs"
 	"log"
 	"net/http"
 	"os"
 	"path"
+	"path/filepath"
 
 	"github.com/meerkat-dashboard/meerkat"
 )
@@ -124,13 +126,42 @@ func (srv *Server) InfoPage(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	tmpl, err := template.ParseFS(srv.fsys, "template/layout.tmpl", "template/info.tmpl", "template/nav.tmpl")
+	tmpl, err := template.ParseFS(srv.fsys, "template/layout.tmpl", "template/info.tmpl", "template/nav.tmpl", "template/filemgr_background.tmpl")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	if err := tmpl.Execute(w, dashboard); err != nil {
 		log.Println(err)
+	}
+}
+
+func (srv *Server) UploadFileHandler(targetPath string) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// get the file from the request
+		file, header, err := r.FormFile("file")
+		if err != nil {
+			http.Error(w, "Unable to read file", http.StatusBadRequest)
+			return
+		}
+		defer file.Close()
+
+		// create a new file in the local system
+		dst, err := os.Create(filepath.Join(targetPath, header.Filename))
+		if err != nil {
+			http.Error(w, "Unable to create file", http.StatusInternalServerError)
+			return
+		}
+		defer dst.Close()
+
+		// copy the uploaded file to the new file
+		if _, err := io.Copy(dst, file); err != nil {
+			http.Error(w, "Unable to save file", http.StatusInternalServerError)
+			return
+		}
+
+		// return the file path
+		w.Write([]byte(targetPath + "/" + header.Filename))
 	}
 }
 
