@@ -5,5 +5,6 @@ ui/dist/*.js
 ui/dist/*.txt
 # macOS metadata
 .DS_Store
+.vscode/**
 
 dashboards/
