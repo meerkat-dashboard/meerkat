@@ -180,7 +180,7 @@ export function AttrSelect({
 	objectName,
 	objectType,
 	selected,
-	onInput,
+	onChange,
 	objectAttrMatch,
 	objectAttrNoMatch,
 }) {
@@ -201,26 +201,23 @@ export function AttrSelect({
 			});
 	}, [objectName, objectType]);
 
-	let keys = [selected];
+	const rows = [];
 	if (obj) {
-		keys = flatten.selectExpressions([], obj);
+		for (var key in obj.perfdata) {
+			rows.push(<option value={key}>{key}</option>);
+		}
+		rows.push(<option value="pluginOutput">output</option>);
 	}
-	const options = keys.map((k) => <option value={k}>{k}</option>);
+
 	return (
 		<fieldset>
 			<legend>Object attribute</legend>
 			<label class="form-label" for="attrSelect">
 				Attribute
 			</label>
-			<input
-				class="form-control"
-				name="attrSelect"
-				list="attrSelect"
-				placeholder="Type to search..."
-				value={selected}
-				onInput={onInput}
-			/>
-			<datalist id="attrSelect">{options}</datalist>
+			<select class="form-select" value={selected} onChange={onChange}>
+				{rows}
+			</select>
 			<small class="form-text">
 				The selected object attribute will be rendered as the card's text.
 			</small>

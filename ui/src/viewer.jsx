@@ -127,7 +127,7 @@ function IcingaElement({ typ, options, events }) {
 				options.objectName,
 				options.objectType
 			);
-			setObjState(obj.attrs.state);
+			setObjState(obj.state);
 		} catch (err) {
 			console.error(
 				`fetch ${options.objectType} ${options.objectName}: ${err}`
