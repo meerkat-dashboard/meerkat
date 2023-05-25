@@ -34,7 +34,7 @@ with open(args.dashboard, 'r') as f:
     dashboard_json = json.load(f)
 
 type_replace = {'iframe-video': 'video', 'audio-stream': 'audio', 'static-image': 'image'}
-opt_replace = {'statusFontSize': 'fontSize', 'id': 'objectName'}
+opt_replace = {'statusFontSize': 'fontSize', 'id': 'objectName', 'checkDataSelection': 'objectAttr'}
 
 for element in dashboard_json.get('elements', []):
     if element.get('type') in type_replace:
