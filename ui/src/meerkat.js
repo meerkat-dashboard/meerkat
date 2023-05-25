@@ -51,25 +51,27 @@ export async function getIcingaObject(name, typ) {
 }
 
 export async function handleJSON(obj) {
-	json = {
-		"name": obj.attrs.__name,
-		"type": obj.attrs.type,
-		"output": obj.attrs.last_check_result.output,
-		"perfdata": {
-
-		},
-		"state": obj.attrs.last_check_result.state,
-		"next_check": obj.attrs.next_check
+	var json = {
+		acknowledged: obj.attrs.acknowledgement,
+		name: obj.attrs.__name,
+		type: obj.attrs.type,
+		output: obj.attrs.last_check_result.output,
+		perfdata: {},
+		state: obj.attrs.last_check_result.state,
+		next_check: obj.attrs.next_check,
 	};
 
-	for (let i = 0; i < obj.attrs.last_check_result.performance_data.length; i++) {
+	for (
+		let i = 0;
+		i < obj.attrs.last_check_result.performance_data.length;
+		i++
+	) {
 		var data = obj.attrs.last_check_result.performance_data[i];
-		var label = data.split('=')[0];
-		var value = data.split('=')[1].split(';')[0];
+		var label = data.split("=")[0];
+		var value = data.split("=")[1].split(";")[0];
 		json.perfdata[label] = value;
 	}
-	
-	console.log(json);
+
 	return json;
 }
 

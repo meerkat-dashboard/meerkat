@@ -206,7 +206,7 @@ export function AttrSelect({
 		for (var key in obj.perfdata) {
 			rows.push(<option value={key}>{key}</option>);
 		}
-		rows.push(<option value='pluginOutput'>output</option>);
+		rows.push(<option value="pluginOutput">output</option>);
 	}
 
 	return (

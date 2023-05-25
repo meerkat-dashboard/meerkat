@@ -106,7 +106,7 @@ export class ObjectCard extends Component {
 			}
 		} else {
 			try {
-				if (this.props.objectAttr == 'pluginOutput') {
+				if (this.props.objectAttr == "pluginOutput") {
 					text = this.state.output;
 				} else {
 					text = this.state.perfdata[this.props.objectAttr];
@@ -139,7 +139,7 @@ export class ObjectCard extends Component {
 }
 
 function parsePerfdata(perf) {
-	return perf.split('=')[1].split(';')[0];
+	return perf.split("=")[1].split(";")[0];
 }
 
 function stateText(typ, state) {

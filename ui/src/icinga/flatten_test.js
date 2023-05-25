@@ -6,11 +6,11 @@ import * as flatten from "./flatten.js";
 test("select expressions", () => {
 	const tests = [
 		{
-			expr: "state",
+			expr: "attrs.state",
 			want: 0,
 		},
 		{
-			expr: "perfdata.label",
+			expr: "attrs.last_check_result.performance_data.0.label",
 			want: "slave_lag",
 		},
 	];
