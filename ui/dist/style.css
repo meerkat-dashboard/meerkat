@@ -1,3 +1,13 @@
+:root {
+    --color-icinga-ok: #0ee16a;
+    --color-icinga-warning: #ff9000;
+	--color-icinga-critical: #ff0019;
+    --color-icinga-unknown: #970ee1;
+	--color-icinga-warning-ack: #ffca39;
+	--color-icinga-critical-ack: #de5e84;
+	--color-icinga-unknown-ack: #b594b5;
+}
+
 @keyframes slide-right {
 	from { transform: translate(-100%, 0); }
 	to { transform: translate(0%, 0); }
@@ -129,19 +139,15 @@
 }
 
 .warning-ack {
-	background-color: #ffca39 !important;
+	background-color: var(--color-icinga-warning-ack) !important;
 }
 
-.critical-ack {
-	background-color: #de5e84 !important;
-}
-
-.down-ack {
-	background-color: #de5e84 !important;
+.critical-ack, .down-ack {
+	background-color: var(--color-icinga-critical-ack) !important;
 }
 
 .unknown-ack {
-	background-color: #b594b5 !important;
+	background-color: var(--color-icinga-unknown-ack) !important;
 }
 
 .check .card {
@@ -156,51 +162,51 @@
 }
 
 .card.ok, .card.up {
-	background-color: limegreen;
+	background-color: var(--color-icinga-ok);
 }
 
 .card.warning {
-	background-color: darkorange;
+	background-color: var(--color-icinga-warning);
 }
 
 .card.critical, .card.down {
-	background-color: red;
+	background-color: var(--color-icinga-critical);
 }
 
 .card.unknown {
-	background-color: darkviolet;
+	background-color: var(--color-icinga-unknown);
 }
 
 svg.ok {
-	stroke: limegreen;
+	stroke: var(--color-icinga-ok);
 }
 
 line.ok, marker.ok {
-	fill: limegreen;
+	fill: var(--color-icinga-ok);
 }
 
 svg.warning {
-	stroke: darkorange;
+	stroke: var(--color-icinga-warning);
 }
 
 line.warning, marker.warning {
-	fill: darkorange;
+	fill: var(--color-icinga-warning);
 }
 
 svg.critical {
-	stroke: red;
+	stroke: var(--color-icinga-critical);
 }
 
 line.critical, marker.critical {
-	fill: red;
+	fill: var(--color-icinga-critical);
 }
 
 svg.unknown {
-	stroke: darkviolet;
+	stroke: var(--color-icinga-unknown);
 }
 
 line.unknown, marker.unknown {
-	fill: darkviolet;
+	fill: var(--color-icinga-unknown);
 }
 
 svg.feather {
@@ -226,8 +232,6 @@ div.check-content.svg {
 }
 
 .check-state {
-	-webkit-text-stroke-width: 0.03em;
-	-webkit-text-stroke-color: black;
 	font-size: 48px;
 }
 
