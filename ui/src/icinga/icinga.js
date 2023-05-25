@@ -109,7 +109,7 @@ export function worstState(objects) {
 	let worst = 0;
 	for (const obj of objects) {
 		if (obj.attrs.state > worst) {
-			worst = obj.state;
+			worst = obj.attrs.state;
 		}
 	}
 	return worst;
