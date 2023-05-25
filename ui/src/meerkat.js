@@ -72,7 +72,6 @@ export async function handleJSON(obj) {
 		json.perfdata[label] = value;
 	}
 
-	console.log(json);
 	return json;
 }
 
