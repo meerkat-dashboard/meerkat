@@ -97,7 +97,7 @@ export function objectsToSingle(name, objects) {
 function soonestCheck(objects) {
 	let soonest = 0;
 	for (const obj of objects) {
-		const t = obj.attrs.next_check;
+		const t = obj.next_check;
 		if (soonest - t < 0) {
 			soonest = t;
 		}
@@ -108,8 +108,8 @@ function soonestCheck(objects) {
 export function worstState(objects) {
 	let worst = 0;
 	for (const obj of objects) {
-		if (obj.attrs.state > worst) {
-			worst = obj.attrs.state;
+		if (obj.state > worst) {
+			worst = obj.state;
 		}
 	}
 	return worst;
