@@ -1,5 +1,5 @@
 import { h } from "preact";
-import { useRef } from 'preact/hooks';
+import { useRef } from "preact/hooks";
 
 import * as Icinga from "./icinga";
 import * as icinga from "../icinga/icinga";
@@ -71,30 +71,44 @@ export function CheckLineOptions({ options, updateOptions }) {
 //The rendered view (in the actual dashboard) of the Check SVG
 export function CheckLine({ state, options }) {
 	const stateText = icinga.StateText(state, options.objectType);
-	const svgRef = useRef({clientWidth: 100, clientHeight: 40});
+	const svgRef = useRef({ clientWidth: 100, clientHeight: 40 });
 
 	return (
-	<div class={`check-content svg ${stateText}`} ref={svgRef}>
-		<svg 
-			xmlns="http://www.w3.org/2000/svg" 
-			viewBox={`0 0 ${svgRef.current.clientWidth} ${svgRef.current.clientHeight}`} 
-			fill="none"
-			stroke-width={options.strokeWidth} 
-			stroke-linecap="round" 
-			stroke-linejoin="round"
-			class={stateText}
-		>
-		<line 
-			x1="5" 
-			y1={svgRef.current.clientHeight / 2} 
-			x2={svgRef.current.clientWidth - 5} 
-			y2={svgRef.current.clientHeight / 2}
-		></line>
-			{ options.leftArrow ? <polyline points={`30 5 5 ${svgRef.current.clientHeight / 2} 30 ${svgRef.current.clientHeight - 5}`}></polyline> : null }
-			{ options.rightArrow ? <polyline points={`${svgRef.current.clientWidth - 30} 5 ${svgRef.current.clientWidth - 5} ${svgRef.current.clientHeight / 2} ${svgRef.current.clientWidth - 30} ${svgRef.current.clientHeight - 5}`}></polyline> : null }
-		</svg>
-	</div>
-	)
+		<div class={`check-content svg ${stateText}`} ref={svgRef}>
+			<svg
+				xmlns="http://www.w3.org/2000/svg"
+				viewBox={`0 0 ${svgRef.current.clientWidth} ${svgRef.current.clientHeight}`}
+				fill="none"
+				stroke-width={options.strokeWidth}
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				class={stateText}
+			>
+				<line
+					x1="5"
+					y1={svgRef.current.clientHeight / 2}
+					x2={svgRef.current.clientWidth - 5}
+					y2={svgRef.current.clientHeight / 2}
+				></line>
+				{options.leftArrow ? (
+					<polyline
+						points={`30 5 5 ${svgRef.current.clientHeight / 2} 30 ${
+							svgRef.current.clientHeight - 5
+						}`}
+					></polyline>
+				) : null}
+				{options.rightArrow ? (
+					<polyline
+						points={`${svgRef.current.clientWidth - 30} 5 ${
+							svgRef.current.clientWidth - 5
+						} ${svgRef.current.clientHeight / 2} ${
+							svgRef.current.clientWidth - 30
+						} ${svgRef.current.clientHeight - 5}`}
+					></polyline>
+				) : null}
+			</svg>
+		</div>
+	);
 }
 
 export const CheckLineDefaults = {
