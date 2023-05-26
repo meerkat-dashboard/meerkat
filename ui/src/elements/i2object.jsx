@@ -37,7 +37,15 @@ export function ObjectCardOptions({ options, updateOptions }) {
 	);
 }
 
-export function ObjectCard({ state, objectType, objectName, objectAttr, objectAttrMatch, objectAttrNoMatch, fontSize }) {
+export function ObjectCard({
+	state,
+	objectType,
+	objectName,
+	objectAttr,
+	objectAttrMatch,
+	objectAttrNoMatch,
+	fontSize,
+}) {
 	const obj = meerkat.getIcingaObject(
 		this.props.objectName,
 		this.props.objectType

@@ -58,10 +58,7 @@ function Viewer({ dashboard, events }) {
 	if (dashboard.background && dashboard.background != "") {
 		return (
 			<div style="position: relative; width: 100%">
-				<img
-					src={dashboard.background}
-					style="width: 100%; height: auto"
-				/>
+				<img src={dashboard.background} style="width: 100%; height: auto" />
 				{elements}
 			</div>
 		);
@@ -70,7 +67,6 @@ function Viewer({ dashboard, events }) {
 }
 
 function IcingaElement({ typ, options, events }) {
-
 	let [objState, setObjState] = useState(3); // unknown
 
 	let interests = options.objectName;
@@ -109,7 +105,6 @@ function IcingaElement({ typ, options, events }) {
 				options.objectType
 			);
 			setObjState(obj);
-			
 		} catch (err) {
 			console.error(
 				`fetch ${options.objectType} ${options.objectName}: ${err}`
