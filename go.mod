@@ -7,4 +7,4 @@ require (
 	github.com/go-chi/chi/v5 v5.0.7
 )
 
-require olowe.co/icinga v0.1.0
+require github.com/meerkat-dashboard/icinga-go v1.0.0

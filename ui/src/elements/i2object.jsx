@@ -37,109 +37,54 @@ export function ObjectCardOptions({ options, updateOptions }) {
 	);
 }
 
-export class ObjectCard extends Component {
-	/*
-	 * objectType: "host", "service"...
-	 * objectName "www.example.com!ping4"
-	 * objectAttr
-	 * fontSize
-	 */
-	constructor(props) {
-		super(props);
-		this.state = {};
-		this.updateObject = this.updateObject.bind(this);
+export function ObjectCard({ state, objectType, objectName, objectAttr, objectAttrMatch, objectAttrNoMatch, fontSize }) {
+	const obj = meerkat.getIcingaObject(
+		this.props.objectName,
+		this.props.objectType
+	);
+	this.state = obj;
+	if (!state) {
+		return <div class="check-content card"></div>;
 	}
-
-	async updateObject() {
-		if (!this.props.objectName || !this.props.objectType) {
-			return; // nothing selected yet
+	let text;
+	const objState = stateText(objectType, state.state);
+	if (!objectAttr || objectAttr == "state") {
+		text = objState;
+		if (state.acknowledged) {
+			text += " (ACK)";
 		}
-
-		let dur = 30 * 1000;
+	} else {
 		try {
-			const obj = await meerkat.getIcingaObject(
-				this.props.objectName,
-				this.props.objectType
-			);
-			this.setState(obj);
-			const next = new Date(obj.next_check * 1000);
-			dur = IcingaJS.NextRefresh(next);
+			if (objectAttr == "pluginOutput") {
+				text = state.output;
+			} else {
+				text = state.perfdata[objectAttr];
+			}
 		} catch (err) {
-			console.error(
-				`fetch ${this.props.objectType} ${this.props.objectName}: ${err}`
-			);
-		}
-		this.timer = setTimeout(async () => {
-			await this.updateObject();
-		}, dur);
-		console.debug(
-			`updating ${this.props.objectName} after ${dur / 1000} seconds`
-		);
-	}
-
-	componentDidMount() {
-		this.updateObject();
-	}
-
-	componentDidUpdate(prevProps) {
-		if (this.props.objectName != prevProps.objectName) {
-			console.log(`clearing timer for ${prevProps.objectName}`);
-			clearInterval(this.timer);
-			this.updateObject();
+			console.error(`render attribute text: ${err.message}`);
 		}
 	}
 
-	componentWillUnmount() {
-		clearInterval(this.timer);
+	if (objectAttrMatch) {
+		const regexp = new RegExp(objectAttrMatch);
+		text = text.match(regexp);
+		if (!text && objectAttrNoMatch) {
+			text = objectAttrNoMatch;
+		}
 	}
 
-	render() {
-		if (!this.state) {
-			return <div class="check-content card"></div>;
-		}
-		let text;
-		const objState = stateText(this.props.objectType, this.state.state);
-		if (!this.props.objectAttr || this.props.objectAttr == "state") {
-			text = objState;
-			if (this.state.acknowledged) {
-				text += " (ACK)";
-			}
-		} else {
-			try {
-				if (this.props.objectAttr == "pluginOutput") {
-					text = this.state.output;
-				} else {
-					text = this.state.perfdata[this.props.objectAttr];
-				}
-			} catch (err) {
-				console.error(`render attribute text: ${err.message}`);
-			}
-		}
+	let classes = ["check-content", "card", objState];
+	if (state.acknowledged) {
+		classes.push(`${objState}-ack`);
+	}
 
-		if (this.props.objectAttrMatch) {
-			const regexp = new RegExp(this.props.objectAttrMatch);
-			text = text.match(regexp);
-			if (!text && this.props.objectAttrNoMatch) {
-				text = this.props.objectAttrNoMatch;
-			}
-		}
-
-		let classes = ["check-content", "card", objState];
-		if (this.state.acknowledged) {
-			classes.push(`${objState}-ack`);
-		}
-		return (
-			<div class={classes.join(" ")}>
-				<div class="check-state" style={`font-size: ${this.props.fontSize}px`}>
-					{text}
-				</div>
+	return (
+		<div class={classes.join(" ")}>
+			<div class="check-state" style={`font-size: ${fontSize}px`}>
+				{text}
 			</div>
-		);
-	}
-}
-
-function parsePerfdata(perf) {
-	return perf.split("=")[1].split(";")[0];
+		</div>
+	);
 }
 
 function stateText(typ, state) {

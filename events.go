@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/http"
 
-	"olowe.co/icinga"
+	"github.com/meerkat-dashboard/icinga-go"
 )
 
 // An EventStream distributes messages from the Icinga2 Event Stream
@@ -54,8 +54,8 @@ func (es *EventStream) close() {
 	}
 }
 
-func (es *EventStream) Subscribe() error {
-	name := "StateChange" // TODO(otl) support more event types?
+func (es *EventStream) Subscribe(eventName string) error {
+	name := eventName // TODO(otl) support more event types?
 	events, err := es.client.Subscribe(name, "meerkat", "")
 	if err != nil {
 		return fmt.Errorf("subscribe to %s: %w", name, err)

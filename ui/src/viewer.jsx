@@ -70,25 +70,6 @@ function Viewer({ dashboard, events }) {
 }
 
 function IcingaElement({ typ, options, events }) {
-	// ObjectCards do not read from the event stream, but we put
-	// them here under IcingaElement as they are more closely related
-	// to Icinga than to the other elements like Clock or Video.
-	if (typ == "check-card") {
-		const ele = (
-			<ObjectCard
-				objectType={options.objectType}
-				objectName={options.objectName}
-				objectAttr={options.objectAttr}
-				objectAttrMatch={options.objectAttrMatch}
-				objectAttrNoMatch={options.objectAttrNoMatch}
-				fontSize={options.fontSize}
-			/>
-		);
-		if (options.linkURL) {
-			return linkWrap(ele, options.linkURL);
-		}
-		return ele;
-	}
 
 	let [objState, setObjState] = useState(3); // unknown
 
@@ -127,7 +108,8 @@ function IcingaElement({ typ, options, events }) {
 				options.objectName,
 				options.objectType
 			);
-			setObjState(obj.state);
+			setObjState(obj);
+			
 		} catch (err) {
 			console.error(
 				`fetch ${options.objectType} ${options.objectName}: ${err}`
@@ -139,6 +121,7 @@ function IcingaElement({ typ, options, events }) {
 		refresh();
 		events.addEventListener("message", (ev) => {
 			if (interests.includes(ev.data)) {
+				console.log(ev);
 				refresh();
 			}
 		});
@@ -146,9 +129,24 @@ function IcingaElement({ typ, options, events }) {
 
 	let ele;
 	if (typ === "check-svg") {
-		ele = <CheckSVG state={objState} objType={options.objectType} />;
+		ele = <CheckSVG state={objState.state} objType={options.objectType} />;
 	} else if (typ === "check-line") {
-		ele = <CheckLine state={objState} options={options} />;
+		ele = <CheckLine state={objState.state} options={options} />;
+	} else if (typ === "check-card") {
+		// ObjectCards do not read from the event stream, but we put
+		// them here under IcingaElement as they are more closely related
+		// to Icinga than to the other elements like Clock or Video.
+		ele = (
+			<ObjectCard
+				state={objState}
+				objectType={options.objectType}
+				objectName={options.objectName}
+				objectAttr={options.objectAttr}
+				objectAttrMatch={options.objectAttrMatch}
+				objectAttrNoMatch={options.objectAttrNoMatch}
+				fontSize={options.fontSize}
+			/>
+		);
 	}
 
 	if (options.linkURL) {
