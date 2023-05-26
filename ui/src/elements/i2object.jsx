@@ -19,7 +19,7 @@ export function ObjectCardOptions({ options, updateOptions }) {
 				objectName={options.objectName}
 				objectType={options.objectType}
 				selected={options.objectAttr}
-				onInput={(e) => updateOptions({ objectAttr: e.currentTarget.value })}
+				onChange={(e) => updateOptions({ objectAttr: e.target.value })}
 				objectAttrMatch={options.objectAttrMatch}
 				objectAttrNoMatch={options.objectAttrNoMatch}
 			/>
@@ -62,7 +62,7 @@ export class ObjectCard extends Component {
 				this.props.objectType
 			);
 			this.setState(obj);
-			const next = new Date(obj.attrs.next_check * 1000);
+			const next = new Date(obj.next_check * 1000);
 			dur = IcingaJS.NextRefresh(next);
 		} catch (err) {
 			console.error(
@@ -94,19 +94,23 @@ export class ObjectCard extends Component {
 	}
 
 	render() {
-		if (!this.state.attrs) {
+		if (!this.state) {
 			return <div class="check-content card"></div>;
 		}
 		let text;
-		const objState = stateText(this.props.objectType, this.state.attrs.state);
-		if (!this.props.objectAttr || this.props.objectAttr == "attrs.state") {
+		const objState = stateText(this.props.objectType, this.state.state);
+		if (!this.props.objectAttr || this.props.objectAttr == "state") {
 			text = objState;
-			if (this.state.attrs.acknowledged) {
+			if (this.state.acknowledged) {
 				text += " (ACK)";
 			}
 		} else {
 			try {
-				text = flatten.selectByExpr(this.props.objectAttr, this.state);
+				if (this.props.objectAttr == "pluginOutput") {
+					text = this.state.output;
+				} else {
+					text = this.state.perfdata[this.props.objectAttr];
+				}
 			} catch (err) {
 				console.error(`render attribute text: ${err.message}`);
 			}
@@ -121,7 +125,7 @@ export class ObjectCard extends Component {
 		}
 
 		let classes = ["check-content", "card", objState];
-		if (this.state.attrs.acknowledged) {
+		if (this.state.acknowledged) {
 			classes.push(`${objState}-ack`);
 		}
 		return (
@@ -132,6 +136,10 @@ export class ObjectCard extends Component {
 			</div>
 		);
 	}
+}
+
+function parsePerfdata(perf) {
+	return perf.split("=")[1].split(";")[0];
 }
 
 function stateText(typ, state) {
