@@ -2,5 +2,7 @@ github.com/BurntSushi/toml v1.2.1 h1:9F2/+DoOYIOksmaJFPw1tGFy1eDnIJXg+UHjuD8lTak
 github.com/BurntSushi/toml v1.2.1/go.mod h1:CxXYINrC8qIiEnFrOxCa7Jy5BFHlXnUU2pbicEuybxQ=
 github.com/go-chi/chi/v5 v5.0.7 h1:rDTPXLDHGATaeHvVlLcR4Qe0zftYethFucbjVQ1PxU8=
 github.com/go-chi/chi/v5 v5.0.7/go.mod h1:DslCQbL2OYiznFReuXYUmQ2hGd1aDpCnlMNITLSKoi8=
-olowe.co/icinga v0.1.0 h1:+K4kzbphobLS66BmguQak6G6bbZwdphi8g2UhiR1aFg=
-olowe.co/icinga v0.1.0/go.mod h1:lmrhjtuBB/b6c47iy9fU3LteW5zhKEb8axVB5Imy0CI=
+github.com/meerkat-dashboard/icinga-go v1.0.1 h1:gicw7jtYT9eOz3uhEeB79pPKMm5RSapPmj9iSFuZGPo=
+github.com/meerkat-dashboard/icinga-go v1.0.1/go.mod h1:/++/kJuplAVYKF25lWan8OeL7+DQ6prNvDMLRCKeHz4=
+github.com/meerkat-dashboard/icinga-go v1.0.2 h1:dQWb8y5zYIR5JCy8gjULldFkqojik8mllWnxflOvoBA=
+github.com/meerkat-dashboard/icinga-go v1.0.2/go.mod h1:/++/kJuplAVYKF25lWan8OeL7+DQ6prNvDMLRCKeHz4=
