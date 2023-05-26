@@ -74,9 +74,10 @@ func main() {
 		// Subscribe to object state changes. Some dashboard elements
 		// read events instead of polling.
 		stream := meerkat.NewEventStream(client)
+		events := []string{"CheckResult", "StateChange"}
 		go func() {
 			for {
-				if err := stream.Subscribe("StateChange"); err != nil {
+				if err := stream.Subscribe(events); err != nil {
 					log.Println("subscribe to icinga event stream:", err)
 					dur := 10 * time.Second
 					log.Printf("retrying in %s", dur)

@@ -119,12 +119,21 @@ function IcingaElement({ typ, options, events }) {
 
 	useEffect(() => {
 		refresh();
-		events.addEventListener("message", (ev) => {
-			if (interests.includes(ev.data)) {
-				console.log(ev);
-				refresh();
-			}
-		});
+		if (typ === "check-card" && options.objectAttr === undefined) {
+			events.addEventListener("CheckResult", (ev) => {
+				if (interests.includes(ev.data)) {
+					console.log(ev);
+					refresh();
+				}
+			});
+		} else {
+			events.addEventListener("StateChange", (ev) => {
+				if (interests.includes(ev.data)) {
+					console.log(ev);
+					refresh();
+				}
+			});
+		}
 	}, [interests]);
 
 	let ele;

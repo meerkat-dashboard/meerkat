@@ -54,11 +54,11 @@ func (es *EventStream) close() {
 	}
 }
 
-func (es *EventStream) Subscribe(eventName string) error {
-	name := eventName // TODO(otl) support more event types?
-	events, err := es.client.Subscribe(name, "meerkat", "")
+func (es *EventStream) Subscribe(eventName []string) error {
+	events, err := es.client.Subscribe(eventName, "meerkat", "")
+
 	if err != nil {
-		return fmt.Errorf("subscribe to %s: %w", name, err)
+		return fmt.Errorf("subscribe to %s: %w", eventName, err)
 	}
 
 	for {
@@ -92,11 +92,13 @@ func (es *EventStream) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		if ev.Service != "" {
 			name = name + "!" + ev.Service
 		}
+		fmt.Fprintf(w, "event: %s\n", ev.Type)
 		_, err := fmt.Fprintf(w, "data: %s\n\n", name)
 		if err != nil {
 			log.Println(err) // TODO(otl): do we really care if client disconnects?
 			break
 		}
+
 		if wf, ok := w.(http.Flusher); ok {
 			wf.Flush()
 		}
