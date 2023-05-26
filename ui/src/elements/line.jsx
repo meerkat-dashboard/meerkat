@@ -1,4 +1,5 @@
 import { h } from "preact";
+import { useRef } from "preact/hooks";
 
 import * as Icinga from "./icinga";
 import * as icinga from "../icinga/icinga";
@@ -67,33 +68,46 @@ export function CheckLineOptions({ options, updateOptions }) {
 	);
 }
 
+//The rendered view (in the actual dashboard) of the Check SVG
 export function CheckLine({ state, options }) {
 	const stateText = icinga.StateText(state, options.objectType);
+	const svgRef = useRef({ clientWidth: 100, clientHeight: 40 });
+
 	return (
-		<svg class={`check-content svg ${stateText}`} stroke-linecap="rounded">
-			<marker
-				class={stateText}
-				id="arrow"
-				refX="0"
-				refY="5"
-				viewBox="0 0 10 10"
-				markerWidth="5"
-				markerHeight="4"
-				orient="auto-start-reverse"
-			>
-				<path d="M 0 0 L 10 5 L 0 10 z" />
-			</marker>
-			<line
-				class={stateText}
-				x1="10%"
-				y1="50%"
-				x2="90%"
-				y2="50%"
-				marker-start={options.leftArrow ? "url(#arrow)" : ""}
-				marker-end={options.rightArrow ? "url(#arrow)" : ""}
+		<div class={`check-content svg ${stateText}`} ref={svgRef}>
+			<svg
+				xmlns="http://www.w3.org/2000/svg"
+				viewBox={`0 0 ${svgRef.current.clientWidth} ${svgRef.current.clientHeight}`}
+				fill="none"
 				stroke-width={options.strokeWidth}
-			/>
-		</svg>
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				class={stateText}
+			>
+				<line
+					x1="5"
+					y1={svgRef.current.clientHeight / 2}
+					x2={svgRef.current.clientWidth - 5}
+					y2={svgRef.current.clientHeight / 2}
+				></line>
+				{options.leftArrow ? (
+					<polyline
+						points={`30 5 5 ${svgRef.current.clientHeight / 2} 30 ${
+							svgRef.current.clientHeight - 5
+						}`}
+					></polyline>
+				) : null}
+				{options.rightArrow ? (
+					<polyline
+						points={`${svgRef.current.clientWidth - 30} 5 ${
+							svgRef.current.clientWidth - 5
+						} ${svgRef.current.clientHeight / 2} ${
+							svgRef.current.clientWidth - 30
+						} ${svgRef.current.clientHeight - 5}`}
+					></polyline>
+				) : null}
+			</svg>
+		</div>
 	);
 }
 
