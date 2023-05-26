@@ -57,10 +57,10 @@ function Viewer({ dashboard, events }) {
 	});
 	if (dashboard.background && dashboard.background != "") {
 		return (
-			<div style="position: relative">
+			<div style="position: relative; width: 100%">
 				<img
 					src={dashboard.background}
-					style="max-width: 100%; object-fit: scale-down;"
+					style="width: 100%; height: auto"
 				/>
 				{elements}
 			</div>
