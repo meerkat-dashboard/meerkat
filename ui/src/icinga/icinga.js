@@ -1,5 +1,8 @@
 // DefaultCheckInterval is the default duration, in milliseconds,
 // which a standard Icinga installation will execute check commands if
+
+import { handleJSON } from "../meerkat";
+
 // none is set explicitly.
 const DefaultCheckInterval = 60 * 1000;
 
@@ -107,9 +110,19 @@ function soonestCheck(objects) {
 
 export function worstState(objects) {
 	let worst = 0;
-	for (const obj of objects) {
-		if (obj.attrs.state > worst) {
-			worst = obj.attrs.state;
+	for (let i = 0; i < objects.length; i++) {
+		if (objects[i].state > worst.state) {
+			worst = objects[i];
+		}
+	}
+	return worst.state;
+}
+
+export function worstObject(objects) {
+	let worst = objects[0];
+	for (let i = 0; i < objects.length; i++) {
+		if (objects[i].state > worst.state) {
+			worst = objects[i];
 		}
 	}
 	return worst;

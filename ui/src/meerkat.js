@@ -29,7 +29,11 @@ export async function getAllFilter(expr, objectType) {
 	const path = `/icinga/v1/objects/${pluralise(typ)}`;
 	const resp = await fetch(path + "?filter=" + filter);
 	const results = await readResults(resp);
-	return results;
+	json = [{}];
+	for (let i = 0; i < results.length; i++) {
+		json[i] = await handleJSON(results[i]);
+	}
+	return json;
 }
 
 export async function getIcingaObject(name, typ) {
@@ -47,7 +51,7 @@ export async function getIcingaObject(name, typ) {
 		const members = await getAllInGroup(name, typ);
 		obj = icinga.groupToObject(obj, members);
 	}
-	return handleJSON(obj);
+	return await handleJSON(obj);
 }
 
 export async function handleJSON(obj) {

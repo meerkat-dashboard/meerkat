@@ -46,11 +46,7 @@ export function ObjectCard({
 	objectAttrNoMatch,
 	fontSize,
 }) {
-	const obj = meerkat.getIcingaObject(
-		this.props.objectName,
-		this.props.objectType
-	);
-	this.state = obj;
+
 	if (!state) {
 		return <div class="check-content card"></div>;
 	}
@@ -96,7 +92,7 @@ export function ObjectCard({
 }
 
 function stateText(typ, state) {
-	if (typ.match(/^host/)) {
+	if (typ.toLowerCase().includes('host')) {
 		switch (state) {
 			case 0:
 				return "up";
@@ -104,7 +100,7 @@ function stateText(typ, state) {
 				return "down";
 		}
 	}
-	if (typ.match(/^service/)) {
+	if (typ.toLowerCase().includes('service')) {
 		switch (state) {
 			case 0:
 				return "ok";
