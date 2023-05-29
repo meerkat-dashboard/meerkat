@@ -112,7 +112,7 @@ func main() {
 	r.Post("/{slug}/delete", handleDeleteDashboard)
 	r.Get("/{slug}/info", srv.InfoPage)
 	r.Post("/{slug}/info", srv.EditInfoHandler)
-	r.Post("/file/background", srv.UploadFileHandler("./dashboards-background"))
+	r.Post("/file/background", srv.UploadFileHandler("./dashboards-background", "image/"))
 	r.Get("/view/*", oldPathHandler)
 	r.Get("/edit/*", oldPathHandler)
 	r.Get("/create", srv.CreatePage)

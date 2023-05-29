@@ -138,7 +138,7 @@ func (srv *Server) InfoPage(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func (srv *Server) UploadFileHandler(targetPath string) http.HandlerFunc {
+func (srv *Server) UploadFileHandler(targetPath string, allowFileType string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// get the file from the request
 		file, header, err := r.FormFile("file")
@@ -151,6 +151,16 @@ func (srv *Server) UploadFileHandler(targetPath string) http.HandlerFunc {
 		sanitizedFilename, err := SanitizeName(header.Filename)
 		if err != nil {
 			log.Fatal(err)
+		}
+
+		// Get the file's MIME type
+		buffer := make([]byte, 512)
+		file.Read(buffer)
+		filetype := http.DetectContentType(buffer)
+
+		// Check the file's type
+		if strings.HasPrefix(filetype, allowFileType) {
+			http.Error(w, "File type (" + filetype + ") is not allowed", http.StatusInternalServerError)
 		}
 
 		// create a new file in the local system
