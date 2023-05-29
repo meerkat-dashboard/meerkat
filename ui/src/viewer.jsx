@@ -67,7 +67,7 @@ function Viewer({ dashboard, events }) {
 }
 
 function IcingaElement({ typ, options, events }) {
-	let [objState, setObjState] = useState(0); // unknown
+	let [objState, setObjState] = useState(0);
 
 	let interests = [];
 
@@ -118,6 +118,7 @@ function IcingaElement({ typ, options, events }) {
 			);
 		}
 	}
+
 
 	useEffect(() => {
 		refresh();
