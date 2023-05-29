@@ -79,6 +79,7 @@ function IcingaElement({ typ, options, events }) {
 				options.objectName = worst.name;
 				options.objectType = worst.type;
 				interests = [worst];
+				refresh();
 			} catch (err) {
 				console.error(
 					`fetch ${options.objectType} ${options.objectName}: ${err}`
@@ -90,8 +91,6 @@ function IcingaElement({ typ, options, events }) {
 				let worst = icinga.worstObject(results)
 				options.objectName = worst.name;
 				options.objectType = worst.type;
-				console.log(options.objectName);
-				console.log(options.objectType);
 				interests = [worst];
 				refresh();
 			} catch (err) {
