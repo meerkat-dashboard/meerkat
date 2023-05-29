@@ -14,9 +14,9 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/meerkat-dashboard/icinga-go"
 	"github.com/meerkat-dashboard/meerkat"
 	"github.com/meerkat-dashboard/meerkat/ui"
-	"olowe.co/icinga"
 )
 
 var config Config
@@ -79,9 +79,10 @@ func main() {
 		// Subscribe to object state changes. Some dashboard elements
 		// read events instead of polling.
 		stream := meerkat.NewEventStream(client)
+		events := []string{"CheckResult", "StateChange"}
 		go func() {
 			for {
-				if err := stream.Subscribe(); err != nil {
+				if err := stream.Subscribe(events); err != nil {
 					log.Println("subscribe to icinga event stream:", err)
 					dur := 10 * time.Second
 					log.Printf("retrying in %s", dur)
@@ -90,6 +91,7 @@ func main() {
 				}
 			}
 		}()
+
 		r.Handle("/icinga/stream", stream)
 	}
 

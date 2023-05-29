@@ -1,8 +1,8 @@
 #!/bin/bash -x
 
-USER="meerkat"
-INSTALL_DIR="/usr/local/meerkat"
-CONFIG_FILE="/etc/meerkat.toml"
+USER=${1:-"meerkat"}
+INSTALL_DIR=${2:-"/usr/local/meerkat"}
+CONFIG_FILE=${3:-"/etc/meerkat.toml"}
 
 echo "Creating meerkat user: $USER"
 useradd -d "$INSTALL_DIR" -s /usr/sbin/nologin $USER
