@@ -7,8 +7,11 @@ CONFIG_FILE="/etc/meerkat.toml"
 echo "Creating meerkat user: $USER"
 useradd -d "$INSTALL_DIR" -s /usr/sbin/nologin $USER
 
-echo "Creating dashboards-data directory"
-mkdir -p "$INSTALL_DIR/dashboards-data" 
+echo "Creating dashboards directory"
+mkdir -p "$INSTALL_DIR/dashboards" 
+
+echo "Creating dashboards-background directory"
+mkdir -p "$INSTALL_DIR/dashboards-background" 
 
 echo "Setting owner for meerkat install dir: $INSTALL_DIR"
 chown -R $USER "$INSTALL_DIR"
