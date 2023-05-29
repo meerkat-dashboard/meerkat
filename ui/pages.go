@@ -278,5 +278,5 @@ func SanitizeName(filename string) (string, error) {
 	base = base + "_" + timestamp
 
 	// Append the extension to the sanitized base name
-	return base + ext
+	return base + ext, nil
 }
