@@ -39,6 +39,7 @@ mkdir -p $workdir
 (cd cmd/meerkat && go build -o $workdir/)
 cp README.md LICENSE $workdir
 cp Dockerfile $workdir
+cp favicon.ico $workdir
 cp -R contrib $workdir
 cp -R docs $workdir
 
