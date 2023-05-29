@@ -99,7 +99,7 @@ func main() {
 	// Keep serving them for backwards compatibility.
 	_, err = os.Stat("./dashboards-background")
 	if err == nil {
-		r.Handle("/dashboards-background/*", http.StripPrefix("/dashboards-background/", http.FileServer(http.Dir("./dashboards-data"))))
+		r.Handle("/dashboards-background/*", http.StripPrefix("/dashboards-background/", http.FileServer(http.Dir("./dashboards-background"))))
 	}
 
 	srv := ui.NewServer(nil)
