@@ -95,9 +95,9 @@ func main() {
 
 	// Previous versions of meerkat served user-uploaded files from this directory.
 	// Keep serving them for backwards compatibility.
-	_, err = os.Stat("./dashboards-data")
+	_, err = os.Stat("./dashboards-background")
 	if err == nil {
-		r.Handle("/dashboards-data/*", http.StripPrefix("/dashboards-data/", http.FileServer(http.Dir("./dashboards-data"))))
+		r.Handle("/dashboards-background/*", http.StripPrefix("/dashboards-background/"))
 	}
 
 	srv := ui.NewServer(nil)
@@ -110,7 +110,7 @@ func main() {
 	r.Post("/{slug}/delete", handleDeleteDashboard)
 	r.Get("/{slug}/info", srv.InfoPage)
 	r.Post("/{slug}/info", srv.EditInfoHandler)
-	r.Post("/file/background", srv.UploadFileHandler("./dashboards-data"))
+	r.Post("/file/background", srv.UploadFileHandler("./dashboards-background"))
 	r.Get("/view/*", oldPathHandler)
 	r.Get("/edit/*", oldPathHandler)
 	r.Get("/create", srv.CreatePage)

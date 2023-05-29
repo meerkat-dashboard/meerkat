@@ -11,6 +11,8 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"strings"
+	"time"
 
 	"github.com/meerkat-dashboard/meerkat"
 )
@@ -146,8 +148,13 @@ func (srv *Server) UploadFileHandler(targetPath string) http.HandlerFunc {
 		}
 		defer file.Close()
 
+		sanitizedFilename, err := SanitizeName(header.Filename)
+		if err != nil {
+			log.Fatal(err)
+		}
+
 		// create a new file in the local system
-		dst, err := os.Create(filepath.Join(targetPath, header.Filename))
+		dst, err := os.Create(filepath.Join(targetPath, sanitizedFilename))
 		if err != nil {
 			http.Error(w, "Unable to create file", http.StatusInternalServerError)
 			return
@@ -161,7 +168,7 @@ func (srv *Server) UploadFileHandler(targetPath string) http.HandlerFunc {
 		}
 
 		// return the file path
-		w.Write([]byte(targetPath + "/" + header.Filename))
+		w.Write([]byte(targetPath + "/" + sanitizedFilename))
 	}
 }
 
@@ -232,4 +239,34 @@ func (srv *Server) AboutPage(w http.ResponseWriter, req *http.Request) {
 
 func (srv *Server) FileServer() http.Handler {
 	return http.FileServer(http.FS(srv.fsys))
+}
+
+// Helper functions
+
+// Sanitize filenames so they are safe and timestamped
+func SanitizeName(filename string) (string, error) {
+	// Check if filename is empty
+	if filename == "" {
+		return "", errors.New("filename cannot be empty")
+	}
+	
+	// Get the extension of the file
+	ext := filepath.Ext(filename)
+	
+	// Remove the extension from the filename
+	base := strings.TrimSuffix(filename, ext)
+	
+	// Remove any non-alphanumeric character, underscore or dash and replace it with underscore
+	base = strings.Map(func(r rune) rune {
+		if (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') || (r >= '0' && r <= '9') || r == '-' || r == '_' {
+			return r
+		}
+		return '_'
+	}, base)
+
+	timestamp := time.Now().Format("060102_150405")
+	base = base + "_" + timestamp
+
+	// Append the extension to the sanitized base name
+	return base + ext
 }
