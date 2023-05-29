@@ -45,8 +45,13 @@ func main() {
 		log.Fatalln("parse icinga url:", err)
 	}
 
+	// Make directories for dashboards and related assets
 	if err := os.MkdirAll("dashboards", 0755); err != nil {
 		log.Fatalln("Error creating dashboards directory:", err)
+	}
+
+	if err := os.MkdirAll("dashboards-background", 0755); err != nil {
+		log.Fatalln("Error creating dashboards background directory:", err)
 	}
 
 	r := chi.NewRouter()
