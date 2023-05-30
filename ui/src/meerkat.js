@@ -29,9 +29,13 @@ export async function getAllFilter(expr, objectType) {
 	const path = `/icinga/v1/objects/${pluralise(typ)}`;
 	const resp = await fetch(path + "?filter=" + filter);
 	const results = await readResults(resp);
+	return await handleJSONList(results);
+}
+
+export async function handleJSONList(obj) {
 	let json = [{}];
-	for (let i = 0; i < results.length; i++) {
-		json[i] = await handleJSON(results[i]);
+	for (let i = 0; i < obj.length; i++) {
+		json[i] = await handleJSON(obj[i]);
 	}
 	return json;
 }

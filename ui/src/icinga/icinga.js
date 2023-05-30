@@ -1,6 +1,8 @@
 // DefaultCheckInterval is the default duration, in milliseconds,
 // which a standard Icinga installation will execute check commands if
 
+import { handleJSONList } from "../meerkat";
+
 // none is set explicitly.
 const DefaultCheckInterval = 60 * 1000;
 
@@ -59,14 +61,15 @@ function until(date) {
 }
 
 export function groupToObject(group, members) {
+	let m = handleJSONList(members);
 	let o = group;
-	o.attrs.next_check = soonestCheck(members);
-	o.attrs.state = worstState(members);
+	o.attrs.next_check = soonestCheck(m);
+	o.attrs.state = worstState(m);
 	o.source = {};
-	for (let i = 0; i < members.length; i++) {
+	for (let i = 0; i < m.length; i++) {
 		// Dots are often used in object names; escape for ./flatten.js later.
-		let name = escapeDots(members[i].name);
-		o.source[name] = members[i];
+		let name = escapeDots(m[i].name);
+		o.source[name] = m[i];
 	}
 	return o;
 }
@@ -97,9 +100,8 @@ export function objectsToSingle(name, objects) {
 // for consistency with Icinga.
 function soonestCheck(objects) {
 	let soonest = 0;
-	for (const obj of objects) {
-		const t = obj.attrs.next_check;
-		if (soonest - t < 0) {
+	for (let i = 0; i < objects.length; i++) {
+		if (soonest - objects[i].attrs.next_check < 0) {
 			soonest = t;
 		}
 	}
