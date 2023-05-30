@@ -11,13 +11,23 @@
 	</p>
 	<table class="table">
 	<tr>
+		<th>Description</th>
+		<td>{{ .Description }}</td>
+	</tr>
+	<tr>
+		<th>Folder</th>
+		<td>{{ .Folder }}</td>
+	</tr>
+	<tr>
 		<th>Background</th>
 		<td>{{ .Background }}</td>
 	</tr>
+<!--
 	<tr>
 		<th>Dimensions</th>
 		<td>{{ .Width }}x{{ .Height }}</td>
 	</tr>
+	-->
 	<tr>
 		<th>View count</th>
 		<td>69</td>
@@ -43,7 +53,10 @@
 		<input class="form-control" type="text" id="title" name="title" minlength="4" value={{ .Title }} placeholder="Network overview" required>
 
 		<label class="form-label" for="description">Description</label>
-		<input class="form-control" type="text" id="description" name="description" minlength="4" placeholder="Not implemented yet" disabled>
+		<input class="form-control" type="text" id="description" name="description" minlength="4" placeholder="Not implemented yet">
+
+		<label class="form-label" for="description">Folder</label>
+		<input class="form-control" type="text" id="description" name="description" minlength="4" placeholder="Not implemented yet">
 
 		<label class="form-label" for="background">Background image url</label>
 		<input class="form-control" type="text" pattern="(https?|/).*?" id="background" name="background" minlength="8" value="{{ .Background }}" placeholder="http://www.example.com/background.png">
