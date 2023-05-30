@@ -61,15 +61,26 @@ function until(date) {
 }
 
 export function groupToObject(group, members) {
-	let m = handleJSONList(members);
+
+	let members = [{}];
+	for (let i = 0; i < members.length; i++) {
+		var object = {
+			name: obj.attrs.__name,
+			state: obj.attrs.last_check_result.state,
+			next_check: obj.attrs.next_check,
+		};
+	
+		members[i] = object;
+	}
+
 	let o = group;
-	o.attrs.next_check = soonestCheck(m);
-	o.attrs.state = worstState(m);
+	o.attrs.next_check = soonestCheck(members);
+	o.attrs.state = worstState(members);
 	o.source = {};
-	for (let i = 0; i < m.length; i++) {
+	for (let i = 0; i < members.length; i++) {
 		// Dots are often used in object names; escape for ./flatten.js later.
-		let name = escapeDots(m[i].name);
-		o.source[name] = m[i];
+		let name = escapeDots(members[i].name);
+		o.source[name] = members[i];
 	}
 	return o;
 }
@@ -101,8 +112,8 @@ export function objectsToSingle(name, objects) {
 function soonestCheck(objects) {
 	let soonest = 0;
 	for (let i = 0; i < objects.length; i++) {
-		if (soonest - objects[i].attrs.next_check < 0) {
-			soonest = objects[i].attrs.next_check;
+		if (soonest - objects[i].next_check < 0) {
+			soonest = objects[i].next_check;
 		}
 	}
 	return soonest;
@@ -118,7 +129,7 @@ export function worstState(objects) {
 	return worst;
 }
 
-export function worstObject(objects) {
+export function worstObject(objects) {	
 	let worst = objects[0];
 	for (let i = 0; i < objects.length; i++) {
 		if (objects[i].state > worst.state) {
