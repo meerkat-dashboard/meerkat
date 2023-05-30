@@ -88,6 +88,7 @@
 	cursor: move;
 	position: absolute;
 	text-transform: uppercase;
+	overflow: hidden;
 }
 
 .check.glow {
