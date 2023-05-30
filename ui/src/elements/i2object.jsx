@@ -46,7 +46,6 @@ export function ObjectCard({
 	objectAttrNoMatch,
 	fontSize,
 }) {
-
 	if (!state) {
 		return <div class="check-content card"></div>;
 	}
@@ -92,7 +91,7 @@ export function ObjectCard({
 }
 
 function stateText(typ, state) {
-	if (typ.toLowerCase().includes('host')) {
+	if (typ.toLowerCase().includes("host")) {
 		switch (state) {
 			case 0:
 				return "up";
@@ -100,7 +99,7 @@ function stateText(typ, state) {
 				return "down";
 		}
 	}
-	if (typ.toLowerCase().includes('service')) {
+	if (typ.toLowerCase().includes("service")) {
 		switch (state) {
 			case 0:
 				return "ok";
