@@ -16,12 +16,12 @@ test("group to object", () => {
 		let group = JSON.parse(fs.readFileSync(tt.group)).results[0];
 		let members = JSON.parse(fs.readFileSync(tt.members)).results;
 		const obj = Icinga.groupToObject(group, members);
-		if (obj.state != tt.state) {
-			throw new Error(`want state ${tt.state}, got ${obj.state}`);
+		if (obj.attrs.state != tt.state) {
+			throw new Error(`want state ${tt.state}, got ${obj.attrs.state}`);
 		}
-		if (obj.next_check != tt.next_check) {
+		if (obj.attrs.next_check != tt.next_check) {
 			throw new Error(
-				`want soonest check ${tt.next_check}, got ${obj.next_check}`
+				`want soonest check ${tt.next_check}, got ${obj.attrs.next_check}`
 			);
 		}
 	}
