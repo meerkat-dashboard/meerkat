@@ -3,6 +3,9 @@
 <header class="container">
 	<div class="d-flex align-items-center justify-content-between">
 		<h3>Dashboards</h3>
+		<div class="form-outline dashboard-search" style="flex-grow: 1; margin: 0 40px;">
+  			<input type="search" id="dashboard-search" class="form-control" placeholder="filter dashboard by name..." aria-label="Search" />
+		</div>
 		<span>
 			<a class="btn btn-secondary" href="/clone">
 				Clone
@@ -30,4 +33,21 @@
 	</div>
 {{ end }}
 </main>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+var speed = 200
+$(document).ready(function(){
+  $("#dashboard-search").on("input", function() {
+    var value = $(this).val().toLowerCase();
+    $("main .row").each(function() {
+      if ($(this).text().toLowerCase().indexOf(value) > -1) {
+        $(this).slideDown(speed);
+      } else {
+        $(this).slideUp(speed);
+      }
+    });
+  });
+});
+</script>
+
 {{ end }}
