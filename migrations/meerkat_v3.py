@@ -33,16 +33,46 @@ if os.path.isfile(f"{args.dashboard_dir}{dashboard_name}") and args.live:
 with open(args.dashboard, 'r') as f:
     dashboard_json = json.load(f)
 
-type_replace = {'iframe-video': 'video', 'audio-stream': 'audio', 'static-image': 'image'}
-opt_replace = {'statusFontSize': 'fontSize', 'id': 'objectName', 'checkDataSelection': 'objectAttr'}
+# Type field value subsitution map
+type_replace = {
+    'iframe-video': 'video',
+    'audio-stream': 'audio',
+    'static-image': 'image'
+}
+
+# options key subsitution map
+options_replace = {
+    'id': 'objectName', 
+    'checkDataSelection': 'objectAttr'
+}
 
 for element in dashboard_json.get('elements', []):
-    if element.get('type') in type_replace:
+    # If the type field contains value then replace value
+    if element.get('type', '') in type_replace:
         element['type'] = type_replace[element['type']]
+
+    # Now option replacements
     if 'options' in element:
-        for key in list(element['options'].keys()):
-            if key in opt_replace:
-                element['options'][opt_replace[key]] = element['options'].pop(key)
+        element_keys = list(element['options'].keys())
+        for key in element_keys:
+            # if they key is in the replacement list and the value isn't in the list of existing keys replace
+            if key in options_replace:
+                if options_replace[key] in element_keys:
+                    element['options'].pop(key)
+                else:
+                    element['options'][options_replace[key]] = element['options'].pop(key)
+
+        # If the fontSize exists then leave it be, otherwise replace it with other values if they exist
+        if 'fontSize' not in element_keys:
+            if 'nameFontSize' in element_keys:
+                element['options']['fontSize'] = element['options'].pop('nameFontSize')
+            if 'statusFontSize' in element_keys:
+                element['options']['fontSize'] = element['options'].pop('statusFontSize')
+        else:
+            element['options'].pop('nameFontSize', None)
+            element['options'].pop('statusFontSize', None)
+
+        # Delete only
         element['options'].pop('StrokeColor', None)  # Delete 'StrokeColor' key from options if it exists
 
 if args.live:
