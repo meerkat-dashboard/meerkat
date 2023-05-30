@@ -102,7 +102,7 @@ function soonestCheck(objects) {
 	let soonest = 0;
 	for (let i = 0; i < objects.length; i++) {
 		if (soonest - objects[i].attrs.next_check < 0) {
-			soonest = t;
+			soonest = objects[i].attrs.next_check;
 		}
 	}
 	return soonest;
