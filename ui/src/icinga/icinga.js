@@ -1,8 +1,6 @@
 // DefaultCheckInterval is the default duration, in milliseconds,
 // which a standard Icinga installation will execute check commands if
 
-import { handleJSON } from "../meerkat";
-
 // none is set explicitly.
 const DefaultCheckInterval = 60 * 1000;
 
