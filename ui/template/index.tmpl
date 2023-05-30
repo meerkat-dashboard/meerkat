@@ -18,11 +18,12 @@
 {{ range . }}
 	<div class="row mb-2 py-2 bg-dark rounded">
 		<div class="col">
-			<a href="/{{ .Slug }}/info">
+			<a href="/{{ .Slug }}/view">
 				<big>{{ .Title }}</big>
 			</a>
 		</div>
 		<div class="col-md-auto">
+			<a class="btn btn-secondary btn-sm ms-2" href="/{{ .Slug }}/info">Info</a>
 			<a class="btn btn-secondary btn-sm ms-2" href="/{{ .Slug }}/edit">Edit</a>
 			<a class="btn btn-primary btn-sm ms-2" href="/{{ .Slug }}/view">View</a>
 		</div>
