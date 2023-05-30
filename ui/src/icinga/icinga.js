@@ -1,8 +1,6 @@
 // DefaultCheckInterval is the default duration, in milliseconds,
 // which a standard Icinga installation will execute check commands if
 
-import { handleJSONList } from "../meerkat";
-
 // none is set explicitly.
 const DefaultCheckInterval = 60 * 1000;
 
@@ -60,16 +58,15 @@ function until(date) {
 	return date - new Date();
 }
 
-export function groupToObject(group, members) {
-
+export function groupToObject(group, member) {
 	let members = [{}];
-	for (let i = 0; i < members.length; i++) {
+	for (let i = 0; i < member.length; i++) {
 		var object = {
-			name: obj.attrs.__name,
-			state: obj.attrs.last_check_result.state,
-			next_check: obj.attrs.next_check,
+			name: member[i].attrs.__name,
+			state: member[i].attrs.last_check_result.state,
+			next_check: member[i].attrs.next_check,
 		};
-	
+
 		members[i] = object;
 	}
 
@@ -129,7 +126,7 @@ export function worstState(objects) {
 	return worst;
 }
 
-export function worstObject(objects) {	
+export function worstObject(objects) {
 	let worst = objects[0];
 	for (let i = 0; i < objects.length; i++) {
 		if (objects[i].state > worst.state) {
