@@ -60,8 +60,8 @@ function until(date) {
 
 export function groupToObject(group, members) {
 	let o = group;
-	o.attrs.next_check = soonestCheck(members);
-	o.attrs.state = worstState(members);
+	o.next_check = soonestCheck(members);
+	o.state = worstState(members);
 	o.source = {};
 	for (let i = 0; i < members.length; i++) {
 		// Dots are often used in object names; escape for ./flatten.js later.
@@ -78,10 +78,8 @@ function escapeDots(s) {
 export function objectsToSingle(name, objects) {
 	let obj = {
 		name: name,
-		attrs: {
-			next_check: soonestCheck(objects),
-			state: worstState(objects),
-		},
+		next_check: soonestCheck(objects),
+		state: worstState(objects),
 		source: {},
 	};
 	for (let i = 0; i < objects.length; i++) {
@@ -98,7 +96,7 @@ export function objectsToSingle(name, objects) {
 function soonestCheck(objects) {
 	let soonest = 0;
 	for (const obj of objects) {
-		const t = obj.attrs.next_check;
+		const t = obj.next_check;
 		if (soonest - t < 0) {
 			soonest = t;
 		}
