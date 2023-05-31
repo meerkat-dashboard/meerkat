@@ -14,12 +14,14 @@ import (
 
 // Dashboard contains all information to render a dashboard
 type Dashboard struct {
-	Title      string    `json:"title"`
-	Slug       string    `json:"slug"`
-	Background string    `json:"background"`
-	Width      string    `json:"width"`
-	Height     string    `json:"height"`
-	Elements   []Element `json:"elements"`
+	Title       string    `json:"title"`
+	Slug        string    `json:"slug"`
+	Background  string    `json:"background"`
+	Description string    `json:"description"`
+	Folder      string    `json:"folder"`
+	Width       string    `json:"width"`
+	Height      string    `json:"height"`
+	Elements    []Element `json:"elements"`
 }
 
 // Element contains any service/host information needed
@@ -124,6 +126,10 @@ func ParseDashboardForm(form url.Values) (Dashboard, error) {
 			}
 		case "background":
 			dashboard.Background = v
+		case "description":
+			dashboard.Description = v
+		case "folder":
+			dashboard.Folder = v
 		default:
 			return Dashboard{}, fmt.Errorf("unknown form parameter %s", k)
 		}

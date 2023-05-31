@@ -7,17 +7,23 @@
 <div class="row">
 <div class="col-9">
 	<p>
-		Some description. TODO: render Description field from the dashboard.
+		{{ .Description }}
 	</p>
 	<table class="table">
+	<tr>
+		<th>Folder</th>
+		<td>{{ .Folder }}</td>
+	</tr>
 	<tr>
 		<th>Background</th>
 		<td>{{ .Background }}</td>
 	</tr>
+<!--
 	<tr>
 		<th>Dimensions</th>
 		<td>{{ .Width }}x{{ .Height }}</td>
 	</tr>
+	-->
 	<tr>
 		<th>View count</th>
 		<td>69</td>
@@ -40,10 +46,13 @@
 <form method="POST">
 	<fieldset class="form-group mb-3">
 		<label class="form-label" for="title">Title</label>
-		<input class="form-control" type="text" id="title" name="title" minlength="4" value={{ .Title }} placeholder="Network overview" required>
+		<input class="form-control" type="text" id="title" name="title" minlength="4" value={{ .Title }} placeholder="Dashboard name..."  required>
 
 		<label class="form-label" for="description">Description</label>
-		<input class="form-control" type="text" id="description" name="description" minlength="4" placeholder="Not implemented yet" disabled>
+		<input class="form-control" type="text" id="description" name="description" minlength="10" value={{ .Description }} placeholder="Dashboard description...">
+
+		<label class="form-label" for="folder">Folder</label>
+		<input class="form-control" type="text" id="folder" name="folder" minlength="4" value={{ .Folder }} placeholder="Dashboard Folder">
 
 		<label class="form-label" for="background">Background image url</label>
 		<input class="form-control" type="text" pattern="(https?|/).*?" id="background" name="background" minlength="8" value="{{ .Background }}" placeholder="http://www.example.com/background.png">

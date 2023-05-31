@@ -3,6 +3,9 @@
 <header class="container">
 	<div class="d-flex align-items-center justify-content-between">
 		<h3>Dashboards</h3>
+		<div class="form-outline dashboard-search" style="flex-grow: 1; margin: 0 40px;">
+  			<input type="search" id="dashboard-search" class="form-control" placeholder="filter dashboard by name..." aria-label="Search" />
+		</div>
 		<span>
 			<a class="btn btn-secondary" href="/clone">
 				Clone
@@ -12,21 +15,115 @@
 			</a>
 		</span>
 	</div>
-	<hr>
-</header>
-<main class="container">
-{{ range . }}
-	<div class="row mb-2 py-2 bg-dark rounded">
-		<div class="col">
-			<a href="/{{ .Slug }}/info">
-				<big>{{ .Title }}</big>
-			</a>
-		</div>
-		<div class="col-md-auto">
-			<a class="btn btn-secondary btn-sm ms-2" href="/{{ .Slug }}/edit">Edit</a>
-			<a class="btn btn-primary btn-sm ms-2" href="/{{ .Slug }}/view">View</a>
-		</div>
+	<div class="d-flex align-items-center justify-content-between">
+		<span>
+			<button class="btn btn-info" id="toggle-all" type="button">
+				Toggle All Folders
+			</button>
+		</span>
 	</div>
+	<hr>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</header>
+<main class="container index">
+{{ range $index, $folder := .Folders }}
+    <div class="card">
+        <div class="card-header folder" id="heading{{ $index }}">
+            <h2 class="mb-0">
+                <button class="btn btn-info folder-toggle" type="button" data-target="#collapse{{ $index }}">
+                    {{ $folder }}
+                </button>
+            </h2>
+        </div>
+        <div id="collapse{{ $index }}" class="folder-content" style="display: none;">
+            <div class="card-body">
+                {{ range $dashboards := index $.Dashboards $folder }}
+                    <div class="row mb-2 bg-dark rounded dashboard-nav-group">
+                        <div class="col">
+                            <a href="/{{ .Slug }}/view" class="btn btn-primary w-100 text-start btn-lg ms-2">
+                                {{ .Title }}
+                            </a>
+                        </div>
+                        <div class="col-auto d-flex align-items-stretch dashboard-nav-right">
+                            <a class="btn btn-warning btn-lg ms-2 px-3" style="padding-top: 12px; font-size: 14px" href="/{{ .Slug }}/info">Info</a>
+                            <a class="btn btn-warning btn-lg ms-3 px-3" style="padding-top: 12px; font-size: 14px" href="/{{ .Slug }}/edit">Edit</a>
+                        </div>
+                    </div>
+                {{ end }}
+            </div>
+        </div>
+    </div>
 {{ end }}
 </main>
+<script>
+  $(document).ready(function () {
+    var speed = 200
+    // Function to expand all folders
+    function expandFolders() {
+      $(".folder-toggle").each(function () {
+        var target = $(this).attr('data-target');
+        $(target).slideDown(speed);
+      });
+    }
+
+    // Function to collapse all folders
+    function collapseFolders() {
+      $(".folder-toggle").each(function () {
+        var target = $(this).attr('data-target');
+        $(target).slideUp(speed);
+      });
+    }
+
+    // Search
+    $("#dashboard-search").on("input", function () {
+      var value = $(this).val().toLowerCase();
+
+      // Expand all .folder-toggle if #dashboard-search isn't empty
+      if (value) {
+        expandFolders();
+      }
+      if (!value) {
+        collapseFolders();
+      }
+      // This is handles the search filtering
+      $("main .row").each(function () {
+        if ($(this).text().toLowerCase().indexOf(value) > -1) {
+          $(this).slideDown(speed);
+        } else {
+          $(this).slideUp(speed);
+        }
+      });
+    });
+
+    // Toggle all
+    $("#toggle-all").click(function () {
+      var allExpanded = true;
+
+      // Check if any of the folders are collapsed
+      $(".folder-toggle").each(function () {
+        var target = $(this).attr('data-target');
+        if (!$(target).is(":visible")) {
+          allExpanded = false;
+          return false;
+        }
+      });
+
+      // If all are expanded, collapse them. Otherwise, expand them.
+      if (allExpanded) {
+        collapseFolders();
+      } else {
+        expandFolders();
+      }
+    });
+
+    // Toggle one
+    $(".folder-toggle").click(function () {
+      var target = $(this).attr('data-target');
+      $(target).slideToggle();
+    });
+
+  });
+</script>
+
 {{ end }}
+
