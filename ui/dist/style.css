@@ -56,6 +56,12 @@
 	cursor: default;
 }
 
+/* forces the text to the middle of the smaller buttons when the button fills to the larger button size */
+.dashboard-nav-right a {
+	padding-top: 12px; 
+	font-size: 14px
+}
+
 .editor {
 	position: fixed;
 	left: 0;
