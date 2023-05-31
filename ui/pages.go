@@ -69,8 +69,8 @@ func (srv *Server) RootHandler(w http.ResponseWriter, req *http.Request) {
 	sort.Strings(folderNames)
 
 	data := struct {
-		Folders     []string
-		Dashboards  DashboardGroup
+		Folders    []string
+		Dashboards DashboardGroup
 	}{
 		Folders:    folderNames,
 		Dashboards: groupedDashboards,
@@ -268,4 +268,3 @@ func (srv *Server) AboutPage(w http.ResponseWriter, req *http.Request) {
 func (srv *Server) FileServer() http.Handler {
 	return http.FileServer(http.FS(srv.fsys))
 }
-
