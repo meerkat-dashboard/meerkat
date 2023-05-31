@@ -54,10 +54,6 @@ if os.path.isfile(f"{args.dashboard_dir}{dashboard_name}") and args.live:
 with open(args.dashboard, 'r') as f:
     dashboard_json = json.load(f)
 
-# Remove the current dashboard ready for replacement, doing this after we load the data incase we are trying to migrate in place
-if os.path.isfile(f"{args.dashboard_dir}{dashboard_name}") and args.live:
-    os.remove(f"{args.dashboard_dir}{dashboard_name}")
-
 # Add in folder and description if it is missing
 if 'folder' not in dashboard_json or args.folder != "":
     logger.success(f"Adding Dashboard Folder value: '{args.folder}'")
@@ -120,6 +116,10 @@ for element in dashboard_json.get('elements', []):
         element['options'].pop('StrokeColor', None)  # Delete 'StrokeColor' key from options if it exists
 
 if args.live:
+    # Remove the current dashboard ready for replacement, doing this just before saving as we are trying to migrate in place
+    if os.path.isfile(f"{args.dashboard_dir}{dashboard_name}"):
+        os.remove(f"{args.dashboard_dir}{dashboard_name}")
+
     with open(f"{args.dashboard_dir}{dashboard_name}", "w") as f:
         json.dump(dashboard_json, f, indent=4, sort_keys=True)
 else:
