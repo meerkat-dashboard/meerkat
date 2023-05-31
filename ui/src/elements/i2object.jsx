@@ -46,15 +46,14 @@ export function ObjectCard({
 	objectAttrNoMatch,
 	fontSize,
 }) {
-
 	if (!state) {
 		if (objectAttrNoMatch) {
 			return (
-			<div class="check-content card">
-				<div class="check-state" style={`font-size: ${fontSize}px`}>
-					{objectAttrNoMatch}
+				<div class="check-content card">
+					<div class="check-state" style={`font-size: ${fontSize}px`}>
+						{objectAttrNoMatch}
+					</div>
 				</div>
-			</div>
 			);
 		} else {
 			return <div class="check-content card"></div>;
@@ -78,7 +77,6 @@ export function ObjectCard({
 			console.error(`render attribute text: ${err.message}`);
 		}
 	}
-
 
 	if (objectAttrMatch) {
 		const regexp = new RegExp(objectAttrMatch);

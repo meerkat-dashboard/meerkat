@@ -215,7 +215,11 @@ export function AttrSelect({
 			<label class="form-label" for="attrSelect">
 				Attribute
 			</label>
-			<select class="form-select" value={selected} onChange={(e) => updateOptions({ objectAttr: e.target.value })}>
+			<select
+				class="form-select"
+				value={selected}
+				onChange={(e) => updateOptions({ objectAttr: e.target.value })}
+			>
 				{rows}
 			</select>
 			<small class="form-text">
