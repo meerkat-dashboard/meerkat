@@ -227,7 +227,7 @@ export function AttrSelect({
 			</small>
 			<br />
 			<label class="form-label" for="attrMatch">
-				TODO Regular Expression Match
+				Regular Expression Match
 			</label>
 			<input
 				class="form-control"
