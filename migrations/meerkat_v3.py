@@ -33,6 +33,13 @@ if os.path.isfile(f"{args.dashboard_dir}{dashboard_name}") and args.live:
 with open(args.dashboard, 'r') as f:
     dashboard_json = json.load(f)
 
+# Add in folder and description if it is missing
+if 'folder' not in dashboard_json:
+    dashboard_json['folder'] = ""
+
+if 'description' not in dashboard_json:
+    dashboard_json['description'] = ""
+
 # Type field value subsitution map
 type_replace = {
     'iframe-video': 'video',
@@ -43,7 +50,10 @@ type_replace = {
 # options key subsitution map
 options_replace = {
     'id': 'objectName', 
-    'checkDataSelection': 'objectAttr'
+    'checkDataSelection': 'objectAttr',
+    'checkDataPattern': 'objectAttrMatch',
+    'checkDataDefault': 'objectAttrNoMatch'
+
 }
 
 for element in dashboard_json.get('elements', []):
