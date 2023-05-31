@@ -27,17 +27,18 @@
 </header>
 <main class="container index">
 {{ range $index, $folder := .Folders }}
+{{ $dashboards := index $.Dashboards $folder }}
     <div class="card">
         <div class="card-header folder" id="heading{{ $index }}">
             <h2 class="mb-0">
                 <button class="btn btn-info folder-toggle" type="button" data-target="#collapse{{ $index }}">
-                    {{ $folder }}
+                    {{ $folder }}&nbsp;&nbsp;[{{ len $dashboards }}]
                 </button>
             </h2>
         </div>
         <div id="collapse{{ $index }}" class="folder-content" style="display: none;">
             <div class="card-body">
-                {{ range $dashboards := index $.Dashboards $folder }}
+                {{ range $dashboard := $dashboards }}
                     <div class="row mb-2 bg-dark rounded dashboard-nav-group">
                         <div class="col">
                             <a href="/{{ .Slug }}/view" class="btn btn-primary w-100 text-start btn-lg ms-2">
