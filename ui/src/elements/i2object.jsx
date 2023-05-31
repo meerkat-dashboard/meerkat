@@ -19,7 +19,7 @@ export function ObjectCardOptions({ options, updateOptions }) {
 				objectName={options.objectName}
 				objectType={options.objectType}
 				selected={options.objectAttr}
-				onChange={(e) => updateOptions({ objectAttr: e.target.value })}
+				updateOptions={updateOptions}
 				objectAttrMatch={options.objectAttrMatch}
 				objectAttrNoMatch={options.objectAttrNoMatch}
 			/>
@@ -46,8 +46,19 @@ export function ObjectCard({
 	objectAttrNoMatch,
 	fontSize,
 }) {
+
 	if (!state) {
-		return <div class="check-content card"></div>;
+		if (objectAttrNoMatch) {
+			return (
+			<div class="check-content card">
+				<div class="check-state" style={`font-size: ${fontSize}px`}>
+					{objectAttrNoMatch}
+				</div>
+			</div>
+			);
+		} else {
+			return <div class="check-content card"></div>;
+		}
 	}
 	let text;
 	const objState = stateText(objectType, state.state);
@@ -67,6 +78,7 @@ export function ObjectCard({
 			console.error(`render attribute text: ${err.message}`);
 		}
 	}
+
 
 	if (objectAttrMatch) {
 		const regexp = new RegExp(objectAttrMatch);

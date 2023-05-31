@@ -180,7 +180,7 @@ export function AttrSelect({
 	objectName,
 	objectType,
 	selected,
-	onChange,
+	updateOptions,
 	objectAttrMatch,
 	objectAttrNoMatch,
 }) {
@@ -215,7 +215,7 @@ export function AttrSelect({
 			<label class="form-label" for="attrSelect">
 				Attribute
 			</label>
-			<select class="form-select" value={selected} onChange={onChange}>
+			<select class="form-select" value={selected} onChange={(e) => updateOptions({ objectAttr: e.target.value })}>
 				{rows}
 			</select>
 			<small class="form-text">
@@ -242,13 +242,13 @@ export function AttrSelect({
 			</small>
 			<br />
 			<label class="form-label" for="attrNoMatch">
-				TODO No match
+				No match
 			</label>
 			<input
 				class="form-control"
 				name="attrNoMatch"
 				value={objectAttrNoMatch}
-				disabled
+				onChange={(e) => updateOptions({ objectAttrNoMatch: e.target.value })}
 			/>
 			<small class="form-text">
 				Render this text if If there is no match of the regular expression.
