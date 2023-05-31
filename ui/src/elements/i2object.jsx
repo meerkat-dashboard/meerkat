@@ -73,16 +73,16 @@ export function ObjectCard({
 			} else {
 				text = state.perfdata[objectAttr];
 			}
+
+			if (objectAttrMatch) {
+				const regexp = new RegExp(objectAttrMatch);
+				text = text.match(regexp);
+				if (!text && objectAttrNoMatch) {
+					text = objectAttrNoMatch;
+				}
+			}
 		} catch (err) {
 			console.error(`render attribute text: ${err.message}`);
-		}
-	}
-
-	if (objectAttrMatch) {
-		const regexp = new RegExp(objectAttrMatch);
-		text = text.match(regexp);
-		if (!text && objectAttrNoMatch) {
-			text = objectAttrNoMatch;
 		}
 	}
 

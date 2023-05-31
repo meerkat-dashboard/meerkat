@@ -234,7 +234,7 @@ export function AttrSelect({
 				name="attrMatch"
 				placeholder="[a-zA-Z]+"
 				value={objectAttrMatch}
-				disabled
+				onChange={(e) => updateOptions({ objectAttrMatch: e.target.value })}
 			/>
 			<small class="form-text">
 				Render only the match of this regular expression against the attribute.
