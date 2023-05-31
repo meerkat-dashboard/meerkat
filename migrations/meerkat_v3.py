@@ -11,6 +11,7 @@ import argparse
 import json
 import os
 import shutil
+import sys
 
 from loguru import logger
 
@@ -28,7 +29,7 @@ args = parser.parse_args()
 
 logger.remove()
 logger.add(
-    "stdout:", 
+    sys.stderr,
     colorize=True,
     format="<blue>{time:YYYY-MM-DD HH:mm:ss.SSS}</blue> <yellow>({process.id})</yellow> <level>{level}</level>:{line}: {message}",
     level="DEBUG"
@@ -45,15 +46,17 @@ logger.info(f"Destination dashboard: {args.dashboard_dir}{dashboard_name}")
 # backup source dashboard
 shutil.copy2(args.dashboard, f"{args.backup_dir}migrate_{dashboard_name}")
 
-# Backup destintation dashboard if it exists and delete original
+# Backup destintation dashboard if it exists 
 if os.path.isfile(f"{args.dashboard_dir}{dashboard_name}") and args.live:
     shutil.copy2(f"{args.dashboard_dir}{dashboard_name}", f"{args.backup_dir}existing_{dashboard_name}")
-    # Remove the current dashboard ready for replacement
-    os.remove(f"{args.dashboard_dir}{dashboard_name}")
 
 # Parse dashboard data
 with open(args.dashboard, 'r') as f:
     dashboard_json = json.load(f)
+
+# Remove the current dashboard ready for replacement, doing this after we load the data incase we are trying to migrate in place
+if os.path.isfile(f"{args.dashboard_dir}{dashboard_name}") and args.live:
+    os.remove(f"{args.dashboard_dir}{dashboard_name}")
 
 # Add in folder and description if it is missing
 if 'folder' not in dashboard_json or args.folder != "":
