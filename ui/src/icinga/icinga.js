@@ -1,5 +1,6 @@
 // DefaultCheckInterval is the default duration, in milliseconds,
 // which a standard Icinga installation will execute check commands if
+
 // none is set explicitly.
 const DefaultCheckInterval = 60 * 1000;
 
@@ -57,7 +58,18 @@ function until(date) {
 	return date - new Date();
 }
 
-export function groupToObject(group, members) {
+export function groupToObject(group, member) {
+	let members = [{}];
+	for (let i = 0; i < member.length; i++) {
+		var object = {
+			name: member[i].attrs.__name,
+			state: member[i].attrs.last_check_result.state,
+			next_check: member[i].attrs.next_check,
+		};
+
+		members[i] = object;
+	}
+
 	let o = group;
 	o.attrs.next_check = soonestCheck(members);
 	o.attrs.state = worstState(members);
@@ -96,10 +108,9 @@ export function objectsToSingle(name, objects) {
 // for consistency with Icinga.
 function soonestCheck(objects) {
 	let soonest = 0;
-	for (const obj of objects) {
-		const t = obj.attrs.next_check;
-		if (soonest - t < 0) {
-			soonest = t;
+	for (let i = 0; i < objects.length; i++) {
+		if (soonest - objects[i].next_check < 0) {
+			soonest = objects[i].next_check;
 		}
 	}
 	return soonest;
@@ -107,9 +118,19 @@ function soonestCheck(objects) {
 
 export function worstState(objects) {
 	let worst = 0;
-	for (const obj of objects) {
-		if (obj.attrs.state > worst) {
-			worst = obj.attrs.state;
+	for (let i = 0; i < objects.length; i++) {
+		if (objects[i].state > worst) {
+			worst = objects[i].state;
+		}
+	}
+	return worst;
+}
+
+export function worstObject(objects) {
+	let worst = objects[0];
+	for (let i = 0; i < objects.length; i++) {
+		if (objects[i].state > worst.state) {
+			worst = objects[i];
 		}
 	}
 	return worst;

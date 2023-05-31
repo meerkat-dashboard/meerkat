@@ -19,7 +19,7 @@ export function ObjectCardOptions({ options, updateOptions }) {
 				objectName={options.objectName}
 				objectType={options.objectType}
 				selected={options.objectAttr}
-				onChange={(e) => updateOptions({ objectAttr: e.target.value })}
+				updateOptions={updateOptions}
 				objectAttrMatch={options.objectAttrMatch}
 				objectAttrNoMatch={options.objectAttrNoMatch}
 			/>
@@ -46,13 +46,18 @@ export function ObjectCard({
 	objectAttrNoMatch,
 	fontSize,
 }) {
-	const obj = meerkat.getIcingaObject(
-		this.props.objectName,
-		this.props.objectType
-	);
-	this.state = obj;
 	if (!state) {
-		return <div class="check-content card"></div>;
+		if (objectAttrNoMatch) {
+			return (
+				<div class="check-content card">
+					<div class="check-state" style={`font-size: ${fontSize}px`}>
+						{objectAttrNoMatch}
+					</div>
+				</div>
+			);
+		} else {
+			return <div class="check-content card"></div>;
+		}
 	}
 	let text;
 	const objState = stateText(objectType, state.state);
@@ -68,16 +73,16 @@ export function ObjectCard({
 			} else {
 				text = state.perfdata[objectAttr];
 			}
+
+			if (objectAttrMatch) {
+				const regexp = new RegExp(objectAttrMatch);
+				text = text.match(regexp);
+				if (!text && objectAttrNoMatch) {
+					text = objectAttrNoMatch;
+				}
+			}
 		} catch (err) {
 			console.error(`render attribute text: ${err.message}`);
-		}
-	}
-
-	if (objectAttrMatch) {
-		const regexp = new RegExp(objectAttrMatch);
-		text = text.match(regexp);
-		if (!text && objectAttrNoMatch) {
-			text = objectAttrNoMatch;
 		}
 	}
 
@@ -96,7 +101,7 @@ export function ObjectCard({
 }
 
 function stateText(typ, state) {
-	if (typ.match(/^host/)) {
+	if (typ.toLowerCase().includes("host")) {
 		switch (state) {
 			case 0:
 				return "up";
@@ -104,7 +109,7 @@ function stateText(typ, state) {
 				return "down";
 		}
 	}
-	if (typ.match(/^service/)) {
+	if (typ.toLowerCase().includes("service")) {
 		switch (state) {
 			case 0:
 				return "ok";

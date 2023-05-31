@@ -1,5 +1,5 @@
 import { h, render, Fragment } from "preact";
-import { useState, useEffect } from "preact/hooks";
+import { useState, useEffect, useRef } from "preact/hooks";
 
 import * as meerkat from "./meerkat";
 import * as icinga from "./icinga/icinga.js";
@@ -67,44 +67,40 @@ function Viewer({ dashboard, events }) {
 }
 
 function IcingaElement({ typ, options, events }) {
-	let [objState, setObjState] = useState(3); // unknown
+	let [objState, setObjState] = useState(0);
 
-	let interests = options.objectName;
-	if (options.objectType.endsWith("group")) {
-		meerkat
-			.getAllInGroup(options.objectName, options.objectType)
-			.then((results) => {
-				for (const v of results) {
-					interests.push(v.name);
-				}
-			})
-			.catch((err) => {
-				console.error(
-					`fetch ${options.objectType} ${options.objectName}: ${err}`
-				);
-			});
-	} else if (options.objectType.endsWith("filter")) {
-		meerkat
-			.getAllFilter(options.objectName, options.objectType)
-			.then((results) => {
-				for (const v of results) {
-					interests.push(v.name);
-				}
-			})
-			.catch((err) => {
-				console.error(
-					`fetch ${options.objectType} ${options.objectName}: ${err}`
-				);
-			});
-	}
+	let interests = [];
 
 	async function refresh() {
 		try {
-			const obj = await meerkat.getIcingaObject(
-				options.objectName,
-				options.objectType
-			);
-			setObjState(obj);
+			if (options.objectType.endsWith("group")) {
+				const results = await meerkat.getAllInGroup(
+					options.objectName,
+					options.objectType
+				);
+				let worst = icinga.worstObject(results);
+				options.objectName = worst.name;
+				options.objectType = worst.type;
+				interests = [worst.name];
+				setObjState(worst);
+			} else if (options.objectType.endsWith("filter")) {
+				const results = await meerkat.getAllFilter(
+					options.objectName,
+					options.objectType
+				);
+				let worst = icinga.worstObject(results);
+				options.objectName = worst.name;
+				options.objectType = worst.type;
+				interests = [worst.name];
+				setObjState(worst);
+			} else {
+				const obj = await meerkat.getIcingaObject(
+					options.objectName,
+					options.objectType
+				);
+				interests = [obj.name];
+				setObjState(obj);
+			}
 		} catch (err) {
 			console.error(
 				`fetch ${options.objectType} ${options.objectName}: ${err}`
@@ -114,22 +110,20 @@ function IcingaElement({ typ, options, events }) {
 
 	useEffect(() => {
 		refresh();
-		if (typ === "check-card" && options.objectAttr === undefined) {
+		if (typ === "check-card" && options.objectAttr !== undefined) {
 			events.addEventListener("CheckResult", (ev) => {
 				if (interests.includes(ev.data)) {
-					console.log(ev);
 					refresh();
 				}
 			});
 		} else {
 			events.addEventListener("StateChange", (ev) => {
 				if (interests.includes(ev.data)) {
-					console.log(ev);
 					refresh();
 				}
 			});
 		}
-	}, [interests]);
+	}, []);
 
 	let ele;
 	if (typ === "check-svg") {
@@ -137,9 +131,6 @@ function IcingaElement({ typ, options, events }) {
 	} else if (typ === "check-line") {
 		ele = <CheckLine state={objState.state} options={options} />;
 	} else if (typ === "check-card") {
-		// ObjectCards do not read from the event stream, but we put
-		// them here under IcingaElement as they are more closely related
-		// to Icinga than to the other elements like Clock or Video.
 		ele = (
 			<ObjectCard
 				state={objState}
@@ -160,8 +151,6 @@ function IcingaElement({ typ, options, events }) {
 }
 
 function DashElement({ typ, options }) {
-	let [objState, setObjState] = useState(3); // unknown
-
 	let ele;
 	if (typ === "clock") {
 		ele = <Clock timeZone={options.timeZone} fontSize={options.fontSize} />;
