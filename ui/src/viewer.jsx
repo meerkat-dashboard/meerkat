@@ -71,9 +71,9 @@ function IcingaElement({ typ, options, events }) {
 
 	let interests = [];
 
-	async function updateInterests() {
-		if (options.objectType.endsWith("group")) {
-			try {
+	async function refresh() {
+		try {
+			if (options.objectType.endsWith("group")) {
 				const results = await meerkat.getAllInGroup(
 					options.objectName,
 					options.objectType
@@ -81,15 +81,9 @@ function IcingaElement({ typ, options, events }) {
 				let worst = icinga.worstObject(results);
 				options.objectName = worst.name;
 				options.objectType = worst.type;
-				interests = [worst];
-				refresh();
-			} catch (err) {
-				console.error(
-					`fetch ${options.objectType} ${options.objectName}: ${err}`
-				);
-			}
-		} else if (options.objectType.endsWith("filter")) {
-			try {
+				interests = [worst.name];
+				setObjState(worst);
+			} else if (options.objectType.endsWith("filter")) {
 				const results = await meerkat.getAllFilter(
 					options.objectName,
 					options.objectType
@@ -97,27 +91,16 @@ function IcingaElement({ typ, options, events }) {
 				let worst = icinga.worstObject(results);
 				options.objectName = worst.name;
 				options.objectType = worst.type;
-				interests = [worst];
-				refresh();
-			} catch (err) {
-				console.error(
-					`fetch ${options.objectType} ${options.objectName}: ${err}`
+				interests = [worst.name];
+				setObjState(worst);
+			} else {
+				const obj = await meerkat.getIcingaObject(
+					options.objectName,
+					options.objectType
 				);
+				interests = [obj.name];
+				setObjState(obj);
 			}
-		} else {
-			interests = [options.objectName];
-		}
-	}
-
-	updateInterests();
-
-	async function refresh() {
-		try {
-			const obj = await meerkat.getIcingaObject(
-				options.objectName,
-				options.objectType
-			);
-			setObjState(obj);
 		} catch (err) {
 			console.error(
 				`fetch ${options.objectType} ${options.objectName}: ${err}`
