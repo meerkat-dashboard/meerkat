@@ -173,19 +173,23 @@ for element in existing_dashboard.get('elements', []):
                 if 'filter' in element['options']:
                     logger.success(f"Replacing Element Options key:value 'filter:{element['options']['filter']}' with the replacement key '{option_key}' and existing value")
                     new_element['options']['objectName'] = element['options'].pop('filter')
-                    if 'service' in element['options']['objectType']:
+                    # if we use a filter then we need to adjust the objectType to suit
+                    # we use objectType over selection as selection has been merged with objectType
+                    if 'service' in element['options'].get('objectType', ''):
                         new_element['options']['objectType'] = "servicefilter"
-                    elif 'host' in element['options']['objectType']:
+                    elif 'host' in element['options'].get('objectType', ''):
                         new_element['options']['objectType'] = "hostfilter"
                     else:
-                        logger.critical(f"aborting: unable to determine filter type from objectType:{element['options']['objectType']}")
+                        logger.critical(f"aborting: unable to determine filter type from objectType:{element['options'].get('objectType', 'objectType key does not exist')}")
                         exit()
+                    logger.warning(f"Deleting objectType value {element['options'].pop('objectType')}, chose to use filter value instead and need objectType filter version instead of original")
                     if 'id' in element['options']:
                         logger.warning(f"Deleting id value {element['options'].pop('id')}, chose to use filter value instead")
                 elif 'id' in element['options']:
                     logger.success(f"Replacing Element Options key:value 'id:{element['options']['id']}' with the replacement key '{option_key}' and existing value")
                     new_element['options']['objectName'] = element['options'].pop('id')
                     new_element['options']['objectType'] = element['options'].pop('objectType')
+                logger.warning(f"Deleting selection value {element['options'].pop('selection')}, we use objectType over selection as selection has been merged with objectType")
             # Skipping objectType as it will be set with objectName
             elif option_key == 'objectType':
                 pass
