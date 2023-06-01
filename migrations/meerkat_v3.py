@@ -107,7 +107,7 @@ _options_keys = [
     "objectAttr",
     "objectAttrMatch",
     "objectAttrNoMatch",
-    "objectName",
+    "objectName", 
     "objectType",
     "rightArrow",
     "source",
@@ -129,7 +129,6 @@ type_replace = {
 
 # options key subsitution map new name: old name
 options_replace = {
-    'objectName': 'id',
     'objectAttr': 'checkDataSelection',
     'objectAttrMatch': 'checkDataPattern',
     'objectAttrNoMatch': 'checkDataDefault'
@@ -168,12 +167,34 @@ for element in existing_dashboard.get('elements', []):
                 elif 'nameFontSize' in element['options']:
                     logger.success(f"Replacing Element Options key:value 'nameFontSize:{element['options']['nameFontSize']}' with the replacement key 'fontSize' and existing value")
                     new_element['options']['fontSize'] = element['options'].pop('nameFontSize')
+            # If the option is related to the host or service called handle it here
+            elif option_key == 'objectName':
+                # if we have a filter then we should use the filter
+                if 'filter' in element['options']:
+                    logger.success(f"Replacing Element Options key:value 'filter:{element['options']['filter']}' with the replacement key '{option_key}' and existing value")
+                    new_element['options']['objectName'] = element['options'].pop('filter')
+                    if 'service' in element['options']['objectType']:
+                        new_element['options']['objectType'] = "servicefilter"
+                    elif 'host' in element['options']['objectType']:
+                        new_element['options']['objectType'] = "hostfilter"
+                    else:
+                        logger.critical(f"aborting: unable to determine filter type from objectType:{element['options']['objectType']}")
+                        exit()
+                    if 'id' in element['options']:
+                        logger.warning(f"Deleting id value {element['options'].pop('id')}, chose to use filter value instead")
+                elif 'id' in element['options']:
+                    logger.success(f"Replacing Element Options key:value 'id:{element['options']['id']}' with the replacement key '{option_key}' and existing value")
+                    new_element['options']['objectName'] = element['options'].pop('id')
+                    new_element['options']['objectType'] = element['options'].pop('objectType')
+            # Skipping objectType as it will be set with objectName
+            elif option_key == 'objectType':
+                pass
             # If the option key is in existing options copy the value
             elif option_key in element['options']:
                 new_element['options'][option_key] = element['options'].pop(option_key)
             # If the option key is in the replacement list and the old key exist copy value
             elif option_key in options_replace and options_replace[option_key] in element['options']:
-                logger.success(f"Replacing Element Options key:value '{option_key}:{element['options'][options_replace[option_key]]}' with the replacement key '{option_key}' and existing value")
+                logger.success(f"Replacing Element Options key:value '{options_replace[option_key]}:{element['options'][options_replace[option_key]]}' with the replacement key '{option_key}' and existing value")
                 new_element['options'][option_key] = element['options'].pop(options_replace[option_key])
 
     migrated_dashboard['elements'].append(new_element)
