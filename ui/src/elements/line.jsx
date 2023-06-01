@@ -83,20 +83,16 @@ export function CheckLine({ events, options }) {
 					.getAllInGroup(options.objectName, options.objectType)
 					.then((data) => {
 						let worst = IcingaJS.worstObject(data);
-						options.objectName = worst.name;
-						options.objectType = worst.type;
 						setObjectState(worst);
-						setState(icinga.StateText(data.state, options.objectType));
+						setState(icinga.StateText(worst.state, options.objectType));
 					});
 			} else if (options.objectType.endsWith("filter")) {
 				meerkat
 					.getAllFilter(options.objectName, options.objectType)
 					.then((data) => {
 						let worst = IcingaJS.worstObject(data);
-						options.objectName = worst.name;
-						options.objectType = worst.type;
 						setObjectState(worst);
-						setState(icinga.StateText(data.state, options.objectType));
+						setState(icinga.StateText(worst.state, options.objectType));
 					});
 			} else {
 				meerkat

@@ -58,8 +58,6 @@ export function CheckSVG({ events, options }) {
 					.getAllInGroup(options.objectName, options.objectType)
 					.then((data) => {
 						let worst = IcingaJS.worstObject(data);
-						options.objectName = worst.name;
-						options.objectType = worst.type;
 						setObjectState(worst);
 						parseUpdate(worst);
 					});
@@ -68,8 +66,6 @@ export function CheckSVG({ events, options }) {
 					.getAllFilter(options.objectName, options.objectType)
 					.then((data) => {
 						let worst = IcingaJS.worstObject(data);
-						options.objectName = worst.name;
-						options.objectType = worst.type;
 						setObjectState(worst);
 						parseUpdate(worst);
 					});
