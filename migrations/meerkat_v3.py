@@ -185,6 +185,14 @@ for element in existing_dashboard.get('elements', []):
                     logger.warning(f"Deleting objectType value {element['options'].pop('objectType')}, chose to use filter value instead and need objectType filter version instead of original")
                     if 'id' in element['options']:
                         logger.warning(f"Deleting id value {element['options'].pop('id')}, chose to use filter value instead")
+                    if 'objectName' in element['options']:
+                        logger.warning(f"Deleting id value {element['options'].pop('objectName')}, chose to use filter value instead")
+                # We don't have a filter, try the objectName
+                elif 'objectName' in element['options']:
+                    logger.success(f"Replacing Element Options key:value 'id:{element['options']['objectName']}' with the replacement key '{option_key}' and existing value")
+                    new_element['options']['objectName'] = element['options'].pop('objectName')
+                    new_element['options']['objectType'] = element['options'].pop('objectType')
+                # We don't have a filter, try the id
                 elif 'id' in element['options']:
                     logger.success(f"Replacing Element Options key:value 'id:{element['options']['id']}' with the replacement key '{option_key}' and existing value")
                     new_element['options']['objectName'] = element['options'].pop('id')
