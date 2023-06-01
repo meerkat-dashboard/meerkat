@@ -82,7 +82,7 @@ export function CheckLine({ events, options }) {
 				meerkat
 					.getAllInGroup(options.objectName, options.objectType)
 					.then((data) => {
-						let worst = IcingaJS.worstObject(data);
+						let worst = icinga.worstObject(data);
 						setObjectState(worst);
 						setState(icinga.StateText(worst.state, options.objectType));
 					});
@@ -90,7 +90,7 @@ export function CheckLine({ events, options }) {
 				meerkat
 					.getAllFilter(options.objectName, options.objectType)
 					.then((data) => {
-						let worst = IcingaJS.worstObject(data);
+						let worst = icinga.worstObject(data);
 						setObjectState(worst);
 						setState(icinga.StateText(worst.state, options.objectType));
 					});
