@@ -68,7 +68,7 @@ export async function handleJSON(obj) {
 		state: obj.attrs.last_check_result.state,
 		next_check: obj.attrs.next_check,
 	};
-
+	try {
 	for (
 		let i = 0;
 		i < obj.attrs.last_check_result.performance_data.length;
@@ -78,6 +78,11 @@ export async function handleJSON(obj) {
 		var label = data.split("=")[0];
 		var value = data.split("=")[1].split(";")[0];
 		json.perfdata[label] = value;
+	}
+	} catch (e) {
+		console.log(obj.attrs.__name);
+		console.log(obj.attrs.last_check_result.performance_data);
+		console.log(e);
 	}
 
 	return json;
