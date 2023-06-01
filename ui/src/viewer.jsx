@@ -12,6 +12,14 @@ import { StaticSVG } from "./statics/svg";
 import { ObjectCard } from "./elements/i2object";
 
 function Viewer({ dashboard, events }) {
+	useEffect(() => {
+		new EventSource("/dashboard/stream").onmessage = (msg) => {
+			if (dashboard.title == msg.data) {
+				window.location.reload(true);
+			}
+		};
+	});
+
 	if (!dashboard.elements) {
 		return;
 	}
