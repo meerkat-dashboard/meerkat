@@ -2,6 +2,7 @@ import { h, Fragment, Component } from "preact";
 import { useEffect, useState } from "preact/hooks";
 
 import * as meerkat from "../meerkat";
+import * as IcingaJS from "../icinga/icinga.js";
 import * as flatten from "../icinga/flatten.js";
 
 async function getObjectNames(objectType) {
@@ -184,30 +185,48 @@ export function AttrSelect({
 	objectAttrMatch,
 	objectAttrNoMatch,
 }) {
-	const [obj, setObj] = useState();
+	const [obj, setObjectState] = useState();
+	const [rows, setRows] = useState();
 
 	if (!objectName) {
 		return noneSelected;
 	}
 
-	useEffect(() => {
-		meerkat
-			.getIcingaObject(objectName, objectType)
-			.then((o) => {
-				setObj(o);
-			})
-			.catch((err) => {
-				console.error(err);
-			});
-	}, [objectName, objectType]);
-
-	const rows = [];
-	if (obj) {
-		for (var key in obj.perfdata) {
+	const parseUpdate = (object) => {
+		let rows = [];
+		for (var key in object.perfdata) {
 			rows.push(<option value={key}>{key}</option>);
 		}
 		rows.push(<option value="pluginOutput">output</option>);
-	}
+		setRows(rows);
+	};
+
+	useEffect(() => {
+		try {
+			if (objectType.endsWith("group")) {
+				meerkat.getAllInGroup(objectName, objectType).then((data) => {
+					let worst = IcingaJS.worstObject(data);
+					setObjectState(worst);
+					parseUpdate(worst);
+				});
+			} else if (objectType.endsWith("filter")) {
+				meerkat.getAllFilter(objectName, objectType).then((data) => {
+					let worst = IcingaJS.worstObject(data);
+					setObjectState(worst);
+					parseUpdate(worst);
+				});
+			} else {
+				meerkat.getIcingaObject(objectName, objectType).then((data) => {
+					setObjectState(data);
+					parseUpdate(data);
+				});
+			}
+		} catch (err) {
+			console.error(
+				`fetch ${options.objectType} ${options.objectName}: ${err}`
+			);
+		}
+	}, [objectName, objectType]);
 
 	return (
 		<fieldset>

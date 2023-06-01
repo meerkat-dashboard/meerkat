@@ -1,4 +1,4 @@
-import { h, render, Fragment } from "preact";
+import { h, render, Fragment, options } from "preact";
 import { useEffect, useReducer, useState } from "preact/hooks";
 
 import * as meerkat from "./meerkat";
@@ -95,7 +95,7 @@ function dashboardReducer(state, action) {
 	}
 }
 
-function Editor({ slug }) {
+function Editor({ slug, events }) {
 	const [dashboard, dashboardDispatch] = useReducer(dashboardReducer, null);
 	const [highlightedElementId, setHighlightedElementId] = useState(null);
 	const [selectedElement, setSelectedElement] = useState(null);
@@ -166,6 +166,7 @@ function Editor({ slug }) {
 					highlightedElementId={highlightedElementId}
 					setSelectedElement={setSelectedElement}
 					setHighlightedElementId={setHighlightedElementId}
+					events={events}
 				/>
 			</main>
 		</Fragment>
@@ -181,6 +182,7 @@ function TransformableElement({
 	highlight,
 	index,
 	onClick,
+	ele,
 }) {
 	//Handle dragging elements
 	const handleMove = (downEvent) => {
@@ -316,6 +318,7 @@ function TransformableElement({
 			onMouseDown={highlight ? handleMove : null}
 			onClick={onClick}
 		>
+			{ele}
 			<Grabbers
 				active={highlight}
 				handleResize={handleResize}
@@ -343,10 +346,12 @@ function DashboardElements({
 	highlightedElementId,
 	setHighlightedElementId,
 	setSelectedElement,
+	events,
 }) {
 	if (!elements) {
 		return null;
 	}
+
 	return elements.map((element, index) => {
 		const updateRect = (rect) => {
 			element.rect = rect;
@@ -366,10 +371,10 @@ function DashboardElements({
 		let ele;
 		switch (element.type) {
 			case "check-svg":
-				ele = <CheckSVG />;
+				ele = <CheckSVG events={events} options={element.options} />;
 				break;
 			case "check-line":
-				ele = <CheckLine options={element.options} />;
+				ele = <CheckLine events={events} options={element.options} />;
 				break;
 			case "clock":
 				ele = (
@@ -395,16 +400,7 @@ function DashboardElements({
 				ele = <audio controls src={element.options.audioSource}></audio>;
 				break;
 			case "check-card":
-				ele = (
-					<ObjectCard
-						objectType={element.options.objectType}
-						objectName={element.options.objectName}
-						objectAttr={element.options.objectAttr}
-						objectAttrMatch={element.options.objectAttrMatch}
-						objectAttrNoMatch={element.options.objectAttrNoMatch}
-						fontSize={element.options.fontSize}
-					/>
-				);
+				ele = <ObjectCard options={element.options} events={events} />;
 				break;
 		}
 
@@ -418,9 +414,8 @@ function DashboardElements({
 				rotation={element.rotation}
 				index={index}
 				onClick={handleClick}
-			>
-				{ele}
-			</TransformableElement>
+				ele={ele}
+			></TransformableElement>
 		);
 	});
 }
@@ -431,6 +426,7 @@ function DashboardView({
 	highlightedElementId,
 	setSelectedElement,
 	setHighlightedElementId,
+	events,
 }) {
 	const backgroundImage = dashboard.background ? dashboard.background : null;
 
@@ -466,6 +462,7 @@ function DashboardView({
 					highlightedElementId={highlightedElementId}
 					setSelectedElement={setSelectedElement}
 					setHighlightedElementId={setHighlightedElementId}
+					events={events}
 				/>
 			</div>
 		</div>
@@ -718,4 +715,5 @@ function ElementSettings({ element, updateElement, closeElement }) {
 // Paths are of the form /my-dashboard/view
 const elems = window.location.pathname.split("/");
 const slug = elems[elems.length - 2];
-render(<Editor slug={slug} />, document.body);
+const events = new EventSource("/icinga/stream");
+render(<Editor slug={slug} events={events} />, document.body);

@@ -20,6 +20,70 @@ import (
 	"github.com/meerkat-dashboard/meerkat"
 )
 
+type UpdateChannel struct {
+	Clients  []chan string
+	Notifier chan string
+}
+
+var updateChannel = UpdateChannel{
+	Clients:  make([]chan string, 0),
+	Notifier: make(chan string),
+}
+
+func sendUpdates(done <-chan interface{}) {
+	for {
+		select {
+		case <-done:
+			return
+		case data := <-updateChannel.Notifier:
+			for _, channel := range updateChannel.Clients {
+				channel <- data
+			}
+		}
+	}
+}
+
+func UpdateHandler(w http.ResponseWriter, req *http.Request) {
+	if req.Method != http.MethodGet {
+		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
+		return
+	}
+	name := strings.Split(path.Dir(req.URL.Path), "/")[1]
+	updateChannel.Notifier <- name
+}
+
+func UpdateEvents() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/event-stream")
+		w.Header().Set("Cache-Control", "no-cache")
+		w.Header().Set("Connection", "keep-alive")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+
+		updateChan := make(chan string)
+		updateChannel.Clients = append(updateChannel.Clients, updateChan)
+
+		done := make(chan interface{})
+		defer close(done)
+
+		for {
+			select {
+			case <-done:
+				close(updateChan)
+				return
+			case data := <-updateChan:
+				fmt.Fprintf(w, "data: %v\n\n", data)
+				if wf, ok := w.(http.Flusher); ok {
+					wf.Flush()
+				}
+			case data := <-updateChannel.Notifier:
+				for _, channel := range updateChannel.Clients {
+					channel <- data
+				}
+			}
+		}
+	}
+}
+
 func handleListDashboard(w http.ResponseWriter, r *http.Request) {
 	slug := chi.URLParam(r, "slug")
 	http.ServeFile(w, r, path.Join("dashboards", slug+".json"))

@@ -107,6 +107,14 @@ func main() {
 	r.Post("/{slug}/delete", handleDeleteDashboard)
 	r.Get("/{slug}/info", srv.InfoPage)
 	r.Post("/{slug}/info", srv.EditInfoHandler)
+
+	done := make(chan interface{})
+	defer close(done)
+	go sendUpdates(done)
+
+	r.Get("/{slug}/update", UpdateHandler)
+	r.HandleFunc("/dashboard/stream", UpdateEvents())
+
 	r.Post("/file/background", srv.UploadFileHandler("./dashboards-data"))
 	r.Get("/view/*", oldPathHandler)
 	r.Get("/edit/*", oldPathHandler)
