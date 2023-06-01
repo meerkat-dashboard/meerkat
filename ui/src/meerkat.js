@@ -68,16 +68,25 @@ export async function handleJSON(obj) {
 		state: obj.attrs.last_check_result.state,
 		next_check: obj.attrs.next_check,
 	};
-
-	for (
-		let i = 0;
-		i < obj.attrs.last_check_result.performance_data.length;
-		i++
-	) {
-		var data = obj.attrs.last_check_result.performance_data[i];
-		var label = data.split("=")[0];
-		var value = data.split("=")[1].split(";")[0];
-		json.perfdata[label] = value;
+	try {
+		for (
+			let i = 0;
+			i < obj.attrs.last_check_result.performance_data.length;
+			i++
+		) {
+			var data = obj.attrs.last_check_result.performance_data[i];
+			if (typeof data === "string") {
+				var label = data.split("=")[0];
+				var value = data.split("=")[1].split(";")[0];
+				json.perfdata[label] = value;
+			} else {
+				json.perfdata[data.label] = data.value;
+			}
+		}
+	} catch (e) {
+		console.log(obj.attrs.__name);
+		console.log(obj.attrs.last_check_result.performance_data);
+		console.log(e);
 	}
 
 	return json;
