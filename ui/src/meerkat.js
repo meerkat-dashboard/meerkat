@@ -96,6 +96,9 @@ export async function saveDashboard(slug, dashboard) {
 		method: "POST",
 		body: JSON.stringify(dashboard),
 	});
+	await fetch(`/${slug}/update`, {
+		method: "GET",
+	});
 	if (!resp.ok) {
 		throw new Error(await resp.text());
 	}
