@@ -207,60 +207,61 @@ for element in existing_dashboard.get('elements', []):
     if 'options' in element:
         new_element['options'] = {}
         for option_key in _options_keys:
+            # We delete empty stuff but continue so if other things need to be added back they can be
             if option_key in element['options'] and element['options'][option_key] == "":
                 logger.warning(f"Deleting {option_key}:{element['options'].pop(option_key)} as it is empty")
-            else:
-                # If the option key is font size look for alt font size fields in existing option
-                if option_key == 'fontSize':
-                    if option_key in element['options']:
-                        new_element['options'][option_key] = element['options'].pop(option_key)    
-                    elif 'statusFontSize' in element['options']:
-                        logger.success(f"Replacing Element Options key:value 'statusFontSize:{element['options']['statusFontSize']}' with the replacement key 'fontSize' and existing value")
-                        new_element['options']['fontSize'] = element['options'].pop('statusFontSize')
-                    elif 'nameFontSize' in element['options']:
-                        logger.success(f"Replacing Element Options key:value 'nameFontSize:{element['options']['nameFontSize']}' with the replacement key 'fontSize' and existing value")
-                        new_element['options']['fontSize'] = element['options'].pop('nameFontSize')
-                # If the option is related to the host or service called handle it here
-                elif option_key == 'objectName':
-                    # if we have a filter then we should use the filter
-                    if 'filter' in element['options']:
-                        logger.success(f"Replacing Element Options key:value 'filter:{element['options']['filter']}' with the replacement key '{option_key}' and existing value")
-                        new_element['options']['objectName'] = element['options'].pop('filter')
-                        # if we use a filter then we need to adjust the objectType to suit
-                        # we use objectType over selection as selection has been merged with objectType
-                        if 'service' in element['options'].get('objectType', ''):
-                            new_element['options']['objectType'] = "servicefilter"
-                        elif 'host' in element['options'].get('objectType', ''):
-                            new_element['options']['objectType'] = "hostfilter"
-                        else:
-                            logger.critical(f"aborting: unable to determine filter type from objectType:{element['options'].get('objectType', 'objectType key does not exist')}")
-                            exit()
-                        logger.warning(f"Deleting objectType value {element['options'].pop('objectType')}, chose to use filter value instead and need objectType filter version instead of original")
-                        if 'id' in element['options']:
-                            logger.warning(f"Deleting id value {element['options'].pop('id')}, chose to use filter value instead")
-                        if 'objectName' in element['options']:
-                            logger.warning(f"Deleting id value {element['options'].pop('objectName')}, chose to use filter value instead")
-                    # We don't have a filter, try the objectName
-                    elif 'objectName' in element['options']:
-                        logger.success(f"Replacing Element Options key:value 'id:{element['options']['objectName']}' with the replacement key '{option_key}' and existing value")
-                        new_element['options']['objectName'] = element['options'].pop('objectName')
-                        new_element['options']['objectType'] = element['options'].pop('objectType')
-                    # We don't have a filter, try the id
-                    elif 'id' in element['options']:
-                        logger.success(f"Replacing Element Options key:value 'id:{element['options']['id']}' with the replacement key '{option_key}' and existing value")
-                        new_element['options']['objectName'] = element['options'].pop('id')
-                        new_element['options']['objectType'] = element['options'].pop('objectType')
-                    logger.warning(f"Deleting selection value {element['options'].pop('selection')}, we use objectType over selection as selection has been merged with objectType")
-                # Skipping objectType as it will be set with objectName
-                elif option_key == 'objectType':
-                    pass
-                # If the option key is in existing options copy the value
-                elif option_key in element['options']:
-                    new_element['options'][option_key] = element['options'].pop(option_key)
-                # If the option key is in the replacement list and the old key exist copy value
-                elif option_key in options_replace and options_replace[option_key] in element['options']:
-                    logger.success(f"Replacing Element Options key:value '{options_replace[option_key]}:{element['options'][options_replace[option_key]]}' with the replacement key '{option_key}' and existing value")
-                    new_element['options'][option_key] = element['options'].pop(options_replace[option_key])
+
+            # If the option key is font size look for alt font size fields in existing option
+            if option_key == 'fontSize':
+                if option_key in element['options']:
+                    new_element['options'][option_key] = element['options'].pop(option_key)    
+                elif 'statusFontSize' in element['options']:
+                    logger.success(f"Replacing Element Options key:value 'statusFontSize:{element['options']['statusFontSize']}' with the replacement key 'fontSize' and existing value")
+                    new_element['options']['fontSize'] = element['options'].pop('statusFontSize')
+                elif 'nameFontSize' in element['options']:
+                    logger.success(f"Replacing Element Options key:value 'nameFontSize:{element['options']['nameFontSize']}' with the replacement key 'fontSize' and existing value")
+                    new_element['options']['fontSize'] = element['options'].pop('nameFontSize')
+            # If the option is related to the host or service called handle it here
+            elif option_key == 'objectName':
+                # if we have a filter then we should use the filter
+                if 'filter' in element['options']:
+                    logger.success(f"Replacing Element Options key:value 'filter:{element['options']['filter']}' with the replacement key '{option_key}' and existing value")
+                    new_element['options']['objectName'] = element['options'].pop('filter')
+                    # if we use a filter then we need to adjust the objectType to suit
+                    # we use objectType over selection as selection has been merged with objectType
+                    if 'service' in element['options'].get('objectType', ''):
+                        new_element['options']['objectType'] = "servicefilter"
+                    elif 'host' in element['options'].get('objectType', ''):
+                        new_element['options']['objectType'] = "hostfilter"
+                    else:
+                        logger.critical(f"aborting: unable to determine filter type from objectType:{element['options'].get('objectType', 'objectType key does not exist')}")
+                        exit()
+                    logger.warning(f"Deleting objectType value {element['options'].pop('objectType')}, chose to use filter value instead and need objectType filter version instead of original")
+                    if 'id' in element['options']:
+                        logger.warning(f"Deleting id value {element['options'].pop('id')}, chose to use filter value instead")
+                    if 'objectName' in element['options']:
+                        logger.warning(f"Deleting id value {element['options'].pop('objectName')}, chose to use filter value instead")
+                # We don't have a filter, try the objectName
+                elif 'objectName' in element['options']:
+                    logger.success(f"Replacing Element Options key:value 'id:{element['options']['objectName']}' with the replacement key '{option_key}' and existing value")
+                    new_element['options']['objectName'] = element['options'].pop('objectName')
+                    new_element['options']['objectType'] = element['options'].pop('objectType')
+                # We don't have a filter, try the id
+                elif 'id' in element['options']:
+                    logger.success(f"Replacing Element Options key:value 'id:{element['options']['id']}' with the replacement key '{option_key}' and existing value")
+                    new_element['options']['objectName'] = element['options'].pop('id')
+                    new_element['options']['objectType'] = element['options'].pop('objectType')
+                logger.warning(f"Deleting selection value {element['options'].pop('selection')}, we use objectType over selection as selection has been merged with objectType")
+            # Skipping objectType as it will be set with objectName
+            elif option_key == 'objectType':
+                pass
+            # If the option key is in existing options copy the value
+            elif option_key in element['options']:
+                new_element['options'][option_key] = element['options'].pop(option_key)
+            # If the option key is in the replacement list and the old key exist copy value
+            elif option_key in options_replace and options_replace[option_key] in element['options']:
+                logger.success(f"Replacing Element Options key:value '{options_replace[option_key]}:{element['options'][options_replace[option_key]]}' with the replacement key '{option_key}' and existing value")
+                new_element['options'][option_key] = element['options'].pop(options_replace[option_key])
 
     migrated_dashboard['elements'].append(new_element)
 
