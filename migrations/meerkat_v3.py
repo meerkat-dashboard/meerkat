@@ -142,20 +142,27 @@ _options_keys = [
 
 # Stuff we want to keep in the data file but probably don't have any code associated with them in v3
 _options_keys_to_keep_but_are_unused = [
+    "criticalAcknowledgedImage",
     "criticalAcknowledgedStrokeColor",
+    "criticalImage",
     "criticalStrokeColor",
     "criticalSvg",
     "dynamicText",
     "dynamicText2",
     "dynamicText2Structure",
+    "okImage",
     "okStrokeColor",
     "okSvg",
+    "unknownAcknowledgedImage",
     "unknownAcknowledgedStrokeColor",
+    "unknownImage",
     "unknownStrokeColor",
     "unknownSvg",
+    "warningAcknowledgedImage",
     "warningAcknowledgedStrokeColor",
+    "warningImage",
     "warningStrokeColor",
-    "warningSvg"
+    "warningSvg",
 ]
 
 # Add the sound keys to unused option keys
