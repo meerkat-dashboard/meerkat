@@ -42,12 +42,12 @@
                     <div class="row mb-2 bg-dark rounded dashboard-nav-group">
                         <div class="col">
                             <a href="/{{ .Slug }}/view" class="btn btn-primary w-100 text-start btn-lg ms-2">
-                                View: {{ .Title }}
+                                {{ .Title }}
                             </a>
                         </div>
                         <div class="col-auto d-flex align-items-stretch dashboard-nav-right">
                             <a class="btn btn-warning btn-lg ms-2 px-3" style="padding-top: 12px; font-size: 14px" href="/{{ .Slug }}/edit">Edit</a>
-                            <a class="btn btn-warning btn-lg ms-3 px-3" style="padding-top: 12px; font-size: 14px" href="/{{ .Slug }}/info">Properties</a>
+                            <a class="btn btn-warning btn-lg ms-3 px-3" style="padding-top: 12px; font-size: 14px" href="/{{ .Slug }}/info">Settings</a>
                         </div>
                     </div>
                 {{ end }}
