@@ -12,6 +12,10 @@ type Config struct {
 	IcingaPassword    string
 	IcingaInsecureTLS bool
 
+	ServeTLS bool
+	CRTPath  string
+	KeyPath  string
+
 	AdminUsername string
 	AdminPassword string
 }

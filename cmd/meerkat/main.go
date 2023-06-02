@@ -127,5 +127,10 @@ func main() {
 	r.Get("/", srv.RootHandler)
 
 	log.Println("Starting web server on", config.HTTPAddr)
-	log.Fatal(http.ListenAndServe(config.HTTPAddr, r))
+
+	if config.ServeTLS {
+		log.Fatal(http.ListenAndServeTLS(config.HTTPAddr, config.CRTPath, config.KeyPath, r))
+	} else {
+		log.Fatal(http.ListenAndServe(config.HTTPAddr, r))
+	}
 }

@@ -54,10 +54,10 @@ func UpdateHandler(w http.ResponseWriter, req *http.Request) {
 
 func UpdateEvents() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "text/event-stream")
-		w.Header().Set("Cache-Control", "no-cache")
-		w.Header().Set("Connection", "keep-alive")
-		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("content-type", "text/event-stream")
+		w.Header().Set("cache-control", "no-cache")
+		w.Header().Set("connection", "keep-alive")
+		w.Header().Set("access-control-allow-origin", "*")
 
 		updateChan := make(chan string)
 		updateChannel.Clients = append(updateChannel.Clients, updateChan)

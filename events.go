@@ -86,7 +86,7 @@ func (es *EventStream) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 	ch := make(chan icinga.Event)
 	go es.receive(req.Context(), ch)
-	w.Header().Set("Content-Type", "text/event-stream")
+	w.Header().Set("content-type", "text/event-stream")
 	for ev := range ch {
 		name := ev.Host
 		if ev.Service != "" {
