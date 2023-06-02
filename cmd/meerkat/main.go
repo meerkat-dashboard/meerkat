@@ -128,6 +128,14 @@ func main() {
 
 	if config.SSLEnable {
 		log.Printf("Starting https web server on https://%s\n", config.HTTPAddr)
+		_, err := os.Stat(config.SSLCert)
+		if os.IsNotExist(err) {
+			log.Fatalf("Invalid SSLCert Path %s does not exist\n", config.SSLCert)
+		}
+		_, err = os.Stat(config.SSLKey)
+		if os.IsNotExist(err) {
+			log.Fatalf("Invalid SSLKey Path %s does not exist\n", config.SSLKey)
+		}
 		log.Fatal(http.ListenAndServeTLS(config.HTTPAddr, config.SSLCert, config.SSLKey, r))
 	} else {
 		log.Printf("Starting http web server on http://%s\n", config.HTTPAddr)
