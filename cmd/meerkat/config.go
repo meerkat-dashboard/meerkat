@@ -12,6 +12,10 @@ type Config struct {
 	IcingaPassword    string
 	IcingaInsecureTLS bool
 
+	SSLEnable bool
+	SSLCert   string
+	SSLKey    string
+
 	AdminUsername string
 	AdminPassword string
 }
