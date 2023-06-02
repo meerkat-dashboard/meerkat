@@ -215,12 +215,12 @@ for element in existing_dashboard.get('elements', []):
             if option_key == 'fontSize':
                 if option_key in element['options']:
                     new_element['options'][option_key] = element['options'].pop(option_key)    
-                    element['options'].pop('statusFontSize')
-                    element['options'].pop('nameFontSize')
+                    element['options'].pop('statusFontSize', '')
+                    element['options'].pop('nameFontSize', '')
                 elif 'statusFontSize' in element['options']:
                     logger.success(f"Replacing Element Options key:value 'statusFontSize:{element['options']['statusFontSize']}' with the replacement key 'fontSize' and existing value")
                     new_element['options']['fontSize'] = element['options'].pop('statusFontSize')
-                    element['options'].pop('nameFontSize')
+                    element['options'].pop('nameFontSize', '')
                 elif 'nameFontSize' in element['options']:
                     logger.success(f"Replacing Element Options key:value 'nameFontSize:{element['options']['nameFontSize']}' with the replacement key 'fontSize' and existing value")
                     new_element['options']['fontSize'] = element['options'].pop('nameFontSize')
