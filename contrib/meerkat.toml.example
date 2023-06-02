@@ -11,3 +11,8 @@ IcingaPassword = "YOUR SECURE PASSWORD HERE"
 
 # If set to true, verification of the TLS certificates served by the Icinga API is skipped. This is often required when Icinga is configured with self-signed certificates.
 #IcingaInsecureTLS = true
+
+# If set to true, meerkat will serve data over http2 using the crt and key.
+SSLEnable = true
+SSLCert = ""
+SSLKey = ""

@@ -34,7 +34,7 @@ func setMaxAge(dur time.Duration, next http.Handler) http.Handler {
 			return
 		}
 		seconds := int(dur.Seconds())
-		w.Header().Set("Cache-Control", fmt.Sprintf("max-age=%d", seconds))
+		w.Header().Set("cache-control", fmt.Sprintf("max-age=%d", seconds))
 		next.ServeHTTP(w, req)
 	})
 }
