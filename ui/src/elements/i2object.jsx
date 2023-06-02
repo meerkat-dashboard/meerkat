@@ -73,6 +73,14 @@ export function ObjectCard({ events, options }) {
 				console.error(`render attribute text: ${err.message}`);
 			}
 		}
+
+		if (text === undefined) {
+			if (options.objectAttrNoMatch) {
+				text = options.objectAttrNoMatch;
+			} else {
+				text = objState;
+			}
+		}
 		setCardText(text);
 	};
 
