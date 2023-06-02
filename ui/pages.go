@@ -11,6 +11,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"sort"
 	"strings"
 	"time"
 
@@ -59,9 +60,43 @@ func (srv *Server) RootHandler(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	if err := tmpl.Execute(w, dashboards); err != nil {
+
+	groupedDashboards := groupDashboardsByFolder(dashboards)
+
+	// Get and sort the folder names
+	folderNames := make([]string, 0, len(groupedDashboards))
+	for folderName := range groupedDashboards {
+		folderNames = append(folderNames, folderName)
+	}
+	sort.Strings(folderNames)
+
+	data := struct {
+		Folders    []string
+		Dashboards DashboardGroup
+	}{
+		Folders:    folderNames,
+		Dashboards: groupedDashboards,
+	}
+
+	if err := tmpl.Execute(w, data); err != nil {
 		log.Println(err)
 	}
+}
+
+type DashboardGroup map[string][]meerkat.Dashboard
+
+func groupDashboardsByFolder(dashboards []meerkat.Dashboard) DashboardGroup {
+	grouped := make(DashboardGroup)
+
+	for _, dashboard := range dashboards {
+		folder := dashboard.Folder
+		if folder == "" {
+			folder = "Uncategorized"
+		}
+		grouped[folder] = append(grouped[folder], dashboard)
+	}
+
+	return grouped
 }
 
 func (srv *Server) CreatePage(w http.ResponseWriter, req *http.Request) {

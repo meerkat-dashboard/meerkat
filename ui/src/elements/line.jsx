@@ -1,8 +1,9 @@
 import { h } from "preact";
-import { useRef } from "preact/hooks";
+import { useRef, useState, useEffect, useCallback } from "preact/hooks";
 
 import * as Icinga from "./icinga";
 import * as icinga from "../icinga/icinga";
+import * as meerkat from "../meerkat";
 import { ExternalURL } from "./options";
 
 export function CheckLineOptions({ options, updateOptions }) {
@@ -69,12 +70,61 @@ export function CheckLineOptions({ options, updateOptions }) {
 }
 
 //The rendered view (in the actual dashboard) of the Check SVG
-export function CheckLine({ state, options }) {
-	const stateText = icinga.StateText(state, options.objectType);
+export function CheckLine({ events, options }) {
+	const [objectState, setObjectState] = useState();
+	const [state, setState] = useState();
+
 	const svgRef = useRef({ clientWidth: 100, clientHeight: 40 });
 
+	const handleUpdate = () => {
+		try {
+			if (options.objectType.endsWith("group")) {
+				meerkat
+					.getAllInGroup(options.objectName, options.objectType)
+					.then((data) => {
+						let worst = icinga.worstObject(data);
+						setObjectState(worst);
+						setState(icinga.StateText(worst.state, options.objectType));
+					});
+			} else if (options.objectType.endsWith("filter")) {
+				meerkat
+					.getAllFilter(options.objectName, options.objectType)
+					.then((data) => {
+						let worst = icinga.worstObject(data);
+						setObjectState(worst);
+						setState(icinga.StateText(worst.state, options.objectType));
+					});
+			} else {
+				meerkat
+					.getIcingaObject(options.objectName, options.objectType)
+					.then((data) => {
+						setObjectState(data);
+						setState(icinga.StateText(data.state, options.objectType));
+					});
+			}
+		} catch (err) {
+			console.error(
+				`fetch ${options.objectType} ${options.objectName}: ${err}`
+			);
+		}
+	};
+
+	const handleEvent = useCallback((event) => {
+		if (objectState && objectState.name.includes(event.data)) {
+			handleUpdate();
+		}
+	});
+
+	useEffect(() => {
+		if (!objectState) handleUpdate();
+		events.addEventListener("StateChange", handleEvent);
+		return () => {
+			events.removeEventListener("StateChange", handleEvent);
+		};
+	}, [handleEvent]);
+
 	return (
-		<div class={`check-content svg ${stateText}`} ref={svgRef}>
+		<div class={`check-content svg ${state}`} ref={svgRef}>
 			<svg
 				xmlns="http://www.w3.org/2000/svg"
 				viewBox={`0 0 ${svgRef.current.clientWidth} ${svgRef.current.clientHeight}`}
@@ -82,7 +132,7 @@ export function CheckLine({ state, options }) {
 				stroke-width={options.strokeWidth}
 				stroke-linecap="round"
 				stroke-linejoin="round"
-				class={stateText}
+				class={state}
 			>
 				<line
 					x1="5"

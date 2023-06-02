@@ -56,6 +56,12 @@
 	cursor: default;
 }
 
+/* forces the text to the middle of the smaller buttons when the button fills to the larger button size */
+.dashboard-nav-right a {
+	padding-top: 12px; 
+	font-size: 14px
+}
+
 .editor {
 	position: fixed;
 	left: 0;
@@ -88,6 +94,7 @@
 	cursor: move;
 	position: absolute;
 	text-transform: uppercase;
+	overflow: hidden;
 }
 
 .check.glow {
@@ -233,6 +240,7 @@ div.check-content.svg {
 
 .check-state {
 	font-size: 48px;
+	line-height: 1em;
 }
 
 a {

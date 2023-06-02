@@ -29,7 +29,15 @@ export async function getAllFilter(expr, objectType) {
 	const path = `/icinga/v1/objects/${pluralise(typ)}`;
 	const resp = await fetch(path + "?filter=" + filter);
 	const results = await readResults(resp);
-	return results;
+	return await handleJSONList(results);
+}
+
+export async function handleJSONList(obj) {
+	let json = [{}];
+	for (let i = 0; i < obj.length; i++) {
+		json[i] = await handleJSON(obj[i]);
+	}
+	return json;
 }
 
 export async function getIcingaObject(name, typ) {
@@ -47,7 +55,7 @@ export async function getIcingaObject(name, typ) {
 		const members = await getAllInGroup(name, typ);
 		obj = icinga.groupToObject(obj, members);
 	}
-	return handleJSON(obj);
+	return await handleJSON(obj);
 }
 
 export async function handleJSON(obj) {
@@ -60,16 +68,25 @@ export async function handleJSON(obj) {
 		state: obj.attrs.last_check_result.state,
 		next_check: obj.attrs.next_check,
 	};
-
-	for (
-		let i = 0;
-		i < obj.attrs.last_check_result.performance_data.length;
-		i++
-	) {
-		var data = obj.attrs.last_check_result.performance_data[i];
-		var label = data.split("=")[0];
-		var value = data.split("=")[1].split(";")[0];
-		json.perfdata[label] = value;
+	try {
+		for (
+			let i = 0;
+			i < obj.attrs.last_check_result.performance_data.length;
+			i++
+		) {
+			var data = obj.attrs.last_check_result.performance_data[i];
+			if (typeof data === "string") {
+				var label = data.split("=")[0];
+				var value = data.split("=")[1].split(";")[0];
+				json.perfdata[label] = value;
+			} else {
+				json.perfdata[data.label] = data.value;
+			}
+		}
+	} catch (e) {
+		console.log(obj.attrs.__name);
+		console.log(obj.attrs.last_check_result.performance_data);
+		console.log(e);
 	}
 
 	return json;
@@ -87,6 +104,9 @@ export async function saveDashboard(slug, dashboard) {
 	const resp = await fetch(`/dashboard/${slug}`, {
 		method: "POST",
 		body: JSON.stringify(dashboard),
+	});
+	await fetch(`/${slug}/update`, {
+		method: "GET",
 	});
 	if (!resp.ok) {
 		throw new Error(await resp.text());

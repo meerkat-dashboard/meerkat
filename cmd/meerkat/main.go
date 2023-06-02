@@ -112,6 +112,13 @@ func main() {
 	r.Post("/{slug}/delete", handleDeleteDashboard)
 	r.Get("/{slug}/info", srv.InfoPage)
 	r.Post("/{slug}/info", srv.EditInfoHandler)
+
+	done := make(chan interface{})
+	defer close(done)
+	go sendUpdates(done)
+
+	r.Get("/{slug}/update", UpdateHandler)
+	r.HandleFunc("/dashboard/stream", UpdateEvents())
 	r.Post("/file/background", srv.UploadFileHandler("./dashboards-background", "image/"))
 	r.Get("/view/*", oldPathHandler)
 	r.Get("/edit/*", oldPathHandler)
@@ -123,6 +130,19 @@ func main() {
 	r.Get("/*", srv.FileServer().ServeHTTP)
 	r.Get("/", srv.RootHandler)
 
-	log.Println("Starting web server on", config.HTTPAddr)
-	log.Fatal(http.ListenAndServe(config.HTTPAddr, r))
+	if config.SSLEnable {
+		log.Printf("Starting https web server on https://%s\n", config.HTTPAddr)
+		_, err := os.Stat(config.SSLCert)
+		if os.IsNotExist(err) {
+			log.Fatalf("Invalid SSLCert Path %s does not exist\n", config.SSLCert)
+		}
+		_, err = os.Stat(config.SSLKey)
+		if os.IsNotExist(err) {
+			log.Fatalf("Invalid SSLKey Path %s does not exist\n", config.SSLKey)
+		}
+		log.Fatal(http.ListenAndServeTLS(config.HTTPAddr, config.SSLCert, config.SSLKey, r))
+	} else {
+		log.Printf("Starting http web server on http://%s\n", config.HTTPAddr)
+		log.Fatal(http.ListenAndServe(config.HTTPAddr, r))
+	}
 }

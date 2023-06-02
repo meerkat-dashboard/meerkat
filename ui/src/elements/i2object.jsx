@@ -1,11 +1,10 @@
 import { h, Fragment, Component } from "preact";
-import { useEffect, useState } from "preact/hooks";
+import { useCallback, useEffect, useState } from "preact/hooks";
 
 import { FontSizeInput, ExternalURL } from "./options";
 import * as meerkat from "../meerkat";
 import * as Icinga from "./icinga";
 import * as IcingaJS from "../icinga/icinga";
-import * as flatten from "../icinga/flatten.js";
 
 export function ObjectCardOptions({ options, updateOptions }) {
 	return (
@@ -19,7 +18,7 @@ export function ObjectCardOptions({ options, updateOptions }) {
 				objectName={options.objectName}
 				objectType={options.objectType}
 				selected={options.objectAttr}
-				onChange={(e) => updateOptions({ objectAttr: e.target.value })}
+				updateOptions={updateOptions}
 				objectAttrMatch={options.objectAttrMatch}
 				objectAttrNoMatch={options.objectAttrNoMatch}
 			/>
@@ -37,66 +36,132 @@ export function ObjectCardOptions({ options, updateOptions }) {
 	);
 }
 
-export function ObjectCard({
-	state,
-	objectType,
-	objectName,
-	objectAttr,
-	objectAttrMatch,
-	objectAttrNoMatch,
-	fontSize,
-}) {
-	const obj = meerkat.getIcingaObject(
-		this.props.objectName,
-		this.props.objectType
-	);
-	this.state = obj;
-	if (!state) {
-		return <div class="check-content card"></div>;
-	}
-	let text;
-	const objState = stateText(objectType, state.state);
-	if (!objectAttr || objectAttr == "state") {
-		text = objState;
-		if (state.acknowledged) {
-			text += " (ACK)";
+export function ObjectCard({ events, options }) {
+	const [objectState, setObjectState] = useState();
+	const [cardText, setCardText] = useState();
+	const [cardState, setCardState] = useState();
+
+	const parseUpdate = (object) => {
+		let objState = stateText(options.objectType, object.state);
+		let classes = ["check-content", "card", objState];
+		if (object.acknowledged) {
+			classes.push(`${objState}-ack`);
 		}
-	} else {
-		try {
-			if (objectAttr == "pluginOutput") {
-				text = state.output;
+		setCardState(classes.join(" "));
+
+		let text;
+		if (!options.objectAttr || options.objectAttr == "state") {
+			text = objState;
+			if (object.acknowledged) text += " (ACK)";
+		} else {
+			try {
+				if (options.objectAttr == "pluginOutput") {
+					text = object.output;
+				} else {
+					text = object.perfdata[options.objectAttr];
+				}
+
+				if (options.objectAttrMatch) {
+					const regex = text.match(new RegExp(options.objectAttrMatch, "im"));
+					if (regex) {
+						text = regex.length > 1 ? regex[regex.length - 1] : regex[0];
+					} else if (options.objectAttrNoMatch) {
+						text = options.objectAttrNoMatch;
+					}
+				}
+			} catch (err) {
+				console.error(`render attribute text: ${err.message}`);
+			}
+		}
+
+		if (text === undefined) {
+			if (options.objectAttrNoMatch) {
+				text = options.objectAttrNoMatch;
 			} else {
-				text = state.perfdata[objectAttr];
+				text = objState;
+			}
+		}
+		setCardText(text);
+	};
+
+	const handleEvent = useCallback((event) => {
+		if (objectState && objectState.name.includes(event.data)) {
+			handleUpdate();
+		}
+	});
+
+	const handleUpdate = () => {
+		try {
+			if (options.objectType.endsWith("group")) {
+				meerkat
+					.getAllInGroup(options.objectName, options.objectType)
+					.then((data) => {
+						let worst = IcingaJS.worstObject(data);
+						setObjectState(worst);
+						parseUpdate(worst);
+					});
+			} else if (options.objectType.endsWith("filter")) {
+				meerkat
+					.getAllFilter(options.objectName, options.objectType)
+					.then((data) => {
+						let worst = IcingaJS.worstObject(data);
+						setObjectState(worst);
+						parseUpdate(worst);
+					});
+			} else {
+				meerkat
+					.getIcingaObject(options.objectName, options.objectType)
+					.then((data) => {
+						setObjectState(data);
+						parseUpdate(data);
+					});
 			}
 		} catch (err) {
-			console.error(`render attribute text: ${err.message}`);
+			console.error(
+				`fetch ${options.objectType} ${options.objectName}: ${err}`
+			);
 		}
-	}
+	};
 
-	if (objectAttrMatch) {
-		const regexp = new RegExp(objectAttrMatch);
-		text = text.match(regexp);
-		if (!text && objectAttrNoMatch) {
-			text = objectAttrNoMatch;
+	useEffect(() => {
+		if (!objectState) handleUpdate();
+
+		if (options.objectAttr) {
+			events.addEventListener("CheckResult", handleEvent);
+		} else {
+			events.addEventListener("StateChange", handleEvent);
 		}
-	}
+		return () => {
+			events.removeEventListener("CheckResult", handleEvent);
+			events.removeEventListener("StateChange", handleEvent);
+		};
+	}, [handleEvent]);
 
-	let classes = ["check-content", "card", objState];
-	if (state.acknowledged) {
-		classes.push(`${objState}-ack`);
-	}
-
-	return (
-		<div class={classes.join(" ")}>
-			<div class="check-state" style={`font-size: ${fontSize}px`}>
-				{text}
+	if (!objectState) {
+		if (options.objectAttrNoMatch) {
+			return (
+				<div class="check-content card">
+					<div class="check-state" style={`font-size: ${options.fontSize}px`}>
+						{options.objectAttrNoMatch}
+					</div>
+				</div>
+			);
+		} else {
+			return <div class="check-content card"></div>;
+		}
+	} else {
+		return (
+			<div class={cardState}>
+				<div class="check-state" style={`font-size: ${options.fontSize}px`}>
+					{cardText}
+				</div>
 			</div>
-		</div>
-	);
+		);
+	}
 }
 
 function stateText(typ, state) {
-	if (typ.match(/^host/)) {
+	if (typ.toLowerCase().includes("host")) {
 		switch (state) {
 			case 0:
 				return "up";
@@ -104,7 +169,7 @@ function stateText(typ, state) {
 				return "down";
 		}
 	}
-	if (typ.match(/^service/)) {
+	if (typ.toLowerCase().includes("service")) {
 		switch (state) {
 			case 0:
 				return "ok";
