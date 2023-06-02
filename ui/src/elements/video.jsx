@@ -29,20 +29,34 @@ export function Video({ src }) {
 	}
 	// Only load hls.js in browsers that don't support it natively.
 	useEffect(() => {
-		if (Hls.isSupported() && src.endsWith("m3u8")) {
-			const hls = new Hls({ enableWorker: false });
-			hls.loadSource(src);
-			hls.attachMedia(videoRef.current);
-		}
-	}, [src]);
+		const loadVideo = async () => {
+			const video = videoRef.current;
+			if (Hls.isSupported()) {
+				var hls = new Hls();
+				hls.loadSource(src);
+				hls.attachMedia(video);
+				hls.on(Hls.Events.MANIFEST_PARSED, function () {
+					video.play();
+				});
+			} else if (video.canPlayType("application/vnd.apple.mpegurl")) {
+				video.src = src;
+				video.addEventListener("loadedmetadata", function () {
+					video.play();
+				});
+			}
+		};
+		loadVideo();
+	}, []);
 	return (
-		<video
-			style="width: 90%; height: 90%"
-			ref={videoRef}
-			key={src}
-			src={src}
-			controls
-			autoplay
-		></video>
+		<div>
+			<video
+				style="width: 90%; height: 90%"
+				ref={videoRef}
+				src={src}
+				controls
+				autoplay
+				muted
+			></video>
+		</div>
 	);
 }
