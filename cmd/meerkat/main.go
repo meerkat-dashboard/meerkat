@@ -126,10 +126,9 @@ func main() {
 	r.Get("/*", srv.FileServer().ServeHTTP)
 	r.Get("/", srv.RootHandler)
 
-
-	if config.ServeTLS {
+	if config.SSLEnable {
 		log.Printf("Starting https web server on https://%s\n", config.HTTPAddr)
-		log.Fatal(http.ListenAndServeTLS(config.HTTPAddr, config.CRTPath, config.KeyPath, r))
+		log.Fatal(http.ListenAndServeTLS(config.HTTPAddr, config.SSLCert, config.SSLKey, r))
 	} else {
 		log.Printf("Starting http web server on http://%s\n", config.HTTPAddr)
 		log.Fatal(http.ListenAndServe(config.HTTPAddr, r))

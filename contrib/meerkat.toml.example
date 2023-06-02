@@ -13,6 +13,6 @@ IcingaPassword = "YOUR SECURE PASSWORD HERE"
 #IcingaInsecureTLS = true
 
 # If set to true, meerkat will serve data over http2 using the crt and key.
-ServeTLS = false
-CRTPath = ""
-KeyPath = ""
+SSLEnable = true
+SSLCert = ""
+SSLKey = ""
