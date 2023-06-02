@@ -226,6 +226,9 @@ for element in existing_dashboard.get('elements', []):
                     new_element['options']['fontSize'] = element['options'].pop('nameFontSize')
             # If the option is related to the host or service called handle it here
             elif option_key == 'objectName':
+                # if the filter is None or empty
+                if element['options'].get('filter', '') is None or element['options'].get('filter', None) == "":
+                    element['options'].pop('filter')
                 # if we have a filter then we should use the filter
                 if 'filter' in element['options']:
                     logger.success(f"Replacing Element Options key:value 'filter:{element['options']['filter']}' with the replacement key '{option_key}' and existing value")
