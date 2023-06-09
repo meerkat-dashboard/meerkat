@@ -20,16 +20,21 @@ This script downloads and installs the latest release, allowing you to customise
 This is useful if you want to have multiple meerkats on one machine.
 The SSL certificate is mandatory if you want HTTP/2 support for event streams.
 
+```
 Usage: install-release.sh --label LABEL --port PORT --user USER [--cert-name CERT_NAME] [--release-url RELEASE_URL]
   --label       Unique label for the meerkat instance under /usr/local/meerkat
   --user        User for the meerkat instance
   --port        Port for the meerkat instance
   --cert-name   Name for the SSL certificate
   --release-url URL of the meerkat release to download from GitHub
+```
 
 You can just grab this script and run it like so if you want to get up and running quickly:
 
+```
 sudo ./install-release.sh --label meerkattest --port 8586 --user meerkat --cert-name meerkat.local
+```
+
 
 
 ## dlbuild.sh
