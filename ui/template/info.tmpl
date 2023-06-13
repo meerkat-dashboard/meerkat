@@ -46,13 +46,13 @@
 <form method="POST">
 	<fieldset class="form-group mb-3">
 		<label class="form-label" for="title">Title</label>
-		<input class="form-control" type="text" id="title" name="title" minlength="4" value={{ .Title }} placeholder="Dashboard name..."  required>
+		<input class="form-control" type="text" id="title" name="title" minlength="4" value="{{ .Title }}" placeholder="Dashboard name..."  required>
 
 		<label class="form-label" for="description">Description</label>
-		<input class="form-control" type="text" id="description" name="description" minlength="10" value={{ .Description }} placeholder="Dashboard description...">
+		<input class="form-control" type="text" id="description" name="description" minlength="10" value="{{ .Description }}" placeholder="Dashboard description...">
 
 		<label class="form-label" for="folder">Folder</label>
-		<input class="form-control" type="text" id="folder" name="folder" minlength="4" value={{ .Folder }} placeholder="Dashboard Folder">
+		<input class="form-control" type="text" id="folder" name="folder" minlength="4" value="{{ .Folder }}" placeholder="Dashboard Folder">
 
 		<label class="form-label" for="background">Background image url</label>
 		<input class="form-control" type="text" pattern="(https?|/).*?" id="background" name="background" minlength="8" value="{{ .Background }}" placeholder="http://www.example.com/background.png">
