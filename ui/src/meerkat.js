@@ -1,7 +1,7 @@
 import * as icinga from "./icinga/icinga.js";
 
 export async function getIcingaHosts() {
-	const res = await fetch(`/icinga/v1/objects/hosts`);
+	const res = await fetch(`/api/hosts`);
 	return res.json();
 }
 
@@ -26,8 +26,8 @@ export async function getAllFilter(expr, objectType) {
 		typ = "host";
 	}
 	// /icinga/v1/objects/services?filter=%22example%22%20in%20service.groups
-	const path = `/icinga/v1/objects/${pluralise(typ)}`;
-	const resp = await fetch(path + "?filter=" + filter);
+	const path = `/api/objects?type=${pluralise(typ)}`;
+	const resp = await fetch(path + "&filter=" + filter);
 	const results = await readResults(resp);
 	return await handleJSONList(results);
 }
@@ -47,7 +47,7 @@ export async function getIcingaObject(name, typ) {
 	}
 	typ = pluralise(typ);
 	let encname = encodeURIComponent(name);
-	let path = `/icinga/v1/objects/${typ}/${encname}`;
+	let path = `/api/objects?type=${typ}&name=${encname}`;
 	const resp = await fetch(path);
 	const results = await readResults(resp);
 	let obj = results[0];

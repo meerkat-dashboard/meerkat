@@ -113,6 +113,9 @@ func main() {
 	go sendUpdates(done)
 
 	r.Get("/api/all", getAllHandler)
+	r.Get("/api/hosts", getHostsHandler)
+	r.Get("/api/objects", getObjectHandler)
+
 	r.Get("/{slug}/update", UpdateHandler)
 	r.HandleFunc("/dashboard/stream", UpdateEvents())
 

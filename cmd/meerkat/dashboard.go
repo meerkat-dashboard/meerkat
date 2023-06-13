@@ -249,6 +249,109 @@ func oldPathHandler(w http.ResponseWriter, req *http.Request) {
 	http.RedirectHandler(new, http.StatusMovedPermanently).ServeHTTP(w, req)
 }
 
+type ObjectResults struct {
+	Results []struct {
+		Attrs struct {
+			Name            string `json:"__name"`
+			Acknowledgement int    `json:"acknowledgement"`
+			LastCheckResult struct {
+				Output          string `json:"output"`
+				PerformanceData any    `json:"performance_data"`
+				State           int    `json:"state"`
+				Type            string `json:"type"`
+			} `json:"last_check_result"`
+			NextCheck float64 `json:"next_check"`
+			State     int     `json:"state"`
+			StateType int     `json:"state_type"`
+			Type      string  `json:"type"`
+		} `json:"attrs"`
+		Name string `json:"name"`
+		Type string `json:"type"`
+	} `json:"results"`
+}
+
+type ErrorPage struct {
+	Error  int    `json:"error"`
+	Status string `json:"status"`
+}
+
+func getObjectHandler(w http.ResponseWriter, r *http.Request) {
+	objectType := r.URL.Query().Get("type")
+	objectName := r.URL.Query().Get("name")
+	objectFilter := r.URL.Query().Get("filter")
+
+	requestURL := "/v1/objects/" + objectType
+	if objectName != "" {
+		requestURL = requestURL + "/" + objectName
+	}
+	if objectFilter != "" {
+		params := url.Values{}
+		params.Set("filter", objectFilter)
+		requestURL = requestURL + "?" + strings.Replace(params.Encode(), "+", "%20", -1)
+	}
+
+	response := icingaRequest(requestURL)
+
+	w.WriteHeader(response.StatusCode)
+	w.Header().Set("content-type", "application/json")
+	dec := json.NewDecoder(response.Body)
+	defer response.Body.Close()
+
+	if response.StatusCode == 200 {
+		var objects ObjectResults
+		err := dec.Decode(&objects)
+		if err != nil {
+			log.Println("Failed to decode response: %w", err)
+		}
+		b, err := json.Marshal(objects)
+		if err != nil {
+			fmt.Printf("Error: %s", err)
+			return
+		}
+
+		w.Write(b)
+	} else {
+		handleError(w, dec)
+	}
+}
+
+func getHostsHandler(w http.ResponseWriter, r *http.Request) {
+	response := icingaRequest("/v1/objects/hosts")
+	defer response.Body.Close()
+	w.WriteHeader(response.StatusCode)
+	w.Header().Set("content-type", "application/json")
+	dec := json.NewDecoder(response.Body)
+	if response.StatusCode == 200 {
+		var objects ObjectResults
+		err := dec.Decode(&objects)
+		if err != nil {
+			log.Println("Failed to decode response: %w", err)
+		}
+		b, err := json.Marshal(objects)
+		if err != nil {
+			fmt.Printf("Error: %s", err)
+			return
+		}
+		w.Write(b)
+	} else {
+		handleError(w, dec)
+	}
+}
+
+func handleError(w http.ResponseWriter, dec *json.Decoder) {
+	var errorPage ErrorPage
+	err := dec.Decode(&errorPage)
+	if err != nil {
+		log.Println("Failed to decode response: %w", err)
+	}
+	b, err := json.Marshal(errorPage)
+	if err != nil {
+		fmt.Printf("Error: %s", err)
+		return
+	}
+	w.Write(b)
+}
+
 func getAllHandler(w http.ResponseWriter, r *http.Request) {
 	objectType := r.URL.Query().Get("type")
 	response := icingaRequest("/v1/objects/" + objectType + "?attrs=name")
@@ -286,7 +389,6 @@ type StatusCheck struct {
 					NodeName            string  `json:"node_name"`
 					Pid                 int     `json:"pid"`
 					ProgramStart        float64 `json:"program_start"`
-					Version             string  `json:"version"`
 				} `json:"app"`
 			} `json:"icingaapplication"`
 		} `json:"status"`
