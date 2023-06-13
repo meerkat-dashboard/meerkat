@@ -218,6 +218,18 @@ func (srv *Server) UploadFileHandler(targetPath string, allowFileType string) ht
 	}
 }
 
+func (srv *Server) DeleteFileHandler(targetPath string) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		fileName := r.URL.Query().Get("name")
+		err := os.Remove(filepath.Join(targetPath, fileName))
+		if err != nil {
+			http.Error(w, "Unable to delete file", http.StatusInternalServerError)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+	}
+}
+
 func (srv *Server) EditInfoHandler(w http.ResponseWriter, req *http.Request) {
 	slug, _ := path.Split(req.URL.Path)
 	slug = path.Clean(slug)

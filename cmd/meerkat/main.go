@@ -129,7 +129,9 @@ func main() {
 	r.Get("/{slug}/update", UpdateHandler)
 	r.HandleFunc("/dashboard/stream", UpdateEvents())
 	r.Post("/file/background", srv.UploadFileHandler("./dashboards-background", "image/"))
+	r.Delete("/file/background", srv.DeleteFileHandler("./dashboards-background"))
 	r.Post("/file/sound", srv.UploadFileHandler("./dashboards-sound", "audio/"))
+	r.Delete("/file/sound", srv.DeleteFileHandler("./dashboards-sound"))
 
 	r.Get("/view/*", oldPathHandler)
 	r.Get("/edit/*", oldPathHandler)

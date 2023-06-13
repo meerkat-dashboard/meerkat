@@ -4,7 +4,7 @@
 	<div class="d-flex align-items-center justify-content-between">
 		<h3>Assets</h3>
 		<div class="form-outline assets-search" style="flex-grow: 1; margin: 0 40px;">
-  			<input type="search" id="assets-search" class="form-control" placeholder="filter asset by name..." aria-label="Search" />
+  			<input type="search" id="assets-search" class="form-control" placeholder="Filter asset by name..." aria-label="Search" />
 		</div>
 	</div>
     	<hr>
@@ -30,7 +30,7 @@
     <div class="card">
         <div class="card-body">
             {{ range $index, $file := .Assets }}
-                <div class="row mb-2 bg-dark rounded dashboard-nav-group">
+                <div class="row mb-2 bg-dark rounded">
                     <div class="col">
                     {{ if eq $.Type "image" }}
                         <a href="/dashboards-background/{{ $file }}" class="btn btn-primary w-100 text-start btn-lg ms-2">
@@ -42,14 +42,29 @@
                         </a>
                     {{ end }}
                     </div>
-                    <div class="col-auto d-flex align-items-stretch dashboard-nav-right">
-                        <a class="btn btn-danger btn-lg ms-3 px-3" style="padding-top: 12px; font-size: 14px" href="/{{ $file }}/info"><i class="bi bi-trash-fill"></i></a>
+                    <div class="col-auto d-flex align-items-stretch">
+                        <button class="btn btn-danger btn-lg" onclick="deleteFile('{{ $file }}')"><i class="bi bi-trash-fill"></i></a>
                     </div>
                 </div>
             {{ end }}
         </div>
     </div>
 </main>
+<script>
+function deleteFile(fileName) {
+    {{ if eq $.Type "image" }}
+    fetch('/file/background?name='+fileName, {
+        method: 'DELETE',
+    {{ else }}
+    fetch('/file/sound?name='+fileName, {
+        method: 'DELETE',
+    {{ end }}
+    }).then(function(response) {
+        location.reload();
+        return response.text();
+    });
+}
+</script>
 <script>
 document.querySelector('#filemgr').addEventListener('submit', function(e) {
     e.preventDefault();
