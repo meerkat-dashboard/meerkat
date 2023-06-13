@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -11,6 +12,7 @@ import (
 	"io/fs"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"path"
 	"strconv"
@@ -50,6 +52,10 @@ func UpdateHandler(w http.ResponseWriter, req *http.Request) {
 	}
 	name := strings.Split(path.Dir(req.URL.Path), "/")[1]
 	updateChannel.Notifier <- name
+}
+
+func UpdateAll() {
+	updateChannel.Notifier <- "update"
 }
 
 func UpdateEvents() http.HandlerFunc {
@@ -248,4 +254,67 @@ func oldPathHandler(w http.ResponseWriter, req *http.Request) {
 func swapPath(old string) string {
 	new := path.Join("/", path.Base(old), path.Dir(old))
 	return new
+}
+
+type StatusCheck struct {
+	Results []struct {
+		Name     string `json:"name"`
+		Perfdata []any  `json:"perfdata"`
+		Status   struct {
+			IcingaApplication struct {
+				App struct {
+					EnableEventHandlers bool    `json:"enable_event_handlers"`
+					EnableFlapping      bool    `json:"enable_flapping"`
+					EnableHostChecks    bool    `json:"enable_host_checks"`
+					EnableNotifications bool    `json:"enable_notifications"`
+					EnablePerfdata      bool    `json:"enable_perfdata"`
+					EnableServiceChecks bool    `json:"enable_service_checks"`
+					Environment         string  `json:"environment"`
+					NodeName            string  `json:"node_name"`
+					Pid                 int     `json:"pid"`
+					ProgramStart        float64 `json:"program_start"`
+					Version             string  `json:"version"`
+				} `json:"app"`
+			} `json:"icingaapplication"`
+		} `json:"status"`
+	} `json:"results"`
+}
+
+func checkProgramStart(username, password string, insecureSkipVerify bool) float64 {
+	client := &http.Client{}
+	if config.IcingaInsecureTLS {
+		client.Transport = &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		}
+	}
+	icingaURL, err := url.Parse(config.IcingaURL)
+	if err != nil {
+		log.Println("Failed to parse IcingaURL: %w", err)
+	}
+
+	icingaURL.Path = path.Join(icingaURL.Path, "/v1/status/IcingaApplication")
+	req, err := http.NewRequest("GET", icingaURL.String(), nil)
+	req.Header.Set("accept", "application/json")
+	req.SetBasicAuth(username, password)
+	if err != nil {
+		log.Println("Failed to create request: %w", err)
+		return 0
+	}
+
+	res, err := client.Do(req)
+	if err != nil {
+		log.Println("Icinga2 API error: %w", err)
+		return 0
+	}
+
+	defer res.Body.Close()
+
+	var statusCheck StatusCheck
+	dec := json.NewDecoder(res.Body)
+	err = dec.Decode(&statusCheck)
+	if err != nil {
+		log.Println("Failed to decode response: %w", err)
+		return 0
+	}
+	return statusCheck.Results[0].Status.IcingaApplication.App.ProgramStart
 }
