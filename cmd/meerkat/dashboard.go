@@ -10,6 +10,7 @@ import (
 	_ "image/png"
 	"io"
 	"io/fs"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
@@ -248,6 +249,18 @@ func oldPathHandler(w http.ResponseWriter, req *http.Request) {
 	http.RedirectHandler(new, http.StatusMovedPermanently).ServeHTTP(w, req)
 }
 
+func getAllHandler(w http.ResponseWriter, r *http.Request) {
+	objectType := r.URL.Query().Get("type")
+	response := icingaRequest("/v1/objects/" + objectType + "?attrs=name")
+	defer response.Body.Close()
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		log.Println("Error reading response: %w", err)
+	}
+	w.Header().Set("content-type", "application/json")
+	w.Write(body)
+}
+
 // swapPath takes a file path to a dashboard from a previous Meerkat
 // release and returns a path in the newer format.
 // For example given the old path "/view/my-network", the new path is "/my-network/view".
@@ -280,7 +293,7 @@ type StatusCheck struct {
 	} `json:"results"`
 }
 
-func checkProgramStart(username, password string, insecureSkipVerify bool) float64 {
+func icingaRequest(apiPath string) *http.Response {
 	client := &http.Client{}
 	if config.IcingaInsecureTLS {
 		client.Transport = &http.Transport{
@@ -290,28 +303,38 @@ func checkProgramStart(username, password string, insecureSkipVerify bool) float
 	icingaURL, err := url.Parse(config.IcingaURL)
 	if err != nil {
 		log.Println("Failed to parse IcingaURL: %w", err)
+		return nil
 	}
 
-	icingaURL.Path = path.Join(icingaURL.Path, "/v1/status/IcingaApplication")
-	req, err := http.NewRequest("GET", icingaURL.String(), nil)
+	pathURL, err := url.Parse(apiPath)
+	if err != nil {
+		log.Println("Failed to parse API Path: %w", err)
+		return nil
+	}
+	req, err := http.NewRequest("GET", icingaURL.ResolveReference(pathURL).String(), nil)
 	req.Header.Set("accept", "application/json")
-	req.SetBasicAuth(username, password)
+	req.SetBasicAuth(config.IcingaUsername, config.IcingaPassword)
 	if err != nil {
 		log.Println("Failed to create request: %w", err)
-		return 0
+		return nil
 	}
 
 	res, err := client.Do(req)
 	if err != nil {
 		log.Println("Icinga2 API error: %w", err)
-		return 0
+		return nil
 	}
 
-	defer res.Body.Close()
+	return res
+}
 
+func checkProgramStart() float64 {
 	var statusCheck StatusCheck
-	dec := json.NewDecoder(res.Body)
-	err = dec.Decode(&statusCheck)
+	response := icingaRequest("/v1/status/IcingaApplication")
+	defer response.Body.Close()
+
+	dec := json.NewDecoder(response.Body)
+	err := dec.Decode(&statusCheck)
 	if err != nil {
 		log.Println("Failed to decode response: %w", err)
 		return 0

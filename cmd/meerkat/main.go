@@ -112,6 +112,7 @@ func main() {
 	defer close(done)
 	go sendUpdates(done)
 
+	r.Get("/api/all", getAllHandler)
 	r.Get("/{slug}/update", UpdateHandler)
 	r.HandleFunc("/dashboard/stream", UpdateEvents())
 
@@ -129,7 +130,7 @@ func main() {
 	go func() {
 		var previousCheck float64
 		for {
-			currentCheck := checkProgramStart(config.IcingaUsername, config.IcingaPassword, config.IcingaInsecureTLS)
+			currentCheck := checkProgramStart()
 			if previousCheck != currentCheck && previousCheck != 0 {
 				UpdateAll()
 			}

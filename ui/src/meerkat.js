@@ -7,7 +7,7 @@ export async function getIcingaHosts() {
 
 export async function getAll(objectType) {
 	objectType = pluralise(objectType);
-	const resp = await fetch(`/icinga/v1/objects/${objectType}?attrs=name`);
+	const resp = await fetch(`/api/all?type=${objectType}`);
 	return await readResults(resp);
 }
 
