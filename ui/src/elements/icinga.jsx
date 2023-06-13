@@ -185,7 +185,6 @@ export function AttrSelect({
 	objectAttrMatch,
 	objectAttrNoMatch,
 }) {
-	const [obj, setObjectState] = useState();
 	const [rows, setRows] = useState();
 
 	if (!objectName) {
@@ -194,6 +193,7 @@ export function AttrSelect({
 
 	const parseUpdate = (object) => {
 		let rows = [];
+		rows.push(<option value="">status</option>);
 		for (var key in object.perfdata) {
 			rows.push(<option value={key}>{key}</option>);
 		}
@@ -206,18 +206,15 @@ export function AttrSelect({
 			if (objectType.endsWith("group")) {
 				meerkat.getAllInGroup(objectName, objectType).then((data) => {
 					let worst = IcingaJS.worstObject(data);
-					setObjectState(worst);
 					parseUpdate(worst);
 				});
 			} else if (objectType.endsWith("filter")) {
 				meerkat.getAllFilter(objectName, objectType).then((data) => {
 					let worst = IcingaJS.worstObject(data);
-					setObjectState(worst);
 					parseUpdate(worst);
 				});
 			} else {
 				meerkat.getIcingaObject(objectName, objectType).then((data) => {
-					setObjectState(data);
 					parseUpdate(data);
 				});
 			}

@@ -14,7 +14,7 @@ import { ObjectCard } from "./elements/i2object";
 function Viewer({ dashboard, events }) {
 	useEffect(() => {
 		new EventSource("/dashboard/stream").onmessage = (msg) => {
-			if (dashboard.title == msg.data) {
+			if (dashboard.title == msg.data || msg.data == "update") {
 				window.location.reload(true);
 			}
 		};
