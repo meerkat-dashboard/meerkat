@@ -126,6 +126,18 @@ func main() {
 	r.Get("/*", srv.FileServer().ServeHTTP)
 	r.Get("/", srv.RootHandler)
 
+	go func() {
+		var previousCheck float64
+		for {
+			currentCheck := checkProgramStart(config.IcingaUsername, config.IcingaPassword, config.IcingaInsecureTLS)
+			if previousCheck != currentCheck && previousCheck != 0 {
+				UpdateAll()
+			}
+			previousCheck = currentCheck
+			time.Sleep(60 * time.Second)
+		}
+	}()
+
 	if config.SSLEnable {
 		log.Printf("Starting https web server on https://%s\n", config.HTTPAddr)
 		_, err := os.Stat(config.SSLCert)
