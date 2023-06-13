@@ -66,10 +66,6 @@ func main() {
 		if err != nil {
 			log.Println("dial icinga:", err)
 		}
-		rproxy := NewIcingaProxy(icingaURL, config.IcingaUsername, config.IcingaPassword, config.IcingaInsecureTLS)
-		// Let the server cache responses from icinga to ease load on request bursts.
-		cache := NewCachingProxy(rproxy, 10*time.Second)
-		r.Handle("/icinga/v1/*", http.StripPrefix("/icinga", cache))
 
 		// Subscribe to object state changes. Some dashboard elements
 		// read events instead of polling.
