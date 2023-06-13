@@ -195,7 +195,7 @@ func (srv *Server) UploadFileHandler(targetPath string, allowFileType string) ht
 
 		// Check the file's type
 		if strings.HasPrefix(filetype, allowFileType) {
-			http.Error(w, "File type (" + filetype + ") is not allowed", http.StatusInternalServerError)
+			http.Error(w, "File type ("+filetype+") is not allowed", http.StatusInternalServerError)
 		}
 
 		// create a new file in the local system
@@ -207,6 +207,7 @@ func (srv *Server) UploadFileHandler(targetPath string, allowFileType string) ht
 		defer dst.Close()
 
 		// copy the uploaded file to the new file
+		file, _, _ = r.FormFile("file")
 		if _, err := io.Copy(dst, file); err != nil {
 			http.Error(w, "Unable to save file", http.StatusInternalServerError)
 			return
@@ -282,6 +283,60 @@ func (srv *Server) AboutPage(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
+func (srv *Server) BackgroundPage(w http.ResponseWriter, req *http.Request) {
+	tmpl, err := template.ParseFS(srv.fsys, "template/layout.tmpl", "template/assets.tmpl", "template/nav.tmpl")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	backgrounds, err := meerkat.ReadDirectory("dashboards-background")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	data := struct {
+		Assets []string
+		Type   string
+	}{
+		Assets: backgrounds,
+		Type:   "image",
+	}
+
+	err = tmpl.Execute(w, data)
+	if err != nil {
+		log.Println(err)
+	}
+}
+
+func (srv *Server) SoundPage(w http.ResponseWriter, req *http.Request) {
+	tmpl, err := template.ParseFS(srv.fsys, "template/layout.tmpl", "template/assets.tmpl", "template/nav.tmpl")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	sounds, err := meerkat.ReadDirectory("dashboards-sound")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	data := struct {
+		Assets []string
+		Type   string
+	}{
+		Assets: sounds,
+		Type:   "sound",
+	}
+
+	err = tmpl.Execute(w, data)
+	if err != nil {
+		log.Println(err)
+	}
+}
+
 func (srv *Server) FileServer() http.Handler {
 	return http.FileServer(http.FS(srv.fsys))
 }
@@ -294,13 +349,13 @@ func SanitizeName(filename string) (string, error) {
 	if filename == "" {
 		return "", errors.New("filename cannot be empty")
 	}
-	
+
 	// Get the extension of the file
 	ext := filepath.Ext(filename)
-	
+
 	// Remove the extension from the filename
 	base := strings.TrimSuffix(filename, ext)
-	
+
 	// Remove any non-alphanumeric character, underscore or dash and replace it with underscore
 	base = strings.Map(func(r rune) rune {
 		if (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') || (r >= '0' && r <= '9') || r == '-' || r == '_' {

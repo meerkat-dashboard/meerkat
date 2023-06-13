@@ -54,6 +54,10 @@ func main() {
 		log.Fatalln("Error creating dashboards background directory:", err)
 	}
 
+	if err := os.MkdirAll("dashboards-sound", 0755); err != nil {
+		log.Fatalln("Error creating dashboards sound directory:", err)
+	}
+
 	r := chi.NewRouter()
 	r.Get("/dashboard/{slug}", handleListDashboard)
 	r.Post("/dashboard", handleCreateDashboard)
@@ -102,6 +106,11 @@ func main() {
 		r.Handle("/dashboards-background/*", http.StripPrefix("/dashboards-background/", http.FileServer(http.Dir("./dashboards-background"))))
 	}
 
+	_, err = os.Stat("./dashboards-sound")
+	if err == nil {
+		r.Handle("/dashboards-sound/*", http.StripPrefix("/dashboards-sound/", http.FileServer(http.Dir("./dashboards-sound"))))
+	}
+
 	srv := ui.NewServer(nil)
 	if *fflag != "" {
 		srv = ui.NewServer(os.DirFS(path.Clean(*fflag)))
@@ -120,6 +129,8 @@ func main() {
 	r.Get("/{slug}/update", UpdateHandler)
 	r.HandleFunc("/dashboard/stream", UpdateEvents())
 	r.Post("/file/background", srv.UploadFileHandler("./dashboards-background", "image/"))
+	r.Post("/file/sound", srv.UploadFileHandler("./dashboards-sound", "audio/"))
+
 	r.Get("/view/*", oldPathHandler)
 	r.Get("/edit/*", oldPathHandler)
 	r.Get("/create", srv.CreatePage)
@@ -127,6 +138,8 @@ func main() {
 	r.Get("/clone", srv.ClonePage)
 	r.Post("/clone", handleCloneDashboard)
 	r.Get("/about", srv.AboutPage)
+	r.Get("/assets/backgrounds", srv.BackgroundPage)
+	r.Get("/assets/sounds", srv.SoundPage)
 	r.Get("/*", srv.FileServer().ServeHTTP)
 	r.Get("/", srv.RootHandler)
 
