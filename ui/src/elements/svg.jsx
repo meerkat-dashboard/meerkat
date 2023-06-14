@@ -98,6 +98,10 @@ export function CheckSVG({ events, options }) {
 		};
 	}, [handleEvent]);
 
+	useEffect(() => {
+		if (objectState) handleUpdate(objectState);
+	}, [options]);
+
 	return (
 		<div class={`check-content svg`}>
 			<svg class={cardState}>

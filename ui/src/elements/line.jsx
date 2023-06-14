@@ -123,6 +123,10 @@ export function CheckLine({ events, options }) {
 		};
 	}, [handleEvent]);
 
+	useEffect(() => {
+		if (objectState) handleUpdate(objectState);
+	}, [options]);
+
 	return (
 		<div class={`check-content svg ${state}`} ref={svgRef}>
 			<svg
