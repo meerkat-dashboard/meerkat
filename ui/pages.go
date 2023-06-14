@@ -188,6 +188,16 @@ func (srv *Server) InfoPage(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
+func (srv *Server) GetSounds(w http.ResponseWriter, req *http.Request) {
+	sounds, err := meerkat.ReadDirectory("dashboards-sound")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write([]byte("[\"" + strings.Join(sounds, "\",\"") + "\"]"))
+}
+
 func (srv *Server) UploadFileHandler(targetPath string, allowFileType string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// get the file from the request

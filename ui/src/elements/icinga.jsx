@@ -295,3 +295,125 @@ const noneSelected = (
 		</small>
 	</Fragment>
 );
+
+export function SoundOptions({ options, updateOptions }) {
+	const [rows, setRows] = useState();
+
+	const parseUpdate = (object) => {
+		let rows = [];
+		rows.push(<option value="">None</option>);
+		for (var key in object) {
+			rows.push(<option value={object[key]}>{object[key]}</option>);
+		}
+		setRows(rows);
+	};
+
+	useEffect(() => {
+		try {
+			meerkat.getSounds().then((data) => {
+				parseUpdate(data);
+			});
+		} catch (err) {
+			console.error(`fetch sounds: ${err}`);
+		}
+	}, []);
+
+	return (
+		<fieldset>
+			<legend>Sounds</legend>
+
+			<div class="form-check">
+				<input
+					class="form-check-input"
+					type="checkbox"
+					defaultChecked={options.muteAlerts}
+					onChange={(e) => updateOptions({ muteAlerts: e.target.checked })}
+					value=""
+					id="muteSounds"
+				/>
+
+				<label class="form-check-label" for="muteSounds">
+					Mute Alerts
+				</label>
+			</div>
+
+			<label class="form-label" for="okSound">
+				Ok alert sound
+			</label>
+			<select
+				onChange={(e) => updateOptions({ okSound: e.target.value })}
+				class="form-select"
+				id="okSound"
+				name="okSound"
+				aria-label="Ok alert sound select"
+			>
+				{rows}
+			</select>
+
+			<label class="form-label" for="warningSound">
+				Warning alert sound
+			</label>
+			<select
+				onChange={(e) => updateOptions({ warningSound: e.target.value })}
+				class="form-select"
+				id="warningSound"
+				name="warningSound"
+				aria-label="Warning alert sound select"
+			>
+				{rows}
+			</select>
+
+			<label class="form-label" for="criticalSound">
+				Critical alert sound
+			</label>
+			<select
+				onChange={(e) => updateOptions({ criticalSound: e.target.value })}
+				class="form-select"
+				id="criticalSound"
+				name="criticalSound"
+				aria-label="Critical alert sound select"
+			>
+				{rows}
+			</select>
+
+			<label class="form-label" for="unknownSound">
+				Unknown alert sound
+			</label>
+			<select
+				onChange={(e) => updateOptions({ unknownSound: e.target.value })}
+				class="form-select"
+				id="unknownSound"
+				name="unknownSound"
+				aria-label="Unknown alert sound select"
+			>
+				{rows}
+			</select>
+
+			<label class="form-label" for="upSound">
+				Up alert sound
+			</label>
+			<select
+				onChange={(e) => updateOptions({ upSound: e.target.value })}
+				class="form-select"
+				id="upSound"
+				name="upSound"
+				aria-label="Up alert sound select"
+			>
+				{rows}
+			</select>
+
+			<label class="form-label" for="downSound">
+				Down alert sound
+			</label>
+			<select
+				onChange={(e) => updateOptions({ downSound: e.target.value })}
+				class="form-select"
+				id="downSound"
+				name="downSound"
+				aria-label="Down alert sound select"
+			>
+				{rows}
+			</select>
+		</fieldset>
+	);
+}

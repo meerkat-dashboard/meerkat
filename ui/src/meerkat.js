@@ -100,6 +100,14 @@ export async function getDashboard(slug) {
 	return await resp.json();
 }
 
+export async function getSounds() {
+	const resp = await fetch(`/file/sound`);
+	if (!resp.ok) {
+		throw new Error(resp.statusText);
+	}
+	return await resp.json();
+}
+
 export async function saveDashboard(slug, dashboard) {
 	const resp = await fetch(`/dashboard/${slug}`, {
 		method: "POST",

@@ -32,6 +32,7 @@ export function ObjectCardOptions({ options, updateOptions }) {
 					updateOptions({ fontSize: Number(e.currentTarget.value) })
 				}
 			/>
+			<Icinga.SoundOptions options={options} updateOptions={updateOptions} />
 		</Fragment>
 	);
 }

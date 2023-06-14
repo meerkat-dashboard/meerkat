@@ -132,6 +132,7 @@ func main() {
 	r.Delete("/file/background", srv.DeleteFileHandler("./dashboards-background"))
 	r.Post("/file/sound", srv.UploadFileHandler("./dashboards-sound", "audio/"))
 	r.Delete("/file/sound", srv.DeleteFileHandler("./dashboards-sound"))
+	r.Get("/file/sound", srv.GetSounds)
 
 	r.Get("/view/*", oldPathHandler)
 	r.Get("/edit/*", oldPathHandler)
