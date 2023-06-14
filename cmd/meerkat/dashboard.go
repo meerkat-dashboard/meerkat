@@ -433,10 +433,10 @@ func icingaRequest(apiPath string) *http.Response {
 func checkProgramStart() float64 {
 	var statusCheck StatusCheck
 	response, err := icingaRequest("/v1/status/IcingaApplication")
-    	if err != nil {
-        	// Handle error (for example, by logging it and returning a default value)
+	if err != nil {
+		// Handle error (for example, by logging it and returning a default value)
 		log.Println("Failed to make request: %w", err)
-        	return 0
+		return 0
 	}
 	defer response.Body.Close()
 
