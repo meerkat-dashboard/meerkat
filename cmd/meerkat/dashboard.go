@@ -290,7 +290,12 @@ func getObjectHandler(w http.ResponseWriter, r *http.Request) {
 		requestURL = requestURL + "?" + strings.Replace(params.Encode(), "+", "%20", -1)
 	}
 
-	response := icingaRequest(requestURL)
+	response, err := icingaRequest(requestURL)
+	if err != nil {
+		log.Println("Error getting response: %w", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
 	w.WriteHeader(response.StatusCode)
 	w.Header().Set("content-type", "application/json")
@@ -316,7 +321,12 @@ func getObjectHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func getHostsHandler(w http.ResponseWriter, r *http.Request) {
-	response := icingaRequest("/v1/objects/hosts")
+	response, err := icingaRequest("/v1/objects/hosts")
+	if err != nil {
+		log.Println("Error getting response: %w", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 	defer response.Body.Close()
 	w.WriteHeader(response.StatusCode)
 	w.Header().Set("content-type", "application/json")
@@ -354,7 +364,12 @@ func handleError(w http.ResponseWriter, dec *json.Decoder) {
 
 func getAllHandler(w http.ResponseWriter, r *http.Request) {
 	objectType := r.URL.Query().Get("type")
-	response := icingaRequest("/v1/objects/" + objectType + "?attrs=name")
+	response, err := icingaRequest("/v1/objects/" + objectType + "?attrs=name")
+	if err != nil {
+		log.Println("Error getting response: %w", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 	defer response.Body.Close()
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
@@ -395,7 +410,11 @@ type StatusCheck struct {
 	} `json:"results"`
 }
 
-func icingaRequest(apiPath string) (res *http.Response, err error) {
+<<<<<<< HEAD
+func icingaRequest(apiPath string) (*http.Response, error) {
+=======
+func icingaRequest(apiPath string) *http.Response {
+>>>>>>> parent of 9bcb99b (fix error handling)
 	client := &http.Client{}
 	if config.IcingaInsecureTLS {
 		client.Transport = &http.Transport{
@@ -405,26 +424,26 @@ func icingaRequest(apiPath string) (res *http.Response, err error) {
 	icingaURL, err := url.Parse(config.IcingaURL)
 	if err != nil {
 		log.Println("Failed to parse IcingaURL: %w", err)
-		return nil, err
+		return nil
 	}
 
 	pathURL, err := url.Parse(apiPath)
 	if err != nil {
 		log.Println("Failed to parse API Path: %w", err)
-		return nil, err
+		return nil
 	}
 	req, err := http.NewRequest("GET", icingaURL.ResolveReference(pathURL).String(), nil)
 	req.Header.Set("accept", "application/json")
 	req.SetBasicAuth(config.IcingaUsername, config.IcingaPassword)
 	if err != nil {
 		log.Println("Failed to create request: %w", err)
-		return nil, err
+		return nil
 	}
 
 	res, err := client.Do(req)
 	if err != nil {
 		log.Println("Icinga2 API error: %w", err)
-		return nil, err
+		return nil
 	}
 
 	return res
@@ -441,7 +460,7 @@ func checkProgramStart() float64 {
 	defer response.Body.Close()
 
 	dec := json.NewDecoder(response.Body)
-	err = dec.Decode(&statusCheck)
+	err := dec.Decode(&statusCheck)
 	if err != nil {
 		log.Println("Failed to decode response: %w", err)
 		return 0
