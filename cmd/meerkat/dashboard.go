@@ -395,7 +395,7 @@ type StatusCheck struct {
 	} `json:"results"`
 }
 
-func icingaRequest(apiPath string) *http.Response, error {
+func icingaRequest(apiPath string) (res *http.Response, err error) {
 	client := &http.Client{}
 	if config.IcingaInsecureTLS {
 		client.Transport = &http.Transport{
@@ -427,7 +427,7 @@ func icingaRequest(apiPath string) *http.Response, error {
 		return nil, err
 	}
 
-	return res, nil
+	return res
 }
 
 func checkProgramStart() float64 {
