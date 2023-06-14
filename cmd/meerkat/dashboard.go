@@ -290,12 +290,7 @@ func getObjectHandler(w http.ResponseWriter, r *http.Request) {
 		requestURL = requestURL + "?" + strings.Replace(params.Encode(), "+", "%20", -1)
 	}
 
-	response, err := icingaRequest(requestURL)
-	if err != nil {
-		log.Println("Error getting response: %w", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
+	response := icingaRequest(requestURL)
 
 	w.WriteHeader(response.StatusCode)
 	w.Header().Set("content-type", "application/json")
@@ -321,12 +316,7 @@ func getObjectHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func getHostsHandler(w http.ResponseWriter, r *http.Request) {
-	response, err := icingaRequest("/v1/objects/hosts")
-	if err != nil {
-		log.Println("Error getting response: %w", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
+	response := icingaRequest("/v1/objects/hosts")
 	defer response.Body.Close()
 	w.WriteHeader(response.StatusCode)
 	w.Header().Set("content-type", "application/json")
@@ -364,12 +354,7 @@ func handleError(w http.ResponseWriter, dec *json.Decoder) {
 
 func getAllHandler(w http.ResponseWriter, r *http.Request) {
 	objectType := r.URL.Query().Get("type")
-	response, err := icingaRequest("/v1/objects/" + objectType + "?attrs=name")
-	if err != nil {
-		log.Println("Error getting response: %w", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
+	response := icingaRequest("/v1/objects/" + objectType + "?attrs=name")
 	defer response.Body.Close()
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
@@ -410,7 +395,7 @@ type StatusCheck struct {
 	} `json:"results"`
 }
 
-func icingaRequest(apiPath string) (*http.Response, error) {
+func icingaRequest(apiPath string) (res *http.Response, err error) {
 	client := &http.Client{}
 	if config.IcingaInsecureTLS {
 		client.Transport = &http.Transport{
@@ -442,7 +427,7 @@ func icingaRequest(apiPath string) (*http.Response, error) {
 		return nil, err
 	}
 
-	return res, nil
+	return res
 }
 
 func checkProgramStart() float64 {
