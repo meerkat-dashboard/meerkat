@@ -119,7 +119,7 @@ func main() {
 	r.Get("/{slug}/edit", srv.EditHandler)
 	r.Get("/{slug}/delete", srv.DeletePage)
 	r.Post("/{slug}/delete", handleDeleteDashboard)
-	r.Get("/{slug}/info", srv.InfoPage)
+	r.Get("/{slug}/info", srv.InfoPageHandler(config.SSLEnable, config.HTTPAddr))
 	r.Post("/{slug}/info", srv.EditInfoHandler)
 
 	done := make(chan interface{})

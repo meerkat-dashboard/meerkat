@@ -2,26 +2,26 @@
 {{ template "nav" }}
 </header>
 <main class="container">
-<h2>{{ .Title }}</h2>
+<h2>{{ .Dashboard.Title }}</h2>
 <section class="container">
 <div class="row">
 <div class="col-9">
 	<p>
-		{{ .Description }}
+		{{ .Dashboard.Description }}
 	</p>
 	<table class="table">
 	<tr>
 		<th>Folder</th>
-		<td>{{ .Folder }}</td>
+		<td>{{ .Dashboard.Folder }}</td>
 	</tr>
 	<tr>
 		<th>Background</th>
-		<td>{{ .Background }}</td>
+		<td>{{ .Dashboard.Background }}</td>
 	</tr>
 <!--
 	<tr>
 		<th>Dimensions</th>
-		<td>{{ .Width }}x{{ .Height }}</td>
+		<td>{{ .Dashboard.Width }}x{{ .Dashboard.Height }}</td>
 	</tr>
 	-->
 	<tr>
@@ -46,21 +46,28 @@
 <form method="POST">
 	<fieldset class="form-group mb-3">
 		<label class="form-label" for="title">Title</label>
-		<input class="form-control" type="text" id="title" name="title" minlength="4" value="{{ .Title }}" placeholder="Dashboard name..."  required>
+		<input class="form-control" type="text" id="title" name="title" minlength="4" value="{{ .Dashboard.Title }}" placeholder="Dashboard name..."  required>
 
 		<label class="form-label" for="description">Description</label>
-		<input class="form-control" type="text" id="description" name="description" minlength="10" value="{{ .Description }}" placeholder="Dashboard description...">
+		<input class="form-control" type="text" id="description" name="description" minlength="10" value="{{ .Dashboard.Description }}" placeholder="Dashboard description...">
 
 		<label class="form-label" for="folder">Folder</label>
-		<input class="form-control" type="text" id="folder" name="folder" minlength="4" value="{{ .Folder }}" placeholder="Dashboard Folder">
+		<input class="form-control" type="text" id="folder" name="folder" minlength="4" value="{{ .Dashboard.Folder }}" placeholder="Dashboard Folder">
 
-		<label class="form-label" for="background">Background image url</label>
-		<input class="form-control" type="text" pattern="(https?|/).*?" id="background" name="background" minlength="8" value="{{ .Background }}" placeholder="http://www.example.com/background.png">
+		<label class="form-label" for="background">Background image</label>
+		<select class="form-select" id="background" name="background" aria-label="Background Select">
+			<option value="">None</option>
+			{{ range $index, $background := .Backgrounds }}
+				<option value="{{ $.Url }}{{ $background }}">{{ $background }}</option>
+			{{ end }}
+		</select>
 	</fieldset>
 	<button class="btn btn-primary btn-success" type="submit">
 		Save
 	</button>
 </form>
-{{ template "filemgr_background" }}
+<script>
+	document.getElementById("background").value = "{{ .Dashboard.Background }}";
+</script>
 </main>
 {{ end }}
