@@ -281,14 +281,16 @@ func getObjectHandler(w http.ResponseWriter, r *http.Request) {
 	objectFilter := r.URL.Query().Get("filter")
 
 	requestURL := "/v1/objects/" + objectType
+	params := url.Values{}
+
 	if objectName != "" {
-		requestURL = requestURL + "/" + objectName
+		params.Set("service", objectName)
 	}
+
 	if objectFilter != "" {
-		params := url.Values{}
 		params.Set("filter", objectFilter)
-		requestURL = requestURL + "?" + strings.Replace(params.Encode(), "+", "%20", -1)
 	}
+	requestURL = requestURL + "?" + strings.Replace(params.Encode(), "+", "%20", -1)
 
 	response, err := icingaRequest(requestURL)
 	if err != nil {
@@ -428,6 +430,7 @@ func icingaRequest(apiPath string) (*http.Response, error) {
 		log.Println("Failed to parse API Path: %w", err)
 		return nil, err
 	}
+	fmt.Println(icingaURL.ResolveReference(pathURL).String())
 	req, err := http.NewRequest("GET", icingaURL.ResolveReference(pathURL).String(), nil)
 	req.Header.Set("accept", "application/json")
 	req.SetBasicAuth(config.IcingaUsername, config.IcingaPassword)
