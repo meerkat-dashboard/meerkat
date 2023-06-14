@@ -10,6 +10,7 @@ import (
 	_ "image/png"
 	"io"
 	"io/fs"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
@@ -248,6 +249,138 @@ func oldPathHandler(w http.ResponseWriter, req *http.Request) {
 	http.RedirectHandler(new, http.StatusMovedPermanently).ServeHTTP(w, req)
 }
 
+type ObjectResults struct {
+	Results []struct {
+		Attrs struct {
+			Name            string `json:"__name"`
+			Acknowledgement int    `json:"acknowledgement"`
+			LastCheckResult struct {
+				Output          string `json:"output"`
+				PerformanceData any    `json:"performance_data"`
+				State           int    `json:"state"`
+				Type            string `json:"type"`
+			} `json:"last_check_result"`
+			NextCheck float64 `json:"next_check"`
+			State     int     `json:"state"`
+			StateType int     `json:"state_type"`
+			Type      string  `json:"type"`
+		} `json:"attrs"`
+		Name string `json:"name"`
+		Type string `json:"type"`
+	} `json:"results"`
+}
+
+type ErrorPage struct {
+	Error  int    `json:"error"`
+	Status string `json:"status"`
+}
+
+func getObjectHandler(w http.ResponseWriter, r *http.Request) {
+	objectType := r.URL.Query().Get("type")
+	objectName := r.URL.Query().Get("name")
+	objectFilter := r.URL.Query().Get("filter")
+
+	requestURL := "/v1/objects/" + objectType
+	params := url.Values{}
+
+	if objectName != "" {
+		params.Set("service", objectName)
+	}
+
+	if objectFilter != "" {
+		params.Set("filter", objectFilter)
+	}
+	requestURL = requestURL + "?" + strings.Replace(params.Encode(), "+", "%20", -1)
+
+	response, err := icingaRequest(requestURL)
+	if err != nil {
+		log.Println("Error getting response: %w", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(response.StatusCode)
+	w.Header().Set("content-type", "application/json")
+	dec := json.NewDecoder(response.Body)
+	defer response.Body.Close()
+
+	if response.StatusCode == 200 {
+		var objects ObjectResults
+		err := dec.Decode(&objects)
+		if err != nil {
+			log.Println("Failed to decode response: %w", err)
+		}
+		b, err := json.Marshal(objects)
+		if err != nil {
+			fmt.Printf("Error: %s", err)
+			return
+		}
+
+		w.Write(b)
+	} else {
+		handleError(w, dec)
+	}
+}
+
+func getHostsHandler(w http.ResponseWriter, r *http.Request) {
+	response, err := icingaRequest("/v1/objects/hosts")
+	if err != nil {
+		log.Println("Error getting response: %w", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	defer response.Body.Close()
+	w.WriteHeader(response.StatusCode)
+	w.Header().Set("content-type", "application/json")
+	dec := json.NewDecoder(response.Body)
+	if response.StatusCode == 200 {
+		var objects ObjectResults
+		err := dec.Decode(&objects)
+		if err != nil {
+			log.Println("Failed to decode response: %w", err)
+		}
+		b, err := json.Marshal(objects)
+		if err != nil {
+			fmt.Printf("Error: %s", err)
+			return
+		}
+		w.Write(b)
+	} else {
+		handleError(w, dec)
+	}
+}
+
+func handleError(w http.ResponseWriter, dec *json.Decoder) {
+	var errorPage ErrorPage
+	err := dec.Decode(&errorPage)
+	if err != nil {
+		log.Println("Failed to decode response: %w", err)
+	}
+	b, err := json.Marshal(errorPage)
+	if err != nil {
+		fmt.Printf("Error: %s", err)
+		return
+	}
+	w.Write(b)
+}
+
+func getAllHandler(w http.ResponseWriter, r *http.Request) {
+	objectType := r.URL.Query().Get("type")
+	response, err := icingaRequest("/v1/objects/" + objectType + "?attrs=name")
+	if err != nil {
+		log.Println("Error getting response: %w", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	defer response.Body.Close()
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		log.Println("Error reading response: %w", err)
+	}
+	w.Header().Set("content-type", "application/json")
+	w.Write(body)
+}
+
 // swapPath takes a file path to a dashboard from a previous Meerkat
 // release and returns a path in the newer format.
 // For example given the old path "/view/my-network", the new path is "/my-network/view".
@@ -273,14 +406,13 @@ type StatusCheck struct {
 					NodeName            string  `json:"node_name"`
 					Pid                 int     `json:"pid"`
 					ProgramStart        float64 `json:"program_start"`
-					Version             string  `json:"version"`
 				} `json:"app"`
 			} `json:"icingaapplication"`
 		} `json:"status"`
 	} `json:"results"`
 }
 
-func checkProgramStart(username, password string, insecureSkipVerify bool) float64 {
+func icingaRequest(apiPath string) (*http.Response, error) {
 	client := &http.Client{}
 	if config.IcingaInsecureTLS {
 		client.Transport = &http.Transport{
@@ -290,31 +422,50 @@ func checkProgramStart(username, password string, insecureSkipVerify bool) float
 	icingaURL, err := url.Parse(config.IcingaURL)
 	if err != nil {
 		log.Println("Failed to parse IcingaURL: %w", err)
+		return nil, err
 	}
 
-	icingaURL.Path = path.Join(icingaURL.Path, "/v1/status/IcingaApplication")
-	req, err := http.NewRequest("GET", icingaURL.String(), nil)
+	pathURL, err := url.Parse(apiPath)
+	if err != nil {
+		log.Println("Failed to parse API Path: %w", err)
+		return nil, err
+	}
+	req, err := http.NewRequest("GET", icingaURL.ResolveReference(pathURL).String(), nil)
 	req.Header.Set("accept", "application/json")
-	req.SetBasicAuth(username, password)
+	req.SetBasicAuth(config.IcingaUsername, config.IcingaPassword)
 	if err != nil {
 		log.Println("Failed to create request: %w", err)
-		return 0
+		return nil, err
 	}
 
 	res, err := client.Do(req)
 	if err != nil {
 		log.Println("Icinga2 API error: %w", err)
-		return 0
+		return nil, err
 	}
 
-	defer res.Body.Close()
+	return res, nil
+}
 
+func checkProgramStart() float64 {
 	var statusCheck StatusCheck
-	dec := json.NewDecoder(res.Body)
+	response, err := icingaRequest("/v1/status/IcingaApplication")
+	if err != nil {
+		// Handle error (for example, by logging it and returning a default value)
+		log.Println("Failed to make request: %w", err)
+		return 0
+	}
+	defer response.Body.Close()
+
+	dec := json.NewDecoder(response.Body)
 	err = dec.Decode(&statusCheck)
 	if err != nil {
 		log.Println("Failed to decode response: %w", err)
 		return 0
 	}
-	return statusCheck.Results[0].Status.IcingaApplication.App.ProgramStart
+
+	for _, v := range statusCheck.Results {
+		return v.Status.IcingaApplication.App.ProgramStart
+	}
+	return 0
 }
