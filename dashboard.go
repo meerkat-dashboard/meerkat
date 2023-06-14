@@ -46,6 +46,18 @@ func (d *Dashboard) Stat() (fs.FileInfo, error) {
 	return os.Stat(path.Join("dashboards", TitleToSlug(d.Title)+".json"))
 }
 
+func ReadDirectory(dirname string) ([]string, error) {
+	files, err := os.ReadDir(dirname)
+	if err != nil {
+		return nil, err
+	}
+	var list []string
+	for _, file := range files {
+		list = append(list, file.Name())
+	}
+	return list, nil
+}
+
 func ReadDashboardDir(dirname string) ([]Dashboard, error) {
 	files, err := os.ReadDir(dirname)
 	if err != nil {

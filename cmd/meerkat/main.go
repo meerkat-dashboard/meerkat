@@ -45,8 +45,17 @@ func main() {
 		log.Fatalln("parse icinga url:", err)
 	}
 
+	// Make directories for dashboards and related assets
 	if err := os.MkdirAll("dashboards", 0755); err != nil {
 		log.Fatalln("Error creating dashboards directory:", err)
+	}
+
+	if err := os.MkdirAll("dashboards-background", 0755); err != nil {
+		log.Fatalln("Error creating dashboards background directory:", err)
+	}
+
+	if err := os.MkdirAll("dashboards-sound", 0755); err != nil {
+		log.Fatalln("Error creating dashboards sound directory:", err)
 	}
 
 	r := chi.NewRouter()
@@ -92,9 +101,14 @@ func main() {
 
 	// Previous versions of meerkat served user-uploaded files from this directory.
 	// Keep serving them for backwards compatibility.
-	_, err = os.Stat("./dashboards-data")
+	_, err = os.Stat("./dashboards-background")
 	if err == nil {
-		r.Handle("/dashboards-data/*", http.StripPrefix("/dashboards-data/", http.FileServer(http.Dir("./dashboards-data"))))
+		r.Handle("/dashboards-background/*", http.StripPrefix("/dashboards-background/", http.FileServer(http.Dir("./dashboards-background"))))
+	}
+
+	_, err = os.Stat("./dashboards-sound")
+	if err == nil {
+		r.Handle("/dashboards-sound/*", http.StripPrefix("/dashboards-sound/", http.FileServer(http.Dir("./dashboards-sound"))))
 	}
 
 	srv := ui.NewServer(nil)
@@ -114,8 +128,11 @@ func main() {
 
 	r.Get("/{slug}/update", UpdateHandler)
 	r.HandleFunc("/dashboard/stream", UpdateEvents())
+	r.Post("/file/background", srv.UploadFileHandler("./dashboards-background", "image/"))
+	r.Delete("/file/background", srv.DeleteFileHandler("./dashboards-background"))
+	r.Post("/file/sound", srv.UploadFileHandler("./dashboards-sound", "audio/"))
+	r.Delete("/file/sound", srv.DeleteFileHandler("./dashboards-sound"))
 
-	r.Post("/file/background", srv.UploadFileHandler("./dashboards-data"))
 	r.Get("/view/*", oldPathHandler)
 	r.Get("/edit/*", oldPathHandler)
 	r.Get("/create", srv.CreatePage)
@@ -123,6 +140,8 @@ func main() {
 	r.Get("/clone", srv.ClonePage)
 	r.Post("/clone", handleCloneDashboard)
 	r.Get("/about", srv.AboutPage)
+	r.Get("/assets/backgrounds", srv.BackgroundPage)
+	r.Get("/assets/sounds", srv.SoundPage)
 	r.Get("/*", srv.FileServer().ServeHTTP)
 	r.Get("/", srv.RootHandler)
 

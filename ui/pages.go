@@ -12,6 +12,8 @@ import (
 	"path"
 	"path/filepath"
 	"sort"
+	"strings"
+	"time"
 
 	"github.com/meerkat-dashboard/meerkat"
 )
@@ -166,12 +168,27 @@ func (srv *Server) InfoPage(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	if err := tmpl.Execute(w, dashboard); err != nil {
+
+	backgrounds, err := meerkat.ReadDirectory("dashboards-background")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	data := struct {
+		Dashboard   meerkat.Dashboard
+		Backgrounds []string
+	}{
+		Dashboard:   dashboard,
+		Backgrounds: backgrounds,
+	}
+
+	if err := tmpl.Execute(w, data); err != nil {
 		log.Println(err)
 	}
 }
 
-func (srv *Server) UploadFileHandler(targetPath string) http.HandlerFunc {
+func (srv *Server) UploadFileHandler(targetPath string, allowFileType string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// get the file from the request
 		file, header, err := r.FormFile("file")
@@ -181,8 +198,23 @@ func (srv *Server) UploadFileHandler(targetPath string) http.HandlerFunc {
 		}
 		defer file.Close()
 
+		sanitizedFilename, err := SanitizeName(header.Filename)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// Get the file's MIME type
+		buffer := make([]byte, 512)
+		file.Read(buffer)
+		filetype := http.DetectContentType(buffer)
+
+		// Check the file's type
+		if strings.HasPrefix(filetype, allowFileType) {
+			http.Error(w, "File type ("+filetype+") is not allowed", http.StatusInternalServerError)
+		}
+
 		// create a new file in the local system
-		dst, err := os.Create(filepath.Join(targetPath, header.Filename))
+		dst, err := os.Create(filepath.Join(targetPath, sanitizedFilename))
 		if err != nil {
 			http.Error(w, "Unable to create file", http.StatusInternalServerError)
 			return
@@ -190,13 +222,26 @@ func (srv *Server) UploadFileHandler(targetPath string) http.HandlerFunc {
 		defer dst.Close()
 
 		// copy the uploaded file to the new file
+		file, _, _ = r.FormFile("file")
 		if _, err := io.Copy(dst, file); err != nil {
 			http.Error(w, "Unable to save file", http.StatusInternalServerError)
 			return
 		}
 
 		// return the file path
-		w.Write([]byte(targetPath + "/" + header.Filename))
+		w.Write([]byte(targetPath + "/" + sanitizedFilename))
+	}
+}
+
+func (srv *Server) DeleteFileHandler(targetPath string) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		fileName := r.URL.Query().Get("name")
+		err := os.Remove(filepath.Join(targetPath, fileName))
+		if err != nil {
+			http.Error(w, "Unable to delete file", http.StatusInternalServerError)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
 	}
 }
 
@@ -265,6 +310,94 @@ func (srv *Server) AboutPage(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
+func (srv *Server) BackgroundPage(w http.ResponseWriter, req *http.Request) {
+	tmpl, err := template.ParseFS(srv.fsys, "template/layout.tmpl", "template/assets.tmpl", "template/nav.tmpl")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	backgrounds, err := meerkat.ReadDirectory("dashboards-background")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	data := struct {
+		Assets []string
+		Type   string
+		Title  string
+	}{
+		Assets: backgrounds,
+		Type:   "image",
+		Title:  "Image",
+	}
+
+	err = tmpl.Execute(w, data)
+	if err != nil {
+		log.Println(err)
+	}
+}
+
+func (srv *Server) SoundPage(w http.ResponseWriter, req *http.Request) {
+	tmpl, err := template.ParseFS(srv.fsys, "template/layout.tmpl", "template/assets.tmpl", "template/nav.tmpl")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	sounds, err := meerkat.ReadDirectory("dashboards-sound")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	data := struct {
+		Assets []string
+		Type   string
+		Title  string
+	}{
+		Assets: sounds,
+		Type:   "sound",
+		Title:  "Sound",
+	}
+
+	err = tmpl.Execute(w, data)
+	if err != nil {
+		log.Println(err)
+	}
+}
+
 func (srv *Server) FileServer() http.Handler {
 	return http.FileServer(http.FS(srv.fsys))
+}
+
+// Helper functions
+
+// Sanitize filenames so they are safe and timestamped
+func SanitizeName(filename string) (string, error) {
+	// Check if filename is empty
+	if filename == "" {
+		return "", errors.New("filename cannot be empty")
+	}
+
+	// Get the extension of the file
+	ext := filepath.Ext(filename)
+
+	// Remove the extension from the filename
+	base := strings.TrimSuffix(filename, ext)
+
+	// Remove any non-alphanumeric character, underscore or dash and replace it with underscore
+	base = strings.Map(func(r rune) rune {
+		if (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') || (r >= '0' && r <= '9') || r == '-' || r == '_' {
+			return r
+		}
+		return '_'
+	}, base)
+
+	timestamp := time.Now().Format("060102_150405")
+	base = base + "_" + timestamp
+
+	// Append the extension to the sanitized base name
+	return base + ext, nil
 }

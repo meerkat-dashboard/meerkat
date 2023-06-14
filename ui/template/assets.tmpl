@@ -1,0 +1,108 @@
+{{ define "body" }}
+{{ template "nav" }}
+<header class="container">
+	<div class="d-flex align-items-center justify-content-between">
+		<h3>{{ $.Title }} Assets</h3>
+		<div class="form-outline assets-search" style="flex-grow: 1; margin: 0 40px;">
+  			<input type="search" id="assets-search" class="form-control" placeholder="Filter asset by name..." aria-label="Search" />
+		</div>
+	</div>
+    	<hr>
+        <form id="filemgr" method="POST">
+            <div class="row">
+                <div class="col-md-9">
+                    {{ if eq $.Type "image" }}
+                        <input class="form-control" type="file" id="input-file" name="input-file" accept="image/*">
+                    {{ else }}
+                        <input class="form-control" type="file" id="input-file" name="input-file" accept="audio/*">
+                    {{ end }}
+                </div>
+                <div class="col-md-3">
+                    <div class="d-grid gap-2"><button type="submit" class="btn btn-primary">Upload</button></div>
+                </div>
+            </div>
+        </form>
+	<hr>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</header>
+<main class="container index">
+    <div class="card">
+        <div class="card-body">
+            {{ range $index, $file := .Assets }}
+                <div class="row mb-2 bg-dark rounded">
+                    <div class="col">
+                    {{ if eq $.Type "image" }}
+                        <a href="/dashboards-background/{{ $file }}" class="btn btn-primary w-100 text-start btn-lg ms-2" target="_blank">
+                            {{ $file }}
+                        </a>
+                    {{ else }}
+                        <a href="/dashboards-sound/{{ $file }}" class="btn btn-primary w-100 text-start btn-lg ms-2" target="_blank">
+                            {{ $file }}
+                        </a>
+                    {{ end }}
+                    </div>
+                    <div class="col-auto d-flex align-items-stretch">
+                        <button class="btn btn-danger btn-lg" onclick="deleteFile('{{ $file }}')"><i class="bi bi-trash-fill"></i></a>
+                    </div>
+                </div>
+            {{ end }}
+        </div>
+    </div>
+</main>
+<script>
+function deleteFile(fileName) {
+    {{ if eq $.Type "image" }}
+    fetch('/file/background?name='+fileName, {
+        method: 'DELETE',
+    {{ else }}
+    fetch('/file/sound?name='+fileName, {
+        method: 'DELETE',
+    {{ end }}
+    }).then(function(response) {
+        location.reload();
+        return response.text();
+    });
+}
+</script>
+<script>
+document.querySelector('#filemgr').addEventListener('submit', function(e) {
+    e.preventDefault();
+    var file = document.querySelector('#input-file').files[0];
+    var formData = new FormData();
+    formData.append('file', file);
+
+    // upload file to server
+    {{ if eq $.Type "image" }}
+    fetch('/file/background', {
+        method: 'POST',
+        body: formData
+    })
+    {{ else }}
+    fetch('/file/sound', {
+        method: 'POST',
+        body: formData
+    })
+    {{ end}}
+    .then(function(response) {
+        location.reload();
+        return response.text();
+    });
+});
+  $(document).ready(function () {
+    var speed = 200;
+    $("#assets-search").on("input", function () {
+        var value = $(this).val().toLowerCase();
+        // This is handles the search filtering
+        $("main .row").each(function () {
+        if ($(this).text().toLowerCase().indexOf(value) > -1) {
+            $(this).slideDown(speed);
+        } else {
+            $(this).slideUp(speed);
+        }
+        });
+    });
+});
+</script>
+{{ end }}
+
