@@ -430,7 +430,6 @@ func icingaRequest(apiPath string) (*http.Response, error) {
 		log.Println("Failed to parse API Path: %w", err)
 		return nil, err
 	}
-	fmt.Println(icingaURL.ResolveReference(pathURL).String())
 	req, err := http.NewRequest("GET", icingaURL.ResolveReference(pathURL).String(), nil)
 	req.Header.Set("accept", "application/json")
 	req.SetBasicAuth(config.IcingaUsername, config.IcingaPassword)
