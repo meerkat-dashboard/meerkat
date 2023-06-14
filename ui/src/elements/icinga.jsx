@@ -303,7 +303,11 @@ export function SoundOptions({ options, updateOptions }) {
 		let rows = [];
 		rows.push(<option value="">None</option>);
 		for (var key in object) {
-			rows.push(<option value={object[key]}>{object[key]}</option>);
+			rows.push(
+				<option value={`/dashboards-sound/${object[key]}`}>
+					{object[key]}
+				</option>
+			);
 		}
 		setRows(rows);
 	};
