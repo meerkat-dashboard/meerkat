@@ -395,7 +395,7 @@ type StatusCheck struct {
 	} `json:"results"`
 }
 
-func icingaRequest(apiPath string) *http.Response {
+func icingaRequest(apiPath string) *http.Response, error {
 	client := &http.Client{}
 	if config.IcingaInsecureTLS {
 		client.Transport = &http.Transport{
@@ -405,29 +405,29 @@ func icingaRequest(apiPath string) *http.Response {
 	icingaURL, err := url.Parse(config.IcingaURL)
 	if err != nil {
 		log.Println("Failed to parse IcingaURL: %w", err)
-		return nil
+		return nil, err
 	}
 
 	pathURL, err := url.Parse(apiPath)
 	if err != nil {
 		log.Println("Failed to parse API Path: %w", err)
-		return nil
+		return nil, err
 	}
 	req, err := http.NewRequest("GET", icingaURL.ResolveReference(pathURL).String(), nil)
 	req.Header.Set("accept", "application/json")
 	req.SetBasicAuth(config.IcingaUsername, config.IcingaPassword)
 	if err != nil {
 		log.Println("Failed to create request: %w", err)
-		return nil
+		return nil, err
 	}
 
 	res, err := client.Do(req)
 	if err != nil {
 		log.Println("Icinga2 API error: %w", err)
-		return nil
+		return nil, err
 	}
 
-	return res
+	return res, nil
 }
 
 func checkProgramStart() float64 {
@@ -441,7 +441,7 @@ func checkProgramStart() float64 {
 	defer response.Body.Close()
 
 	dec := json.NewDecoder(response.Body)
-	err := dec.Decode(&statusCheck)
+	err = dec.Decode(&statusCheck)
 	if err != nil {
 		log.Println("Failed to decode response: %w", err)
 		return 0
