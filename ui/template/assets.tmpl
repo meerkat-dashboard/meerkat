@@ -89,6 +89,20 @@ document.querySelector('#filemgr').addEventListener('submit', function(e) {
         return response.text();
     });
 });
+  $(document).ready(function () {
+    var speed = 200;
+    $("#assets-search").on("input", function () {
+        var value = $(this).val().toLowerCase();
+        // This is handles the search filtering
+        $("main .row").each(function () {
+        if ($(this).text().toLowerCase().indexOf(value) > -1) {
+            $(this).slideDown(speed);
+        } else {
+            $(this).slideUp(speed);
+        }
+        });
+    });
+});
 </script>
 {{ end }}
 

@@ -18,15 +18,9 @@
 		<th>Background</th>
 		<td>{{ .Dashboard.Background }}</td>
 	</tr>
-<!--
 	<tr>
 		<th>Dimensions</th>
 		<td>{{ .Dashboard.Width }}x{{ .Dashboard.Height }}</td>
-	</tr>
-	-->
-	<tr>
-		<th>View count</th>
-		<td>69</td>
 	</tr>
 	</table>
 </div>
@@ -58,7 +52,7 @@
 		<select class="form-select" id="background" name="background" aria-label="Background Select">
 			<option value="">None</option>
 			{{ range $index, $background := .Backgrounds }}
-				<option value="{{ $.Url }}{{ $background }}">{{ $background }}</option>
+				<option value="/{{ $background }}">{{ $background }}</option>
 			{{ end }}
 		</select>
 	</fieldset>

@@ -150,52 +150,41 @@ func (srv *Server) ClonePage(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func (srv *Server) InfoPageHandler(SSLEnable bool, HTTPAddr string) http.HandlerFunc {
-	return func(w http.ResponseWriter, req *http.Request) {
-		slug, _ := path.Split(req.URL.Path)
-		slug = path.Clean(slug)
-		fname := path.Join("dashboards", slug+".json")
-		dashboard, err := meerkat.ReadDashboard(fname)
-		if errors.Is(err, fs.ErrNotExist) {
-			http.Error(w, "no such dashboard "+fname, http.StatusNotFound)
-			return
-		} else if err != nil {
-			http.Error(w, "read dashboard: "+err.Error(), http.StatusInternalServerError)
-			return
-		}
+func (srv *Server) InfoPage(w http.ResponseWriter, req *http.Request) {
+	slug, _ := path.Split(req.URL.Path)
+	slug = path.Clean(slug)
+	fname := path.Join("dashboards", slug+".json")
+	dashboard, err := meerkat.ReadDashboard(fname)
+	if errors.Is(err, fs.ErrNotExist) {
+		http.Error(w, "no such dashboard "+fname, http.StatusNotFound)
+		return
+	} else if err != nil {
+		http.Error(w, "read dashboard: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
 
-		tmpl, err := template.ParseFS(srv.fsys, "template/layout.tmpl", "template/info.tmpl", "template/nav.tmpl", "template/filemgr_background.tmpl")
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
+	tmpl, err := template.ParseFS(srv.fsys, "template/layout.tmpl", "template/info.tmpl", "template/nav.tmpl", "template/filemgr_background.tmpl")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
-		backgrounds, err := meerkat.ReadDirectory("dashboards-background")
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
+	backgrounds, err := meerkat.ReadDirectory("dashboards-background")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
-		url := HTTPAddr + "/dashboards-background/"
-		if SSLEnable {
-			url = "https://" + url
-		} else {
-			url = "http://" + url
-		}
+	data := struct {
+		Dashboard   meerkat.Dashboard
+		Backgrounds []string
+	}{
+		Dashboard:   dashboard,
+		Backgrounds: backgrounds,
+	}
 
-		data := struct {
-			Dashboard   meerkat.Dashboard
-			Backgrounds []string
-			Url         string
-		}{
-			Dashboard:   dashboard,
-			Backgrounds: backgrounds,
-			Url:         url,
-		}
-
-		if err := tmpl.Execute(w, data); err != nil {
-			log.Println(err)
-		}
+	if err := tmpl.Execute(w, data); err != nil {
+		log.Println(err)
 	}
 }
 
