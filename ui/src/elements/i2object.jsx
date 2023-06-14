@@ -137,6 +137,10 @@ export function ObjectCard({ events, options }) {
 		};
 	}, [handleEvent]);
 
+	useEffect(() => {
+		if (objectState) handleUpdate(objectState);
+	}, [options]);
+
 	if (!objectState) {
 		if (options.objectAttrNoMatch) {
 			return (

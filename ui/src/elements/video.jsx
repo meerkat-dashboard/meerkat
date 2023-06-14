@@ -29,23 +29,20 @@ export function Video({ src }) {
 	}
 	// Only load hls.js in browsers that don't support it natively.
 	useEffect(() => {
-		const loadVideo = async () => {
-			const video = videoRef.current;
-			if (Hls.isSupported()) {
-				var hls = new Hls();
-				hls.loadSource(src);
-				hls.attachMedia(video);
-				hls.on(Hls.Events.MANIFEST_PARSED, function () {
-					video.play();
-				});
-			} else if (video.canPlayType("application/vnd.apple.mpegurl")) {
-				video.src = src;
-				video.addEventListener("loadedmetadata", function () {
-					video.play();
-				});
-			}
-		};
-		loadVideo();
+		const video = videoRef.current;
+		if (Hls.isSupported()) {
+			var hls = new Hls();
+			hls.loadSource(src);
+			hls.attachMedia(video);
+			hls.on(Hls.Events.MANIFEST_PARSED, function () {
+				video.play();
+			});
+		} else if (video.canPlayType("application/vnd.apple.mpegurl")) {
+			video.src = src;
+			video.addEventListener("loadedmetadata", function () {
+				video.play();
+			});
+		}
 	}, []);
 	return (
 		<div>
