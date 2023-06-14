@@ -137,6 +137,7 @@ func (srv *Server) ClonePage(w http.ResponseWriter, req *http.Request) {
 	dashboards, err := meerkat.ReadDashboardDir("dashboards")
 	if err != nil {
 		msg := fmt.Sprintf("read dashboard dir: %v", err)
+		log.Println(msg)
 		http.Error(w, msg, http.StatusInternalServerError)
 		return
 	}
@@ -265,6 +266,7 @@ func (srv *Server) EditInfoHandler(w http.ResponseWriter, req *http.Request) {
 	newdash, err := meerkat.ParseDashboardForm(req.PostForm)
 	if err != nil {
 		msg := fmt.Sprintf("parse dashboard form: %v", err)
+		log.Println(msg)
 		http.Error(w, msg, http.StatusBadRequest)
 		return
 	}
@@ -275,6 +277,7 @@ func (srv *Server) EditInfoHandler(w http.ResponseWriter, req *http.Request) {
 		// Don't rename to a dashboard that already exists.
 		if _, err := meerkat.ReadDashboard(fname); err == nil {
 			msg := fmt.Sprintf("dashboard %s already exists", slug)
+			log.Println(msg)
 			http.Error(w, msg, http.StatusBadRequest)
 			return
 		}

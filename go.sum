@@ -6,3 +6,5 @@ github.com/meerkat-dashboard/icinga-go v1.0.1 h1:gicw7jtYT9eOz3uhEeB79pPKMm5RSap
 github.com/meerkat-dashboard/icinga-go v1.0.1/go.mod h1:/++/kJuplAVYKF25lWan8OeL7+DQ6prNvDMLRCKeHz4=
 github.com/meerkat-dashboard/icinga-go v1.0.2 h1:dQWb8y5zYIR5JCy8gjULldFkqojik8mllWnxflOvoBA=
 github.com/meerkat-dashboard/icinga-go v1.0.2/go.mod h1:/++/kJuplAVYKF25lWan8OeL7+DQ6prNvDMLRCKeHz4=
+gopkg.in/natefinch/lumberjack.v2 v2.2.1 h1:bBRl1b0OH9s/DuPhuXpNl+VtCaJXFZ5/uEFST95x9zc=
+gopkg.in/natefinch/lumberjack.v2 v2.2.1/go.mod h1:YD8tP3GAjkrDg1eZH7EGmyESg/lsYskCTPBJVb9jqSc=

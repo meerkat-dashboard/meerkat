@@ -99,18 +99,21 @@ func handleListDashboard(w http.ResponseWriter, r *http.Request) {
 func handleCreateDashboard(w http.ResponseWriter, req *http.Request) {
 	if err := req.ParseForm(); err != nil {
 		msg := fmt.Sprintf("parse form: %v", err)
+		log.Println(msg)
 		http.Error(w, msg, http.StatusBadRequest)
 		return
 	}
 	dashboard, err := meerkat.ParseDashboardForm(req.PostForm)
 	if err != nil {
 		msg := fmt.Sprintf("parse dashboard from form: %v", err)
+		log.Println(msg)
 		http.Error(w, msg, http.StatusBadRequest)
 		return
 	}
 	fpath := path.Join("dashboards", dashboard.Slug+".json")
 	if err := meerkat.CreateDashboard(fpath, &dashboard); err != nil {
 		msg := fmt.Sprintf("create dashboard %s: %v", dashboard.Slug, err)
+		log.Println(msg)
 		http.Error(w, msg, http.StatusInternalServerError)
 		return
 	}
@@ -122,6 +125,7 @@ func handleCreateDashboard(w http.ResponseWriter, req *http.Request) {
 func handleCloneDashboard(w http.ResponseWriter, req *http.Request) {
 	if err := req.ParseForm(); err != nil {
 		msg := fmt.Sprintf("parse form: %v", err)
+		log.Println(msg)
 		http.Error(w, msg, http.StatusBadRequest)
 		return
 	}
@@ -137,6 +141,7 @@ func handleCloneDashboard(w http.ResponseWriter, req *http.Request) {
 	src, err := meerkat.ReadDashboard(srcPath)
 	if err != nil {
 		msg := fmt.Sprintf("read source dashboard from %s: %v", srcPath, err)
+		log.Println(msg)
 		http.Error(w, msg, http.StatusInternalServerError)
 		return
 	}
@@ -145,6 +150,7 @@ func handleCloneDashboard(w http.ResponseWriter, req *http.Request) {
 	destPath := path.Join("dashboards", dest.Slug+".json")
 	if err := meerkat.CreateDashboard(destPath, &dest); err != nil {
 		msg := fmt.Sprintf("create dashboard from %s: %v", srcPath, err)
+		log.Println(msg)
 		http.Error(w, msg, http.StatusInternalServerError)
 		return
 	}
@@ -235,6 +241,7 @@ func readImageDimensions(r io.Reader) (width, height int, err error) {
 	img, format, err := image.DecodeConfig(r)
 	if err != nil {
 		err = fmt.Errorf("decode as %s: %v", format, err)
+		log.Println(err)
 	}
 	return img.Width, img.Height, err
 }
@@ -312,7 +319,7 @@ func getObjectHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		b, err := json.Marshal(objects)
 		if err != nil {
-			fmt.Printf("Error: %s", err)
+			log.Printf("Error: %s\n", err)
 			return
 		}
 
@@ -341,7 +348,7 @@ func getHostsHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		b, err := json.Marshal(objects)
 		if err != nil {
-			fmt.Printf("Error: %s", err)
+			log.Printf("Error: %s\n", err)
 			return
 		}
 		w.Write(b)
@@ -358,7 +365,7 @@ func handleError(w http.ResponseWriter, dec *json.Decoder) {
 	}
 	b, err := json.Marshal(errorPage)
 	if err != nil {
-		fmt.Printf("Error: %s", err)
+		log.Printf("Error: %s\n", err)
 		return
 	}
 	w.Write(b)
@@ -429,6 +436,9 @@ func icingaRequest(apiPath string) (*http.Response, error) {
 	if err != nil {
 		log.Println("Failed to parse API Path: %w", err)
 		return nil, err
+	}
+	if config.Debug {
+		log.Printf("Requesting %s\n", icingaURL.ResolveReference(pathURL).String())
 	}
 	req, err := http.NewRequest("GET", icingaURL.ResolveReference(pathURL).String(), nil)
 	req.Header.Set("accept", "application/json")

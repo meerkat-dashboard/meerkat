@@ -16,6 +16,13 @@ type Config struct {
 	SSLCert   string
 	SSLKey    string
 
+	Debug bool
+
+	FileLog    bool
+	MaxLogSize int
+	MaxBackups int
+	MaxAge     int
+
 	AdminUsername string
 	AdminPassword string
 }

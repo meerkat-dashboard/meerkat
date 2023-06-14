@@ -4,7 +4,7 @@ import (
 	"crypto/tls"
 	"errors"
 	"flag"
-	"fmt"
+	"io"
 	"io/fs"
 	"log"
 	"net/http"
@@ -17,6 +17,7 @@ import (
 	"github.com/meerkat-dashboard/icinga-go"
 	"github.com/meerkat-dashboard/meerkat"
 	"github.com/meerkat-dashboard/meerkat/ui"
+	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 var config Config
@@ -28,7 +29,7 @@ func main() {
 	flag.Parse()
 
 	if *vflag {
-		fmt.Fprintln(os.Stderr, meerkat.BuildString())
+		log.Println(meerkat.BuildString())
 		return
 	}
 
@@ -56,6 +57,18 @@ func main() {
 
 	if err := os.MkdirAll("dashboards-sound", 0755); err != nil {
 		log.Fatalln("Error creating dashboards sound directory:", err)
+	}
+
+	if config.FileLog {
+		logger := lumberjack.Logger{
+			Filename:   "log/meerkat.log",
+			MaxSize:    config.MaxLogSize,
+			MaxBackups: config.MaxBackups,
+			MaxAge:     config.MaxAge,
+			Compress:   true,
+		}
+		multi := io.MultiWriter(&logger, os.Stdout)
+		log.SetOutput(multi)
 	}
 
 	r := chi.NewRouter()

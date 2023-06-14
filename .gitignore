@@ -12,3 +12,4 @@ migrations/backup/**
 dashboards/
 dashboards-background/
 dashboards-sound/
+log/
