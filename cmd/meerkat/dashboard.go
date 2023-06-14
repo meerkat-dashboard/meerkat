@@ -461,5 +461,9 @@ func checkProgramStart() float64 {
 		log.Println("Failed to decode response: %w", err)
 		return 0
 	}
-	return statusCheck.Results[0].Status.IcingaApplication.App.ProgramStart
+
+	for _, v := range statusCheck.Results {
+		return v.Status.IcingaApplication.App.ProgramStart
+	}
+	return 0
 }
