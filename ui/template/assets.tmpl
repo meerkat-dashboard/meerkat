@@ -2,7 +2,7 @@
 {{ template "nav" }}
 <header class="container">
 	<div class="d-flex align-items-center justify-content-between">
-		<h3>Assets</h3>
+		<h3>{{ $.Title }} Assets</h3>
 		<div class="form-outline assets-search" style="flex-grow: 1; margin: 0 40px;">
   			<input type="search" id="assets-search" class="form-control" placeholder="Filter asset by name..." aria-label="Search" />
 		</div>
@@ -33,11 +33,11 @@
                 <div class="row mb-2 bg-dark rounded">
                     <div class="col">
                     {{ if eq $.Type "image" }}
-                        <a href="/dashboards-background/{{ $file }}" class="btn btn-primary w-100 text-start btn-lg ms-2">
+                        <a href="/dashboards-background/{{ $file }}" class="btn btn-primary w-100 text-start btn-lg ms-2" target="_blank">
                             {{ $file }}
                         </a>
                     {{ else }}
-                        <a href="/dashboards-sound/{{ $file }}" class="btn btn-primary w-100 text-start btn-lg ms-2">
+                        <a href="/dashboards-sound/{{ $file }}" class="btn btn-primary w-100 text-start btn-lg ms-2" target="_blank">
                             {{ $file }}
                         </a>
                     {{ end }}

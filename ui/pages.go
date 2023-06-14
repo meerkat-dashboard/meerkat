@@ -311,9 +311,11 @@ func (srv *Server) BackgroundPage(w http.ResponseWriter, req *http.Request) {
 	data := struct {
 		Assets []string
 		Type   string
+		Title   string
 	}{
 		Assets: backgrounds,
 		Type:   "image",
+		Title:   "Image",
 	}
 
 	err = tmpl.Execute(w, data)
@@ -338,9 +340,11 @@ func (srv *Server) SoundPage(w http.ResponseWriter, req *http.Request) {
 	data := struct {
 		Assets []string
 		Type   string
+		Title   string
 	}{
 		Assets: sounds,
 		Type:   "sound",
+		Title:   "Sound",
 	}
 
 	err = tmpl.Execute(w, data)
