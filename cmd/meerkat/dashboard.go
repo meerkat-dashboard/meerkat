@@ -202,7 +202,7 @@ func handleDeleteDashboard(w http.ResponseWriter, req *http.Request) {
 }
 
 func imageDimensions(ref string) (width, height int, err error) {
-	if strings.HasPrefix(ref, "/dashboards-data") {
+	if strings.HasPrefix(ref, "/dashboards-background") {
 		// trim leading "/", files on disk are at "dashboards-data/example.png"
 		return imageDimensionsFile(strings.TrimPrefix(ref, "/"))
 	}
