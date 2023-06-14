@@ -70,7 +70,7 @@ export function ObjectCard({ events, options }) {
 					}
 				}
 			} catch (err) {
-				console.error(`render attribute text: ${err.message}`);
+				console.error(`render content text: ${err.message}`);
 			}
 		}
 
