@@ -227,9 +227,9 @@ export function AttrSelect({
 
 	return (
 		<fieldset>
-			<legend>Object attribute</legend>
+			<legend>Object Content</legend>
 			<label class="form-label" for="attrSelect">
-				Attribute
+				Content
 			</label>
 			<select
 				class="form-select"
@@ -239,7 +239,7 @@ export function AttrSelect({
 				{rows}
 			</select>
 			<small class="form-text">
-				The selected object attribute will be rendered as the card's text.
+				The selected object content will be rendered as the card's text.
 			</small>
 			<br />
 			<label class="form-label" for="attrMatch">
@@ -253,7 +253,7 @@ export function AttrSelect({
 				onChange={(e) => updateOptions({ objectAttrMatch: e.target.value })}
 			/>
 			<small class="form-text">
-				Render only the match of this regular expression against the attribute.
+				Render only the match of this regular expression against the content.
 				See also Mozilla's Javascript guide{" "}
 				<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions">
 					Regular Expressions
@@ -280,7 +280,7 @@ export function AttrSelect({
 const noneSelected = (
 	<Fragment>
 		<label class="form-label" for="attrSelect">
-			Attribute
+			Content
 		</label>
 		<input
 			class="form-control"
@@ -291,7 +291,7 @@ const noneSelected = (
 			disabled
 		/>
 		<small class="form-text">
-			The selected object attribute will be rendered as the card's text.
+			The selected object content will be rendered as the card's text.
 		</small>
 	</Fragment>
 );
