@@ -148,8 +148,6 @@ export function ObjectCard({ events, options, dashboard }) {
 		options.objectType,
 	]);
 
-
-
 	if (!objectState) {
 		if (options.objectAttrNoMatch) {
 			return (

@@ -82,7 +82,9 @@ function IcingaElement({ typ, options, events, dashboard }) {
 	} else if (typ === "check-line") {
 		ele = <CheckLine events={events} options={options} dashboard={dashboard} />;
 	} else if (typ === "check-card") {
-		ele = <ObjectCard events={events} options={options} dashboard={dashboard} />;
+		ele = (
+			<ObjectCard events={events} options={options} dashboard={dashboard} />
+		);
 	}
 	if (options.linkURL) {
 		return linkWrap(ele, options.linkURL);
