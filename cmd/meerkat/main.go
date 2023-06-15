@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"errors"
 	"flag"
+	"fmt"
 	"io"
 	"io/fs"
 	"log"
@@ -21,6 +22,7 @@ import (
 )
 
 var config Config
+var icingaLog log.Logger
 
 func main() {
 	configFile := flag.String("config", defaultConfigPath, "load configuration from this file")
@@ -61,14 +63,36 @@ func main() {
 
 	if config.FileLog {
 		logger := lumberjack.Logger{
-			Filename:   "log/meerkat.log",
+			Filename:   config.LogLocation + "meerkat.log",
 			MaxSize:    config.MaxLogSize,
 			MaxBackups: config.MaxBackups,
 			MaxAge:     config.MaxAge,
 			Compress:   true,
 		}
-		multi := io.MultiWriter(&logger, os.Stdout)
-		log.SetOutput(multi)
+		if config.ConsoleLog {
+			multi := io.MultiWriter(&logger, os.Stdout)
+			log.SetOutput(multi)
+		} else {
+			log.SetOutput(&logger)
+		}
+	}
+
+	if config.IcingaDebug {
+		logger := lumberjack.Logger{
+			Filename:   config.LogLocation + "icinga_api.log",
+			MaxSize:    config.MaxLogSize,
+			MaxBackups: config.MaxBackups,
+			MaxAge:     config.MaxAge,
+			Compress:   true,
+		}
+		if config.ConsoleLog && config.FileLog {
+			multi := io.MultiWriter(&logger, os.Stdout)
+			icingaLog = *log.New(multi, "", log.Ldate|log.Ltime)
+		} else if config.ConsoleLog {
+			icingaLog = *log.New(os.Stdout, "", log.Ldate|log.Ltime)
+		} else if config.FileLog {
+			icingaLog = *log.New(&logger, "", log.Ldate|log.Ltime)
+		}
 	}
 
 	r := chi.NewRouter()
@@ -172,6 +196,9 @@ func main() {
 
 	if config.SSLEnable {
 		log.Printf("Starting https web server on https://%s\n", config.HTTPAddr)
+		if !config.ConsoleLog {
+			fmt.Printf("Starting https web server on https://%s\n", config.HTTPAddr)
+		}
 		_, err := os.Stat(config.SSLCert)
 		if os.IsNotExist(err) {
 			log.Fatalf("Invalid SSLCert Path %s does not exist\n", config.SSLCert)
@@ -183,6 +210,9 @@ func main() {
 		log.Fatal(http.ListenAndServeTLS(config.HTTPAddr, config.SSLCert, config.SSLKey, r))
 	} else {
 		log.Printf("Starting http web server on http://%s\n", config.HTTPAddr)
+		if !config.ConsoleLog {
+			fmt.Printf("Starting http web server on http://%s\n", config.HTTPAddr)
+		}
 		log.Fatal(http.ListenAndServe(config.HTTPAddr, r))
 	}
 }

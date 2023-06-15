@@ -19,12 +19,16 @@ SSLKey = ""
 
 # If set to true, meerkat will log to file.
 FileLog = true
+# If set to true, meerkat will log to console.
+ConsoleLog = false
+# Path to folder to store log files.
+LogLocation = "/var/log/meerkat/"
 # Max size of log file in MB.
 MaxLogSize = 10
 # Max number of log files.
 MaxBackups = 5
-# Max number of days to keep old log files..
+# Max number of days to keep old log files.
 MaxAge = 7
 
-# If set to true meerkat will output debug information.
-Debug = false
+# If set to true meerkat will output icinga api debug information.
+IcingaDebug = false
