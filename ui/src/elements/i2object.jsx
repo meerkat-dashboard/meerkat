@@ -139,7 +139,13 @@ export function ObjectCard({ events, options }) {
 
 	useEffect(() => {
 		if (objectState) handleUpdate(objectState);
-	}, [options]);
+	}, [
+		options.objectAttr,
+		options.objectAttrMatch,
+		options.objectAttrNoMatch,
+		options.objectName,
+		options.objectType,
+	]);
 
 	if (!objectState) {
 		if (options.objectAttrNoMatch) {

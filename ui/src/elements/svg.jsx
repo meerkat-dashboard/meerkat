@@ -100,7 +100,7 @@ export function CheckSVG({ events, options }) {
 
 	useEffect(() => {
 		if (objectState) handleUpdate(objectState);
-	}, [options]);
+	}, [options.objectName, options.objectType]);
 
 	return (
 		<div class={`check-content svg`}>
