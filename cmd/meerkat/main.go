@@ -18,7 +18,6 @@ import (
 	"github.com/meerkat-dashboard/icinga-go"
 	"github.com/meerkat-dashboard/meerkat"
 	"github.com/meerkat-dashboard/meerkat/ui"
-	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 var config Config
@@ -61,37 +60,37 @@ func main() {
 		log.Fatalln("Error creating dashboards sound directory:", err)
 	}
 
+	if err := os.MkdirAll(config.LogDirectory, 0755); err != nil {
+		log.Fatalln("Error creating log directory:", err)
+	}
+
 	if config.FileLog {
-		logger := lumberjack.Logger{
-			Filename:   config.LogLocation + "meerkat.log",
-			MaxSize:    config.MaxLogSize,
-			MaxBackups: config.MaxBackups,
-			MaxAge:     config.MaxAge,
-			Compress:   true,
+		f, err := os.OpenFile(config.LogDirectory+"meerkat.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+		if err != nil {
+			log.Fatalf("error opening file: %v", err)
 		}
+		defer f.Close()
 		if config.ConsoleLog {
-			multi := io.MultiWriter(&logger, os.Stdout)
+			multi := io.MultiWriter(f, os.Stdout)
 			log.SetOutput(multi)
 		} else {
-			log.SetOutput(&logger)
+			log.SetOutput(f)
 		}
 	}
 
 	if config.IcingaDebug {
-		logger := lumberjack.Logger{
-			Filename:   config.LogLocation + "icinga_api.log",
-			MaxSize:    config.MaxLogSize,
-			MaxBackups: config.MaxBackups,
-			MaxAge:     config.MaxAge,
-			Compress:   true,
+		f, err := os.OpenFile(config.LogDirectory+"icinga_api.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+		if err != nil {
+			log.Fatalf("error opening file: %v", err)
 		}
+		defer f.Close()
 		if config.ConsoleLog && config.FileLog {
-			multi := io.MultiWriter(&logger, os.Stdout)
+			multi := io.MultiWriter(f, os.Stdout)
 			icingaLog = *log.New(multi, "", log.Ldate|log.Ltime)
 		} else if config.ConsoleLog {
 			icingaLog = *log.New(os.Stdout, "", log.Ldate|log.Ltime)
 		} else if config.FileLog {
-			icingaLog = *log.New(&logger, "", log.Ldate|log.Ltime)
+			icingaLog = *log.New(f, "", log.Ldate|log.Ltime)
 		}
 	}
 

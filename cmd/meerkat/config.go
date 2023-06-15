@@ -16,12 +16,9 @@ type Config struct {
 	SSLCert   string
 	SSLKey    string
 
-	FileLog     bool
-	ConsoleLog  bool
-	LogLocation string
-	MaxLogSize  int
-	MaxBackups  int
-	MaxAge      int
+	FileLog      bool
+	ConsoleLog   bool
+	LogDirectory string
 
 	IcingaDebug bool
 
