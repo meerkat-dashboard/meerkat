@@ -175,12 +175,20 @@ func (srv *Server) InfoPage(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	sounds, err := meerkat.ReadDirectory("dashboards-sound")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	data := struct {
 		Dashboard   meerkat.Dashboard
 		Backgrounds []string
+		Sounds      []string
 	}{
 		Dashboard:   dashboard,
 		Backgrounds: backgrounds,
+		Sounds:      sounds,
 	}
 
 	if err := tmpl.Execute(w, data); err != nil {
