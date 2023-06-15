@@ -305,6 +305,12 @@ func (srv *Server) EditInfoHandler(w http.ResponseWriter, req *http.Request) {
 
 	dashboard.Title = newdash.Title
 	dashboard.Background = newdash.Background
+	dashboard.OkSound = newdash.OkSound
+	dashboard.WarningSound = newdash.WarningSound
+	dashboard.CriticalSound = newdash.CriticalSound
+	dashboard.UnknownSound = newdash.UnknownSound
+	dashboard.UpSound = newdash.UpSound
+	dashboard.DownSound = newdash.DownSound
 	err = meerkat.CreateDashboard(fname, &dashboard)
 	if err != nil {
 		msg := fmt.Sprintf("edit dashboard info: %v", err)
