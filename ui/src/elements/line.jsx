@@ -65,6 +65,7 @@ export function CheckLineOptions({ options, updateOptions }) {
 					</label>
 				</div>
 			</fieldset>
+			<Icinga.SoundOptions options={options} updateOptions={updateOptions} />
 		</div>
 	);
 }

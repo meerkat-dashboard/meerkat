@@ -19,6 +19,7 @@ export function CheckSVGOptions({ options, updateOptions }) {
 				value={options.linkURL}
 				onInput={(e) => updateOptions({ linkURL: e.currentTarget.value })}
 			/>
+			<Icinga.SoundOptions options={options} updateOptions={updateOptions} />
 		</Fragment>
 	);
 }
