@@ -142,6 +142,8 @@ export function ObjectCard({ events, options }) {
 		if (objectState) handleUpdate(objectState);
 	}, [options]);
 
+	IcingaJS.alertSounds(objectState, options);
+
 	if (!objectState) {
 		if (options.objectAttrNoMatch) {
 			return (
