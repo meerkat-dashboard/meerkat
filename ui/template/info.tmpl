@@ -110,6 +110,12 @@
 </form>
 <script>
 	document.getElementById("background").value = "{{ .Dashboard.Background }}";
+	document.getElementById("okSound").value = "{{ .Dashboard.OkSound }}";
+	document.getElementById("warningSound").value = "{{ .Dashboard.WarningSound }}";
+	document.getElementById("criticalSound").value = "{{ .Dashboard.CriticalSound }}";
+	document.getElementById("unknownSound").value = "{{ .Dashboard.UnknownSound }}";
+	document.getElementById("upSound").value = "{{ .Dashboard.UpSound }}";
+	document.getElementById("downSound").value = "{{ .Dashboard.DownSound }}";
 </script>
 </main>
 {{ end }}
