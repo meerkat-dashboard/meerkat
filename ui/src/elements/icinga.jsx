@@ -332,7 +332,6 @@ export function SoundOptions({ options, updateOptions }) {
 					type="checkbox"
 					defaultChecked={options.muteAlerts}
 					onChange={(e) => updateOptions({ muteAlerts: e.target.checked })}
-					value=""
 					id="muteSounds"
 				/>
 
@@ -349,6 +348,7 @@ export function SoundOptions({ options, updateOptions }) {
 				class="form-select"
 				id="okSound"
 				name="okSound"
+				value={options.okSound}
 				aria-label="Ok alert sound select"
 			>
 				{rows}
@@ -362,6 +362,7 @@ export function SoundOptions({ options, updateOptions }) {
 				class="form-select"
 				id="warningSound"
 				name="warningSound"
+				value={options.warningSound}
 				aria-label="Warning alert sound select"
 			>
 				{rows}
@@ -375,6 +376,7 @@ export function SoundOptions({ options, updateOptions }) {
 				class="form-select"
 				id="criticalSound"
 				name="criticalSound"
+				value={options.criticalSound}
 				aria-label="Critical alert sound select"
 			>
 				{rows}
@@ -388,6 +390,7 @@ export function SoundOptions({ options, updateOptions }) {
 				class="form-select"
 				id="unknownSound"
 				name="unknownSound"
+				value={options.unknownSound}
 				aria-label="Unknown alert sound select"
 			>
 				{rows}
@@ -401,6 +404,7 @@ export function SoundOptions({ options, updateOptions }) {
 				class="form-select"
 				id="upSound"
 				name="upSound"
+				value={options.upSound}
 				aria-label="Up alert sound select"
 			>
 				{rows}
@@ -414,6 +418,7 @@ export function SoundOptions({ options, updateOptions }) {
 				class="form-select"
 				id="downSound"
 				name="downSound"
+				value={options.downSound}
 				aria-label="Down alert sound select"
 			>
 				{rows}
