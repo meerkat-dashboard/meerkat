@@ -138,9 +138,18 @@ export function worstObject(objects) {
 	return worst;
 }
 
+let okAudio = null;
+let warningAudio = null;
+let criticalAudio = null;
+let unknownAudio = null;
+let upAudio = null;
+let downAudio = null;
+
 export function usePrevious(value) {
 	const ref = useRef();
-	useEffect(() => {ref.current = value});
+	useEffect(() => {
+		ref.current = value;
+	}, [value]);
 	return ref.current;
 }
 
@@ -149,48 +158,70 @@ export function alertSounds(checkState, options, dashboard) {
 	const prevState = usePrevious(checkState);
 
 	if (
-		checkState !== undefined &&
-		prevState !== undefined &&
-		checkState !== prevState &&
-		!options.muteAlerts
+		checkState !== null &&
+		prevState !== null &&
+		checkState !== prevState
 	) {
+		let audio = null;
+		let soundOption = null;
+		let prevSound = null;
+		let prevDashboardSound = null;
+
 		switch (checkState) {
-			case "ok": {
-				if (options.okSound) {
-					new Audio(options.okSound).play();
-				}
+			case 'ok':
+				audio = okAudio;
+				soundOption = options.okSound || dashboard.okSound;
+				prevSound = usePrevious(options.okSound);
+				prevDashboardSound = usePrevious(dashboard.okSound);
 				break;
-			}
-			case "warning": {
-				if (options.warningSound) {
-					new Audio(options.warningSound).play();
-				}
+			case 'warning':
+				audio = warningAudio;
+				soundOption = options.warningSound || dashboard.warningSound;
+				prevSound = usePrevious(options.warningSound);
+				prevDashboardSound = usePrevious(dashboard.warningSound);
 				break;
-			}
-			case "critical": {
-				if (options.criticalSound) {
-					new Audio(options.criticalSound).play();
-				}
+			case 'critical':
+				audio = criticalAudio;
+				soundOption = options.criticalSound || dashboard.criticalSound;
+				prevSound = usePrevious(options.criticalSound);
+				prevDashboardSound = usePrevious(dashboard.criticalSound);
 				break;
-			}
-			case "unknown": {
-				if (options.unknownSound) {
-					new Audio(options.unknownSound).play();
-				}
+			case 'unknown':
+				audio = unknownAudio;
+				soundOption = options.unknownSound || dashboard.unknownSound;
+				prevSound = usePrevious(options.unknownSound);
+				prevDashboardSound = usePrevious(dashboard.unknownSound);
 				break;
-			}
-			case "up": {
-				if (options.upSound) {
-					new Audio(options.upSound).play();
-				}
+			case 'up':
+				audio = upAudio;
+				soundOption = options.upSound || dashboard.upSound;
+				prevSound = usePrevious(options.upSound);
+				prevDashboardSound = usePrevious(dashboard.upSound);
 				break;
-			}
-			case "down": {
-				if (options.downSound) {
-					new Audio(options.downSound).play();
-				}
+			case 'down':
+				audio = downAudio;
+				soundOption = options.downSound || dashboard.downSound;
+				prevSound = usePrevious(options.downSound);
+				prevDashboardSound = usePrevious(dashboard.downSound);
 				break;
-			}
+			default:
+				break;
+		}
+
+		if (
+			audio === null ||
+			soundOption !== prevSound ||
+			soundOption !== prevDashboardSound
+		) {
+			audio = new Audio(soundOption);
+		}
+
+		if (
+			!dashboard.globalMute &&
+			!options.muteAlerts &&
+			audio !== null
+		) {
+			audio.play();
 		}
 	}
 }
