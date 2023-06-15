@@ -37,7 +37,7 @@ export function ObjectCardOptions({ options, updateOptions }) {
 	);
 }
 
-export function ObjectCard({ events, options }) {
+export function ObjectCard({ events, options, dashboard }) {
 	const [objectState, setObjectState] = useState();
 	const [cardText, setCardText] = useState();
 	const [cardState, setCardState] = useState();
@@ -163,7 +163,9 @@ export function ObjectCard({ events, options }) {
 			return <div class="check-content card"></div>;
 		}
 	} else {
-		IcingaJS.alertSounds(objectState.state, options);
+		if (dashboard) {
+			IcingaJS.alertSounds(objectState.state, options, dashboard);
+		}
 		return (
 			<div class={cardState}>
 				<div class="check-state" style={`font-size: ${options.fontSize}px`}>

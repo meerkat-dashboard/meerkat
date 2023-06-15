@@ -9,6 +9,7 @@ import (
 	"os"
 	"path"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -21,6 +22,7 @@ type Dashboard struct {
 	Folder        string    `json:"folder"`
 	Width         string    `json:"width"`
 	Height        string    `json:"height"`
+	GlobalMute    bool      `json:"globalMute"`
 	OkSound       string    `json:"okSound"`
 	WarningSound  string    `json:"warningSound"`
 	CriticalSound string    `json:"criticalSound"`
@@ -148,6 +150,8 @@ func ParseDashboardForm(form url.Values) (Dashboard, error) {
 			dashboard.Description = v
 		case "folder":
 			dashboard.Folder = v
+		case "globalMute":
+			dashboard.GlobalMute, _ = strconv.ParseBool(v)
 		case "okSound":
 			dashboard.OkSound = v
 		case "warningSound":

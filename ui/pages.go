@@ -306,6 +306,7 @@ func (srv *Server) EditInfoHandler(w http.ResponseWriter, req *http.Request) {
 	dashboard.Title = newdash.Title
 	dashboard.Background = newdash.Background
 	dashboard.Description = newdash.Description
+	dashboard.GlobalMute = newdash.GlobalMute
 	dashboard.OkSound = newdash.OkSound
 	dashboard.WarningSound = newdash.WarningSound
 	dashboard.CriticalSound = newdash.CriticalSound

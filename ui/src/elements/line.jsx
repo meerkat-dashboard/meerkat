@@ -71,7 +71,7 @@ export function CheckLineOptions({ options, updateOptions }) {
 }
 
 //The rendered view (in the actual dashboard) of the Check SVG
-export function CheckLine({ events, options }) {
+export function CheckLine({ events, options, dashboard }) {
 	const [objectState, setObjectState] = useState();
 	const [state, setState] = useState();
 
@@ -128,8 +128,8 @@ export function CheckLine({ events, options }) {
 		if (objectState) handleUpdate(objectState);
 	}, [options.objectType, options.objectName]);
 
-	if (objectState) {
-		icinga.alertSounds(objectState.state, options);
+	if (objectState && dashboard) {
+		icinga.alertSounds(objectState.state, options, dashboard);
 	}
 	return (
 		<div class={`check-content svg ${state}`} ref={svgRef}>

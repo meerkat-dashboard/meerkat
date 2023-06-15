@@ -24,7 +24,7 @@ export function CheckSVGOptions({ options, updateOptions }) {
 	);
 }
 
-export function CheckSVG({ events, options }) {
+export function CheckSVG({ events, options, dashboard }) {
 	const [objectState, setObjectState] = useState();
 	const [cardState, setCardState] = useState();
 	const [svg, setSVG] = useState();
@@ -103,8 +103,8 @@ export function CheckSVG({ events, options }) {
 		if (objectState) handleUpdate(objectState);
 	}, [options.objectName, options.objectType]);
 
-	if (objectState) {
-		IcingaJS.alertSounds(objectState.state, options);
+	if (objectState && dashboard) {
+		IcingaJS.alertSounds(objectState.state, options, dashboard);
 	}
 
 	return (

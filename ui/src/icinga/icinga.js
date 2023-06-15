@@ -144,7 +144,7 @@ export function usePrevious(value) {
 	return ref.current;
 }
 
-export function alertSounds(checkState, options) {
+export function alertSounds(checkState, options, dashboard) {
 	checkState = StateText(checkState, options.objectType);
 	const prevState = usePrevious(checkState);
 
