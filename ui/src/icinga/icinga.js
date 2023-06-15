@@ -140,108 +140,54 @@ export function worstObject(objects) {
 
 export function usePrevious(value) {
 	const ref = useRef();
-	useEffect(() => {
-		ref.current = value;
-	});
+	useEffect(() => {ref.current = value});
 	return ref.current;
 }
 
-let okAudio = null;
-let warningAudio = null;
-let criticalAudio = null;
-let unknownAudio = null;
-let upAudio = null;
-let downAudio = null;
-
 export function alertSounds(checkState, options) {
-	const oldCheckState = usePrevious(checkState);
+	checkState = StateText(checkState, options.objectType);
+	const prevState = usePrevious(checkState);
 
 	if (
-		checkState !== null &&
-		oldCheckState !== null &&
-		checkState !== oldCheckState
+		checkState !== undefined &&
+		prevState !== undefined &&
+		checkState !== prevState &&
+		!options.muteAlerts
 	) {
 		switch (checkState) {
 			case "ok": {
 				if (options.okSound) {
-					let oldOptionsOk = usePrevious(options.okSound);
-
-					if (!okAudio || options.okSound !== oldOptionsOk) {
-						okAudio = new Audio(options.okSound);
-					}
-				}
-				if (options.muteAlerts === false) {
-					okAudio.play();
+					new Audio(options.okSound).play();
 				}
 				break;
 			}
 			case "warning": {
 				if (options.warningSound) {
-					let oldOptionsWarning = usePrevious(options.warningSound);
-
-					if (!warningAudio || options.warningSound !== oldOptionsWarning) {
-						warningAudio = new Audio(options.warningSound);
-					}
-				}
-
-				if (options.muteAlerts === false) {
-					warningAudio.play();
+					new Audio(options.warningSound).play();
 				}
 				break;
 			}
 			case "critical": {
 				if (options.criticalSound) {
-					let oldOptionsCritical = usePrevious(options.criticalSound);
-
-					if (!criticalAudio || options.criticalSound !== oldOptionsCritical) {
-						criticalAudio = new Audio(options.criticalSound);
-					}
-				}
-
-				if (options.muteAlerts === false) {
-					criticalAudio.play();
+					new Audio(options.criticalSound).play();
 				}
 				break;
 			}
 			case "unknown": {
 				if (options.unknownSound) {
-					let oldOptionsUnknown = usePrevious(options.unknownSound);
-
-					if (!unknownAudio || options.unknownSound !== oldOptionsUnknown) {
-						unknownAudio = new Audio(options.unknownSound);
-					}
-				}
-
-				if (options.muteAlerts === false) {
-					unknownAudio.play();
+					new Audio(options.unknownSound).play();
 				}
 				break;
 			}
 			case "up": {
 				if (options.upSound) {
-					let oldOptionsUp = usePrevious(options.upSound);
-
-					if (!upAudio || options.upSound !== oldOptionsUp) {
-						upAudio = new Audio(options.upSound);
-					}
-				}
-
-				if (options.muteAlerts === false) {
-					upAudio.play();
+					new Audio(options.upSound).play();
 				}
 				break;
 			}
 			case "down": {
 				if (options.downSound) {
-					let oldOptionsDown = usePrevious(options.downSound);
-
-					if (!downAudio || options.downSound !== oldOptionsDown) {
-						downAudio = new Audio(options.downSound);
-					}
-				}
-
-				if (options.muteAlerts === false) {
-					downAudio.play();
+					new Audio(options.downSound).play();
 				}
 				break;
 			}

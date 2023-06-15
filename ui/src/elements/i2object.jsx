@@ -1,5 +1,5 @@
 import { h, Fragment, Component } from "preact";
-import { useCallback, useEffect, useState } from "preact/hooks";
+import { useCallback, useEffect, useState, usePrevious } from "preact/hooks";
 
 import { FontSizeInput, ExternalURL } from "./options";
 import * as meerkat from "../meerkat";
@@ -148,7 +148,7 @@ export function ObjectCard({ events, options }) {
 		options.objectType,
 	]);
 
-	IcingaJS.alertSounds(objectState, options);
+
 
 	if (!objectState) {
 		if (options.objectAttrNoMatch) {
@@ -163,6 +163,7 @@ export function ObjectCard({ events, options }) {
 			return <div class="check-content card"></div>;
 		}
 	} else {
+		IcingaJS.alertSounds(objectState.state, options);
 		return (
 			<div class={cardState}>
 				<div class="check-state" style={`font-size: ${options.fontSize}px`}>

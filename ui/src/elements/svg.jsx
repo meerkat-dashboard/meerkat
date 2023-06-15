@@ -103,6 +103,10 @@ export function CheckSVG({ events, options }) {
 		if (objectState) handleUpdate(objectState);
 	}, [options.objectName, options.objectType]);
 
+	if (objectState) {
+		IcingaJS.alertSounds(objectState.state, options);
+	}
+
 	return (
 		<div class={`check-content svg`}>
 			<svg class={cardState}>

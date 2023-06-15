@@ -128,6 +128,9 @@ export function CheckLine({ events, options }) {
 		if (objectState) handleUpdate(objectState);
 	}, [options.objectType, options.objectName]);
 
+	if (objectState) {
+		icinga.alertSounds(objectState.state, options);
+	}
 	return (
 		<div class={`check-content svg ${state}`} ref={svgRef}>
 			<svg
