@@ -17,8 +17,10 @@ function Viewer({ dashboard, events }) {
 	var reconnectFrequencySeconds = 1;
 	var evtSource;
 
-	var waitFunc = function() { return reconnectFrequencySeconds * 1000 };
-	var tryToSetupFunc = function() {
+	var waitFunc = function () {
+		return reconnectFrequencySeconds * 1000;
+	};
+	var tryToSetupFunc = function () {
 		setupEventSource();
 		reconnectFrequencySeconds *= 2;
 		if (reconnectFrequencySeconds >= 64) {
@@ -28,15 +30,15 @@ function Viewer({ dashboard, events }) {
 
 	function setupEventSource() {
 		evtSource = new EventSource("/dashboard/stream");
-		evtSource.onmessage = function(e) {
+		evtSource.onmessage = function (e) {
 			if (dashboard.slug == e.data || e.data == "update" || error !== "") {
 				window.location.reload(true);
 			}
 		};
-		evtSource.onopen = function() {
+		evtSource.onopen = function () {
 			reconnectFrequencySeconds = 1;
 		};
-		evtSource.onerror = function() {
+		evtSource.onerror = function () {
 			setTimeout(errorMessage, 1000);
 			evtSource.close();
 			setTimeout(tryToSetupFunc, waitFunc());
@@ -52,11 +54,10 @@ function Viewer({ dashboard, events }) {
 	const errorMessage = () => {
 		if (error === "") {
 			err = (
-				<div
-					class="alert alert-danger w-100 p-3"
-					role="alert"
-				>
-					<div style="width:100%"><strong>Error connecting to meerkat server</strong></div>
+				<div class="alert alert-danger w-100 p-3" role="alert">
+					<div style="width:100%">
+						<strong>Error connecting to meerkat server</strong>
+					</div>
 				</div>
 			);
 			setError(err);
