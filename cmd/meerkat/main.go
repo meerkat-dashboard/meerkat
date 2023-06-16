@@ -185,6 +185,9 @@ func main() {
 		var previousCheck float64
 		for {
 			currentCheck := checkProgramStart()
+			if currentCheck != 0 {
+				SetWorking()
+			}
 			if previousCheck != currentCheck && previousCheck != 0 {
 				UpdateAll()
 			}

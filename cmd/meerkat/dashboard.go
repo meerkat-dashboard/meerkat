@@ -55,6 +55,9 @@ func UpdateHandler(w http.ResponseWriter, req *http.Request) {
 	log.Printf("Updated %s dashboards\n", name)
 	updateChannel.Notifier <- name
 }
+func SetWorking() {
+	updateChannel.Notifier <- "icinga|success"
+}
 
 func UpdateAll() {
 	log.Println("Updating all meerkat dashboards")
@@ -446,6 +449,10 @@ func icingaRequest(apiPath string, dashboardTitle string) (*http.Response, error
 		log.Println("Icinga2 API error: %w", err)
 		if strings.Contains(dashboardTitle, "/") {
 			updateChannel.Notifier <- strings.Split(dashboardTitle, "/")[1] + "|error"
+		} else if dashboardTitle == config.HTTPAddr {
+			updateChannel.Notifier <- "icinga|error"
+		} else {
+			updateChannel.Notifier <- dashboardTitle + "|error"
 		}
 		return nil, err
 	}

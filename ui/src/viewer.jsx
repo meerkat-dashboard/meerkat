@@ -31,7 +31,12 @@ function Viewer({ dashboard, events }) {
 	function setupEventSource() {
 		evtSource = new EventSource("/dashboard/stream");
 		evtSource.onmessage = function (e) {
-			if (dashboard.slug == e.data || e.data == "update" || error !== "") {
+			if (
+				dashboard.slug == e.data ||
+				e.data == "update" ||
+				error !== "" ||
+				e.data == "icinga|success"
+			) {
 				window.location.reload(true);
 			}
 			if (e.data == dashboard.slug + "|error" || e.data == "icinga|error") {
