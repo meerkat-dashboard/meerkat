@@ -34,7 +34,6 @@ function Viewer({ dashboard, events }) {
 			if (dashboard.slug == e.data || e.data == "update" || error !== "") {
 				window.location.reload(true);
 			}
-			console.log(e.data);
 			if (e.data == dashboard.slug + "|error") {
 				errorMessage("backend");
 			}
