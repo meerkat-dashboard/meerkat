@@ -444,7 +444,7 @@ func icingaRequest(apiPath string, dashboardTitle string) (*http.Response, error
 	res, err := client.Do(req)
 	if err != nil {
 		log.Println("Icinga2 API error: %w", err)
-		SendError()
+		updateChannel.Notifier <- strings.Split(dashboardTitle, "/")[1] + "|error"
 		return nil, err
 	}
 
