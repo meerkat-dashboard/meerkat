@@ -22,7 +22,7 @@ FileLog = true
 # If set to true, meerkat will log to console.
 ConsoleLog = false
 # Path to folder to store log files.
-LogDirectory = "/var/log/meerkat/"
+LogDirectory = "log/"
 
 # If set to true meerkat will output icinga api debug information.
 IcingaDebug = false

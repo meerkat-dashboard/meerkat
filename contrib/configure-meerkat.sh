@@ -13,6 +13,12 @@ mkdir -p "$INSTALL_DIR/dashboards"
 echo "Creating dashboards-background directory"
 mkdir -p "$INSTALL_DIR/dashboards-background" 
 
+echo "Creating dashboards-sound directory"
+mkdir -p "$INSTALL_DIR/dashboards-sound" 
+
+echo "Creating log directory"
+mkdir -p "$INSTALL_DIR/log" 
+
 echo "Setting owner for meerkat install dir: $INSTALL_DIR"
 chown -R $USER "$INSTALL_DIR"
 
