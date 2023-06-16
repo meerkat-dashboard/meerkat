@@ -23,8 +23,8 @@ function Viewer({ dashboard, events }) {
 	var tryToSetupFunc = function () {
 		setupEventSource();
 		reconnectFrequencySeconds *= 2;
-		if (reconnectFrequencySeconds >= 64) {
-			reconnectFrequencySeconds = 64;
+		if (reconnectFrequencySeconds >= 32) {
+			reconnectFrequencySeconds = 32;
 		}
 	};
 
