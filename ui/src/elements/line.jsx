@@ -74,6 +74,7 @@ export function CheckLineOptions({ options, updateOptions }) {
 export function CheckLine({ events, options, dashboard }) {
 	const [objectState, setObjectState] = useState();
 	const [state, setState] = useState();
+	const [soundEvent, setSoundEvent] = useState(false);
 
 	const svgRef = useRef({ clientWidth: 100, clientHeight: 40 });
 
@@ -113,6 +114,7 @@ export function CheckLine({ events, options, dashboard }) {
 	const handleEvent = useCallback((event) => {
 		if (objectState && objectState.name.includes(event.data)) {
 			handleUpdate();
+			setSoundEvent(true);
 		}
 	});
 
@@ -129,7 +131,7 @@ export function CheckLine({ events, options, dashboard }) {
 	}, [options.objectType, options.objectName]);
 
 	if (objectState && dashboard) {
-		icinga.alertSounds(objectState.state, options, dashboard);
+		if (soundEvent) icinga.alertSounds(objectState.state, options, dashboard);
 	}
 	return (
 		<div class={`check-content svg ${state}`} ref={svgRef}>

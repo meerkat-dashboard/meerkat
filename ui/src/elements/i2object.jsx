@@ -41,6 +41,7 @@ export function ObjectCard({ events, options, dashboard }) {
 	const [objectState, setObjectState] = useState();
 	const [cardText, setCardText] = useState();
 	const [cardState, setCardState] = useState();
+	const [soundEvent, setSoundEvent] = useState(false);
 
 	const parseUpdate = (object) => {
 		let objState = stateText(options.objectType, object.state);
@@ -88,6 +89,7 @@ export function ObjectCard({ events, options, dashboard }) {
 	const handleEvent = useCallback((event) => {
 		if (objectState && objectState.name.includes(event.data)) {
 			handleUpdate();
+			setSoundEvent(true);
 		}
 	});
 
@@ -162,7 +164,8 @@ export function ObjectCard({ events, options, dashboard }) {
 		}
 	} else {
 		if (dashboard) {
-			IcingaJS.alertSounds(objectState.state, options, dashboard);
+			if (soundEvent)
+				IcingaJS.alertSounds(objectState.state, options, dashboard);
 		}
 		return (
 			<div class={cardState}>

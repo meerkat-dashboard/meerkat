@@ -27,6 +27,7 @@ export function CheckSVGOptions({ options, updateOptions }) {
 export function CheckSVG({ events, options, dashboard }) {
 	const [objectState, setObjectState] = useState();
 	const [cardState, setCardState] = useState();
+	const [soundEvent, setSoundEvent] = useState(false);
 	const [svg, setSVG] = useState();
 
 	const parseUpdate = (object) => {
@@ -88,6 +89,7 @@ export function CheckSVG({ events, options, dashboard }) {
 	const handleEvent = useCallback((event) => {
 		if (objectState && objectState.name.includes(event.data)) {
 			handleUpdate();
+			setSoundEvent(true);
 		}
 	});
 
@@ -104,7 +106,7 @@ export function CheckSVG({ events, options, dashboard }) {
 	}, [options.objectName, options.objectType]);
 
 	if (objectState && dashboard) {
-		IcingaJS.alertSounds(objectState.state, options, dashboard);
+		if (soundEvent) IcingaJS.alertSounds(objectState.state, options, dashboard);
 	}
 
 	return (
