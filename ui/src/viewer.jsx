@@ -44,6 +44,7 @@ function Viewer({ dashboard, events }) {
 					typ={element.type}
 					options={element.options}
 					events={events}
+					dashboard={dashboard}
 				/>
 			);
 		}
@@ -74,14 +75,16 @@ function Viewer({ dashboard, events }) {
 	return <div style="width: 100vh; height: 100vh">{elements}</div>;
 }
 
-function IcingaElement({ typ, options, events }) {
+function IcingaElement({ typ, options, events, dashboard }) {
 	let ele;
 	if (typ === "check-svg") {
-		ele = <CheckSVG events={events} options={options} />;
+		ele = <CheckSVG events={events} options={options} dashboard={dashboard} />;
 	} else if (typ === "check-line") {
-		ele = <CheckLine events={events} options={options} />;
+		ele = <CheckLine events={events} options={options} dashboard={dashboard} />;
 	} else if (typ === "check-card") {
-		ele = <ObjectCard events={events} options={options} />;
+		ele = (
+			<ObjectCard events={events} options={options} dashboard={dashboard} />
+		);
 	}
 	if (options.linkURL) {
 		return linkWrap(ele, options.linkURL);

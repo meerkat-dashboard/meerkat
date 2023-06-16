@@ -65,14 +65,16 @@ export function CheckLineOptions({ options, updateOptions }) {
 					</label>
 				</div>
 			</fieldset>
+			<Icinga.SoundOptions options={options} updateOptions={updateOptions} />
 		</div>
 	);
 }
 
 //The rendered view (in the actual dashboard) of the Check SVG
-export function CheckLine({ events, options }) {
+export function CheckLine({ events, options, dashboard }) {
 	const [objectState, setObjectState] = useState();
 	const [state, setState] = useState();
+	const [soundEvent, setSoundEvent] = useState(false);
 
 	const svgRef = useRef({ clientWidth: 100, clientHeight: 40 });
 
@@ -112,6 +114,7 @@ export function CheckLine({ events, options }) {
 	const handleEvent = useCallback((event) => {
 		if (objectState && objectState.name.includes(event.data)) {
 			handleUpdate();
+			setSoundEvent(true);
 		}
 	});
 
@@ -127,6 +130,9 @@ export function CheckLine({ events, options }) {
 		if (objectState) handleUpdate(objectState);
 	}, [options.objectType, options.objectName]);
 
+	if (objectState && dashboard) {
+		if (soundEvent) icinga.alertSounds(objectState.state, options, dashboard);
+	}
 	return (
 		<div class={`check-content svg ${state}`} ref={svgRef}>
 			<svg

@@ -49,10 +49,65 @@
 		<input class="form-control" type="text" id="folder" name="folder" minlength="4" value="{{ .Dashboard.Folder }}" placeholder="Dashboard Folder">
 
 		<label class="form-label" for="background">Background image</label>
-		<select class="form-select" id="background" name="background" aria-label="Background Select">
+		<select class="form-select" id="background" name="background" aria-label="Background Select" value="{{ .Dashboard.Background }}">
 			<option value="">None</option>
 			{{ range $index, $background := .Backgrounds }}
 				<option value="/dashboards-background/{{ $background }}">{{ $background }}</option>
+			{{ end }}
+		</select>
+
+		<div class="form-check">
+			<input class="form-check-input" type="checkbox" name="globalMute" id="globalMute" value="true" {{ if eq .Dashboard.GlobalMute true }} checked {{end}}>
+			<label class="form-check-label" for="globalMute">
+				Global Mute
+			</label>
+		</div>
+
+		<label class="form-label" for="okSound">Ok Sound</label>
+		<select class="form-select" id="okSound" name="okSound" aria-label="okSound Select">
+			<option value="">None</option>
+			{{ range $index, $sound := .Sounds }}
+				<option value="/dashboards-sound/{{ $sound }}">{{ $sound }}</option>
+			{{ end }}
+		</select>
+
+		<label class="form-label" for="warningSound">Warning Sound</label>
+		<select class="form-select" id="warningSound" name="warningSound" aria-label="warningSound Select">
+			<option value="">None</option>
+			{{ range $index, $sound := .Sounds }}
+				<option value="/dashboards-sound/{{ $sound }}">{{ $sound }}</option>
+			{{ end }}
+		</select>
+
+		<label class="form-label" for="criticalSound">Critical Sound</label>
+		<select class="form-select" id="criticalSound" name="criticalSound" aria-label="criticalSound Select">
+			<option value="">None</option>
+			{{ range $index, $sound := .Sounds }}
+				<option value="/dashboards-sound/{{ $sound }}">{{ $sound }}</option>
+			{{ end }}
+		</select>
+
+		<label class="form-label" for="unknownSound">Unknown Sound</label>
+		<select class="form-select" id="unknownSound" name="unknownSound" aria-label="unknownSound Select">
+			<option value="">None</option>
+			{{ range $index, $sound := .Sounds }}
+				<option value="/dashboards-sound/{{ $sound }}">{{ $sound }}</option>
+			{{ end }}
+		</select>
+
+		<label class="form-label" for="upSound">Up Sound</label>
+		<select class="form-select" id="upSound" name="upSound" aria-label="upSound Select">
+			<option value="">None</option>
+			{{ range $index, $sound := .Sounds }}
+				<option value="/dashboards-sound/{{ $sound }}">{{ $sound }}</option>
+			{{ end }}
+		</select>
+
+		<label class="form-label" for="downSound">Down Sound</label>
+		<select class="form-select" id="downSound" name="downSound" aria-label="downSound Select">
+			<option value="">None</option>
+			{{ range $index, $sound := .Sounds }}
+				<option value="/dashboards-sound/{{ $sound }}">{{ $sound }}</option>
 			{{ end }}
 		</select>
 	</fieldset>
@@ -61,7 +116,13 @@
 	</button>
 </form>
 <script>
-	document.getElementById("background").value = "/dashboards-background/{{ .Dashboard.Background }}";
+	document.getElementById("background").value = "{{ .Dashboard.Background }}";
+	document.getElementById("okSound").value = "{{ .Dashboard.OkSound }}";
+	document.getElementById("warningSound").value = "{{ .Dashboard.WarningSound }}";
+	document.getElementById("criticalSound").value = "{{ .Dashboard.CriticalSound }}";
+	document.getElementById("unknownSound").value = "{{ .Dashboard.UnknownSound }}";
+	document.getElementById("upSound").value = "{{ .Dashboard.UpSound }}";
+	document.getElementById("downSound").value = "{{ .Dashboard.DownSound }}";
 </script>
 </main>
 {{ end }}

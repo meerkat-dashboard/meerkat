@@ -9,19 +9,27 @@ import (
 	"os"
 	"path"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
 // Dashboard contains all information to render a dashboard
 type Dashboard struct {
-	Title       string    `json:"title"`
-	Slug        string    `json:"slug"`
-	Background  string    `json:"background"`
-	Description string    `json:"description"`
-	Folder      string    `json:"folder"`
-	Width       string    `json:"width"`
-	Height      string    `json:"height"`
-	Elements    []Element `json:"elements"`
+	Title         string    `json:"title"`
+	Slug          string    `json:"slug"`
+	Background    string    `json:"background"`
+	Description   string    `json:"description"`
+	Folder        string    `json:"folder"`
+	Width         string    `json:"width"`
+	Height        string    `json:"height"`
+	GlobalMute    bool      `json:"globalMute"`
+	OkSound       string    `json:"okSound"`
+	WarningSound  string    `json:"warningSound"`
+	CriticalSound string    `json:"criticalSound"`
+	UnknownSound  string    `json:"unknownSound"`
+	UpSound       string    `json:"upSound"`
+	DownSound     string    `json:"downSound"`
+	Elements      []Element `json:"elements"`
 }
 
 // Element contains any service/host information needed
@@ -142,6 +150,20 @@ func ParseDashboardForm(form url.Values) (Dashboard, error) {
 			dashboard.Description = v
 		case "folder":
 			dashboard.Folder = v
+		case "globalMute":
+			dashboard.GlobalMute, _ = strconv.ParseBool(v)
+		case "okSound":
+			dashboard.OkSound = v
+		case "warningSound":
+			dashboard.WarningSound = v
+		case "criticalSound":
+			dashboard.CriticalSound = v
+		case "unknownSound":
+			dashboard.UnknownSound = v
+		case "upSound":
+			dashboard.UpSound = v
+		case "downSound":
+			dashboard.DownSound = v
 		default:
 			return Dashboard{}, fmt.Errorf("unknown form parameter %s", k)
 		}

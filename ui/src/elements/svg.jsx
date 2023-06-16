@@ -19,13 +19,15 @@ export function CheckSVGOptions({ options, updateOptions }) {
 				value={options.linkURL}
 				onInput={(e) => updateOptions({ linkURL: e.currentTarget.value })}
 			/>
+			<Icinga.SoundOptions options={options} updateOptions={updateOptions} />
 		</Fragment>
 	);
 }
 
-export function CheckSVG({ events, options }) {
+export function CheckSVG({ events, options, dashboard }) {
 	const [objectState, setObjectState] = useState();
 	const [cardState, setCardState] = useState();
+	const [soundEvent, setSoundEvent] = useState(false);
 	const [svg, setSVG] = useState();
 
 	const parseUpdate = (object) => {
@@ -87,6 +89,7 @@ export function CheckSVG({ events, options }) {
 	const handleEvent = useCallback((event) => {
 		if (objectState && objectState.name.includes(event.data)) {
 			handleUpdate();
+			setSoundEvent(true);
 		}
 	});
 
@@ -101,6 +104,10 @@ export function CheckSVG({ events, options }) {
 	useEffect(() => {
 		if (objectState) handleUpdate(objectState);
 	}, [options.objectName, options.objectType]);
+
+	if (objectState && dashboard) {
+		if (soundEvent) IcingaJS.alertSounds(objectState.state, options, dashboard);
+	}
 
 	return (
 		<div class={`check-content svg`}>
