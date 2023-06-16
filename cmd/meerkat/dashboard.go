@@ -469,11 +469,15 @@ func checkProgramStart() float64 {
 		return 0
 	}
 	defer response.Body.Close()
-
-	dec := json.NewDecoder(response.Body)
-	err = dec.Decode(&statusCheck)
+	b, err := io.ReadAll(response.Body)
 	if err != nil {
-		log.Println("Failed to decode response: %w", err)
+		log.Println("Failed to read response: %w", err)
+		SendError()
+		return 0
+	}
+	err = json.Unmarshal(b, &statusCheck)
+	if err != nil {
+		log.Println("Failed to unmarshall response: %w", err)
 		SendError()
 		return 0
 	}
