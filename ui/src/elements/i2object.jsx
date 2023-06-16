@@ -1,5 +1,5 @@
 import { h, Fragment, Component } from "preact";
-import { useCallback, useEffect, useState } from "preact/hooks";
+import { useCallback, useEffect, useState, usePrevious } from "preact/hooks";
 
 import { FontSizeInput, ExternalURL } from "./options";
 import * as meerkat from "../meerkat";
@@ -32,14 +32,16 @@ export function ObjectCardOptions({ options, updateOptions }) {
 					updateOptions({ fontSize: Number(e.currentTarget.value) })
 				}
 			/>
+			<Icinga.SoundOptions options={options} updateOptions={updateOptions} />
 		</Fragment>
 	);
 }
 
-export function ObjectCard({ events, options }) {
+export function ObjectCard({ events, options, dashboard }) {
 	const [objectState, setObjectState] = useState();
 	const [cardText, setCardText] = useState();
 	const [cardState, setCardState] = useState();
+	const [soundEvent, setSoundEvent] = useState(false);
 
 	const parseUpdate = (object) => {
 		let objState = stateText(options.objectType, object.state);
@@ -87,6 +89,7 @@ export function ObjectCard({ events, options }) {
 	const handleEvent = useCallback((event) => {
 		if (objectState && objectState.name.includes(event.data)) {
 			handleUpdate();
+			setSoundEvent(true);
 		}
 	});
 
@@ -160,6 +163,10 @@ export function ObjectCard({ events, options }) {
 			return <div class="check-content card"></div>;
 		}
 	} else {
+		if (dashboard) {
+			if (soundEvent)
+				IcingaJS.alertSounds(objectState.state, options, dashboard);
+		}
 		return (
 			<div class={cardState}>
 				<div class="check-state" style={`font-size: ${options.fontSize}px`}>

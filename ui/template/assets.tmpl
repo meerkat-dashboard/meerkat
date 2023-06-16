@@ -9,17 +9,13 @@
 	</div>
     	<hr>
         <form id="filemgr" method="POST">
-            <div class="row">
-                <div class="col-md-9">
+            <div class="input-group mb-3">
                     {{ if eq $.Type "image" }}
                         <input class="form-control" type="file" id="input-file" name="input-file" accept="image/*">
                     {{ else }}
                         <input class="form-control" type="file" id="input-file" name="input-file" accept="audio/*">
                     {{ end }}
-                </div>
-                <div class="col-md-3">
-                    <div class="d-grid gap-2"><button type="submit" class="btn btn-primary">Upload</button></div>
-                </div>
+                    <button type="submit" class="btn btn-primary">Upload</button>
             </div>
         </form>
 	<hr>

@@ -176,17 +176,35 @@ func (srv *Server) InfoPage(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	sounds, err := meerkat.ReadDirectory("dashboards-sound")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	data := struct {
 		Dashboard   meerkat.Dashboard
 		Backgrounds []string
+		Sounds      []string
 	}{
 		Dashboard:   dashboard,
 		Backgrounds: backgrounds,
+		Sounds:      sounds,
 	}
 
 	if err := tmpl.Execute(w, data); err != nil {
 		log.Println(err)
 	}
+}
+
+func (srv *Server) GetSounds(w http.ResponseWriter, req *http.Request) {
+	sounds, err := meerkat.ReadDirectory("dashboards-sound")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write([]byte("[\"" + strings.Join(sounds, "\",\"") + "\"]"))
 }
 
 func (srv *Server) UploadFileHandler(targetPath string, allowFileType string) http.HandlerFunc {
@@ -290,6 +308,14 @@ func (srv *Server) EditInfoHandler(w http.ResponseWriter, req *http.Request) {
 
 	dashboard.Title = newdash.Title
 	dashboard.Background = newdash.Background
+	dashboard.Description = newdash.Description
+	dashboard.GlobalMute = newdash.GlobalMute
+	dashboard.OkSound = newdash.OkSound
+	dashboard.WarningSound = newdash.WarningSound
+	dashboard.CriticalSound = newdash.CriticalSound
+	dashboard.UnknownSound = newdash.UnknownSound
+	dashboard.UpSound = newdash.UpSound
+	dashboard.DownSound = newdash.DownSound
 	err = meerkat.CreateDashboard(fname, &dashboard)
 	if err != nil {
 		msg := fmt.Sprintf("edit dashboard info: %v", err)
