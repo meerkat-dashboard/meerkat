@@ -34,7 +34,7 @@ function Viewer({ dashboard, events }) {
 			if (dashboard.slug == e.data || e.data == "update" || error !== "") {
 				window.location.reload(true);
 			}
-			if (e.data == dashboard.slug + "|error") {
+			if (e.data == dashboard.slug + "|error" || e.data == "icinga|error") {
 				errorMessage("backend");
 			}
 		};

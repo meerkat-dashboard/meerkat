@@ -52,11 +52,18 @@ func UpdateHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	name := strings.Split(path.Dir(req.URL.Path), "/")[1]
+	log.Printf("Updated %s dashboards\n", name)
 	updateChannel.Notifier <- name
 }
 
 func UpdateAll() {
+	log.Println("Updating all meerkat dashboards")
 	updateChannel.Notifier <- "update"
+}
+
+func SendError() {
+	log.Println("Sending icinga backend error to clients.")
+	updateChannel.Notifier <- "icinga|error"
 }
 
 func SendHeartbeat() {
@@ -121,7 +128,7 @@ func handleCreateDashboard(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, msg, http.StatusInternalServerError)
 		return
 	}
-
+	log.Printf("Created dashboard %s\n", fpath)
 	u := path.Join("/", dashboard.Slug, "edit")
 	http.Redirect(w, req, u, http.StatusFound)
 }
@@ -158,7 +165,7 @@ func handleCloneDashboard(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, msg, http.StatusInternalServerError)
 		return
 	}
-
+	log.Printf("Cloned dashboard %s\n", destPath)
 	new := path.Join("/", dest.Slug, "edit")
 	next := http.RedirectHandler(new, http.StatusFound)
 	next.ServeHTTP(w, req)
@@ -195,6 +202,7 @@ func handleUpdateDashboard(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	log.Printf("Updated dashboard %s\n", path.Join("dashboards", slug+".json"))
 }
 
 func handleDeleteDashboard(w http.ResponseWriter, req *http.Request) {
@@ -209,6 +217,7 @@ func handleDeleteDashboard(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, "remove dashboard: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
+	log.Printf("Deleted dashboard %s\n", fname)
 	http.RedirectHandler("/", http.StatusFound).ServeHTTP(w, req)
 }
 
@@ -455,11 +464,13 @@ func checkProgramStart() float64 {
 	err = dec.Decode(&statusCheck)
 	if err != nil {
 		log.Println("Failed to decode response: %w", err)
+		SendError()
 		return 0
 	}
 
 	for _, v := range statusCheck.Results {
 		return v.Status.IcingaApplication.App.ProgramStart
 	}
+	SendError()
 	return 0
 }
