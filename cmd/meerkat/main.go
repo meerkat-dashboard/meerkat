@@ -192,6 +192,13 @@ func main() {
 		}
 	}()
 
+	go func() {
+		for {
+			SendHeartbeat()
+			time.Sleep(5 * time.Second)
+		}
+	}()
+
 	if config.SSLEnable {
 		log.Printf("Starting https web server on https://%s\n", config.HTTPAddr)
 		if !config.ConsoleLog {

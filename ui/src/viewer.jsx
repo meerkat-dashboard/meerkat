@@ -12,17 +12,56 @@ import { StaticSVG } from "./statics/svg";
 import { ObjectCard } from "./elements/i2object";
 
 function Viewer({ dashboard, events }) {
-	useEffect(() => {
-		new EventSource("/dashboard/stream").onmessage = (msg) => {
-			if (dashboard.title == msg.data || msg.data == "update") {
+	const [error, setError] = useState("");
+
+	var reconnectFrequencySeconds = 1;
+	var evtSource;
+
+	var waitFunc = function() { return reconnectFrequencySeconds * 1000 };
+	var tryToSetupFunc = function() {
+		setupEventSource();
+		reconnectFrequencySeconds *= 2;
+		if (reconnectFrequencySeconds >= 64) {
+			reconnectFrequencySeconds = 64;
+		}
+	};
+
+	function setupEventSource() {
+		evtSource = new EventSource("/dashboard/stream");
+		evtSource.onmessage = function(e) {
+			if (dashboard.slug == e.data || e.data == "update" || error !== "") {
 				window.location.reload(true);
 			}
 		};
-	});
+		evtSource.onopen = function() {
+			reconnectFrequencySeconds = 1;
+		};
+		evtSource.onerror = function() {
+			setTimeout(errorMessage, 1000);
+			evtSource.close();
+			setTimeout(tryToSetupFunc, waitFunc());
+		};
+	}
+
+	setupEventSource();
 
 	if (!dashboard.elements) {
 		return;
 	}
+
+	const errorMessage = () => {
+		if (error === "") {
+			err = (
+				<div
+					class="alert alert-danger w-100 p-3"
+					role="alert"
+				>
+					<div style="width:100%"><strong>Error connecting to meerkat server</strong></div>
+				</div>
+			);
+			setError(err);
+		}
+	};
 
 	const elements = dashboard.elements.map((element) => {
 		const left = `${element.rect.x}%`;
@@ -68,10 +107,16 @@ function Viewer({ dashboard, events }) {
 			<div style="position: relative; width: 100%">
 				<img src={dashboard.background} style="width: 100%; height: auto" />
 				{elements}
+				{error}
 			</div>
 		);
 	}
-	return <div style="width: 100vh; height: 100vh">{elements}</div>;
+	return (
+		<div style="width: 100vh; height: 100vh">
+			{elements}
+			{error}
+		</div>
+	);
 }
 
 function IcingaElement({ typ, options, events }) {
@@ -124,6 +169,7 @@ function linkWrap(ele, link) {
 const elems = window.location.pathname.split("/");
 const slug = elems[elems.length - 2];
 const events = new EventSource("/icinga/stream");
+
 meerkat.getDashboard(slug).then((d) => {
 	render(
 		<Viewer dashboard={d} events={events} />,

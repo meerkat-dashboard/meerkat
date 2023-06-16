@@ -59,6 +59,10 @@ func UpdateAll() {
 	updateChannel.Notifier <- "update"
 }
 
+func SendHeartbeat() {
+	updateChannel.Notifier <- "heartbeat"
+}
+
 func UpdateEvents() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("content-type", "text/event-stream")
