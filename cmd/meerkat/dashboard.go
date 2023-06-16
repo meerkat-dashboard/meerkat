@@ -481,7 +481,9 @@ func checkProgramStart() float64 {
 		SendError()
 		return 0
 	}
-
+	log.Println(string(b))
+	log.Println(response.StatusCode)
+	log.Println(statusCheck)
 	for _, v := range statusCheck.Results {
 		return v.Status.IcingaApplication.App.ProgramStart
 	}
