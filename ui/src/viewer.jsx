@@ -34,12 +34,16 @@ function Viewer({ dashboard, events }) {
 			if (dashboard.slug == e.data || e.data == "update" || error !== "") {
 				window.location.reload(true);
 			}
+			console.log(e.data);
+			if (e.data == dashboard.slug + "|error") {
+				errorMessage("backend");
+			}
 		};
 		evtSource.onopen = function () {
 			reconnectFrequencySeconds = 1;
 		};
 		evtSource.onerror = function () {
-			setTimeout(errorMessage, 1000);
+			setTimeout(errorMessage("meerkat"), 1000);
 			evtSource.close();
 			setTimeout(tryToSetupFunc, waitFunc());
 		};
@@ -51,12 +55,12 @@ function Viewer({ dashboard, events }) {
 		return;
 	}
 
-	const errorMessage = () => {
+	const errorMessage = (type) => {
 		if (error === "") {
 			err = (
 				<div class="alert alert-danger w-100 p-3" role="alert">
 					<div style="width:100%">
-						<strong>Error connecting to meerkat server</strong>
+						<strong>Error connecting to {type} server</strong>
 					</div>
 				</div>
 			);

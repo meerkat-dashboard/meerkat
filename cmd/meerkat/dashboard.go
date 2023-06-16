@@ -331,13 +331,18 @@ func getObjectHandler(w http.ResponseWriter, r *http.Request) {
 
 		w.Write(b)
 	} else {
-		handleError(w, dec)
+		handleError(w, dec, dashboardTitle)
 	}
 }
 
-func handleError(w http.ResponseWriter, dec *json.Decoder) {
+func handleError(w http.ResponseWriter, dec *json.Decoder, dashboardTitle string) {
 	var errorPage ErrorPage
 	err := dec.Decode(&errorPage)
+	if errorPage.Error >= 500 || errorPage.Error == 401 || errorPage.Error == 403 {
+		log.Printf("Bad response from icinga: %s %v %s", strings.Split(dashboardTitle, "/")[1], errorPage.Error, errorPage.Status)
+
+		updateChannel.Notifier <- dashboardTitle + "|error"
+	}
 	if err != nil {
 		log.Println("Failed to decode response: %w", err)
 	}
