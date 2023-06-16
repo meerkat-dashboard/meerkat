@@ -56,7 +56,7 @@ func UpdateHandler(w http.ResponseWriter, req *http.Request) {
 	updateChannel.Notifier <- name
 }
 func SetWorking() {
-	updateChannel.Notifier <- "icinga|success"
+	updateChannel.Notifier <- "icinga-success"
 }
 
 func UpdateAll() {
@@ -66,7 +66,7 @@ func UpdateAll() {
 
 func SendError() {
 	log.Println("Sending icinga backend error to clients.")
-	updateChannel.Notifier <- "icinga|error"
+	updateChannel.Notifier <- "icinga-error"
 }
 
 func SendHeartbeat() {
@@ -353,7 +353,7 @@ func handleError(w http.ResponseWriter, dec *json.Decoder, dashboardTitle string
 	if errorPage.Error >= 500 || errorPage.Error == 401 || errorPage.Error == 403 {
 		log.Printf("Bad response from icinga: %s %v %s", strings.Split(dashboardTitle, "/")[1], errorPage.Error, errorPage.Status)
 
-		updateChannel.Notifier <- dashboardTitle + "|error"
+		updateChannel.Notifier <- dashboardTitle + "-error"
 	}
 	if err != nil {
 		log.Println("Failed to decode response: %w", err)
@@ -448,11 +448,11 @@ func icingaRequest(apiPath string, dashboardTitle string) (*http.Response, error
 	if err != nil {
 		log.Println("Icinga2 API error: %w", err)
 		if strings.Contains(dashboardTitle, "/") {
-			updateChannel.Notifier <- strings.Split(dashboardTitle, "/")[1] + "|error"
+			updateChannel.Notifier <- strings.Split(dashboardTitle, "/")[1] + "-error"
 		} else if dashboardTitle == config.HTTPAddr {
-			updateChannel.Notifier <- "icinga|error"
+			updateChannel.Notifier <- "icinga-error"
 		} else {
-			updateChannel.Notifier <- dashboardTitle + "|error"
+			updateChannel.Notifier <- dashboardTitle + "-error"
 		}
 		return nil, err
 	}
@@ -482,8 +482,6 @@ func checkProgramStart() float64 {
 		return 0
 	}
 	log.Println(string(b))
-	log.Println(response.StatusCode)
-	log.Println(statusCheck)
 	for _, v := range statusCheck.Results {
 		return v.Status.IcingaApplication.App.ProgramStart
 	}

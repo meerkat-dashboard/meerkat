@@ -188,11 +188,11 @@ func main() {
 			if currentCheck != 0 {
 				SetWorking()
 			}
-			if previousCheck != currentCheck && previousCheck != 0 {
+			if previousCheck != currentCheck && previousCheck != 0 && currentCheck != 0 {
 				UpdateAll()
 			}
 			previousCheck = currentCheck
-			time.Sleep(60 * time.Second)
+			time.Sleep(10 * time.Second)
 		}
 	}()
 

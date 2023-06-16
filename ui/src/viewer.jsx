@@ -36,11 +36,11 @@ function Viewer({ dashboard, events }) {
 				dashboard.slug == e.data ||
 				e.data == "update" ||
 				(error !== "" && !backendError) ||
-				e.data == "icinga|success"
+				(e.data == "icinga-success" && backendError)
 			) {
 				window.location.reload(true);
 			}
-			if (e.data == dashboard.slug + "|error" || e.data == "icinga|error") {
+			if (e.data == dashboard.slug + "-error" || e.data == "icinga-error") {
 				errorMessage("backend");
 				setBackendError(true);
 			}
