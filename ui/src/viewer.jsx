@@ -13,6 +13,7 @@ import { ObjectCard } from "./elements/i2object";
 
 function Viewer({ dashboard, events }) {
 	const [error, setError] = useState("");
+	const [backendError, setBackendError] = useState(false);
 
 	var reconnectFrequencySeconds = 1;
 	var evtSource;
@@ -34,13 +35,14 @@ function Viewer({ dashboard, events }) {
 			if (
 				dashboard.slug == e.data ||
 				e.data == "update" ||
-				error !== "" ||
+				(error !== "" && !backendError) ||
 				e.data == "icinga|success"
 			) {
 				window.location.reload(true);
 			}
 			if (e.data == dashboard.slug + "|error" || e.data == "icinga|error") {
 				errorMessage("backend");
+				setBackendError(true);
 			}
 		};
 		evtSource.onopen = function () {
