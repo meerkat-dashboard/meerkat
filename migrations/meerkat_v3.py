@@ -99,12 +99,14 @@ _sound_keys = [
     "resetSound",
     "unknownSound",
     "upSound",
-    "warningSound"
+    "warningSound",
+    "globalMute",
+    "muteAlerts"
 ]
 
 # Add the sound keys to the dashboard if they currently exist
-# Global mute added as it is uniq to dashboards and not elements
-for dashboard_key in _sound_keys.extend(['globalMute']):
+# globalMute is uniq to dashboards and not elements
+for dashboard_key in _sound_keys:
     if dashboard_key in existing_dashboard:
         if existing_dashboard[dashboard_key] == "":
             logger.warning(f"Deleting {dashboard_key}:{existing_dashboard.pop(dashboard_key)} as it is empty")
@@ -174,7 +176,9 @@ _options_keys_to_keep_but_are_unused = [
 ]
 
 # Add the sound keys to unused option keys
-_options_keys_to_keep_but_are_unused.extend(_sound_keys + ["muteAlerts"])
+# globalMute is uniq to dashboards and not elements
+_sound_keys.remove('globalMute')
+_options_keys_to_keep_but_are_unused.extend(_sound_keys)
 # Add the unused option keys to option keys
 _options_keys.extend(_options_keys_to_keep_but_are_unused)
 
