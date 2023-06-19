@@ -32,7 +32,6 @@ function Viewer({ dashboard, events }) {
 	function setupEventSource() {
 		evtSource = new EventSource("/events?stream=updates");
 		evtSource.onmessage = function (e) {
-			console.log(e);
 			if (
 				dashboard.slug == e.data ||
 				e.data == "update" ||
@@ -186,7 +185,7 @@ function linkWrap(ele, link) {
 // Paths are of the form /my-dashboard/view
 const elems = window.location.pathname.split("/");
 const slug = elems[elems.length - 2];
-const events = new EventSource("/icinga/stream");
+const events = new EventSource("/events?stream=icinga");
 
 meerkat.getDashboard(slug).then((d) => {
 	render(

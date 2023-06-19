@@ -114,23 +114,42 @@ func main() {
 			log.Println("dial icinga:", err)
 		}
 
-		// Subscribe to object state changes. Some dashboard elements
-		// read events instead of polling.
-		stream := meerkat.NewEventStream(client)
-		events := []string{"CheckResult", "StateChange"}
+		server = sse.New()
+		server.AutoReplay = false
+		server.AutoStream = false
+		server.CreateStream("updates")
+		server.CreateStream("icinga")
+
+		eventNames := []string{"CheckResult", "StateChange"}
 		go func() {
 			for {
-				if err := stream.Subscribe(events); err != nil {
+				events, err := client.Subscribe(eventNames, "meerkat", "")
+				if err != nil {
 					log.Println("subscribe to icinga event stream:", err)
 					dur := 10 * time.Second
 					log.Printf("retrying in %s", dur)
 					time.Sleep(dur)
 					continue
+				} else {
+					for {
+						event := <-events
+						name := event.Host
+						if event.Service != "" {
+							name = name + "!" + event.Service
+						}
+						server.Publish("icinga", &sse.Event{
+							Event: []byte(event.Type),
+							Data:  []byte(name),
+						})
+					}
 				}
 			}
 		}()
 
-		r.Handle("/icinga/stream", stream)
+		r.HandleFunc("/events", server.ServeHTTP)
+
+		// Subscribe to object state changes. Some dashboard elements
+		// read events instead of polling.
 	}
 
 	// Previous versions of meerkat served user-uploaded files from this directory.
@@ -156,20 +175,11 @@ func main() {
 	r.Get("/{slug}/info", srv.InfoPage)
 	r.Post("/{slug}/info", srv.EditInfoHandler)
 
-	done := make(chan interface{})
-	defer close(done)
-	//go sendUpdates(done)
-
 	r.Get("/api/all", getAllHandler)
 	r.Get("/api/objects", getObjectHandler)
 
 	r.Get("/{slug}/update", UpdateHandler)
 
-	server = sse.New()
-	server.AutoReplay = false
-	server.AutoStream = false
-	server.CreateStream("updates")
-	r.HandleFunc("/events", server.ServeHTTP)
 	r.Post("/file/background", srv.UploadFileHandler("./dashboards-background", "image/"))
 	r.Delete("/file/background", srv.DeleteFileHandler("./dashboards-background"))
 	r.Post("/file/sound", srv.UploadFileHandler("./dashboards-sound", "audio/"))
