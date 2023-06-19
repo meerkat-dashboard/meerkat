@@ -35,6 +35,7 @@ fi
 
 workdir="$tmp/meerkat"
 mkdir -p $workdir
+mkdir -p $workdir/dashboards-sound
 
 (cd cmd/meerkat && go build -o $workdir/)
 cp README.md LICENSE $workdir
@@ -42,6 +43,7 @@ cp Dockerfile $workdir
 cp favicon.ico $workdir
 cp -R contrib $workdir
 cp -R docs $workdir
+cp -R default_assets/*.mp3 $workdir/dashboards-sound/
 
 tarball="$outdir/meerkat.tar.gz"
 ( cd "$workdir/.."  && tar cv meerkat | gzip -c )  > "$tarball"

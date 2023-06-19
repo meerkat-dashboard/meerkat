@@ -3,6 +3,7 @@
     --color-icinga-warning: #ff9000;
 	--color-icinga-critical: #ff0019;
     --color-icinga-unknown: #970ee1;
+    --color-icinga-pending: #77aaff;
 	--color-icinga-warning-ack: #ffca39;
 	--color-icinga-critical-ack: #de5e84;
 	--color-icinga-unknown-ack: #b594b5;
