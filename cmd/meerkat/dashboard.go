@@ -21,30 +21,8 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/meerkat-dashboard/meerkat"
+	"github.com/r3labs/sse/v2"
 )
-
-type UpdateChannel struct {
-	Clients  []chan string
-	Notifier chan string
-}
-
-var updateChannel = UpdateChannel{
-	Clients:  make([]chan string, 0),
-	Notifier: make(chan string),
-}
-
-func sendUpdates(done <-chan interface{}) {
-	for {
-		select {
-		case <-done:
-			return
-		case data := <-updateChannel.Notifier:
-			for _, channel := range updateChannel.Clients {
-				channel <- data
-			}
-		}
-	}
-}
 
 func UpdateHandler(w http.ResponseWriter, req *http.Request) {
 	if req.Method != http.MethodGet {
@@ -53,56 +31,35 @@ func UpdateHandler(w http.ResponseWriter, req *http.Request) {
 	}
 	name := strings.Split(path.Dir(req.URL.Path), "/")[1]
 	log.Printf("Updated %s dashboards\n", name)
-	updateChannel.Notifier <- name
+	server.Publish("updates", &sse.Event{
+		Data: []byte(name),
+	})
+	w.WriteHeader(200)
 }
 func SetWorking() {
-	updateChannel.Notifier <- "icinga-success"
+	server.Publish("updates", &sse.Event{
+		Data: []byte("icinga-success"),
+	})
 }
 
 func UpdateAll() {
 	log.Println("Updating all meerkat dashboards")
-	updateChannel.Notifier <- "update"
+	server.Publish("updates", &sse.Event{
+		Data: []byte("update"),
+	})
 }
 
 func SendError() {
 	log.Println("Sending icinga backend error to clients.")
-	updateChannel.Notifier <- "icinga-error"
+	server.Publish("updates", &sse.Event{
+		Data: []byte("icinga-error"),
+	})
 }
 
 func SendHeartbeat() {
-	updateChannel.Notifier <- "heartbeat"
-}
-
-func UpdateEvents() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("content-type", "text/event-stream")
-		w.Header().Set("cache-control", "no-cache")
-		w.Header().Set("connection", "keep-alive")
-		w.Header().Set("access-control-allow-origin", "*")
-
-		updateChan := make(chan string)
-		updateChannel.Clients = append(updateChannel.Clients, updateChan)
-
-		done := make(chan interface{})
-		defer close(done)
-
-		for {
-			select {
-			case <-done:
-				close(updateChan)
-				return
-			case data := <-updateChan:
-				fmt.Fprintf(w, "data: %v\n\n", data)
-				if wf, ok := w.(http.Flusher); ok {
-					wf.Flush()
-				}
-			case data := <-updateChannel.Notifier:
-				for _, channel := range updateChannel.Clients {
-					channel <- data
-				}
-			}
-		}
-	}
+	server.Publish("updates", &sse.Event{
+		Data: []byte("heartbeat"),
+	})
 }
 
 func handleListDashboard(w http.ResponseWriter, r *http.Request) {
@@ -351,9 +308,7 @@ func handleError(w http.ResponseWriter, dec *json.Decoder, dashboardTitle string
 	var errorPage ErrorPage
 	err := dec.Decode(&errorPage)
 	if errorPage.Error >= 500 || errorPage.Error == 401 || errorPage.Error == 403 {
-		log.Printf("Bad response from icinga: %s %v %s", strings.Split(dashboardTitle, "/")[1], errorPage.Error, errorPage.Status)
-
-		updateChannel.Notifier <- dashboardTitle + "-error"
+		log.Printf("Bad response from icinga: %s %v %s", dashboardTitle, errorPage.Error, errorPage.Status)
 	}
 	if err != nil {
 		log.Println("Failed to decode response: %w", err)
@@ -447,13 +402,6 @@ func icingaRequest(apiPath string, dashboardTitle string) (*http.Response, error
 	res, err := client.Do(req)
 	if err != nil {
 		log.Println("Icinga2 API error: %w", err)
-		if strings.Contains(dashboardTitle, "/") {
-			updateChannel.Notifier <- strings.Split(dashboardTitle, "/")[1] + "-error"
-		} else if dashboardTitle == config.HTTPAddr {
-			updateChannel.Notifier <- "icinga-error"
-		} else {
-			updateChannel.Notifier <- dashboardTitle + "-error"
-		}
 		return nil, err
 	}
 
@@ -472,19 +420,15 @@ func checkProgramStart() float64 {
 	b, err := io.ReadAll(response.Body)
 	if err != nil {
 		log.Println("Failed to read response: %w", err)
-		SendError()
 		return 0
 	}
 	err = json.Unmarshal(b, &statusCheck)
 	if err != nil {
 		log.Println("Failed to unmarshall response: %w", err)
-		SendError()
 		return 0
 	}
-	log.Println(string(b))
 	for _, v := range statusCheck.Results {
 		return v.Status.IcingaApplication.App.ProgramStart
 	}
-	SendError()
 	return 0
 }

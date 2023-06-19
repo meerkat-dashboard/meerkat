@@ -30,19 +30,17 @@ function Viewer({ dashboard, events }) {
 	};
 
 	function setupEventSource() {
-		evtSource = new EventSource("/dashboard/stream");
+		evtSource = new EventSource("/events?stream=updates");
 		evtSource.onmessage = function (e) {
-			if (
-				dashboard.slug == e.data ||
-				e.data == "update" ||
-				(error !== "" && !backendError) ||
-				(e.data == "icinga-success" && backendError)
-			) {
+			console.log(e);
+			if (dashboard.slug == e.data || e.data == "update" || (e.data == "icinga-success" && backendError) || (e.data == "heartbeat" && !backendError && error)) {
+				evtSource.close();
 				window.location.reload(true);
-			}
-			if (e.data == dashboard.slug + "-error" || e.data == "icinga-error") {
-				errorMessage("backend");
-				setBackendError(true);
+			} else if (e.data == "icinga-error") {
+				if (!backendError) {
+					errorMessage("backend");
+					setBackendError(true);
+				}
 			}
 		};
 		evtSource.onopen = function () {
@@ -50,6 +48,7 @@ function Viewer({ dashboard, events }) {
 		};
 		evtSource.onerror = function () {
 			setTimeout(errorMessage("meerkat"), 1000);
+			setBackendError(false);
 			evtSource.close();
 			setTimeout(tryToSetupFunc, waitFunc());
 		};

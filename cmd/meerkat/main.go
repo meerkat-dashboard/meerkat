@@ -18,9 +18,11 @@ import (
 	"github.com/meerkat-dashboard/icinga-go"
 	"github.com/meerkat-dashboard/meerkat"
 	"github.com/meerkat-dashboard/meerkat/ui"
+	"github.com/r3labs/sse/v2"
 )
 
 var config Config
+var server *sse.Server
 var icingaLog log.Logger
 
 func main() {
@@ -156,13 +158,18 @@ func main() {
 
 	done := make(chan interface{})
 	defer close(done)
-	go sendUpdates(done)
+	//go sendUpdates(done)
 
 	r.Get("/api/all", getAllHandler)
 	r.Get("/api/objects", getObjectHandler)
 
 	r.Get("/{slug}/update", UpdateHandler)
-	r.HandleFunc("/dashboard/stream", UpdateEvents())
+
+	server = sse.New()
+	server.AutoReplay = false
+	server.AutoStream = false
+	server.CreateStream("updates")
+	r.HandleFunc("/events", server.ServeHTTP)
 	r.Post("/file/background", srv.UploadFileHandler("./dashboards-background", "image/"))
 	r.Delete("/file/background", srv.DeleteFileHandler("./dashboards-background"))
 	r.Post("/file/sound", srv.UploadFileHandler("./dashboards-sound", "audio/"))
@@ -187,12 +194,14 @@ func main() {
 			currentCheck := checkProgramStart()
 			if currentCheck != 0 {
 				SetWorking()
+			} else {
+				SendError()
 			}
 			if previousCheck != currentCheck && previousCheck != 0 && currentCheck != 0 {
 				UpdateAll()
 			}
 			previousCheck = currentCheck
-			time.Sleep(60 * time.Second)
+			time.Sleep(10 * time.Second)
 		}
 	}()
 
