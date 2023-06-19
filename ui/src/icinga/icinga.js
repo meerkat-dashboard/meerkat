@@ -138,12 +138,12 @@ export function worstObject(objects) {
 	return worst;
 }
 
-let okAudio = null;
-let warningAudio = null;
-let criticalAudio = null;
-let unknownAudio = null;
-let upAudio = null;
-let downAudio = null;
+let okAudio;
+let warningAudio;
+let criticalAudio;
+let unknownAudio;
+let upAudio;
+let downAudio;
 
 export function usePrevious(value) {
 	const ref = useRef();
@@ -156,12 +156,16 @@ export function usePrevious(value) {
 export function alertSounds(checkState, options, dashboard) {
 	checkState = StateText(checkState, options.objectType);
 	const prevState = usePrevious(checkState);
-
-	if (checkState !== null && prevState !== null && checkState !== prevState) {
-		let audio = null;
-		let soundOption = null;
-		let prevSound = null;
-		let prevDashboardSound = null;
+	if (
+		checkState !== undefined &&
+		prevState !== undefined &&
+		checkState !== prevState
+	) {
+		console.log(checkState, prevState);
+		let audio;
+		let soundOption;
+		let prevSound;
+		let prevDashboardSound;
 
 		switch (checkState) {
 			case "ok":
@@ -205,7 +209,7 @@ export function alertSounds(checkState, options, dashboard) {
 		}
 
 		if (
-			audio === null ||
+			audio === undefined ||
 			soundOption !== prevSound ||
 			soundOption !== prevDashboardSound
 		) {
