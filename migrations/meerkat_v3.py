@@ -114,7 +114,7 @@ for dashboard_key in _sound_keys:
             migrated_dashboard[dashboard_key] = existing_dashboard.pop(dashboard_key)
 
         if 'dashboards-data' in str(migrated_dashboard[dashboard_key]):
-            migrated_dashboard[dashboard_key].replace('dashboards-data', 'dashboards-sound')
+            migrated_dashboard[dashboard_key] = migrated_dashboard[dashboard_key].replace('dashboards-data', 'dashboards-sound')
 
 # Element keys to migrate
 _element_keys = [
@@ -298,8 +298,8 @@ for element in existing_dashboard.get('elements', []):
                 new_element['options'][option_key] = element['options'].pop(options_replace[option_key])
 
             # Rename the sound directories
-            if 'dashboards-data' in str(new_element['options'].get(dashboard_key, '')) and 'Sound' in dashboard_key:
-                new_element['options'][dashboard_key].replace('dashboards-data', 'dashboards-sound')
+            if 'dashboards-data' in str(new_element['options'].get(option_key, '')) and 'Sound' in option_key:
+                new_element['options'][option_key] = new_element['options'][option_key].replace('dashboards-data', 'dashboards-sound')
 
 
 if args.live:
