@@ -112,8 +112,7 @@ export function CheckSVG({ events, options, dashboard }) {
 	return (
 		<div class={`check-content svg`}>
 			<svg class={cardState}>
-				{svg && <use xlinkHref={`/dist/feather-sprite.svg#${svg}`} />}
-				{!svg && <use xlinkHref={`/dist/feather-sprite.svg#help-circle`} />}
+				<use xlinkHref={`/dist/feather-sprite.svg#${svg}`} />
 			</svg>
 		</div>
 	);
