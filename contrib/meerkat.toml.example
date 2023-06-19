@@ -18,9 +18,9 @@ SSLCert = ""
 SSLKey = ""
 
 # If set to true, meerkat will log to file.
-FileLog = true
+LogFile = true
 # If set to true, meerkat will log to console.
-ConsoleLog = false
+LogConsole = false
 # Path to folder to store log files.
 LogDirectory = "log/"
 
