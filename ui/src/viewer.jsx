@@ -67,7 +67,7 @@ function Viewer({ dashboard, events }) {
 	const errorMessage = (type) => {
 		if (error === "") {
 			err = (
-				<div class="alert alert-danger w-100 p-3" role="alert">
+				<div class="alert alert-danger w-100 p-3 fixed-top" role="alert">
 					<div style="width:100%">
 						<strong>Error connecting to {type} server</strong>
 					</div>
