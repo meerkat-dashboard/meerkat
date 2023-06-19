@@ -14,6 +14,11 @@ import {
 	StaticTextOptions,
 	StaticTextDefaults,
 } from "./statics/text";
+import {
+	StaticTicker,
+	StaticTickerOptions,
+	StaticTickerDefaults,
+} from "./statics/ticker";
 import { StaticSVG, StaticSVGOptions, StaticSVGDefaults } from "./statics/svg";
 import { Video, VideoOptions } from "./elements/video";
 import { AudioOptions } from "./elements/audio";
@@ -28,6 +33,8 @@ function defaultElementOptions(typ) {
 			return StaticTextDefaults;
 		case "static-svg":
 			return StaticSVGDefaults;
+		case "static-ticker":
+			return StaticTickerDefaults;
 	}
 	return {};
 }
@@ -387,6 +394,9 @@ function DashboardElements({
 			case "static-text":
 				ele = <StaticText options={element.options} />;
 				break;
+			case "static-ticker":
+				ele = <StaticTicker options={element.options} />;
+				break;
 			case "static-svg":
 				ele = <StaticSVG options={element.options} />;
 				break;
@@ -631,6 +641,14 @@ function ElementSettings({ element, updateElement, closeElement }) {
 			/>
 		);
 	}
+	if (element.type === "static-ticker") {
+		ElementOptions = (
+			<StaticTickerOptions
+				updateOptions={updateElementOptions}
+				options={element.options}
+			/>
+		);
+	}
 	if (element.type === "image") {
 		ElementOptions = (
 			<ImageOptions
@@ -699,6 +717,7 @@ function ElementSettings({ element, updateElement, closeElement }) {
 					<option value="check-line">Icinga Line</option>
 					<option value="static-text">Static Text</option>
 					<option value="static-svg">Static SVG</option>
+					<option value="static-ticker">Static Ticker</option>
 					<option value="image">Image</option>
 					<option value="video">Video</option>
 					<option value="audio">Audio</option>

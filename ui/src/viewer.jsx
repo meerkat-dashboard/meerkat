@@ -8,6 +8,7 @@ import { CheckLine } from "./elements/line";
 import { Video } from "./elements/video";
 import { Clock } from "./elements/clock";
 import { StaticText } from "./statics/text";
+import { StaticTicker } from "./statics/ticker";
 import { StaticSVG } from "./statics/svg";
 import { ObjectCard } from "./elements/i2object";
 
@@ -161,6 +162,9 @@ function DashElement({ typ, options }) {
 	}
 	if (typ === "static-svg") {
 		ele = <StaticSVG options={options} />;
+	}
+	if (typ === "static-ticker") {
+		ele = <StaticTicker options={options} />;
 	}
 	if (typ === "image") {
 		ele = <img src={options.image} />;
