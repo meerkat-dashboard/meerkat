@@ -16,8 +16,8 @@ type Config struct {
 	SSLCert   string
 	SSLKey    string
 
-	FileLog      bool
-	ConsoleLog   bool
+	LogFile      bool
+	LogConsole   bool
 	LogDirectory string
 
 	IcingaDebug bool
@@ -47,6 +47,9 @@ func LoadConfig(name string) (Config, error) {
 	}
 	if conf.IcingaPassword == "" {
 		conf.IcingaPassword = "meerkat"
+	}
+	if conf.LogDirectory == "" {
+		conf.LogDirectory = "log/"
 	}
 
 	return conf, err

@@ -66,13 +66,13 @@ func main() {
 		log.Fatalln("Error creating log directory:", err)
 	}
 
-	if config.FileLog {
+	if config.LogFile {
 		f, err := os.OpenFile(config.LogDirectory+"meerkat.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 		if err != nil {
 			log.Fatalf("error opening file: %v", err)
 		}
 		defer f.Close()
-		if config.ConsoleLog {
+		if config.LogConsole {
 			multi := io.MultiWriter(f, os.Stdout)
 			log.SetOutput(multi)
 		} else {
@@ -86,12 +86,12 @@ func main() {
 			log.Fatalf("error opening file: %v", err)
 		}
 		defer f.Close()
-		if config.ConsoleLog && config.FileLog {
+		if config.LogConsole && config.LogFile {
 			multi := io.MultiWriter(f, os.Stdout)
 			icingaLog = *log.New(multi, "", log.Ldate|log.Ltime)
-		} else if config.ConsoleLog {
+		} else if config.LogConsole {
 			icingaLog = *log.New(os.Stdout, "", log.Ldate|log.Ltime)
-		} else if config.FileLog {
+		} else if config.LogFile {
 			icingaLog = *log.New(f, "", log.Ldate|log.Ltime)
 		}
 	}
@@ -224,7 +224,7 @@ func main() {
 
 	if config.SSLEnable {
 		log.Printf("Starting https web server on https://%s\n", config.HTTPAddr)
-		if !config.ConsoleLog {
+		if !config.LogConsole {
 			fmt.Printf("Starting https web server on https://%s\n", config.HTTPAddr)
 		}
 		_, err := os.Stat(config.SSLCert)
@@ -238,7 +238,7 @@ func main() {
 		log.Fatal(http.ListenAndServeTLS(config.HTTPAddr, config.SSLCert, config.SSLKey, r))
 	} else {
 		log.Printf("Starting http web server on http://%s\n", config.HTTPAddr)
-		if !config.ConsoleLog {
+		if !config.LogConsole {
 			fmt.Printf("Starting http web server on http://%s\n", config.HTTPAddr)
 		}
 		log.Fatal(http.ListenAndServe(config.HTTPAddr, r))

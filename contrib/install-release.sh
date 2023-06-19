@@ -111,6 +111,16 @@ IcingaPassword = \"YOUR SECURE PASSWORD HERE\"
 SSLEnable = true
 SSLCert = \"$SSL_DIR/$CERT_NAME.crt\"
 SSLKey = \"$SSL_DIR/$CERT_NAME.key\"
+
+# If set to true, meerkat will log to file.
+LogFile = true
+# If set to true, meerkat will log to console.
+LogConsole = false
+# Path to folder to store log files.
+LogDirectory = \"log/\"
+
+# If set to true meerkat will output icinga api debug information.
+IcingaDebug = false
 " >> /etc/meerkat-$LABEL.toml
 
 echo "update /etc/meerkat-$LABEL.toml with Icinga details!"
