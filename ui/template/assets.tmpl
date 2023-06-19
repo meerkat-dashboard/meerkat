@@ -39,7 +39,10 @@
                     {{ end }}
                     </div>
                     <div class="col-auto d-flex align-items-stretch">
-                        <button class="btn btn-danger btn-lg" onclick="deleteFile('{{ $file }}')"><i class="bi bi-trash-fill"></i></a>
+                        {{ if eq $.Type "sound" }}
+                        <button class="btn btn-primary btn-lg ms-2 px-3" onclick="new Audio('../dashboards-sound/{{ $file }}').play()"><i class="bi bi-play-fill"></i></a>
+                        {{ end }}
+                        <button class="btn btn-danger btn-lg ms-2 px-3" onclick="deleteFile('{{ $file }}')"><i class="bi bi-trash-fill"></i></a>
                     </div>
                 </div>
             {{ end }}
