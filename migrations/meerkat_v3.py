@@ -69,21 +69,27 @@ migrated_dashboard = {
     "height": "",
 }
 
+
 # Iterate through all the top level dashboard keys
 for dashboard_key in migrated_dashboard.keys():
     # Default element values get set if in the template
     if dashboard_key in existing_dashboard:
         migrated_dashboard[dashboard_key] = existing_dashboard.pop(dashboard_key)
 
-    # Add the argument for folder if set
-    if args.folder != "":
-        logger.success(f"Adding Dashboard Folder argument value: '{args.folder}'")
-        existing_dashboard['folder'] = args.folder
+    # Move background to new directory
+    if dashboard_key == 'background':
+        migrated_dashboard[dashboard_key].replace('dashboards-data', 'dashboards-background')
 
-    # Add the argument for description if set
-    if args.description != "":
-        logger.success(f"Adding Dashboard Description argumnet value: '{args.description}'")
-        existing_dashboard['description'] = args.description
+# Add the argument for folder if set
+if args.folder != "":
+    logger.success(f"Adding Dashboard Folder argument value: '{args.folder}'")
+    migrated_dashboard['folder'] = args.folder
+
+# Add the argument for description if set
+if args.description != "":
+    logger.success(f"Adding Dashboard Description argumnet value: '{args.description}'")
+    migrated_dashboard['description'] = args.description
+
 
 # Stuff we want to keep in the data file but probably don't have any code associated with them in v3
 _sound_keys = [
@@ -93,17 +99,20 @@ _sound_keys = [
     "resetSound",
     "unknownSound",
     "upSound",
-    "warningSound",
-    "muteAlerts",
+    "warningSound"
 ]
 
 # Add the sound keys to the dashboard if they currently exist
-for dashboard_key in _sound_keys:
+# Global mute added as it is uniq to dashboards and not elements
+for dashboard_key in _sound_keys.append('globalMute'):
     if dashboard_key in existing_dashboard:
         if existing_dashboard[dashboard_key] == "":
             logger.warning(f"Deleting {dashboard_key}:{existing_dashboard.pop(dashboard_key)} as it is empty")
         else:
             migrated_dashboard[dashboard_key] = existing_dashboard.pop(dashboard_key)
+
+        if 'dashboards-data' in migrated_dashboard[dashboard_key]:
+            migrated_dashboard[dashboard_key].replace('dashboards-data', 'dashboards-sound')
 
 # Element keys to migrate
 _element_keys = [
@@ -165,7 +174,7 @@ _options_keys_to_keep_but_are_unused = [
 ]
 
 # Add the sound keys to unused option keys
-_options_keys_to_keep_but_are_unused.extend(_sound_keys)
+_options_keys_to_keep_but_are_unused.extend(_sound_keys + ["muteAlerts"])
 # Add the unused option keys to option keys
 _options_keys.extend(_options_keys_to_keep_but_are_unused)
 
@@ -226,6 +235,7 @@ for element in existing_dashboard.get('elements', []):
                     logger.success(
                         f"Replacing Element Options key:value 'nameFontSize:{element['options']['nameFontSize']}' with the replacement key 'fontSize' and existing value")
                     new_element['options']['fontSize'] = element['options'].pop('nameFontSize')
+
             # If the option is related to the host or service called handle it here
             elif option_key == 'objectName':
                 # if the filter is None or empty
@@ -268,19 +278,24 @@ for element in existing_dashboard.get('elements', []):
                     new_element['options']['objectType'] = element['options'].pop('objectType')
                 logger.warning(
                     f"Deleting selection value {element['options'].pop('selection', None)}, we use objectType over selection as selection has been merged with objectType")
+                
             # Skipping objectType as it will be set with objectName
             elif option_key == 'objectType':
                 pass
+            
             # If the option key is in existing options copy the value
             elif option_key in element['options']:
                 new_element['options'][option_key] = element['options'].pop(option_key)
+                
             # If the option key is in the replacement list and the old key exist copy value
             elif option_key in options_replace and options_replace[option_key] in element['options']:
                 logger.success(
                     f"Replacing Element Options key:value '{options_replace[option_key]}:{element['options'][options_replace[option_key]]}' with the replacement key '{option_key}' and existing value")
                 new_element['options'][option_key] = element['options'].pop(options_replace[option_key])
 
-    migrated_dashboard['elements'].append(new_element)
+            # Rename the sound directories
+            if 'dashboards-data' in new_element['options'][dashboard_key] and 'Sound' in dashboard_key:
+                new_element['options'][dashboard_key].replace('dashboards-data', 'dashboards-sound')
 
 
 if args.live:
