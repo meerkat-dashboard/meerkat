@@ -1,14 +1,16 @@
 #!/bin/bash -x
 
-HOST_NAME=${1:-"localhost"}
+CERT_NAME=${1:-"localhost"}
 SSL_DIR=${2:-"/usr/local/meerkat/ssl"}
 
-# Create SSL directory.
+echo "Creating SSL directory."
 mkdir -p "$SSL_DIR"
 
-# Generate SSL certificate
-cd "$SSL_DIR"
-openssl req  -new  -newkey rsa:2048  -nodes  -keyout $HOST_NAME.key  -out $HOST_NAME.csr
-openssl  x509  -req  -days 365  -in $HOST_NAME.csr  -signkey $HOST_NAME.key  -out $HOST_NAME.crt
+echo "Generating SSL certificate"
+openssl req -new -newkey rsa:2048 -nodes \
+  -keyout "$SSL_DIR/$CERT_NAME.key" \
+  -out "$SSL_DIR/$CERT_NAME.csr" \
+  -subj "/C=AU/ST=NSW/L=Sydney/O=Sol1/OU=Monitoring/CN=$CERT_NAME/emailAddress=support@sol1.com.au"
 
+openssl x509  -req  -days 365  -in $SSL_DIR/$CERT_NAME.csr  -signkey $SSL_DIR/$CERT_NAME.key  -out $SSL_DIR/$CERT_NAME.crt
 

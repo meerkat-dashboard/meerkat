@@ -93,35 +93,11 @@ chown -R $USER "$INSTALL_DIR"
 
 
 if [ ! -f /etc/meerkat-$LABEL.toml ]; then
-echo "
-# The address, in host:port format, to serve meerkat from. For example 0.0.0.0:6969. The default is “:8080” i.e. all IPv4, IPv6 addresses port 8080.
-HTTPAddr = \"0.0.0.0:$PORT\"
 
-# A URL pointing to an instance of Icinga serving the Icinga API
-IcingaURL = \"https://127.0.0.1:5665\"
-
-# The username and password with which to authenticate to Icinga. Normally set in /etc/icinga2/conf.d/api-users.conf on your Icinga2 master.
-IcingaUsername = \"meerkat\"
-IcingaPassword = \"YOUR SECURE PASSWORD HERE\"
-
-# If set to true, verification of the TLS certificates served by the Icinga API is skipped. This is often required when Icinga is configured with self-signed certificates.
-#IcingaInsecureTLS = true
-
-# If set to true, meerkat will serve data over http2 using the crt and key.
-SSLEnable = true
-SSLCert = \"$SSL_DIR/$CERT_NAME.crt\"
-SSLKey = \"$SSL_DIR/$CERT_NAME.key\"
-
-# If set to true, meerkat will log to file.
-LogFile = true
-# If set to true, meerkat will log to console.
-LogConsole = false
-# Path to folder to store log files.
-LogDirectory = \"log/\"
-
-# If set to true meerkat will output icinga api debug information.
-IcingaDebug = false
-" >> /etc/meerkat-$LABEL.toml
+cp meerkat.toml.example /etc/meerkat-$LABEL.toml
+sed -i "s/HTTPAddr = \"0.0.0.0:8080\"/HTTPAddr = \"0.0.0.0:$PORT\"/" /etc/meerkat-$LABEL.toml
+sed -i "s/SSLCert = \"\"/SSLCert = \"$SSL_DIR/$CERT_NAME.crt\"/" /etc/meerkat-$LABEL.toml
+sed -i "s/SSLKey = \"\"/SSLKey = \"$SSL_DIR/$CERT_NAME.key\"/" /etc/meerkat-$LABEL.toml
 
 echo "update /etc/meerkat-$LABEL.toml with Icinga details!"
 else
