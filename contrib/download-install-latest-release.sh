@@ -51,7 +51,7 @@ if [[ -z "$RELEASE_URL" ]]; then
   if [ $? -ne 0 ]; then
     echo "Unable to find the latest RELEASE_URL (returned: $RELEASE_URL)"
     echo "Please try again passing in the RELEASE_URL"
-    exit(1)
+    exit 1
   fi
 fi
 
