@@ -137,6 +137,7 @@ func (srv *Server) ClonePage(w http.ResponseWriter, req *http.Request) {
 	dashboards, err := meerkat.ReadDashboardDir("dashboards")
 	if err != nil {
 		msg := fmt.Sprintf("read dashboard dir: %v", err)
+		log.Println(msg)
 		http.Error(w, msg, http.StatusInternalServerError)
 		return
 	}
@@ -245,7 +246,7 @@ func (srv *Server) UploadFileHandler(targetPath string, allowFileType string) ht
 			http.Error(w, "Unable to save file", http.StatusInternalServerError)
 			return
 		}
-
+		log.Println("Uploaded file " + filepath.Join(targetPath, sanitizedFilename))
 		// return the file path
 		w.Write([]byte(targetPath + "/" + sanitizedFilename))
 	}
@@ -254,6 +255,7 @@ func (srv *Server) UploadFileHandler(targetPath string, allowFileType string) ht
 func (srv *Server) DeleteFileHandler(targetPath string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		fileName := r.URL.Query().Get("name")
+		log.Println("Deleting file " + filepath.Join(targetPath, fileName))
 		err := os.Remove(filepath.Join(targetPath, fileName))
 		if err != nil {
 			http.Error(w, "Unable to delete file", http.StatusInternalServerError)
@@ -283,6 +285,7 @@ func (srv *Server) EditInfoHandler(w http.ResponseWriter, req *http.Request) {
 	newdash, err := meerkat.ParseDashboardForm(req.PostForm)
 	if err != nil {
 		msg := fmt.Sprintf("parse dashboard form: %v", err)
+		log.Println(msg)
 		http.Error(w, msg, http.StatusBadRequest)
 		return
 	}
@@ -293,6 +296,7 @@ func (srv *Server) EditInfoHandler(w http.ResponseWriter, req *http.Request) {
 		// Don't rename to a dashboard that already exists.
 		if _, err := meerkat.ReadDashboard(fname); err == nil {
 			msg := fmt.Sprintf("dashboard %s already exists", slug)
+			log.Println(msg)
 			http.Error(w, msg, http.StatusBadRequest)
 			return
 		}
@@ -321,6 +325,7 @@ func (srv *Server) EditInfoHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	url := path.Join("/", slug, "info")
+	log.Printf("Dashboard info updated %s\n", dashboard.Title)
 	http.Redirect(w, req, url, http.StatusFound)
 }
 

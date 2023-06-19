@@ -16,3 +16,13 @@ IcingaPassword = "YOUR SECURE PASSWORD HERE"
 SSLEnable = true
 SSLCert = ""
 SSLKey = ""
+
+# If set to true, meerkat will log to file.
+FileLog = true
+# If set to true, meerkat will log to console.
+ConsoleLog = false
+# Path to folder to store log files.
+LogDirectory = "log/"
+
+# If set to true meerkat will output icinga api debug information.
+IcingaDebug = false

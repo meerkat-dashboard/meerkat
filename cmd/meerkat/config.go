@@ -16,6 +16,12 @@ type Config struct {
 	SSLCert   string
 	SSLKey    string
 
+	FileLog      bool
+	ConsoleLog   bool
+	LogDirectory string
+
+	IcingaDebug bool
+
 	AdminUsername string
 	AdminPassword string
 }

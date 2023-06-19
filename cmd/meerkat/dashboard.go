@@ -21,30 +21,8 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/meerkat-dashboard/meerkat"
+	"github.com/r3labs/sse/v2"
 )
-
-type UpdateChannel struct {
-	Clients  []chan string
-	Notifier chan string
-}
-
-var updateChannel = UpdateChannel{
-	Clients:  make([]chan string, 0),
-	Notifier: make(chan string),
-}
-
-func sendUpdates(done <-chan interface{}) {
-	for {
-		select {
-		case <-done:
-			return
-		case data := <-updateChannel.Notifier:
-			for _, channel := range updateChannel.Clients {
-				channel <- data
-			}
-		}
-	}
-}
 
 func UpdateHandler(w http.ResponseWriter, req *http.Request) {
 	if req.Method != http.MethodGet {
@@ -52,43 +30,36 @@ func UpdateHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	name := strings.Split(path.Dir(req.URL.Path), "/")[1]
-	updateChannel.Notifier <- name
+	log.Printf("Updated %s dashboards\n", name)
+	server.Publish("updates", &sse.Event{
+		Data: []byte(name),
+	})
+	w.WriteHeader(200)
+}
+func SetWorking() {
+	server.Publish("updates", &sse.Event{
+		Data: []byte("icinga-success"),
+	})
 }
 
 func UpdateAll() {
-	updateChannel.Notifier <- "update"
+	log.Println("Updating all meerkat dashboards")
+	server.Publish("updates", &sse.Event{
+		Data: []byte("update"),
+	})
 }
 
-func UpdateEvents() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("content-type", "text/event-stream")
-		w.Header().Set("cache-control", "no-cache")
-		w.Header().Set("connection", "keep-alive")
-		w.Header().Set("access-control-allow-origin", "*")
+func SendError() {
+	log.Println("Sending icinga backend error to clients.")
+	server.Publish("updates", &sse.Event{
+		Data: []byte("icinga-error"),
+	})
+}
 
-		updateChan := make(chan string)
-		updateChannel.Clients = append(updateChannel.Clients, updateChan)
-
-		done := make(chan interface{})
-		defer close(done)
-
-		for {
-			select {
-			case <-done:
-				close(updateChan)
-				return
-			case data := <-updateChan:
-				fmt.Fprintf(w, "data: %v\n\n", data)
-				if wf, ok := w.(http.Flusher); ok {
-					wf.Flush()
-				}
-			case data := <-updateChannel.Notifier:
-				for _, channel := range updateChannel.Clients {
-					channel <- data
-				}
-			}
-		}
-	}
+func SendHeartbeat() {
+	server.Publish("updates", &sse.Event{
+		Data: []byte("heartbeat"),
+	})
 }
 
 func handleListDashboard(w http.ResponseWriter, r *http.Request) {
@@ -99,22 +70,25 @@ func handleListDashboard(w http.ResponseWriter, r *http.Request) {
 func handleCreateDashboard(w http.ResponseWriter, req *http.Request) {
 	if err := req.ParseForm(); err != nil {
 		msg := fmt.Sprintf("parse form: %v", err)
+		log.Println(msg)
 		http.Error(w, msg, http.StatusBadRequest)
 		return
 	}
 	dashboard, err := meerkat.ParseDashboardForm(req.PostForm)
 	if err != nil {
 		msg := fmt.Sprintf("parse dashboard from form: %v", err)
+		log.Println(msg)
 		http.Error(w, msg, http.StatusBadRequest)
 		return
 	}
 	fpath := path.Join("dashboards", dashboard.Slug+".json")
 	if err := meerkat.CreateDashboard(fpath, &dashboard); err != nil {
 		msg := fmt.Sprintf("create dashboard %s: %v", dashboard.Slug, err)
+		log.Println(msg)
 		http.Error(w, msg, http.StatusInternalServerError)
 		return
 	}
-
+	log.Printf("Created dashboard %s\n", fpath)
 	u := path.Join("/", dashboard.Slug, "edit")
 	http.Redirect(w, req, u, http.StatusFound)
 }
@@ -122,6 +96,7 @@ func handleCreateDashboard(w http.ResponseWriter, req *http.Request) {
 func handleCloneDashboard(w http.ResponseWriter, req *http.Request) {
 	if err := req.ParseForm(); err != nil {
 		msg := fmt.Sprintf("parse form: %v", err)
+		log.Println(msg)
 		http.Error(w, msg, http.StatusBadRequest)
 		return
 	}
@@ -137,6 +112,7 @@ func handleCloneDashboard(w http.ResponseWriter, req *http.Request) {
 	src, err := meerkat.ReadDashboard(srcPath)
 	if err != nil {
 		msg := fmt.Sprintf("read source dashboard from %s: %v", srcPath, err)
+		log.Println(msg)
 		http.Error(w, msg, http.StatusInternalServerError)
 		return
 	}
@@ -145,10 +121,11 @@ func handleCloneDashboard(w http.ResponseWriter, req *http.Request) {
 	destPath := path.Join("dashboards", dest.Slug+".json")
 	if err := meerkat.CreateDashboard(destPath, &dest); err != nil {
 		msg := fmt.Sprintf("create dashboard from %s: %v", srcPath, err)
+		log.Println(msg)
 		http.Error(w, msg, http.StatusInternalServerError)
 		return
 	}
-
+	log.Printf("Cloned dashboard %s\n", destPath)
 	new := path.Join("/", dest.Slug, "edit")
 	next := http.RedirectHandler(new, http.StatusFound)
 	next.ServeHTTP(w, req)
@@ -185,6 +162,7 @@ func handleUpdateDashboard(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	log.Printf("Updated dashboard %s\n", path.Join("dashboards", slug+".json"))
 }
 
 func handleDeleteDashboard(w http.ResponseWriter, req *http.Request) {
@@ -199,6 +177,7 @@ func handleDeleteDashboard(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, "remove dashboard: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
+	log.Printf("Deleted dashboard %s\n", fname)
 	http.RedirectHandler("/", http.StatusFound).ServeHTTP(w, req)
 }
 
@@ -235,6 +214,7 @@ func readImageDimensions(r io.Reader) (width, height int, err error) {
 	img, format, err := image.DecodeConfig(r)
 	if err != nil {
 		err = fmt.Errorf("decode as %s: %v", format, err)
+		log.Println(err)
 	}
 	return img.Width, img.Height, err
 }
@@ -280,6 +260,8 @@ func getObjectHandler(w http.ResponseWriter, r *http.Request) {
 	objectName := r.URL.Query().Get("name")
 	objectFilter := r.URL.Query().Get("filter")
 
+	dashboardTitle := r.URL.Query().Get("title")
+
 	requestURL := "/v1/objects/" + objectType
 	params := url.Values{}
 
@@ -292,7 +274,7 @@ func getObjectHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	requestURL = requestURL + "?" + strings.Replace(params.Encode(), "+", "%20", -1)
 
-	response, err := icingaRequest(requestURL)
+	response, err := icingaRequest(requestURL, dashboardTitle)
 	if err != nil {
 		log.Println("Error getting response: %w", err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -312,53 +294,28 @@ func getObjectHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		b, err := json.Marshal(objects)
 		if err != nil {
-			fmt.Printf("Error: %s", err)
+			log.Printf("Error: %s\n", err)
 			return
 		}
 
 		w.Write(b)
 	} else {
-		handleError(w, dec)
+		handleError(w, dec, dashboardTitle)
 	}
 }
 
-func getHostsHandler(w http.ResponseWriter, r *http.Request) {
-	response, err := icingaRequest("/v1/objects/hosts")
-	if err != nil {
-		log.Println("Error getting response: %w", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	defer response.Body.Close()
-	w.WriteHeader(response.StatusCode)
-	w.Header().Set("content-type", "application/json")
-	dec := json.NewDecoder(response.Body)
-	if response.StatusCode == 200 {
-		var objects ObjectResults
-		err := dec.Decode(&objects)
-		if err != nil {
-			log.Println("Failed to decode response: %w", err)
-		}
-		b, err := json.Marshal(objects)
-		if err != nil {
-			fmt.Printf("Error: %s", err)
-			return
-		}
-		w.Write(b)
-	} else {
-		handleError(w, dec)
-	}
-}
-
-func handleError(w http.ResponseWriter, dec *json.Decoder) {
+func handleError(w http.ResponseWriter, dec *json.Decoder, dashboardTitle string) {
 	var errorPage ErrorPage
 	err := dec.Decode(&errorPage)
+	if errorPage.Error >= 500 || errorPage.Error == 401 || errorPage.Error == 403 {
+		log.Printf("Bad response from icinga: %s %v %s", dashboardTitle, errorPage.Error, errorPage.Status)
+	}
 	if err != nil {
 		log.Println("Failed to decode response: %w", err)
 	}
 	b, err := json.Marshal(errorPage)
 	if err != nil {
-		fmt.Printf("Error: %s", err)
+		log.Printf("Error: %s\n", err)
 		return
 	}
 	w.Write(b)
@@ -366,7 +323,8 @@ func handleError(w http.ResponseWriter, dec *json.Decoder) {
 
 func getAllHandler(w http.ResponseWriter, r *http.Request) {
 	objectType := r.URL.Query().Get("type")
-	response, err := icingaRequest("/v1/objects/" + objectType + "?attrs=name")
+	dashboardTitle := r.URL.Query().Get("title")
+	response, err := icingaRequest("/v1/objects/"+objectType+"?attrs=name", dashboardTitle)
 	if err != nil {
 		log.Println("Error getting response: %w", err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -412,7 +370,7 @@ type StatusCheck struct {
 	} `json:"results"`
 }
 
-func icingaRequest(apiPath string) (*http.Response, error) {
+func icingaRequest(apiPath string, dashboardTitle string) (*http.Response, error) {
 	client := &http.Client{}
 	if config.IcingaInsecureTLS {
 		client.Transport = &http.Transport{
@@ -429,6 +387,9 @@ func icingaRequest(apiPath string) (*http.Response, error) {
 	if err != nil {
 		log.Println("Failed to parse API Path: %w", err)
 		return nil, err
+	}
+	if config.IcingaDebug {
+		icingaLog.Printf("Requesting %s for %s\n", icingaURL.ResolveReference(pathURL).String(), dashboardTitle)
 	}
 	req, err := http.NewRequest("GET", icingaURL.ResolveReference(pathURL).String(), nil)
 	req.Header.Set("accept", "application/json")
@@ -449,21 +410,23 @@ func icingaRequest(apiPath string) (*http.Response, error) {
 
 func checkProgramStart() float64 {
 	var statusCheck StatusCheck
-	response, err := icingaRequest("/v1/status/IcingaApplication")
+	response, err := icingaRequest("/v1/status/IcingaApplication", config.HTTPAddr)
 	if err != nil {
 		// Handle error (for example, by logging it and returning a default value)
 		log.Println("Failed to make request: %w", err)
 		return 0
 	}
 	defer response.Body.Close()
-
-	dec := json.NewDecoder(response.Body)
-	err = dec.Decode(&statusCheck)
+	b, err := io.ReadAll(response.Body)
 	if err != nil {
-		log.Println("Failed to decode response: %w", err)
+		log.Println("Failed to read response: %w", err)
 		return 0
 	}
-
+	err = json.Unmarshal(b, &statusCheck)
+	if err != nil {
+		log.Println("Failed to unmarshall response: %w", err)
+		return 0
+	}
 	for _, v := range statusCheck.Results {
 		return v.Status.IcingaApplication.App.ProgramStart
 	}
