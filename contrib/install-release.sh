@@ -47,7 +47,7 @@ if [[ -z "$PORT" ]]; then
 fi
 
 if [[ -z "$RELEASE_URL" ]]; then
-  RELEASE_URL="https://github.com/meerkat-dashboard/meerkat/releases/download/v3.0.0-beta.3/meerkat3.0.0-beta.3.linux-amd64.tar.gz"
+  RELEASE_URL="https://github.com/meerkat-dashboard/meerkat/releases/download/v3.0.0-beta.6/v3.0.0-beta.6.gz"
 fi
 
 INSTALL_DIR=$BASEDIR/$LABEL
@@ -69,8 +69,8 @@ mkdir -p "$INSTALL_DIR/dashboards-data"
 echo "Downloading and extracting meerkat from GitHub"
 curl -sL $RELEASE_URL | tar xz -C $INSTALL_DIR-download
 
-# Move files up one directory level from $INSTALL_DIR/meerkat/ to $INSTALL_DIR
-mv $INSTALL_DIR-download/meerkat/* $INSTALL_DIR/
+# Copy files up one directory level from $INSTALL_DIR/meerkat/ to $INSTALL_DIR
+cp -av $INSTALL_DIR-download/meerkat/* $INSTALL_DIR/
 
 # Remove the now empty $INSTALL_DIR/meerkat/ directory
 rm -rf $INSTALL_DIR-download
