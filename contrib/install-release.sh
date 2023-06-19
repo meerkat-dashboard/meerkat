@@ -56,7 +56,7 @@ echo "Creating meerkat user: $USER"
 useradd -d "$INSTALL_DIR" -s /usr/sbin/nologin $USER
 
 echo "Stopping existing meerkat service if any"
-systemctl stop meerkat$LABEL
+systemctl stop meerkat-$LABEL
 
 echo "Creating necessary directories"
 mkdir -p $INSTALL_DIR
