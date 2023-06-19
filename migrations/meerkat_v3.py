@@ -298,7 +298,7 @@ for element in existing_dashboard.get('elements', []):
                 new_element['options'][option_key] = element['options'].pop(options_replace[option_key])
 
             # Rename the sound directories
-            if 'dashboards-data' in new_element['options'].get(dashboard_key, '') and 'Sound' in dashboard_key:
+            if 'dashboards-data' in str(new_element['options'].get(dashboard_key, '')) and 'Sound' in dashboard_key:
                 new_element['options'][dashboard_key].replace('dashboards-data', 'dashboards-sound')
 
 
