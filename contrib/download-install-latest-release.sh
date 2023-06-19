@@ -32,8 +32,9 @@ while [[ "$#" -gt 0 ]]; do
 done
 
 if [[ -z "$LABEL" ]]; then
-  echo "Label is not provided."
-  print_usage
+  LABEL=""
+else
+  LABEL="-$LABEL"
 fi
 
 if [[ -z "$USER" ]]; then
@@ -55,10 +56,10 @@ if [[ -z "$RELEASE_URL" ]]; then
   fi
 fi
 
-INSTALL_DIR="$BASEDIR/$LABEL"
+INSTALL_DIR="$BASEDIR$LABEL"
 
 echo "Stopping existing meerkat service if any"
-systemctl stop meerkat-$LABEL
+systemctl stop meerkat$LABEL
 
 echo "Creating necessary directories"
 mkdir -p "$INSTALL_DIR"
@@ -68,14 +69,15 @@ echo "Downloading and extracting meerkat from GitHub"
 curl -sL $RELEASE_URL | tar xz -C "$INSTALL_DIR-download"
 
 # Move files up one directory level from $INSTALL_DIR/meerkat/ to $INSTALL_DIR
-mv "$INSTALL_DIR-download/meerkat/*" "$INSTALL_DIR/"
+mv $INSTALL_DIR-download/meerkat/* $INSTALL_DIR/
 
 # Remove the now empty $INSTALL_DIR/meerkat/ directory
-rm -rf "$INSTALL_DIR-download"
+# rm -rf "$INSTALL_DIR-download"
 
 # Run configure-meerkat.sh
-CONFIG_FILE="/etc/meerkat-$LABEL.toml"
-SERVICE_NAME="meerkat-$LABEL"
+CONFIG_FILE="/etc/meerkat$LABEL.toml"
+SERVICE_NAME="meerkat$LABEL"
 if [[ -z $CERT_NAME ]]; then
   CERT_NAME="$SERVICE_NAME" 
-"$INSTALL_DIR/contrib/configure-meerkat.sh" "$USER" "$INSTALL_DIR" "$CONFIG_FILE" "$SERVICE_NAME" "$PORT" "$CERT_NAME"
+fi
+"$INSTALL_DIR/contrib/install-meerkat.sh" "$USER" "$INSTALL_DIR" "$CONFIG_FILE" "$SERVICE_NAME" "$PORT" "$CERT_NAME"
