@@ -304,6 +304,7 @@ for element in existing_dashboard.get('elements', []):
                 logger.warning(f"Renaming option {option_key}:{new_element['options'][option_key]} for dashboards-sound")
                 new_element['options'][option_key] = new_element['options'][option_key].replace('dashboards-data', 'dashboards-sound')
 
+        migrated_dashboard['elements'].append = new_element    
 
 if args.live:
     # Remove the current dashboard ready for replacement, doing this just before saving as we are trying to migrate in place
