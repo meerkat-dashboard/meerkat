@@ -113,7 +113,7 @@ for dashboard_key in _sound_keys:
         else:
             migrated_dashboard[dashboard_key] = existing_dashboard.pop(dashboard_key)
 
-        if 'dashboards-data' in migrated_dashboard[dashboard_key]:
+        if 'dashboards-data' in str(migrated_dashboard[dashboard_key]):
             migrated_dashboard[dashboard_key].replace('dashboards-data', 'dashboards-sound')
 
 # Element keys to migrate
