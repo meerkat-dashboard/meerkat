@@ -104,7 +104,7 @@ _sound_keys = [
 
 # Add the sound keys to the dashboard if they currently exist
 # Global mute added as it is uniq to dashboards and not elements
-for dashboard_key in _sound_keys.append('globalMute'):
+for dashboard_key in _sound_keys.extend(['globalMute']):
     if dashboard_key in existing_dashboard:
         if existing_dashboard[dashboard_key] == "":
             logger.warning(f"Deleting {dashboard_key}:{existing_dashboard.pop(dashboard_key)} as it is empty")
@@ -286,7 +286,7 @@ for element in existing_dashboard.get('elements', []):
             # If the option key is in existing options copy the value
             elif option_key in element['options']:
                 new_element['options'][option_key] = element['options'].pop(option_key)
-                
+
             # If the option key is in the replacement list and the old key exist copy value
             elif option_key in options_replace and options_replace[option_key] in element['options']:
                 logger.success(
