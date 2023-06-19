@@ -78,7 +78,8 @@ for dashboard_key in migrated_dashboard.keys():
 
     # Move background to new directory
     if dashboard_key == 'background':
-        migrated_dashboard[dashboard_key].replace('dashboards-data', 'dashboards-background')
+        logger.warning(f"Renaming {dashboard_key}:{existing_dashboard[dashboard_key]} for dashboards-background")
+        migrated_dashboard[dashboard_key] = migrated_dashboard[dashboard_key].replace('dashboards-data', 'dashboards-background')
 
 # Add the argument for folder if set
 if args.folder != "":
@@ -114,6 +115,7 @@ for dashboard_key in _sound_keys:
             migrated_dashboard[dashboard_key] = existing_dashboard.pop(dashboard_key)
 
         if 'dashboards-data' in str(migrated_dashboard[dashboard_key]):
+            logger.warning(f"Renaming {dashboard_key}:{existing_dashboard[dashboard_key]} for dashboards-sound")
             migrated_dashboard[dashboard_key] = migrated_dashboard[dashboard_key].replace('dashboards-data', 'dashboards-sound')
 
 # Element keys to migrate
@@ -299,6 +301,7 @@ for element in existing_dashboard.get('elements', []):
 
             # Rename the sound directories
             if 'dashboards-data' in str(new_element['options'].get(option_key, '')) and 'Sound' in option_key:
+                logger.warning(f"Renaming option {option_key}:{new_element['options'][option_key]} for dashboards-sound")
                 new_element['options'][option_key] = new_element['options'][option_key].replace('dashboards-data', 'dashboards-sound')
 
 
