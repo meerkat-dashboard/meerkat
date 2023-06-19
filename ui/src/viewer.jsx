@@ -33,7 +33,12 @@ function Viewer({ dashboard, events }) {
 		evtSource = new EventSource("/events?stream=updates");
 		evtSource.onmessage = function (e) {
 			console.log(e);
-			if (dashboard.slug == e.data || e.data == "update" || (e.data == "icinga-success" && backendError) || (e.data == "heartbeat" && !backendError && error)) {
+			if (
+				dashboard.slug == e.data ||
+				e.data == "update" ||
+				(e.data == "icinga-success" && backendError) ||
+				(e.data == "heartbeat" && !backendError && error)
+			) {
 				evtSource.close();
 				window.location.reload(true);
 			} else if (e.data == "icinga-error") {
