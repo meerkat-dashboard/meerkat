@@ -4,7 +4,7 @@
 
 ## Change Summary
 
-Meerkat now uses event streams for both dashboard to Meerkat communication and Icinga2 to Meerkat Service communication. This change reduces the number of API calls to Icinga2 and improves the responsiveness of dashboards to changes in check state.
+Meerkat now uses event streams, with http2 support, for both dashboard to Meerkat communication and Icinga2 to Meerkat Service communication. This change reduces the number of API calls to Icinga2 and improves the responsiveness of dashboards to changes in check state.
 
 Security has been improved by scrubbing the incoming data to only include required information.
 
@@ -16,6 +16,8 @@ Readability and usability improvements:
 * More inline tips and placeholders scattered throughout the interface for guidance
 * Replace `<div>` HTML elements with more meaningful `<section>`, `<fieldset>` etc. HTML elements.
 * Standard HTML forms and pages replace custom interface elements like Javascript modals.
+
+Logging and debug options have been added to Meerkat.
 
 Meerkat 3 includes the latest release of Bootstrap 5 (v5.2).
 For information on browser support, see the [Bootstrap browsers and devices page](https://getbootstrap.com/docs/5.2/getting-started/browsers-devices).
