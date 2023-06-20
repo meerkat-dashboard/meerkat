@@ -12,7 +12,7 @@ To install and setup Meerkat locally follow these steps.
 ```sh
 cd /tmp
 wget https://github.com/meerkat-dashboard/meerkat/blob/main/contrib/download-install-latest-release.sh
-chmod +X download-install-latest-release.sh
+chmod +x download-install-latest-release.sh
 ```
 2. Run setup script.
 ```sh
