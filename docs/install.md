@@ -4,36 +4,52 @@ Prebuilt releases are available for Linux on the AMD64 architecture.
 
 For installing from source, see the [Meerkat README](https://github.com/meerkat-dashboard/meerkat).
 
-## 1. Download Meerkat
+## 1. Download the installation script
 
-* Linux [meerkat3.0.0-beta.1.linux-amd64.tar.gz]
-* [meerkat2.1.1]
-
-Releases of Meerkat are available from [Releases](https://github.com/meerkat-dashboard/meerkat/releases/).
-
-[meerkat3.0.0-beta.1.linux-amd64.tar.gz]: https://github.com/meerkat-dashboard/meerkat/releases/download/v3.0.0-beta.1/meerkat.3.0.0-beta.1.linux-amd64.tar.gz
-[meerkat2.1.1]: https://github.com/meerkat-dashboard/meerkat/releases/tag/2.1.1
-
-## 2. Install Meerkat
-
-1. Extract the tar archive into /usr/local:
-```
-tar -C /usr/local -xzf meerkat.tar.gz
-```
-You will probably need to run this command as root or through `sudo`.
-
-2. Verify the meerkat installation by running the meerkat command and printing its version:
-```
-/usr/local/meerkat/meerkat -v
+```sh
+cd /tmp
+wget https://github.com/meerkat-dashboard/meerkat/blob/main/contrib/download-install-latest-release.sh
+chmod +X download-install-latest.release.sh
 ```
 
-3. If required, write a [Configuration file](configuration) to `/etc/meerkat.toml`.
+## 2. Run setup script
 
-## 3. Start Meerkat
-
-Finally, start meerkat:
+```sh
+Usage: download-install-latest-release.sh --port PORT --user USER [--label LABEL] [--cert-name CERT_NAME] [--release-url RELEASE_URL]
+  --user        User for the meerkat instance
+  --port        Port for the meerkat instance
+  --label       Unique label for the meerkat instance under /usr/local/meerkat
+  --cert-name   Name for the SSL certificate
+  --release-url URL of the meerkat release to download from GitHub
 ```
-/usr/local/meerkat/meerkat
+##### Standard installation
+```sh
+sudo ./download-install-latest-release.sh --port 8080 --user meerkat
+```
+
+##### Multiple Meerkat installation
+The below would install meerkat to different directories and run it on different ports.
+```sh
+sudo ./download-install-latest-release.sh --port 8080 --user meerkat --label foo
+sudo ./download-install-latest-release.sh --port 8081 --user meerkat --label bar
+```
+These will have different configuration files, install directories and service name based on the label.
+Service Name: `meerkat-foo`, `meerkat-bar`
+Config: `/etc/meerkat-foo.toml`, `/etc/meerkat-bar.toml`
+Install Directory: `/usr/local/meerkat-foo/`, `/usr/local/meerkat-bar/`
+
+## 3. Configure Meerkat
+To configure Meerkat you must edit the `meerkat.toml` [configuration file](configuration) (Default location is `/etc/meerkat.toml`)
+
+## 4. Start Meerkat
+
+##### Standard installation
+```
+systemctl start meerkat
+```
+##### Multiple Meerkat installatiom
+```
+systemctl start meerkat-[label]
 ```
 
 Open a web browser and browse to the address of the machine.

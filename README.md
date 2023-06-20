@@ -5,6 +5,77 @@
 Meerkat is a utility to create and share dashboards for Icinga 2 checks and hosts. It is comprised of a lightweight Go server and a browser front-end written in Preact. It's quick to setup and easy to use.
 
 **Not developing Meerkat?** See the Meerkat website at https://meerkat.run
+## Getting started
+To install and setup Meerkat locally follow these steps.
+### Installation
+1. Download the installation script and make executable.
+```sh
+cd /tmp
+wget https://github.com/meerkat-dashboard/meerkat/blob/main/contrib/download-install-latest-release.sh
+chmod +X download-install-latest.release.sh
+```
+2. Run setup script.
+```sh
+Usage: download-install-latest-release.sh --port PORT --user USER [--label LABEL] [--cert-name CERT_NAME] [--release-url RELEASE_URL]
+  --user        User for the meerkat instance
+  --port        Port for the meerkat instance
+  --label       Unique label for the meerkat instance under /usr/local/meerkat
+  --cert-name   Name for the SSL certificate
+  --release-url URL of the meerkat release to download from GitHub
+```
+##### Standard installation
+```sh
+sudo ./download-install-latest-release.sh --port 8080 --user meerkat
+```
+
+##### Multiple Meerkat installation
+The below would install meerkat to different directories and run it on different ports.
+```sh
+sudo ./download-install-latest-release.sh --port 8080 --user meerkat --label foo
+sudo ./download-install-latest-release.sh --port 8081 --user meerkat --label bar
+```
+These will have different configuration files, install directories and service name based on the label.
+Service Name: `meerkat-foo`, `meerkat-bar`
+Config: `/etc/meerkat-foo.toml`, `/etc/meerkat-bar.toml`
+Install Directory: `/usr/local/meerkat-foo/`, `/usr/local/meerkat-bar/`
+
+### Configuration
+To configure Meerkat you must edit the `meerkat.toml` config file (Default location is `/etc/meerkat.toml`)
+
+```
+# The address, in host:port format, to serve meerkat from. For example 0.0.0.0:8080. 
+# The default is “:8080” i.e. all IPv4, IPv6 addresses port 8080.
+HTTPAddr = "0.0.0.0:8080"
+
+# The URL for an instance of Icinga serving the Icinga API
+IcingaURL = "https://127.0.0.1:5665"
+
+# The username and password with which to authenticate to Icinga. 
+# Normally set in /etc/icinga2/conf.d/api-users.conf on your Icinga2 master.
+IcingaUsername = "meerkat"
+IcingaPassword = "YOUR SECURE PASSWORD HERE"
+
+# If IcingaInsecureTLS to true, verification of the TLS certificates served by the Icinga API is skipped. 
+# This is usually required when Icinga is configured with self-signed certificates.
+#IcingaInsecureTLS = true
+
+# If SSLEnable to true, meerkat will serve data over http2 using the crt and key.
+# A ssl cert and key is required if you enable ssl.
+# This option is required for multiple dashboards to function, Meerkat uses eventstreams which are limited in http1, http2 has a higher limit.
+SSLEnable = true
+SSLCert = ""
+SSLKey = ""
+
+# If LogFile is true, meerkat will log to file.
+LogFile = true
+# If LogConsole is true, meerkat will log to console.
+LogConsole = false
+# Path to folder to store log files. 
+LogDirectory = "log/"
+
+# If IcingaDebug set to true meerkat will output icinga api debug information.
+IcingaDebug = false
+```
 
 ## Development
 
@@ -95,7 +166,7 @@ Here is an example `ApiUser` object with limited, read-only privileges:
 
 	object ApiUser "meerkat" {
 		password = "meerkat"
-		permissions = [ "objects/query/Host", "objects/query/Service", "objects/query/ServiceGroup", "objects/query/HostGroup" ]
+		permissions = [ "objects/query/Host", "objects/query/Service", "objects/query/ServiceGroup", "objects/query/HostGroup", "events/StateChange" , "events/CheckResult", "status/query" ]
 	}
 
 In a default Icinga2 installation, you can write this definition to `/etc/icinga2/conf.d/api-users.conf`.

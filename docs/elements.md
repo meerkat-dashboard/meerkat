@@ -25,9 +25,6 @@ You can select an SVG to toggle between for the various states. The default SVGs
 ### Icinga Line
 Allows you to draw lines, you can rotate and resize them, and set the weight. They only toggle between OK, Warning, Critical, Unknown at present.
 
-## Dynamic Text
-Allows you to display some of the text of a service output. Handy to print a dynamic message to users.
-
 ## Static Text, SVG and Image
 Useful for adding headings or labels.
 

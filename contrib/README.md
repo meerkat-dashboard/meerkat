@@ -2,29 +2,32 @@
 
 This directory contains extra stuff to help with distributing and running meerkat.
 
-## configure-meerkat.sh
-configure-meerkat.sh does meerkat user setup, application ownership, service installation and default config setup.
+## install-meerkat.sh
+install-meerkat.sh does meerkat user setup, application ownership, service installation and default config setup.
 It assumes default values are being used.
 
 ```
 USER="meerkat" 
 INSTALL_DIR="/usr/local/meerkat" 
 CONFIG_FILE="/etc/meerkat.toml" 
+SERVICE_NAME=USER
+PORT=8080
+CERT_NAME=USER
 ```
 
 This script should be able to be re-run at any time if your configuration breaks, the config file `/etc/meerkat.toml` won't be overridden if it already exists.
 
-## install-release.sh
+## download-install-latest-release.sh
 
 This script downloads and installs the latest release, allowing you to customise the port and user meerkat runs as.
 This is useful if you want to have multiple meerkats on one machine.
 The SSL certificate is mandatory if you want HTTP/2 support for event streams.
 
 ```
-Usage: install-release.sh --label LABEL --port PORT --user USER [--cert-name CERT_NAME] [--release-url RELEASE_URL]
-  --label       Unique label for the meerkat instance under /usr/local/meerkat
+Usage: download-install-latest-release.sh --port PORT --user USER [--label LABEL] [--cert-name CERT_NAME] [--release-url RELEASE_URL]
   --user        User for the meerkat instance
   --port        Port for the meerkat instance
+  --label       Unique label for the meerkat instance under /usr/local/meerkat
   --cert-name   Name for the SSL certificate
   --release-url URL of the meerkat release to download from GitHub
 ```
@@ -32,7 +35,7 @@ Usage: install-release.sh --label LABEL --port PORT --user USER [--cert-name CER
 You can just grab this script and run it like so if you want to get up and running quickly:
 
 ```
-sudo ./install-release.sh --label meerkattest --port 8586 --user meerkat --cert-name meerkat.local
+sudo ./download-install-latest-release.sh --port 8080 --user meerkat
 ```
 
 

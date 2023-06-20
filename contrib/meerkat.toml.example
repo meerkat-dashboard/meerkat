@@ -1,28 +1,32 @@
-
-# The address, in host:port format, to serve meerkat from. For example 0.0.0.0:6969. The default is “:8080” i.e. all IPv4, IPv6 addresses port 8080.
+# The address, in host:port format, to serve meerkat from. For example 0.0.0.0:8080. 
+# The default is “:8080” i.e. all IPv4, IPv6 addresses port 8080.
 HTTPAddr = "0.0.0.0:8080"
 
-# A URL pointing to an instance of Icinga serving the Icinga API
+# The URL for an instance of Icinga serving the Icinga API
 IcingaURL = "https://127.0.0.1:5665"
 
-# The username and password with which to authenticate to Icinga. Normally set in /etc/icinga2/conf.d/api-users.conf on your Icinga2 master.
+# The username and password with which to authenticate to Icinga. 
+# Normally set in /etc/icinga2/conf.d/api-users.conf on your Icinga2 master.
 IcingaUsername = "meerkat"
 IcingaPassword = "YOUR SECURE PASSWORD HERE"
 
-# If set to true, verification of the TLS certificates served by the Icinga API is skipped. This is often required when Icinga is configured with self-signed certificates.
+# If IcingaInsecureTLS to true, verification of the TLS certificates served by the Icinga API is skipped. 
+# This is usually required when Icinga is configured with self-signed certificates.
 #IcingaInsecureTLS = true
 
-# If set to true, meerkat will serve data over http2 using the crt and key.
+# If SSLEnable to true, meerkat will serve data over http2 using the crt and key.
+# A ssl cert and key is required if you enable ssl.
+# This option is required for multiple dashboards to function, Meerkat uses eventstreams which are limited in http1, http2 has a higher limit.
 SSLEnable = true
 SSLCert = ""
 SSLKey = ""
 
-# If set to true, meerkat will log to file.
+# If LogFile is true, meerkat will log to file.
 LogFile = true
-# If set to true, meerkat will log to console.
+# If LogConsole is true, meerkat will log to console.
 LogConsole = false
-# Path to folder to store log files.
+# Path to folder to store log files. 
 LogDirectory = "log/"
 
-# If set to true meerkat will output icinga api debug information.
+# If IcingaDebug set to true meerkat will output icinga api debug information.
 IcingaDebug = false
