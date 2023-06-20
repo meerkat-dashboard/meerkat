@@ -14,4 +14,6 @@ Dashboards are writeable by everyone who can view dashboards.
 Dashboards are stored on the filesystem as JSON files.
 In a default installation, the path to dashboards is `/usr/local/meerkat/dashboards`.
 
-The `dashboard-data` directory is for image/file data.
+The `dashboards-background` directory is for image file data.
+The `dashboards-sound` directory is for audio file data.
+
