@@ -1,38 +1,66 @@
 # Configuration
 
-Meerkat reads configuration from a text file in [TOML] format.
-By default meerkat reads from the path `/etc/meerkat.toml`.
-An alternative file may be specified with the `-config` flag.
+Meerkat reads configuration from a text file in [TOML](https://toml.io) format. By default meerkat reads from the path `/etc/meerkat.toml`. An alternative file may be specified with the `-config` flag.
 For example:
-
-	meerkat -config /tmp/something/meerkat.toml
-
-[TOML]: https://toml.io
+```
+meerkat -config /tmp/something/meerkat.toml
+```
 
 The following configuration options are available:
 
-`HTTPAddr`: The address, in host:port format, to serve meerkat from. For example `0.0.0.0:6969`.
-The default is ":8080" i.e. all IPv4, IPv6 addresses port 8080.
+**HTTPAddr**
 
-`IcingaURL`: A URL pointing to an instance of Icinga serving the HTTP API.
-Meerkat can connect to Icinga to create dashboard elements from Icinga objects.
-This is usually a HTTPS URL with port 5665.
-For example `https://icinga.example.com:5665`.
-The default is using the loopback address and the default Icinga port `https://127.0.0.1:5665`.
+The address, in host:port format, to serve meerkat from. For example 0.0.0.0:8080. 
+The default is “:8080” i.e. all IPv4, IPv6 addresses port 8080.
+```
+HTTPAddr = "0.0.0.0:8080"
+```
 
-`IcingaUsername`, `IcingaPassword`: The username and password with which to authenticate to Icinga.
-The default value for both is `meerkat`.
+**Icinga**
+The URL for an instance of Icinga serving the Icinga API
+```
+IcingaURL = "https://127.0.0.1:5665"
+```
 
-`IcingaInsecureTLS`: If set to true, verification of the TLS certificates served by the Icinga API is skipped.
-This is often required when Icinga is configured with self-signed certificates.
-The default is false.
+The username and password with which to authenticate to Icinga. 
+Normally set in /etc/icinga2/conf.d/api-users.conf on your Icinga2 master.
+```
+IcingaUsername = "meerkat"
+IcingaPassword = "YOUR SECURE PASSWORD HERE"
+```
 
-## Example
+If IcingaInsecureTLS to true, verification of the TLS certificates served by the Icinga API is skipped. 
+This is usually required when Icinga is configured with self-signed certificates.
+```
+IcingaInsecureTLS = true
+```
 
-A typical installation is performed on the same host as Icinga.
-Self-signed certificates are generally used,
-and the password will *not* be `meerkat`.
-So at `/etc/meerkat.toml`:
+**HTTP2**
+If SSLEnable to true, meerkat will serve data over http2 using the crt and key.
+A ssl cert and key is required if you enable ssl.
+_This option is required for multiple dashboards to function, Meerkat uses eventstreams which are limited in http1, http2 has a higher limit._
 
-	IcingaPassword = "somethingsecret123456"
-	IcingaInsecureTLS = true
+```
+SSLEnable = true
+SSLCert = ""
+SSLKey = ""
+```
+
+**Logging and Debug**
+If `LogFile` is true, meerkat will log to file.
+If `LogConsole` is true, meerkat will log to console.
+All log files are stored in the Path specified in the `LogDirectory`.
+```
+LogFile = true
+LogConsole = false
+LogDirectory = "log/"
+```
+
+If `IcingaDebug` set to true meerkat will output icinga api debug information.
+```
+IcingaDebug = false
+```
+
+## Note
+There is a sample configuration file in `contib/meerkat.toml.example` which is used when running the contrib install scripts.
+
