@@ -8,7 +8,7 @@ For installing from source, see the [Meerkat README](https://github.com/meerkat-
 
 ```sh
 cd /tmp
-wget https://github.com/meerkat-dashboard/meerkat/blob/main/contrib/download-install-latest-release.sh
+wget https://github.com/meerkat-dashboard/meerkat/raw/main/contrib/download-install-latest-release.sh
 chmod +X download-install-latest.release.sh
 ```
 
