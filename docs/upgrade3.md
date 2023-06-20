@@ -1,114 +1,126 @@
 # Upgrading to Meerkat 3
-{: .no_toc }
-
-1. TOC
-{:toc}
 
 ---
 
 ## Change Summary
 
-Meerkat 3 includes the latest release of Bootstrap 5 (v5.2).
-For information on browser support, see the [Bootstrap browsers and devices page][bootstrap-browsers].
-Notably Internet Explorer is no longer officially supported.
+Meerkat now uses event streams for both dashboard to Meerkat communication and Icinga2 to Meerkat Service communication. This change reduces the number of API calls to Icinga2 and improves the responsiveness of dashboards to changes in check state.
 
-Bootstrap is used throughout the entire GUI.
-You'll notice a more consistent feel, with many alignment and layout bugs resolved.
+Security has been improved by scrubbing the incoming data to only include required information.
+
+Backgrounds and Sounds upload and management are now independent of dashboards and accessed via a Assets menu. 
+
+Dashboards being viewed anywhere will update automatically when the dashboard is edited and saved. This update functionality also triggers when Icinga2 configuration changes or the Meerkat Service or Icinga Server connections fail.
 
 Readability and usability improvements:
 * More inline tips and placeholders scattered throughout the interface for guidance
-* Increased text contrast on coloured elements
 * Replace `<div>` HTML elements with more meaningful `<section>`, `<fieldset>` etc. HTML elements.
 * Standard HTML forms and pages replace custom interface elements like Javascript modals.
 
-HLS Stream elements are rendered with standard HTML5 `<video>` tags rather than a Javascript player.
+Meerkat 3 includes the latest release of Bootstrap 5 (v5.2).
+For information on browser support, see the [Bootstrap browsers and devices page](https://getbootstrap.com/docs/5.2/getting-started/browsers-devices).
+Notably Internet Explorer is no longer officially supported.
 
-All Javascript vulnerabilities reported by npm are resolved.
+Bootstrap is used throughout the entire GUI.
 
 Meerkat is no longer a "Single Page Application", and serves more conventional URL paths present in other web apps.
-Popular HTTP reverse proxies (e.g. Nginx, HAProxy) can now be used for basic access control;
-even on a per-dashboard basis.
-For example, to view, edit, delete a dashboard named "networking", the corresponding URLs are:
 
-* https://demo.meerkat.run/test/view
-* https://demo.meerkat.run/test/edit
-* https://demo.meerkat.run/test/delete
+Paths of a dashboard's URL have changed from previous releases.
+Old
+https://meerkat2.example.com/view/test
+https://meerkat2.example.com/edit/test
 
-Paths of a dashboard's URL have changed  from previous releases.
+New
+https://meerkat3.example.com/test/view
+https://meerkat3.example.com/test/edit
+https://meerkat3.example.com/test/delete
+
 URLs in the previous format continue to work via a permanent redirect.
 Nonetheless, where possible, it is encouraged to update URLs to the new format.
 
-A new [About page][about] shows the installed version of Meerkat and build time.
+A new [About page](https://demo.meerkat.run/about) shows the installed version of Meerkat and build time.
 
-Installation is easier.
-The GUI is now served directly from the binary,
-rather than from a directory on the filesystem.
-Installation is therefore just copying a single file (the binary).
+Installation is easier. With install scripts in the `contrib` directory to assist with installation and configuration.
 
-Image resources such as those used as dashboard backgrounds and elements now must be referenced by a URL.
-This makes Meerkat easier to run in more ephemeral environments such as Kubernetes.
-It also allows Meerkat to be more safely exposed to the internet.
+The GUI is now served directly from the binary, rather than from a directory on the filesystem.
 
-[bootstrap-browsers]: https://getbootstrap.com/docs/5.2/getting-started/browsers-devices
-[about]: https://demo.meerkat.run/about
+
+
 
 ## Prepare
 
 There are changes to the dashboard's on-disk format.
 Back up existing dashboards:
 
-	tar cv /usr/local/meerkat/dashboards > dashboards.tar
+```
+cd <meerkat directory>
+tar -cvf dashboards.tar dashboards dashboards-data
+```
+ _Restore command if you need to restore the old data_
+ ```
+ tar -xvf dashboards.tar
+ ```
+
 
 ## Install
 
-Follow the [install instructions][install].
+Don't install Meerkat over the top of itself, if you want Meerkat to be installed in the same location rename the existing installation directory.
 
-[install]: /install
+Follow the [install instructions](/install).
 
 ## Post-install steps
 
 These instructions assume Meerkat is installed in the default installation directory `/usr/local/meerkat`.
 
-### 1. Remove frontend directory
+### Dashboard Migration
+The migrator is written in Python and requires `python3` to run
 
-The file tree providing the frontend GUI is now embedded into the `meerkat` command.
-The frontend directory is now ignored and can be safely removed:
+Run the migrator from the root directory. The migrator 
+* takes a single dashabord
+* backs it up
+* backs up the destination if the destination exists
+* then rewrites the dashboard to the new version
 
-	rm -r /usr/local/meerkat/frontend
+##### Dry run
+```
+python3 ./migrations/meerkat_v3.py --dashboard /usr/local/meerkat/dashboards/yourdashboard.json
+```
 
-### 2. Rename font size option
+##### Live Run
+```
+python3 ./migrations/meerkat_v3.py --dashboard /usr/local/meerkat/dashboards/yourdashboard.json --live
+```
 
-The `statusFontSize` element option has been renamed to `fontSize`.
-To update existing elements, run the following command to rename the options:
+##### Live Run with Folder allocation
+Folders are a way of grouping like dashboards together.
+```
+python3 ./migrations/meerkat_v3.py --dashboard /usr/local/meerkat/dashboards/yourdashboard.json --folder stuff --live 
+```
 
-	sed -i 's/statusFontSize/fontSize/g' /usr/local/meerkat/dashboards/*.json
+##### Live Run for multiple dashboards
+Folders are a way of grouping like dashboards together.
+```
+for d in /usr/local/meerkat/dashboards/stuff*.json ; do python3 ./migrations/meerkat_v3.py --dashboard $d --folder stuff --live ; done
+```
 
-### 3. Delete removed Icinga SVG element options
 
-The colour of Icinga SVG elements now matches other Icinga elements which represent object state e.g. green for OK, amber for warning.
-The stroke colour (i.e. colour of icons) is no longer configurable, so element options setting stroke colour are ignored.
-To remove the options:
+##### Move sounds from dashboards-data to dashboards-sound
+Dashboard sounds have been given their own directory `dashboards-sound`.
+```
+mv /old/meerkat/dashboards-data/*.mp3 /usr/local/meerkat/dashboards-sound/
+mv /old/meerkat/dashboards-data/*.wav /usr/local/meerkat/dashboards-sound/
+```
+_Repeat for any other formats you have_
+##### Move backgrounds from dashboards-data to dashboards-background
+Dashboard backgrounds have been given their own directory `dashboards-background`.
+```
+mv /old/meerkat/dashboards-data/*.png /usr/local/meerkat/dashboards-background/
+mv /old/meerkat/dashboards-data/*.jpg /usr/local/meerkat/dashboards-background/
+```
+_Repeat for any other formats you have_
 
-	sed -i '/StrokeColor/d' /usr/local/meerkat/dashboards/*.json
+or if you did the sounds first just move the remaining data to backgrounds
+```
+mv /old/meerkat/dashboards-data/*.* /usr/local/meerkat/dashboards-background/
+```
 
-### 4. Rename video, audio, image element types
-
-The on-disk value representing the video/HLS stream element type has changed from "iframe-video" to "video".
-Similarly for audio; the type value has changed from "audio-stream" to "audio".
-For images; "static-image" to "image".
-
-To update existing elements, run:
-
-	sed -i '/iframe-video/video/g' /usr/local/meerkat/dashboards/*.json
-	sed -i '/audio-stream/audio/g' /usr/local/meerkat/dashboards/*.json
-	sed -i '/static-image/image/g' /usr/local/meerkat/dashboards/*.json
-
-### 5. Move images from dashboards-data to a file server
-
-Images used in dashboard backgrounds and elements must be referenced by a URL.
-It is recommended to serve any images previously uploaded to Meerkat from a HTTP file server, CDN or S3-compatible storage.
-In a default installation, the path to the directory is /usr/local/meerkat/dashboards-data.
-
-For backwards compatibility previously uploaded images in the `dashboards-data` directory are still served from disk.
-They can be referenced by path in the "Background image" field.
-For example "/dashboards-data/test.jpeg".
