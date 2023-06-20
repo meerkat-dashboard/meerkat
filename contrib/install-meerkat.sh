@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash 
 
 # Configures a single meerkat instance and all required user, directories, permissions and system files
 
@@ -43,11 +43,11 @@ chown -R $USER "$INSTALL_DIR"
 
 
 echo "Installing meerkat service as $SERVICE_NAME.service"
-$SERVICE_FILE="/etc/systemd/system/$SERVICE_NAME.service"
+SERVICE_FILE="/etc/systemd/system/$SERVICE_NAME.service"
 # Copy the service template and update from passed in vars
 cp "$INSTALL_DIR/contrib/meerkat.service" "$SERVICE_FILE"
 sed -i "s|^WorkingDirectory=.*$|WorkingDirectory=$INSTALL_DIR/|g" "$SERVICE_FILE"
-sed -i "s|^ExecStart=.*$|ExecStart=$INSTALL_DIR/meerkat|g" -config "$CONFIG_FILE" "$SERVICE_FILE"
+sed -i "s|^ExecStart=.*$|ExecStart=$INSTALL_DIR/meerkat -config $CONFIG_FILE|g" "$SERVICE_FILE"
 sed -i "s|^User=.*$|User=$USER|g" "$SERVICE_FILE"
 
 

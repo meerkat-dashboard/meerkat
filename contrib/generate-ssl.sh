@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 
 # Generates a SSL Certificate and updates the config with the new cert
 
