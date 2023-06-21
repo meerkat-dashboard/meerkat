@@ -7,6 +7,14 @@
 	--color-icinga-warning-ack: #ffca39;
 	--color-icinga-critical-ack: #de5e84;
 	--color-icinga-unknown-ack: #b594b5;
+    --color-icinga-text-ok: #000000;
+    --color-icinga-text-warning: #000000;
+	--color-icinga-text-critical: #ffffff;
+    --color-icinga-text-unknown: #000000;
+    --color-icinga-text-pending: #000000;
+	--color-icinga-text-warning-ack: #000000;
+	--color-icinga-text-critical-ack: #000000;
+	--color-icinga-text-unknown-ack: #000000;
 }
 
 @keyframes slide-right {
@@ -188,12 +196,24 @@
 	background-color: var(--color-icinga-warning-ack) !important;
 }
 
+.card.warning-ack {
+	color: var(--color-icinga-text-warning-ack) !important;
+}
+
 .critical-ack, .down-ack {
 	background-color: var(--color-icinga-critical-ack) !important;
 }
 
+.card.critical-ack, .card.down-ack {
+	color: var(--color-icinga-text-critical-ack) !important;
+}
+
 .unknown-ack {
 	background-color: var(--color-icinga-unknown-ack) !important;
+}
+
+.card.unknown-ack {
+	color: var(--color-icinga-text-unknown-ack) !important;
 }
 
 .check .card {
@@ -209,18 +229,22 @@
 
 .card.ok, .card.up {
 	background-color: var(--color-icinga-ok);
+	color: var(--color-icinga-text-ok);
 }
 
 .card.warning {
 	background-color: var(--color-icinga-warning);
+	color: var(--color-icinga-text-warning);
 }
 
 .card.critical, .card.down {
 	background-color: var(--color-icinga-critical);
+	color: var(--color-icinga-text-critical);
 }
 
 .card.unknown {
 	background-color: var(--color-icinga-unknown);
+	color: var(--color-icinga-text-unknown);
 }
 
 svg.ok {
