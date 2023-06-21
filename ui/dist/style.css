@@ -10,7 +10,7 @@
     --color-icinga-text-ok: #000000;
     --color-icinga-text-warning: #000000;
 	--color-icinga-text-critical: #ffffff;
-    --color-icinga-text-unknown: #000000;
+    --color-icinga-text-unknown: #ffffff;
     --color-icinga-text-pending: #000000;
 	--color-icinga-text-warning-ack: #000000;
 	--color-icinga-text-critical-ack: #000000;
