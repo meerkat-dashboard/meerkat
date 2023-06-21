@@ -123,17 +123,27 @@ func main() {
 		eventNames := []string{"CheckResult", "StateChange"}
 		go func() {
 			for {
+				log.Printf("Subscribing to event streams %s\n", eventNames)
 				events, err := client.Subscribe(eventNames, "meerkat", "")
 				if err != nil {
 					log.Println("subscribe to icinga event stream:", err)
 					dur := 10 * time.Second
-					log.Printf("retrying in %s", dur)
+					log.Printf("retrying in %s\n", dur)
 					time.Sleep(dur)
 					continue
 				} else {
 					for {
 						event := <-events
+						if err != nil {
+							log.Printf("error with events %s\n", err)
+							break
+						}
+						if event.Error != nil {
+							log.Printf("error with events %s\n", event.Error)
+							break
+						}
 						name := event.Host
+
 						if event.Service != "" {
 							name = name + "!" + event.Service
 						}
