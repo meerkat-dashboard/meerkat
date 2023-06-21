@@ -39,7 +39,7 @@ export function ExternalURL({ value, onInput }) {
 	);
 }
 
-export function AlignmentInput() {
+export function AlignmentInput({ onInputH, onInputV }) {
 	return (
 		<Fragment>
 			<fieldset>
@@ -49,9 +49,10 @@ export function AlignmentInput() {
 						class="form-check-input"
 						type="radio"
 						name="horizontal"
-						id="startAlign"
+						id="start"
+						onInput={onInputH}
 					/>
-					<label class="form-check-label" for="startAlign">
+					<label class="form-check-label" for="start">
 						Start
 					</label>
 				</div>
@@ -60,9 +61,10 @@ export function AlignmentInput() {
 						class="form-check-input"
 						type="radio"
 						name="horizontal"
-						id="centerAlign"
+						id="center"
+						onInput={onInputH}
 					/>
-					<label class="form-check-label" for="centerAlign">
+					<label class="form-check-label" for="center">
 						Centre
 					</label>
 				</div>
@@ -71,9 +73,10 @@ export function AlignmentInput() {
 						class="form-check-input"
 						type="radio"
 						name="horizontal"
-						id="endAlign"
+						id="flex-end"
+						onInput={onInputH}
 					/>
-					<label class="form-check-label" for="endAlign">
+					<label class="form-check-label" for="flex-end">
 						End
 					</label>
 				</div>
@@ -86,9 +89,10 @@ export function AlignmentInput() {
 						class="form-check-input"
 						type="radio"
 						name="vertical"
-						id="topAlign"
+						id="start"
+						onInput={onInputV}
 					/>
-					<label class="form-check-label" for="topAlign">
+					<label class="form-check-label" for="start">
 						Top
 					</label>
 				</div>
@@ -97,9 +101,10 @@ export function AlignmentInput() {
 						class="form-check-input"
 						type="radio"
 						name="vertical"
-						id="vcenterAlign"
+						id="center"
+						onInput={onInputV}
 					/>
-					<label class="form-check-label" for="vcenterAlign">
+					<label class="form-check-label" for="center">
 						Centre
 					</label>
 				</div>
@@ -108,9 +113,10 @@ export function AlignmentInput() {
 						class="form-check-input"
 						type="radio"
 						name="vertical"
-						id="bottomAlign"
+						id="end"
+						onInput={onInputV}
 					/>
-					<label class="form-check-label" for="bottomAlign">
+					<label class="form-check-label" for="end">
 						Bottom
 					</label>
 				</div>
