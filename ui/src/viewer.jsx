@@ -52,7 +52,9 @@ function Viewer({ dashboard, events }) {
 			reconnectFrequencySeconds = 1;
 		};
 		evtSource.onerror = function () {
-			setTimeout(errorMessage("meerkat"), 1000);
+			setTimeout(function () {
+				errorMessage("meerkat");
+			}, 5000);
 			setBackendError(false);
 			evtSource.close();
 			setTimeout(tryToSetupFunc, waitFunc());
