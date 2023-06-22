@@ -6,7 +6,7 @@ import * as meerkat from "../meerkat";
 import * as Icinga from "./icinga";
 import * as IcingaJS from "../icinga/icinga";
 
-export function ObjectCardOptions({ options, updateOptions }) {
+export function DynamicTextOptions({ options, updateOptions }) {
 	const clearField = (e, field) => {
 		e.preventDefault();
 		let opts = {};
@@ -32,7 +32,7 @@ export function ObjectCardOptions({ options, updateOptions }) {
 				value={options.linkURL}
 				onInput={(e) => updateOptions({ linkURL: e.currentTarget.value })}
 			/>
-			<AlignmentInput updateOptions={updateOptions} options={options} />
+
 			<FontSizeInput
 				value={options.fontSize}
 				onInput={(e) =>
@@ -53,134 +53,81 @@ export function ObjectCardOptions({ options, updateOptions }) {
 				</label>
 			</div>
 
-			<label for="ok-font-color">
-				Ok Font Color <a onClick={(e) => clearField(e, "okFontColor")}>clear</a>
+			<AlignmentInput updateOptions={updateOptions} options={options} />
+
+			<ExternalURL
+				value={options.linkURL}
+				onInput={(e) => updateOptions({ linkURL: e.currentTarget.value })}
+			/>
+
+			<label for="font-color">
+				Font Color <a onClick={(e) => clearField(e, "fontColor")}>clear</a>
 			</label>
 			<div class="input-group mb-3">
 				<span class="input-group-text">
 					<input
 						class="form-control form-control-color"
-						id="ok-font-color"
-						name="ok-font-color"
+						id="font-color"
+						name="font-color"
 						type="color"
-						value={options.okFontColor}
-						onInput={(e) =>
-							updateOptions({ okFontColor: e.currentTarget.value })
-						}
+						value={options.fontColor}
+						onInput={(e) => updateOptions({ fontColor: e.currentTarget.value })}
 					/>
 				</span>
 				<input
 					type="text"
 					class="form-control"
-					value={options.okFontColor}
+					value={options.fontColor}
 					disabled
 				></input>
 			</div>
 
-			<label for="warning-font-color">
-				Warning Font Color{" "}
-				<a onClick={(e) => clearField(e, "warningFontColor")}>clear</a>
+			<label for="font-color">
+				Background Color{" "}
+				<a onClick={(e) => clearField(e, "backgroundColor")}>clear</a>
 			</label>
 			<div class="input-group mb-3">
 				<span class="input-group-text">
 					<input
 						class="form-control form-control-color"
-						id="warning-font-color"
-						name="warning-font-color"
+						id="background-color"
+						name="background-color"
 						type="color"
-						value={options.warningFontColor}
+						value={options.backgroundColor}
 						onInput={(e) =>
-							updateOptions({ warningFontColor: e.currentTarget.value })
+							updateOptions({ backgroundColor: e.currentTarget.value })
 						}
 					/>
 				</span>
 				<input
 					type="text"
 					class="form-control"
-					value={options.warningFontColor}
+					value={options.backgroundColor}
 					disabled
 				></input>
 			</div>
-
-			<label for="unknown-font-color">
-				Unknown Font Color{" "}
-				<a onClick={(e) => clearField(e, "unknownFontColor")}>clear</a>
-			</label>
-			<div class="input-group mb-3">
-				<span class="input-group-text">
-					<input
-						class="form-control form-control-color"
-						id="unknown-font-color"
-						name="unknown-font-color"
-						type="color"
-						value={options.unknownFontColor}
-						onInput={(e) =>
-							updateOptions({ unknownFontColor: e.currentTarget.value })
-						}
-					/>
-				</span>
-				<input
-					type="text"
-					class="form-control"
-					value={options.unknownFontColor}
-					disabled
-				></input>
-			</div>
-
-			<label for="critical-font-color">
-				Critical Font Color{" "}
-				<a onClick={(e) => clearField(e, "criticalFontColor")}>clear</a>
-			</label>
-			<div class="input-group mb-3">
-				<span class="input-group-text">
-					<input
-						class="form-control form-control-color"
-						id="critical-font-color"
-						name="critical-font-color"
-						type="color"
-						value={options.criticalFontColor}
-						onInput={(e) =>
-							updateOptions({ criticalFontColor: e.currentTarget.value })
-						}
-					/>
-				</span>
-				<input
-					type="text"
-					class="form-control"
-					value={options.criticalFontColor}
-					disabled
-				></input>
-			</div>
-			<Icinga.SoundOptions options={options} updateOptions={updateOptions} />
 		</Fragment>
 	);
 }
 
-export function ObjectCard({ events, options, dashboard }) {
+export function DynamicText({ events, options }) {
 	const [objectState, setObjectState] = useState();
-	const [cardText, setCardText] = useState();
-	const [cardState, setCardState] = useState();
-	const [soundEvent, setSoundEvent] = useState(false);
+	const [text, setText] = useState("");
 	const [styles, setStyles] = useState("");
 
 	const parseUpdate = (object) => {
 		let objState = stateText(options.objectType, object.state);
-		let classes = ["check-content", "card", objState];
-		if (object.acknowledged) {
-			classes.push(`${objState}-ack`);
-		}
-		setCardState(classes.join(" "));
 
 		let styles = "height: 100%; ";
 
 		if (typeof options.fontSize !== "undefined") {
 			styles += `font-size: ${options.fontSize}px; `;
 		}
-		if (
-			typeof options.textAlign !== "undefined" ||
-			typeof options.textVerticalAlign !== "undefined"
-		) {
-			styles += `display: flex; `;
+		if (typeof options.backgroundColor !== "undefined") {
+			styles += `background-color: ${options.backgroundColor}; `;
+		}
+		if (typeof options.fontColor !== "undefined") {
+			styles += `color: ${options.fontColor}; `;
 		}
 		if (typeof options.textAlign !== "undefined") {
 			styles += `justify-content: ${options.textAlign}; `;
@@ -225,23 +172,13 @@ export function ObjectCard({ events, options, dashboard }) {
 			}
 		}
 
-		if (objState === "ok" || objState === "up") {
-			styles += `color: ${options.okFontColor}; `;
-		} else if (objState === "warning") {
-			styles += `color: ${options.warningFontColor}; `;
-		} else if (objState === "unknown") {
-			styles += `color: ${options.unknownFontColor}; `;
-		} else if (objState === "critical" || objState === "down") {
-			styles += `color: ${options.criticalFontColor}; `;
-		}
 		setStyles(styles);
-		setCardText(text);
+		setText(text);
 	};
 
 	const handleEvent = useCallback((event) => {
 		if (objectState && objectState.name.includes(event.data)) {
 			handleUpdate();
-			setSoundEvent(true);
 		}
 	});
 
@@ -303,35 +240,25 @@ export function ObjectCard({ events, options, dashboard }) {
 		options.boldText,
 		options.textAlign,
 		options.textVerticalAlign,
-		options.okFontColor,
-		options.warningFontColor,
-		options.unknownFontColor,
-		options.criticalFontColor,
+		options.fontColor,
 		options.fontSize,
+		options.backgroundColor,
 	]);
 
 	if (!objectState) {
 		if (options.objectAttrNoMatch) {
 			return (
-				<div class="check-content card">
-					<div class="check-state" style={`font-size: ${options.fontSize}px`}>
-						{options.objectAttrNoMatch}
-					</div>
+				<div class="check-content text" style={styles}>
+					{options.objectAttrNoMatch}
 				</div>
 			);
 		} else {
-			return <div class="check-content card"></div>;
+			return <div class="check-content text" style={styles}></div>;
 		}
 	} else {
-		if (dashboard) {
-			if (soundEvent)
-				IcingaJS.alertSounds(objectState.state, options, dashboard);
-		}
 		return (
-			<div class={cardState}>
-				<div class="check-state" style={styles}>
-					{cardText}
-				</div>
+			<div class="check-content text" style={styles}>
+				{text}
 			</div>
 		);
 	}
@@ -361,11 +288,10 @@ function stateText(typ, state) {
 	return "";
 }
 
-export const CheckCardDefaults = {
+export const DynamicTextDefaults = {
+	fontSize: "22",
+	fontColor: "#ffffff",
 	textAlign: "center",
 	textVerticalAlign: "center",
-	okFontColor: "#000000",
-	warningFontColor: "#000000",
-	unknownFontColor: "#000000",
-	criticalFontColor: "#ffffff",
+	backgroundColor: "#007bff",
 };
