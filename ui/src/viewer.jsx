@@ -8,6 +8,7 @@ import { CheckLine } from "./elements/line";
 import { Video } from "./elements/video";
 import { Clock } from "./elements/clock";
 import { StaticText } from "./statics/text";
+import { DynamicText } from "./elements/text";
 import { StaticTicker } from "./statics/ticker";
 import { StaticSVG } from "./statics/svg";
 import { ObjectCard } from "./elements/i2object";
@@ -93,7 +94,8 @@ function Viewer({ dashboard, events }) {
 		if (
 			element.type == "check-card" ||
 			element.type == "check-svg" ||
-			element.type == "check-line"
+			element.type == "check-line" ||
+			element.type == "dynamic-text"
 		) {
 			ele = (
 				<IcingaElement
@@ -143,6 +145,8 @@ function IcingaElement({ typ, options, events, dashboard }) {
 		ele = <CheckSVG events={events} options={options} dashboard={dashboard} />;
 	} else if (typ === "check-line") {
 		ele = <CheckLine events={events} options={options} dashboard={dashboard} />;
+	} else if (typ === "dynamic-text") {
+		ele = <DynamicText events={events} options={options} />;
 	} else if (typ === "check-card") {
 		ele = (
 			<ObjectCard events={events} options={options} dashboard={dashboard} />
