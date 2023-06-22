@@ -2,7 +2,7 @@ import { h, render, Fragment, options } from "preact";
 import { useEffect, useReducer, useState } from "preact/hooks";
 
 import * as meerkat from "./meerkat";
-import { CheckSVG, CheckSVGOptions } from "./elements/svg";
+import { CheckSVG, CheckSVGOptions, CheckSVGDefaults } from "./elements/svg";
 import {
 	CheckLine,
 	CheckLineOptions,
@@ -23,12 +23,20 @@ import { StaticSVG, StaticSVGOptions, StaticSVGDefaults } from "./statics/svg";
 import { Video, VideoOptions } from "./elements/video";
 import { AudioOptions } from "./elements/audio";
 import { Clock, ClockOptions } from "./elements/clock";
-import { ObjectCard, ObjectCardOptions } from "./elements/i2object";
+import {
+	ObjectCard,
+	ObjectCardOptions,
+	CheckCardDefaults,
+} from "./elements/i2object";
 
 function defaultElementOptions(typ) {
 	switch (typ) {
+		case "check-card":
+			return CheckCardDefaults;
 		case "check-line":
 			return CheckLineDefaults;
+		case "check-svg":
+			return CheckSVGDefaults;
 		case "static-text":
 			return StaticTextDefaults;
 		case "static-svg":

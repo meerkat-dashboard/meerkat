@@ -64,29 +64,49 @@ export function StaticTickerOptions({ options, updateOptions }) {
 			<label for="font-color">
 				Font Color <a onClick={(e) => clearField(e, "fontColor")}>clear</a>
 			</label>
-			<input
-				class="form-control form-control-color"
-				id="font-color"
-				name="font-color"
-				type="color"
-				value={options.fontColor}
-				onInput={(e) => updateOptions({ fontColor: e.currentTarget.value })}
-			/>
+			<div class="input-group mb-3">
+				<span class="input-group-text">
+					<input
+						class="form-control form-control-color"
+						id="font-color"
+						name="font-color"
+						type="color"
+						value={options.fontColor}
+						onInput={(e) => updateOptions({ fontColor: e.currentTarget.value })}
+					/>
+				</span>
+				<input
+					type="text"
+					class="form-control"
+					value={options.fontColor}
+					disabled
+				></input>
+			</div>
 
-			<label for="background-color">
+			<label for="font-color">
 				Background Color{" "}
 				<a onClick={(e) => clearField(e, "backgroundColor")}>clear</a>
 			</label>
-			<input
-				class="form-control form-control-color"
-				id="background-color"
-				name="background-color"
-				type="color"
-				value={options.backgroundColor}
-				onInput={(e) =>
-					updateOptions({ backgroundColor: e.currentTarget.value })
-				}
-			/>
+			<div class="input-group mb-3">
+				<span class="input-group-text">
+					<input
+						class="form-control form-control-color"
+						id="background-color"
+						name="background-color"
+						type="color"
+						value={options.backgroundColor}
+						onInput={(e) =>
+							updateOptions({ backgroundColor: e.currentTarget.value })
+						}
+					/>
+				</span>
+				<input
+					type="text"
+					class="form-control"
+					value={options.backgroundColor}
+					disabled
+				></input>
+			</div>
 		</Fragment>
 	);
 }

@@ -28,16 +28,28 @@ export function StaticSVGOptions({ options, updateOptions }) {
 			</select>
 
 			<label for="stroke-color">
-				Stroke color <a onClick={(e) => clearField(e, "strokeColor")}>clear</a>
+				Stroke Color <a onClick={(e) => clearField(e, "strokeColor")}>clear</a>
 			</label>
-			<input
-				class="form-control"
-				type="color"
-				name="stroke-color"
-				id="stroke-color"
-				value={options.strokeColor}
-				onInput={(e) => updateOptions({ strokeColor: e.currentTarget.value })}
-			/>
+			<div class="input-group mb-3">
+				<span class="input-group-text">
+					<input
+						class="form-control form-control-color"
+						id="stroke-color"
+						name="stroke-color"
+						type="color"
+						value={options.strokeColor}
+						onInput={(e) =>
+							updateOptions({ strokeColor: e.currentTarget.value })
+						}
+					/>
+				</span>
+				<input
+					type="text"
+					class="form-control"
+					value={options.strokeColor}
+					disabled
+				></input>
+			</div>
 
 			<label for="stroke-width">Stroke width</label>
 			<input

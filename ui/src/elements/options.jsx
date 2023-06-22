@@ -39,7 +39,7 @@ export function ExternalURL({ value, onInput }) {
 	);
 }
 
-export function AlignmentInput({ onInputH, onInputV }) {
+export function AlignmentInput({ onInputH, onInputV, options }) {
 	return (
 		<Fragment>
 			<fieldset>
@@ -51,6 +51,7 @@ export function AlignmentInput({ onInputH, onInputV }) {
 						name="horizontal"
 						id="start"
 						onInput={onInputH}
+						checked={options.textAlign === "start"}
 					/>
 					<label class="form-check-label" for="start">
 						Start
@@ -63,6 +64,7 @@ export function AlignmentInput({ onInputH, onInputV }) {
 						name="horizontal"
 						id="center"
 						onInput={onInputH}
+						checked={options.textAlign === "center"}
 					/>
 					<label class="form-check-label" for="center">
 						Centre
@@ -75,6 +77,7 @@ export function AlignmentInput({ onInputH, onInputV }) {
 						name="horizontal"
 						id="flex-end"
 						onInput={onInputH}
+						checked={options.textAlign === "flex-end"}
 					/>
 					<label class="form-check-label" for="flex-end">
 						End
@@ -91,6 +94,7 @@ export function AlignmentInput({ onInputH, onInputV }) {
 						name="vertical"
 						id="start"
 						onInput={onInputV}
+						checked={options.textVerticalAlign === "start"}
 					/>
 					<label class="form-check-label" for="start">
 						Top
@@ -103,6 +107,7 @@ export function AlignmentInput({ onInputH, onInputV }) {
 						name="vertical"
 						id="center"
 						onInput={onInputV}
+						checked={options.textVerticalAlign === "center"}
 					/>
 					<label class="form-check-label" for="center">
 						Centre
@@ -115,6 +120,7 @@ export function AlignmentInput({ onInputH, onInputV }) {
 						name="vertical"
 						id="end"
 						onInput={onInputV}
+						checked={options.textVerticalAlign === "end"}
 					/>
 					<label class="form-check-label" for="end">
 						Bottom
