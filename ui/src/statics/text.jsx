@@ -46,13 +46,7 @@ export function StaticTextOptions({ options, updateOptions }) {
 				</label>
 			</div>
 
-			<AlignmentInput
-				onInputH={(e) => updateOptions({ textAlign: e.currentTarget.id })}
-				onInputV={(e) =>
-					updateOptions({ textVerticalAlign: e.currentTarget.id })
-				}
-				options={options}
-			/>
+			<AlignmentInput updateOptions={updateOptions} options={options} />
 
 			<ExternalURL
 				value={options.linkURL}

@@ -39,7 +39,7 @@ export function ExternalURL({ value, onInput }) {
 	);
 }
 
-export function AlignmentInput({ onInputH, onInputV, options }) {
+export function AlignmentInput({ updateOptions, options }) {
 	return (
 		<Fragment>
 			<fieldset>
@@ -49,8 +49,8 @@ export function AlignmentInput({ onInputH, onInputV, options }) {
 						class="form-check-input"
 						type="radio"
 						name="horizontal"
-						id="start"
-						onInput={onInputH}
+						id="starth"
+						onInput={(e) => updateOptions({ textAlign: "start" })}
 						checked={options.textAlign === "start"}
 					/>
 					<label class="form-check-label" for="start">
@@ -62,8 +62,8 @@ export function AlignmentInput({ onInputH, onInputV, options }) {
 						class="form-check-input"
 						type="radio"
 						name="horizontal"
-						id="center"
-						onInput={onInputH}
+						id="centerh"
+						onInput={(e) => updateOptions({ textAlign: "center" })}
 						checked={options.textAlign === "center"}
 					/>
 					<label class="form-check-label" for="center">
@@ -75,8 +75,8 @@ export function AlignmentInput({ onInputH, onInputV, options }) {
 						class="form-check-input"
 						type="radio"
 						name="horizontal"
-						id="flex-end"
-						onInput={onInputH}
+						id="flex-endh"
+						onInput={(e) => updateOptions({ textAlign: "flex-end" })}
 						checked={options.textAlign === "flex-end"}
 					/>
 					<label class="form-check-label" for="flex-end">
@@ -92,8 +92,8 @@ export function AlignmentInput({ onInputH, onInputV, options }) {
 						class="form-check-input"
 						type="radio"
 						name="vertical"
-						id="start"
-						onInput={onInputV}
+						id="startv"
+						onInput={(e) => updateOptions({ textVerticalAlign: "start" })}
 						checked={options.textVerticalAlign === "start"}
 					/>
 					<label class="form-check-label" for="start">
@@ -105,8 +105,8 @@ export function AlignmentInput({ onInputH, onInputV, options }) {
 						class="form-check-input"
 						type="radio"
 						name="vertical"
-						id="center"
-						onInput={onInputV}
+						id="centerv"
+						onInput={(e) => updateOptions({ textVerticalAlign: "center" })}
 						checked={options.textVerticalAlign === "center"}
 					/>
 					<label class="form-check-label" for="center">
@@ -118,8 +118,8 @@ export function AlignmentInput({ onInputH, onInputV, options }) {
 						class="form-check-input"
 						type="radio"
 						name="vertical"
-						id="end"
-						onInput={onInputV}
+						id="endv"
+						onInput={(e) => updateOptions({ textVerticalAlign: "end" })}
 						checked={options.textVerticalAlign === "end"}
 					/>
 					<label class="form-check-label" for="end">

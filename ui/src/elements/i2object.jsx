@@ -32,13 +32,7 @@ export function ObjectCardOptions({ options, updateOptions }) {
 				value={options.linkURL}
 				onInput={(e) => updateOptions({ linkURL: e.currentTarget.value })}
 			/>
-			<AlignmentInput
-				onInputH={(e) => updateOptions({ textAlign: e.currentTarget.id })}
-				onInputV={(e) =>
-					updateOptions({ textVerticalAlign: e.currentTarget.id })
-				}
-				options={options}
-			/>
+			<AlignmentInput updateOptions={updateOptions} options={options} />
 			<FontSizeInput
 				value={options.fontSize}
 				onInput={(e) =>
