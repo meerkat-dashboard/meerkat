@@ -108,7 +108,9 @@ export function StaticText({ options }) {
 	let text = options.text;
 
 	if (typeof options.fontSize !== "undefined") {
-		styles += `font-size: ${options.fontSize}px; `;
+		styles += `font-size: ${(100 * options.fontSize) / window.innerWidth}vw; `;
+	} else {
+		styles += `font-size: ${(100 * 22) / window.innerWidth}vw; `;
 	}
 	if (typeof options.backgroundColor !== "undefined") {
 		styles += `background-color: ${options.backgroundColor}; `;

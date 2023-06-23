@@ -116,7 +116,11 @@ export function StaticTicker({ options }) {
 	let textStyles = "";
 
 	if (typeof options.fontSize !== "undefined") {
-		textStyles += `font-size: ${options.fontSize}px; `;
+		textStyles += `font-size: ${
+			(100 * options.fontSize) / window.innerWidth
+		}vw; `;
+	} else {
+		textStyles += `font-size: ${(100 * 22) / window.innerWidth}vw; `;
 	}
 	if (typeof options.backgroundColor !== "undefined") {
 		styles += `background-color: ${options.backgroundColor}; `;
