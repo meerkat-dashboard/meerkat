@@ -368,20 +368,6 @@ export function SoundOptions({ options, updateOptions }) {
 				{rows}
 			</select>
 
-			<label class="form-label" for="criticalSound">
-				Critical alert sound
-			</label>
-			<select
-				onChange={(e) => updateOptions({ criticalSound: e.target.value })}
-				class="form-select"
-				id="criticalSound"
-				name="criticalSound"
-				value={options.criticalSound}
-				aria-label="Critical alert sound select"
-			>
-				{rows}
-			</select>
-
 			<label class="form-label" for="unknownSound">
 				Unknown alert sound
 			</label>
@@ -392,6 +378,20 @@ export function SoundOptions({ options, updateOptions }) {
 				name="unknownSound"
 				value={options.unknownSound}
 				aria-label="Unknown alert sound select"
+			>
+				{rows}
+			</select>
+
+			<label class="form-label" for="criticalSound">
+				Critical alert sound
+			</label>
+			<select
+				onChange={(e) => updateOptions({ criticalSound: e.target.value })}
+				class="form-select"
+				id="criticalSound"
+				name="criticalSound"
+				value={options.criticalSound}
+				aria-label="Critical alert sound select"
 			>
 				{rows}
 			</select>

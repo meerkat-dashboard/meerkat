@@ -102,6 +102,35 @@ export function ObjectCardOptions({ options, updateOptions }) {
 				></input>
 			</div>
 
+			<label for="warning-ack-font-color">
+				Warning Acknowledged Font Color{" "}
+				<a onClick={(e) => clearField(e, "warningAcknowledgedFontColor")}>
+					clear
+				</a>
+			</label>
+			<div class="input-group mb-3">
+				<span class="input-group-text">
+					<input
+						class="form-control form-control-color"
+						id="warning-ack-font-color"
+						name="warning-ack-font-color"
+						type="color"
+						value={options.warningAcknowledgedFontColor}
+						onInput={(e) =>
+							updateOptions({
+								warningAcknowledgedFontColor: e.currentTarget.value,
+							})
+						}
+					/>
+				</span>
+				<input
+					type="text"
+					class="form-control"
+					value={options.warningAcknowledgedFontColor}
+					disabled
+				></input>
+			</div>
+
 			<label for="unknown-font-color">
 				Unknown Font Color{" "}
 				<a onClick={(e) => clearField(e, "unknownFontColor")}>clear</a>
@@ -127,6 +156,35 @@ export function ObjectCardOptions({ options, updateOptions }) {
 				></input>
 			</div>
 
+			<label for="uknown-ack-font-color">
+				Unknown Acknowledged Font Color{" "}
+				<a onClick={(e) => clearField(e, "unknownAcknowledgedFontColor")}>
+					clear
+				</a>
+			</label>
+			<div class="input-group mb-3">
+				<span class="input-group-text">
+					<input
+						class="form-control form-control-color"
+						id="unknown-ack-font-color"
+						name="unknown-ack-font-color"
+						type="color"
+						value={options.unknownAcknowledgedFontColor}
+						onInput={(e) =>
+							updateOptions({
+								unknownAcknowledgedFontColor: e.currentTarget.value,
+							})
+						}
+					/>
+				</span>
+				<input
+					type="text"
+					class="form-control"
+					value={options.unknownAcknowledgedFontColor}
+					disabled
+				></input>
+			</div>
+
 			<label for="critical-font-color">
 				Critical Font Color{" "}
 				<a onClick={(e) => clearField(e, "criticalFontColor")}>clear</a>
@@ -148,6 +206,35 @@ export function ObjectCardOptions({ options, updateOptions }) {
 					type="text"
 					class="form-control"
 					value={options.criticalFontColor}
+					disabled
+				></input>
+			</div>
+
+			<label for="critical-ack-font-color">
+				Critical Acknowledged Font Color{" "}
+				<a onClick={(e) => clearField(e, "criticalAcknowledgedFontColor")}>
+					clear
+				</a>
+			</label>
+			<div class="input-group mb-3">
+				<span class="input-group-text">
+					<input
+						class="form-control form-control-color"
+						id="critical-ack-font-color"
+						name="critical-ack-font-color"
+						type="color"
+						value={options.criticalAcknowledgedFontColor}
+						onInput={(e) =>
+							updateOptions({
+								criticalAcknowledgedFontColor: e.currentTarget.value,
+							})
+						}
+					/>
+				</span>
+				<input
+					type="text"
+					class="form-control"
+					value={options.criticalAcknowledgedFontColor}
 					disabled
 				></input>
 			</div>
@@ -226,11 +313,17 @@ export function ObjectCard({ events, options, dashboard }) {
 		if (objState === "ok" || objState === "up") {
 			styles += `color: ${options.okFontColor}; `;
 		} else if (objState === "warning") {
-			styles += `color: ${options.warningFontColor}; `;
+			if (object.acknowledged)
+				styles += `color: ${options.warningAcknowledgedFontColor}; `;
+			else styles += `color: ${options.warningFontColor}; `;
 		} else if (objState === "unknown") {
-			styles += `color: ${options.unknownFontColor}; `;
+			if (object.acknowledged)
+				styles += `color: ${options.unknownAcknowledgedFontColor}; `;
+			else styles += `color: ${options.unknownFontColor}; `;
 		} else if (objState === "critical" || objState === "down") {
-			styles += `color: ${options.criticalFontColor}; `;
+			if (object.acknowledged)
+				styles += `color: ${options.criticalAcknowledgedFontColor}; `;
+			else styles += `color: ${options.criticalFontColor}; `;
 		}
 		setStyles(styles);
 		setCardText(text);
@@ -360,10 +453,14 @@ function stateText(typ, state) {
 }
 
 export const CheckCardDefaults = {
+	fontSize: 48,
 	textAlign: "center",
 	textVerticalAlign: "center",
 	okFontColor: "#000000",
 	warningFontColor: "#000000",
+	warningAcknowledgedFontColor: "#000000",
 	unknownFontColor: "#000000",
+	unknownAcknowledgedFontColor: "#000000",
 	criticalFontColor: "#ffffff",
+	criticalAcknowledgedFontColor: "#000000",
 };
