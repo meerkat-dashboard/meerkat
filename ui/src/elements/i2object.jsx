@@ -171,24 +171,22 @@ export function ObjectCard({ events, options, dashboard }) {
 		}
 		setCardState(classes.join(" "));
 
-		let styles = "height: 100%; ";
+		let styles = "height: 100%; display: flex; ";
 
-		if (typeof options.fontSize !== "undefined") {
+		if (options.fontSize) {
 			styles += `font-size: ${options.fontSize}px; `;
 		}
-		if (
-			typeof options.textAlign !== "undefined" ||
-			typeof options.textVerticalAlign !== "undefined"
-		) {
-			styles += `display: flex; `;
+		if (options.textAlign) {
+			styles += `justify-content: ${options.textAlign} !important; `;
+		} else {
+			styles += `justify-content: center !important; `;
 		}
-		if (typeof options.textAlign !== "undefined") {
-			styles += `justify-content: ${options.textAlign}; `;
+		if (options.textVerticalAlign) {
+			styles += `align-items: ${options.textVerticalAlign} !important; `;
+		} else {
+			styles += `align-items: center !important; `;
 		}
-		if (typeof options.textVerticalAlign !== "undefined") {
-			styles += `align-items: ${options.textVerticalAlign}; `;
-		}
-		if (typeof options.boldText !== "undefined" && options.boldText) {
+		if (options.boldText) {
 			styles += `font-weight: bold; `;
 		}
 
