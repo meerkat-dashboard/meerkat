@@ -35,6 +35,11 @@ This is usually required when Icinga is configured with self-signed certificates
 IcingaInsecureTLS = true
 ```
 
+If events havent been received for the value of IcingaEventTimeout in seconds then resubscribe to the event stream.
+``
+IcingaEventTimeout = 30
+```
+
 **HTTP2**
 If SSLEnable to true, meerkat will serve data over http2 using the crt and key.
 A ssl cert and key is required if you enable ssl.

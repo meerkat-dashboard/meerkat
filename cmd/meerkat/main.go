@@ -118,11 +118,12 @@ func main() {
 		server.AutoReplay = false
 		server.AutoStream = false
 		server.CreateStream("updates")
-		server.CreateStream("icinga")
 
 		eventNames := []string{"CheckResult", "StateChange"}
+		var lastEventTime time.Time
 		go func() {
 			for {
+				server.CreateStream("icinga")
 				log.Printf("Subscribing to event streams %s\n", eventNames)
 				events, err := client.Subscribe(eventNames, "meerkat", "")
 				if err != nil {
@@ -132,27 +133,50 @@ func main() {
 					time.Sleep(dur)
 					continue
 				} else {
-					for {
-						event := <-events
-						if err != nil {
-							log.Printf("error with events %s\n", err)
-							break
-						}
-						if event.Error != nil {
-							log.Printf("error with events %s\n", event.Error)
-							break
-						}
-						name := event.Host
+					log.Println("Subscribed to event stream")
+					lastEventTime = time.Now()
+					quit := make(chan bool)
+					go func() {
+						for {
+							time.Sleep(1 * time.Second)
 
-						if event.Service != "" {
-							name = name + "!" + event.Service
+							if lastEventTime.Add(time.Duration(config.IcingaEventTimeout) * time.Second).Before(time.Now()) {
+								log.Printf("Event stream timed out, last event time: %s\n", lastEventTime)
+								close(quit)
+								break
+							}
 						}
-						server.Publish("icinga", &sse.Event{
-							Event: []byte(event.Type),
-							Data:  []byte(name),
-						})
+					}()
+
+				L:
+					for {
+						select {
+						case <-quit:
+							log.Println("Event stream closed")
+							break L
+						case event := <-events:
+							if err != nil {
+								log.Printf("error with events %s\n", err)
+								break
+							}
+							if event.Error != nil {
+								log.Printf("error with events %s\n", event.Error)
+								break
+							}
+							lastEventTime = time.Now()
+							name := event.Host
+
+							if event.Service != "" {
+								name = name + "!" + event.Service
+							}
+							server.Publish("icinga", &sse.Event{
+								Event: []byte(event.Type),
+								Data:  []byte(name),
+							})
+						}
 					}
 				}
+				server.RemoveStream("icinga")
 			}
 		}()
 
@@ -215,9 +239,11 @@ func main() {
 			if currentCheck != 0 {
 				SetWorking()
 			} else {
+				log.Println("Icinga error current check is 0")
 				SendError()
 			}
 			if previousCheck != currentCheck && previousCheck != 0 && currentCheck != 0 {
+				log.Printf("Icinga reloaded prev: %v curr: %v\n", previousCheck, currentCheck)
 				UpdateAll()
 			}
 			previousCheck = currentCheck
