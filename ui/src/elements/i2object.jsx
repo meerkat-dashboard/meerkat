@@ -261,11 +261,9 @@ export function ObjectCard({ events, options, dashboard }) {
 		let styles = "height: 100%; display: flex; ";
 
 		if (options.fontSize) {
-			styles += `font-size: ${
-				(100 * options.fontSize) / window.innerWidth
-			}vw; `;
+			styles += `font-size: ${options.fontSize}px; `;
 		} else {
-			styles += `font-size: ${(100 * 48) / window.innerWidth}vw; `;
+			styles += `font-size: 48px; `;
 		}
 		if (options.textAlign) {
 			styles += `justify-content: ${options.textAlign} !important; `;
@@ -409,12 +407,7 @@ export function ObjectCard({ events, options, dashboard }) {
 		if (options.objectAttrNoMatch) {
 			return (
 				<div class="check-content card">
-					<div
-						class="check-state"
-						style={`font-size: ${
-							(100 * options.fontSize) / window.innerWidth
-						}vw`}
-					>
+					<div class="check-state" style={`font-size: ${options.fontSize}px`}>
 						{options.objectAttrNoMatch}
 					</div>
 				</div>
