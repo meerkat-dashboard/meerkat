@@ -8,6 +8,8 @@ CONFIG_FILE=${3:-"/etc/meerkat.toml"}
 SERVICE_NAME=${4:-"$USER"}
 PORT=${5:-"8080"}
 CERT_NAME=${6:-"$USER"}
+LOGROTATE_DIR=${7:-"/etc/logrotate.d"}
+
 
 echo "Creating meerkat user: $USER"
 useradd -d "$INSTALL_DIR" -s /usr/sbin/nologin $USER
@@ -41,6 +43,14 @@ sed -i "s|^HTTPAddr = \"0.0.0.0:8080\"|HTTPAddr = \"0.0.0.0:$PORT\"|g" "$CONFIG_
 echo "Setting owner for meerkat install dir: $INSTALL_DIR"
 chown -R $USER "$INSTALL_DIR"
 
+echo "Setup log rotate"
+if [[ ! -e $LOGROTATE_DIR/$SERVICE_NAME ]]; then
+    cp "$INSTALL_DIR/contrib/meerkat.logrotate" "$LOGROTATE_DIR/$SERVICE_NAME"
+    # change the log directory
+    sed -i -e "s|/usr/local/meerkat|$INSTALL_DIR|g" "$LOGROTATE_DIR/$SERVICE_NAME"
+    # change the user
+    sed -i -e "s|meerkat meerkat|$USER $USER|g" "$LOGROTATE_DIR/$SERVICE_NAME"
+fi
 
 echo "Installing meerkat service as $SERVICE_NAME.service"
 SERVICE_FILE="/etc/systemd/system/$SERVICE_NAME.service"

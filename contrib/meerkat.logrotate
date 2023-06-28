@@ -1,0 +1,10 @@
+/usr/local/meerkat/log/*.log {
+    daily
+    rotate 7
+    compress
+    delaycompress
+    dateext
+    missingok
+    notifempty
+    create 0640 meerkat meerkat
+}
