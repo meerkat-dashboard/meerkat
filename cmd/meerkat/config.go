@@ -38,7 +38,7 @@ func LoadConfig(name string) (Config, error) {
 	}
 
 	if conf.HTTPAddr == "" {
-		conf.HTTPAddr = ":8080"
+		conf.HTTPAddr = "0.0.0.0:8080"
 	}
 
 	if conf.IcingaURL == "" {
@@ -50,6 +50,11 @@ func LoadConfig(name string) (Config, error) {
 	if conf.IcingaPassword == "" {
 		conf.IcingaPassword = "meerkat"
 	}
+
+	if conf.IcingaEventTimeout == 0 {
+		conf.IcingaEventTimeout = 30
+	}
+
 	if conf.LogDirectory == "" {
 		conf.LogDirectory = "log/"
 	}
