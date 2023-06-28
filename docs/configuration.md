@@ -36,7 +36,7 @@ IcingaInsecureTLS = true
 ```
 
 If events havent been received for the value of IcingaEventTimeout in seconds then resubscribe to the event stream.
-``
+```
 IcingaEventTimeout = 30
 ```
 
