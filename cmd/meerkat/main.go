@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"crypto/tls"
 	"errors"
 	"flag"
@@ -118,52 +119,60 @@ func main() {
 		server.AutoReplay = false
 		server.AutoStream = false
 		server.CreateStream("updates")
+		server.CreateStream("icinga")
 
 		eventNames := []string{"CheckResult", "StateChange"}
-		var lastEventTime time.Time
 		go func() {
 			for {
-				server.CreateStream("icinga")
 				log.Printf("Subscribing to event streams %s\n", eventNames)
 				events, err := client.Subscribe(eventNames, "meerkat", "")
 				if err != nil {
 					log.Println("subscribe to icinga event stream:", err)
+					SendError()
 					dur := 10 * time.Second
 					log.Printf("retrying in %s\n", dur)
 					time.Sleep(dur)
 					continue
 				} else {
 					log.Println("Subscribed to event stream")
-					lastEventTime = time.Now()
-					quit := make(chan bool)
-					go func() {
-						for {
-							time.Sleep(1 * time.Second)
+					ctx, cancel := context.WithCancel(context.Background())
+					timer := time.NewTimer(time.Duration(config.IcingaEventTimeout) * time.Second)
 
-							if lastEventTime.Add(time.Duration(config.IcingaEventTimeout) * time.Second).Before(time.Now()) {
-								log.Printf("Event stream timed out, last event time: %s\n", lastEventTime)
-								close(quit)
-								break
+					go func() {
+
+						for {
+							select {
+							case <-ctx.Done():
+								timer.Stop()
+								return
+							case <-timer.C:
+								log.Printf("Event stream timed out\n")
+								SendError()
+								cancel()
 							}
 						}
 					}()
-
 				L:
 					for {
 						select {
-						case <-quit:
+						case <-ctx.Done():
 							log.Println("Event stream closed")
 							break L
-						case event := <-events:
-							if err != nil {
-								log.Printf("error with events %s\n", err)
-								break
+						case event, ok := <-events:
+							if !ok {
+								log.Println("Event stream closed")
+								cancel()
+								break L
 							}
 							if event.Error != nil {
 								log.Printf("error with events %s\n", event.Error)
-								break
+								cancel()
+								break L
 							}
-							lastEventTime = time.Now()
+							if !timer.Stop() {
+								<-timer.C
+							}
+							timer.Reset(time.Duration(config.IcingaEventTimeout) * time.Second)
 							name := event.Host
 
 							if event.Service != "" {
@@ -176,7 +185,6 @@ func main() {
 						}
 					}
 				}
-				server.RemoveStream("icinga")
 			}
 		}()
 
