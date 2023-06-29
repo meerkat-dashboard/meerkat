@@ -182,6 +182,9 @@ func main() {
 								Event: []byte(event.Type),
 								Data:  []byte(name),
 							})
+						case <-time.After(time.Duration(config.IcingaEventTimeout) * time.Second):
+							log.Printf("Event stream timed out.\n")
+							break L
 						}
 					}
 				}
