@@ -43,6 +43,7 @@ cp Dockerfile $workdir
 cp favicon.ico $workdir
 cp -R contrib $workdir
 cp -R docs $workdir
+cp -R migrations $workdir
 cp -R default_assets/*.mp3 $workdir/dashboards-sound/
 
 tarball="$outdir/meerkat.tar.gz"
