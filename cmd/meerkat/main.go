@@ -9,10 +9,12 @@ import (
 	"io"
 	"io/fs"
 	"log"
+	"net"
 	"net/http"
 	"net/url"
 	"os"
 	"path"
+	"sync"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -25,6 +27,37 @@ import (
 var config Config
 var server *sse.Server
 var icingaLog log.Logger
+var status Status
+var requestList []Requests
+
+type Events struct {
+	Name         string `json:"name"`
+	EventType    string `json:"type"`
+	ReceivedTime int64  `json:"received_time"`
+}
+
+type EventList struct {
+	sync.RWMutex
+	events []Events
+}
+
+var eventList EventList
+
+func addEvent(event string, eventType string) {
+	eventList.Lock()
+	defer eventList.Unlock()
+	eventList.events = append(eventList.events, Events{Name: event, EventType: eventType, ReceivedTime: time.Now().UnixMilli()})
+}
+
+func getEvents() []Events {
+	eventList.RLock()
+	defer eventList.RUnlock()
+	values := make([]Events, len(eventList.events))
+	for i, event := range eventList.events {
+		values[i] = event
+	}
+	return values
+}
 
 func main() {
 	configFile := flag.String("config", defaultConfigPath, "load configuration from this file")
@@ -107,8 +140,14 @@ func main() {
 	if icingaURL.Host != "" {
 		hc := &http.Client{
 			Transport: &http.Transport{
-				TLSClientConfig: &tls.Config{InsecureSkipVerify: config.IcingaInsecureTLS},
+				Dial: (&net.Dialer{
+					Timeout:   time.Second * 60,
+					KeepAlive: time.Second * 60,
+				}).Dial,
+				DisableKeepAlives: false,
+				TLSClientConfig:   &tls.Config{InsecureSkipVerify: config.IcingaInsecureTLS},
 			},
+			//Timeout: 5 * time.Second,
 		}
 		client, err := icinga.Dial(icingaURL.Host, config.IcingaUsername, config.IcingaPassword, hc)
 		if err != nil {
@@ -120,6 +159,21 @@ func main() {
 		server.AutoStream = false
 		server.CreateStream("updates")
 		server.CreateStream("icinga")
+
+		eventList = EventList{}
+		go func() {
+			for range time.Tick(time.Second) {
+				eventList.Lock()
+				oneMinuteAgo := time.Now().Add(-1 * time.Minute)
+				for i := len(eventList.events) - 1; i >= 0; i-- {
+					event := eventList.events[i]
+					if time.UnixMilli(event.ReceivedTime).Before(oneMinuteAgo) {
+						eventList.events = append(eventList.events[:i], eventList.events[i+1:]...)
+					}
+				}
+				eventList.Unlock()
+			}
+		}()
 
 		eventNames := []string{"CheckResult", "StateChange"}
 		go func() {
@@ -182,6 +236,8 @@ func main() {
 								Event: []byte(event.Type),
 								Data:  []byte(name),
 							})
+							status.Backends.Icinga.Connections.EventStreams.LastEventRecieved = int(time.Now().UnixMilli())
+							addEvent(name, event.Type)
 						case <-time.After(time.Duration(config.IcingaEventTimeout) * time.Second):
 							log.Printf("Event stream timed out.\n")
 							break L
@@ -222,6 +278,7 @@ func main() {
 
 	r.Get("/api/all", getAllHandler)
 	r.Get("/api/objects", getObjectHandler)
+	r.Get("/api/status", getStatusHandler)
 
 	r.Get("/{slug}/update", UpdateHandler)
 
@@ -268,6 +325,9 @@ func main() {
 			time.Sleep(5 * time.Second)
 		}
 	}()
+
+	status.Meerkat.StartTime = time.Now().UnixMilli()
+	status.Backends.Icinga.Type = "icinga"
 
 	if config.SSLEnable {
 		log.Printf("Starting https web server on https://%s\n", config.HTTPAddr)
