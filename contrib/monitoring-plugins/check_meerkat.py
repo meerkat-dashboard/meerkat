@@ -21,7 +21,7 @@ def getArgs():
     parser.add_argument('--debug', action="store_true")
     parser.add_argument('--enable-screen-debug', action="store_true")
     parser.add_argument('--log-rotate', type=str, default='1 day')
-    parser.add_argument('--log-retention', type=str, default='1 week')
+    parser.add_argument('--log-retention', type=str, default='3 days')
 
     # Connection type
     subparser = parser.add_subparsers(title='Mode', dest='mode', help='Help for mode', required=True)
@@ -138,9 +138,9 @@ class Meerkat:
                 
                 received_count_1min = event_streams.get('received_count_1min', -1)
                 if received_count_1min < self.args.events_received:
-                    plugin.setMessage(f"Backend events received in the last minuite is {received_count_1min}\n", plugin.STATE_CRITICAL, True)
+                    plugin.setMessage(f"Backend events received in the last minuite {received_count_1min} is less than minimum {self.args.events_received}\n", plugin.STATE_CRITICAL, True)
                 else:
-                    plugin.setMessage(f"Backend events received in the last minuite is {received_count_1min}\n", plugin.STATE_OK, True)
+                    plugin.setMessage(f"Backend events received in the last minuite {received_count_1min} is more than minimum {self.args.events_received}\n", plugin.STATE_OK, True)
 
 
 # Init args
