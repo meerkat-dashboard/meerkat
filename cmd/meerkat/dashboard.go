@@ -50,9 +50,9 @@ type Status struct {
 					RecentHistory      []Requests `json:"recent_history"`
 				} `json:"api_calls"`
 				EventStreams struct {
-					LastEventReceived int      `json:"last_event_received"`
-					ReceivedEventCount  int      `json:"received_count_1min"`
-					RecentHistory     []Events `json:"recent_history"`
+					LastEventReceived  int      `json:"last_event_received"`
+					ReceivedEventCount int      `json:"received_count_1min"`
+					RecentHistory      []Events `json:"recent_history"`
 				} `json:"event_streams"`
 			} `json:"connections"`
 		} `json:"icinga"`
