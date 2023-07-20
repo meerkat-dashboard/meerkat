@@ -236,7 +236,7 @@ func main() {
 								Event: []byte(event.Type),
 								Data:  []byte(name),
 							})
-							status.Backends.Icinga.Connections.EventStreams.LastEventRecieved = int(time.Now().UnixMilli())
+							status.Backends.Icinga.Connections.EventStreams.LastEventReceived = int(time.Now().UnixMilli())
 							addEvent(name, event.Type)
 						case <-time.After(time.Duration(config.IcingaEventTimeout) * time.Second):
 							log.Printf("Event stream timed out.\n")

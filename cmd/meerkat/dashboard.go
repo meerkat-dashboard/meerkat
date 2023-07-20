@@ -50,7 +50,7 @@ type Status struct {
 					RecentHistory      []Requests `json:"recent_history"`
 				} `json:"api_calls"`
 				EventStreams struct {
-					LastEventRecieved int      `json:"last_event_recieved"`
+					LastEventReceived int      `json:"last_event_received"`
 					RecentEventCount  int      `json:"recent_event_count"`
 					RecentHistory     []Events `json:"recent_history"`
 				} `json:"event_streams"`
