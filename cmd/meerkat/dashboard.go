@@ -51,7 +51,7 @@ type Status struct {
 				} `json:"api_calls"`
 				EventStreams struct {
 					LastEventReceived int      `json:"last_event_received"`
-					RecentEventCount  int      `json:"recent_event_count"`
+					ReceivedEventCount  int      `json:"received_count_1min"`
 					RecentHistory     []Events `json:"recent_history"`
 				} `json:"event_streams"`
 			} `json:"connections"`
@@ -365,7 +365,7 @@ func getStatusHandler(w http.ResponseWriter, r *http.Request) {
 	status.Backends.Icinga.Connections.APICalls.RecentHistory = requestList
 
 	events := getEvents()
-	status.Backends.Icinga.Connections.EventStreams.RecentEventCount = len(events)
+	status.Backends.Icinga.Connections.EventStreams.ReceivedEventCount = len(events)
 	status.Backends.Icinga.Connections.EventStreams.RecentHistory = events
 
 	body, err := json.Marshal(status)
