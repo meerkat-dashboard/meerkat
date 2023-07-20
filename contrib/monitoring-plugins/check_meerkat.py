@@ -6,10 +6,9 @@ import requests
 
 from argparse import ArgumentParser
 from datetime import datetime, timedelta
-from dateutil.parser import parse
 from loguru import logger
 
-from lib.util import init_logging, MonitoringPlugin, initRequestsCache
+from lib.util import init_logging, MonitoringPlugin
 
 import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
