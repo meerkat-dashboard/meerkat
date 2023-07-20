@@ -761,5 +761,5 @@ function ElementSettings({ element, updateElement, closeElement }) {
 // Paths are of the form /my-dashboard/view
 const elems = window.location.pathname.split("/");
 const slug = elems[elems.length - 2];
-const events = new EventSource("/icinga/stream");
+const events = new EventSource("/events?stream=icinga");
 render(<Editor slug={slug} events={events} />, document.body);

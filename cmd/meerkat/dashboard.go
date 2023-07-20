@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"crypto/tls"
 	"encoding/json"
 	"errors"
@@ -18,11 +19,45 @@ import (
 	"path"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/meerkat-dashboard/meerkat"
 	"github.com/r3labs/sse/v2"
 )
+
+type Requests struct {
+	CallMade   string `json:"call_made"`
+	CallTime   int64  `json:"call_time"`
+	Dashboard  string `json:"dashboard"`
+	StatusCode int    `json:"status_code"`
+}
+
+type Status struct {
+	Meerkat struct {
+		StartTime  int64 `json:"start_time"`
+		Dashboards struct {
+		} `json:"dashboards"`
+	} `json:"meerkat"`
+	Backends struct {
+		Icinga struct {
+			Type          string `json:"type"`
+			Status        string `json:"status"`
+			StatusMessage string `json:"status_message"`
+			Connections   struct {
+				APICalls struct {
+					RecentRequestCount int        `json:"recent_request_count"`
+					RecentHistory      []Requests `json:"recent_history"`
+				} `json:"api_calls"`
+				EventStreams struct {
+					LastEventReceived  int      `json:"last_event_received"`
+					ReceivedEventCount int      `json:"received_count_1min"`
+					RecentHistory      []Events `json:"recent_history"`
+				} `json:"event_streams"`
+			} `json:"connections"`
+		} `json:"icinga"`
+	} `json:"backends"`
+}
 
 func UpdateHandler(w http.ResponseWriter, req *http.Request) {
 	if req.Method != http.MethodGet {
@@ -40,6 +75,7 @@ func SetWorking() {
 	server.Publish("updates", &sse.Event{
 		Data: []byte("icinga-success"),
 	})
+	status.Backends.Icinga.Status = "working"
 }
 
 func UpdateAll() {
@@ -54,6 +90,7 @@ func SendError() {
 	server.Publish("updates", &sse.Event{
 		Data: []byte("icinga-error"),
 	})
+	status.Backends.Icinga.Status = "failed"
 }
 
 func SendHeartbeat() {
@@ -118,7 +155,9 @@ func handleCloneDashboard(w http.ResponseWriter, req *http.Request) {
 	}
 	dest := src
 	dest.Title = req.PostForm.Get("title")
+	dest.Slug = strings.ReplaceAll(dest.Title, " ", "-")
 	destPath := path.Join("dashboards", dest.Slug+".json")
+
 	if err := meerkat.CreateDashboard(destPath, &dest); err != nil {
 		msg := fmt.Sprintf("create dashboard from %s: %v", srcPath, err)
 		log.Println(msg)
@@ -321,6 +360,28 @@ func handleError(w http.ResponseWriter, dec *json.Decoder, dashboardTitle string
 	w.Write(b)
 }
 
+func getStatusHandler(w http.ResponseWriter, r *http.Request) {
+	status.Backends.Icinga.Connections.APICalls.RecentRequestCount = len(requestList)
+	status.Backends.Icinga.Connections.APICalls.RecentHistory = requestList
+
+	events := getEvents()
+	status.Backends.Icinga.Connections.EventStreams.ReceivedEventCount = len(events)
+	status.Backends.Icinga.Connections.EventStreams.RecentHistory = events
+
+	body, err := json.Marshal(status)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+
+	if _, err := io.Copy(w, bytes.NewReader(body)); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
 func getAllHandler(w http.ResponseWriter, r *http.Request) {
 	objectType := r.URL.Query().Get("type")
 	dashboardTitle := r.URL.Query().Get("title")
@@ -370,6 +431,14 @@ type StatusCheck struct {
 	} `json:"results"`
 }
 
+func addRequest(request Requests) {
+	if len(requestList) >= 100 {
+		requestList = requestList[1:]
+	}
+
+	requestList = append(requestList, request)
+}
+
 func icingaRequest(apiPath string, dashboardTitle string) (*http.Response, error) {
 	client := &http.Client{}
 	if config.IcingaInsecureTLS {
@@ -396,14 +465,19 @@ func icingaRequest(apiPath string, dashboardTitle string) (*http.Response, error
 	req.SetBasicAuth(config.IcingaUsername, config.IcingaPassword)
 	if err != nil {
 		log.Println("Failed to create request: %w", err)
+		addRequest(Requests{CallMade: apiPath, CallTime: time.Now().UnixMilli(), Dashboard: dashboardTitle, StatusCode: 0})
 		return nil, err
 	}
 
 	res, err := client.Do(req)
+
 	if err != nil {
 		log.Println("Icinga2 API error: %w", err)
+		addRequest(Requests{CallMade: apiPath, CallTime: time.Now().UnixMilli(), Dashboard: dashboardTitle, StatusCode: 0})
 		return nil, err
 	}
+
+	addRequest(Requests{CallMade: apiPath, CallTime: time.Now().UnixMilli(), Dashboard: dashboardTitle, StatusCode: res.StatusCode})
 
 	return res, nil
 }
