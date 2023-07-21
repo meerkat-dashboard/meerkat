@@ -155,7 +155,7 @@ func handleCloneDashboard(w http.ResponseWriter, req *http.Request) {
 	}
 	dest := src
 	dest.Title = req.PostForm.Get("title")
-	dest.Slug = strings.ReplaceAll(dest.Title, " ", "-")
+	dest.Slug = meerkat.TitleToSlug(dest.Title)
 	destPath := path.Join("dashboards", dest.Slug+".json")
 
 	if err := meerkat.CreateDashboard(destPath, &dest); err != nil {
