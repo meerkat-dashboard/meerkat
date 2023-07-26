@@ -1,15 +1,12 @@
 package main
 
 import (
-	"context"
-	"crypto/tls"
 	"errors"
 	"flag"
 	"fmt"
 	"io"
 	"io/fs"
 	"log"
-	"net"
 	"net/http"
 	"net/url"
 	"os"
@@ -18,7 +15,6 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/meerkat-dashboard/icinga-go"
 	"github.com/meerkat-dashboard/meerkat"
 	"github.com/meerkat-dashboard/meerkat/ui"
 	"github.com/r3labs/sse/v2"
@@ -138,21 +134,6 @@ func main() {
 
 	// Serve the Icinga API
 	if icingaURL.Host != "" {
-		hc := &http.Client{
-			Transport: &http.Transport{
-				Dial: (&net.Dialer{
-					Timeout:   time.Second * 60,
-					KeepAlive: time.Second * 60,
-				}).Dial,
-				DisableKeepAlives: false,
-				TLSClientConfig:   &tls.Config{InsecureSkipVerify: config.IcingaInsecureTLS},
-			},
-			//Timeout: 5 * time.Second,
-		}
-		client, err := icinga.Dial(icingaURL.Host, config.IcingaUsername, config.IcingaPassword, hc)
-		if err != nil {
-			log.Println("dial icinga:", err)
-		}
 
 		server = sse.New()
 		server.AutoReplay = false
@@ -175,82 +156,9 @@ func main() {
 			}
 		}()
 
-		eventNames := []string{"CheckResult", "StateChange"}
-		go func() {
-			for {
-				log.Printf("Subscribing to event streams %s\n", eventNames)
-				events, err := client.Subscribe(eventNames, "meerkat", "")
-				if err != nil {
-					log.Println("subscribe to icinga event stream:", err)
-					SendError()
-					dur := 10 * time.Second
-					log.Printf("retrying in %s\n", dur)
-					time.Sleep(dur)
-					continue
-				} else {
-					log.Println("Subscribed to event stream")
-					ctx, cancel := context.WithCancel(context.Background())
-					timer := time.NewTimer(time.Duration(config.IcingaEventTimeout) * time.Second)
-
-					go func() {
-
-						for {
-							select {
-							case <-ctx.Done():
-								timer.Stop()
-								return
-							case <-timer.C:
-								log.Printf("Event stream timed out\n")
-								SendError()
-								cancel()
-							}
-						}
-					}()
-				L:
-					for {
-						select {
-						case <-ctx.Done():
-							log.Println("Event stream closed")
-							break L
-						case event, ok := <-events:
-							if !ok {
-								log.Println("Event stream closed")
-								cancel()
-								break L
-							}
-							if event.Error != nil {
-								log.Printf("error with events %s\n", event.Error)
-								cancel()
-								break L
-							}
-							if !timer.Stop() {
-								<-timer.C
-							}
-							timer.Reset(time.Duration(config.IcingaEventTimeout) * time.Second)
-							name := event.Host
-
-							if event.Service != "" {
-								name = name + "!" + event.Service
-							}
-							server.Publish("icinga", &sse.Event{
-								Event: []byte(event.Type),
-								Data:  []byte(name),
-							})
-							status.Backends.Icinga.Connections.EventStreams.LastEventReceived = int(time.Now().UnixMilli())
-							addEvent(name, event.Type)
-						case <-time.After(time.Duration(config.IcingaEventTimeout) * time.Second):
-							log.Printf("Event stream timed out.\n")
-							break L
-						}
-					}
-				}
-			}
-		}()
+		doEvents()
 
 		r.HandleFunc("/events", server.ServeHTTP)
-
-		// Subscribe to object state changes. Some dashboard elements
-		// read events instead of polling.
 	}
 
 	// Previous versions of meerkat served user-uploaded files from this directory.
