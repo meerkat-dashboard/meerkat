@@ -3,9 +3,9 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"context"
 	"crypto/tls"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net"
 	"net/http"
@@ -27,12 +27,12 @@ type Event struct {
 type CheckResult struct {
 	Active            bool        `json:"active,omitempty"`
 	CheckSource       string      `json:"check_source,omitempty"`
-	Command           []string    `json:"command,omitempty"`
+	Command           interface{} `json:"command,omitempty"`
 	ExecutionEnd      float64     `json:"execution_end,omitempty"`
 	ExecutionStart    float64     `json:"execution_start,omitempty"`
 	ExitStatus        json.Number `json:"exit_status,omitempty"`
 	Output            string      `json:"output,omitempty"`
-	PerformanceData   []string    `json:"performance_data,omitempty"`
+	PerformanceData   interface{} `json:"performance_data,omitempty"`
 	PreviousHardState int         `json:"previous_hard_state,omitempty"`
 	ScheduleEnd       float64     `json:"schedule_end,omitempty"`
 	ScheduleStart     float64     `json:"schedule_start,omitempty"`
@@ -54,19 +54,17 @@ type CheckResult struct {
 	} `json:"vars_before,omitempty"`
 }
 
-func handleEvent(response string) {
+func handleEvent(response string) error {
 	var event Event
 	err := json.Unmarshal([]byte(response), &event)
 	if err != nil {
-		//	fmt.Println(err)
-		//	fmt.Printf("%+v\n", response)
+		return err
 	}
 	name := event.Host
 
 	if event.Service != "" {
 		name = name + "!" + event.Service
 	}
-	fmt.Println(name)
 
 	server.Publish("icinga", &sse.Event{
 		Event: []byte(event.Type),
@@ -74,10 +72,11 @@ func handleEvent(response string) {
 	})
 	status.Backends.Icinga.Connections.EventStreams.LastEventReceived = int(time.Now().UnixMilli())
 	addEvent(name, event.Type)
+	return nil
 }
 
 func EventListener() {
-	fmt.Println("Subscribing to event streams")
+	log.Println("Subscribing to event streams")
 
 	client := &http.Client{
 		Transport: &http.Transport{
@@ -94,7 +93,7 @@ func EventListener() {
 
 	req, err := http.NewRequest("POST", config.IcingaURL+"/v1/events", bytes.NewBuffer(requestBody))
 	if err != nil {
-		log.Println("Error creating request:", err)
+		log.Println("Error creating events request:", err)
 		return
 	}
 	req.Header.Set("Accept", "application/json")
@@ -102,39 +101,64 @@ func EventListener() {
 
 	resp, err := client.Do(req)
 	if err != nil {
-		fmt.Println("Error sending request:", err)
+		log.Println("Error sending events request:", err)
 		return
 	}
 	defer resp.Body.Close()
 
 	reader := bufio.NewReader(resp.Body)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	timer := time.NewTimer(time.Duration(config.IcingaEventTimeout) * time.Second)
+	events := make(chan string)
+
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				timer.Stop()
+				return
+			case <-timer.C:
+				log.Printf("Event stream timed out\n")
+				SendError()
+				cancel()
+			}
+		}
+	}()
+
+	go func() {
+		for {
+			line, err := reader.ReadBytes('\n')
+			if err != nil {
+				log.Println("Error reading event stream:", err)
+				cancel()
+			}
+			if !timer.Stop() {
+				<-timer.C
+			}
+			timer.Reset(time.Duration(config.IcingaEventTimeout) * time.Second)
+
+			events <- string(line)
+		}
+	}()
 Loop:
 	for {
 		select {
-		default:
-			line, err := reader.ReadBytes('\n')
-
+		case <-ctx.Done():
+			log.Println("Event stream closed")
+			break Loop
+		case event := <-events:
+			err = handleEvent(event)
 			if err != nil {
-				fmt.Println("Error reading stream", err)
+				log.Println("Error decoding event:", err, event)
+				cancel()
 				break Loop
 			}
-
-			handleEvent(string(line))
 		case <-time.After(time.Duration(config.IcingaEventTimeout) * time.Second):
-			log.Printf("Event stream timed out.\n")
+			log.Println("Event stream timed out.")
 			break Loop
 		}
 	}
 
-	fmt.Println("Connection was closed by the server")
-}
-
-func doEvents() {
-	go func() {
-		for {
-			EventListener()
-			fmt.Println("Disconnected from event stream waiting 10 seconds")
-			time.Sleep(time.Second * 10)
-		}
-	}()
+	log.Println("Event stream connection was closed")
 }

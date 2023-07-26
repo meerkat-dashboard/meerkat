@@ -156,7 +156,13 @@ func main() {
 			}
 		}()
 
-		doEvents()
+		go func() {
+			for {
+				EventListener()
+				log.Println("Disconnected from event stream waiting 10 seconds")
+				time.Sleep(time.Second * 10)
+			}
+		}()
 
 		r.HandleFunc("/events", server.ServeHTTP)
 	}
