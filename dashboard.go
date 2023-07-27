@@ -34,11 +34,17 @@ type Dashboard struct {
 
 // Element contains any service/host information needed
 type Element struct {
-	Type     string                 `json:"type"`
-	Title    string                 `json:"title"`
-	Rect     Rect                   `json:"rect"`
-	Options  map[string]interface{} `json:"options"`
-	Rotation float64                `json:"rotation"`
+	Type     string  `json:"type"`
+	Title    string  `json:"title"`
+	Rect     Rect    `json:"rect"`
+	Options  Options `json:"options,omitempty"`
+	Rotation float64 `json:"rotation"`
+}
+
+type Options struct {
+	ObjectAttr string `json:"objectAttr,omitempty"`
+	ObjectName string `json:"objectName,omitempty"`
+	ObjectType string `json:"objectType,omitempty"`
 }
 
 // Rect helper struct for positions

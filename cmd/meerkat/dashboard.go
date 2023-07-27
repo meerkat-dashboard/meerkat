@@ -33,11 +33,17 @@ type Requests struct {
 	StatusCode int    `json:"status_code"`
 }
 
+type Dashboard struct {
+	Title           string   `json:"title"`
+	Slug            string   `json:"slug"`
+	Folder          string   `json:"folder"`
+	CurrentlyOpenBy []string `json:"currently_open_by"`
+}
+
 type Status struct {
 	Meerkat struct {
-		StartTime  int64 `json:"start_time"`
-		Dashboards struct {
-		} `json:"dashboards"`
+		StartTime  int64       `json:"start_time"`
+		Dashboards []Dashboard `json:"dashboards"`
 	} `json:"meerkat"`
 	Backends struct {
 		Icinga struct {
@@ -125,6 +131,7 @@ func handleCreateDashboard(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, msg, http.StatusInternalServerError)
 		return
 	}
+	updateDashboardMap(dashboard.Slug)
 	log.Printf("Created dashboard %s\n", fpath)
 	u := path.Join("/", dashboard.Slug, "edit")
 	http.Redirect(w, req, u, http.StatusFound)
@@ -164,6 +171,7 @@ func handleCloneDashboard(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, msg, http.StatusInternalServerError)
 		return
 	}
+	updateDashboardMap(dest.Slug)
 	log.Printf("Cloned dashboard %s\n", destPath)
 	new := path.Join("/", dest.Slug, "edit")
 	next := http.RedirectHandler(new, http.StatusFound)
@@ -172,6 +180,7 @@ func handleCloneDashboard(w http.ResponseWriter, req *http.Request) {
 
 func handleUpdateDashboard(w http.ResponseWriter, r *http.Request) {
 	slug := chi.URLParam(r, "slug")
+
 	_, err := meerkat.ReadDashboard(path.Join("dashboards", slug+".json"))
 	if errors.Is(err, fs.ErrNotExist) {
 		http.NotFound(w, r)
@@ -201,6 +210,7 @@ func handleUpdateDashboard(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	updateDashboardMap(slug)
 	log.Printf("Updated dashboard %s\n", path.Join("dashboards", slug+".json"))
 }
 
@@ -216,6 +226,7 @@ func handleDeleteDashboard(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, "remove dashboard: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
+	deleteDashboardMap(slug)
 	log.Printf("Deleted dashboard %s\n", fname)
 	http.RedirectHandler("/", http.StatusFound).ServeHTTP(w, req)
 }
@@ -268,30 +279,61 @@ func oldPathHandler(w http.ResponseWriter, req *http.Request) {
 	http.RedirectHandler(new, http.StatusMovedPermanently).ServeHTTP(w, req)
 }
 
+type LastCheckResult struct {
+	Output          string `json:"output"`
+	PerformanceData any    `json:"performance_data"`
+	State           int    `json:"state"`
+	Type            string `json:"type"`
+}
+
+type Attr struct {
+	Name             string          `json:"__name"`
+	Acknowledgement  int             `json:"acknowledgement"`
+	LastCheckResults LastCheckResult `json:"last_check_result"`
+	NextCheck        float64         `json:"next_check"`
+	State            int             `json:"state"`
+	StateType        int             `json:"state_type"`
+	Type             string          `json:"type"`
+}
+
+type Result struct {
+	Attrs Attr   `json:"attrs"`
+	Name  string `json:"name"`
+	Type  string `json:"type"`
+}
+
 type ObjectResults struct {
-	Results []struct {
-		Attrs struct {
-			Name            string `json:"__name"`
-			Acknowledgement int    `json:"acknowledgement"`
-			LastCheckResult struct {
-				Output          string `json:"output"`
-				PerformanceData any    `json:"performance_data"`
-				State           int    `json:"state"`
-				Type            string `json:"type"`
-			} `json:"last_check_result"`
-			NextCheck float64 `json:"next_check"`
-			State     int     `json:"state"`
-			StateType int     `json:"state_type"`
-			Type      string  `json:"type"`
-		} `json:"attrs"`
-		Name string `json:"name"`
-		Type string `json:"type"`
-	} `json:"results"`
+	Results []Result `json:"results"`
 }
 
 type ErrorPage struct {
 	Error  int    `json:"error"`
 	Status string `json:"status"`
+}
+
+func eventToRequest(event Event, objectName string, objectType string) Result {
+	ack := 0
+	if event.Acknowledgement {
+		ack = 1
+	}
+
+	return Result{
+		Attrs: Attr{
+			Name:            objectName,
+			Acknowledgement: ack,
+			LastCheckResults: LastCheckResult{
+				Output:          event.CheckResult.Output,
+				PerformanceData: event.CheckResult.PerformanceData,
+				State:           event.CheckResult.State,
+				Type:            objectType,
+			},
+			State:     event.CheckResult.State,
+			StateType: event.CheckResult.VarsAfter.StateType,
+			Type:      objectType,
+		},
+		Name: objectName,
+		Type: objectType,
+	}
 }
 
 func getObjectHandler(w http.ResponseWriter, r *http.Request) {
@@ -311,35 +353,87 @@ func getObjectHandler(w http.ResponseWriter, r *http.Request) {
 	if objectFilter != "" {
 		params.Set("filter", objectFilter)
 	}
-	requestURL = requestURL + "?" + strings.Replace(params.Encode(), "+", "%20", -1)
 
-	response, err := icingaRequest(requestURL, dashboardTitle)
-	if err != nil {
-		log.Println("Error getting response: %w", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
+	slug := strings.Split(dashboardTitle, "/")[1]
+	keymap := ""
+	cache := false
 
-	w.WriteHeader(response.StatusCode)
-	w.Header().Set("content-type", "application/json")
-	dec := json.NewDecoder(response.Body)
-	defer response.Body.Close()
-
-	if response.StatusCode == 200 {
-		var objects ObjectResults
-		err := dec.Decode(&objects)
-		if err != nil {
-			log.Println("Failed to decode response: %w", err)
+	if val, ok := dashboardMap[slug]; ok {
+		for key, element := range dashboardMap[slug] {
+			for i := range element {
+				if objectName != "" {
+					if key == objectName && val[key][i].ObjectResponse.Name != "" {
+						keymap = key
+						cache = true
+					}
+				} else if objectFilter != "" {
+					if key == objectFilter && val[key][i].ObjectResponse.Name != "" {
+						keymap = key
+						cache = true
+					}
+				}
+			}
 		}
-		b, err := json.Marshal(objects)
+	}
+	if cache {
+		res := []Result{}
+
+		for i := range dashboardMap[slug][keymap] {
+			res = append(res, dashboardMap[slug][keymap][i].ObjectResponse)
+		}
+		obj := ObjectResults{
+			Results: res,
+		}
+
+		b, err := json.Marshal(obj)
 		if err != nil {
 			log.Printf("Error: %s\n", err)
 			return
 		}
-
+		fmt.Println("Using cached response: ", string(b))
 		w.Write(b)
 	} else {
-		handleError(w, dec, dashboardTitle)
+		requestURL = requestURL + "?" + strings.Replace(params.Encode(), "+", "%20", -1)
+
+		response, err := icingaRequest(requestURL, dashboardTitle)
+		if err != nil {
+			log.Println("Error getting response:", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		w.WriteHeader(response.StatusCode)
+		w.Header().Set("content-type", "application/json")
+		dec := json.NewDecoder(response.Body)
+		defer response.Body.Close()
+
+		if response.StatusCode == 200 {
+			var objects ObjectResults
+			err := dec.Decode(&objects)
+			if err != nil {
+				log.Println("Failed to decode response:", err)
+			}
+			b, err := json.Marshal(objects)
+			if err != nil {
+				log.Printf("Error: %s\n", err)
+				return
+			}
+
+			if objectName != "" {
+				dashboardMap[slug][objectName] = []ElementCache{}
+				for i := range objects.Results {
+					dashboardMap[slug][objectName] = append(dashboardMap[slug][objectName], ElementCache{ObjectName: objects.Results[i].Attrs.Name, ObjectType: objectType, ObjectResponse: objects.Results[i]})
+				}
+
+				params.Set("service", objectName)
+			} else if objectFilter != "" {
+				params.Set("filter", objectFilter)
+			}
+
+			w.Write(b)
+		} else {
+			handleError(w, dec, dashboardTitle)
+		}
 	}
 }
 
@@ -350,7 +444,7 @@ func handleError(w http.ResponseWriter, dec *json.Decoder, dashboardTitle string
 		log.Printf("Bad response from icinga: %s %v %s", dashboardTitle, errorPage.Error, errorPage.Status)
 	}
 	if err != nil {
-		log.Println("Failed to decode response: %w", err)
+		log.Println("Failed to decode response:", err)
 	}
 	b, err := json.Marshal(errorPage)
 	if err != nil {
@@ -387,14 +481,14 @@ func getAllHandler(w http.ResponseWriter, r *http.Request) {
 	dashboardTitle := r.URL.Query().Get("title")
 	response, err := icingaRequest("/v1/objects/"+objectType+"?attrs=name", dashboardTitle)
 	if err != nil {
-		log.Println("Error getting response: %w", err)
+		log.Println("Error getting response:", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	defer response.Body.Close()
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		log.Println("Error reading response: %w", err)
+		log.Println("Error reading response:", err)
 	}
 	w.Header().Set("content-type", "application/json")
 	w.Write(body)
@@ -448,13 +542,13 @@ func icingaRequest(apiPath string, dashboardTitle string) (*http.Response, error
 	}
 	icingaURL, err := url.Parse(config.IcingaURL)
 	if err != nil {
-		log.Println("Failed to parse IcingaURL: %w", err)
+		log.Println("Failed to parse IcingaURL:", err)
 		return nil, err
 	}
 
 	pathURL, err := url.Parse(apiPath)
 	if err != nil {
-		log.Println("Failed to parse API Path: %w", err)
+		log.Println("Failed to parse API Path:", err)
 		return nil, err
 	}
 	if config.IcingaDebug {
@@ -464,7 +558,7 @@ func icingaRequest(apiPath string, dashboardTitle string) (*http.Response, error
 	req.Header.Set("accept", "application/json")
 	req.SetBasicAuth(config.IcingaUsername, config.IcingaPassword)
 	if err != nil {
-		log.Println("Failed to create request: %w", err)
+		log.Println("Failed to create request:", err)
 		addRequest(Requests{CallMade: apiPath, CallTime: time.Now().UnixMilli(), Dashboard: dashboardTitle, StatusCode: 0})
 		return nil, err
 	}
@@ -472,7 +566,7 @@ func icingaRequest(apiPath string, dashboardTitle string) (*http.Response, error
 	res, err := client.Do(req)
 
 	if err != nil {
-		log.Println("Icinga2 API error: %w", err)
+		log.Println("Icinga2 API error:", err)
 		addRequest(Requests{CallMade: apiPath, CallTime: time.Now().UnixMilli(), Dashboard: dashboardTitle, StatusCode: 0})
 		return nil, err
 	}
@@ -487,18 +581,18 @@ func checkProgramStart() float64 {
 	response, err := icingaRequest("/v1/status/IcingaApplication", config.HTTPAddr)
 	if err != nil {
 		// Handle error (for example, by logging it and returning a default value)
-		log.Println("Failed to make request: %w", err)
+		log.Println("Failed to make request:", err)
 		return 0
 	}
 	defer response.Body.Close()
 	b, err := io.ReadAll(response.Body)
 	if err != nil {
-		log.Println("Failed to read response: %w", err)
+		log.Println("Failed to read response:", err)
 		return 0
 	}
 	err = json.Unmarshal(b, &statusCheck)
 	if err != nil {
-		log.Println("Failed to unmarshall response: %w", err)
+		log.Println("Failed to unmarshall response:", err)
 		return 0
 	}
 	for _, v := range statusCheck.Results {

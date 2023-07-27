@@ -19,10 +19,5 @@ test("group to object", () => {
 		if (obj.attrs.state != tt.state) {
 			throw new Error(`want state ${tt.state}, got ${obj.attrs.state}`);
 		}
-		if (obj.attrs.next_check != tt.next_check) {
-			throw new Error(
-				`want soonest check ${tt.next_check}, got ${obj.attrs.next_check}`
-			);
-		}
 	}
 });

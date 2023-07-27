@@ -25,34 +25,60 @@ var server *sse.Server
 var icingaLog log.Logger
 var status Status
 var requestList []Requests
+var dashboardMap map[string]map[string][]ElementCache
+var mapLock = sync.RWMutex{}
 
-type Events struct {
-	Name         string `json:"name"`
-	EventType    string `json:"type"`
-	ReceivedTime int64  `json:"received_time"`
-}
-
-type EventList struct {
-	sync.RWMutex
-	events []Events
+type ElementCache struct {
+	ObjectName     string
+	ObjectResponse Result
+	ObjectType     string
 }
 
 var eventList EventList
 
-func addEvent(event string, eventType string) {
-	eventList.Lock()
-	defer eventList.Unlock()
-	eventList.events = append(eventList.events, Events{Name: event, EventType: eventType, ReceivedTime: time.Now().UnixMilli()})
+func deleteDashboardMap(slug string) {
+	mapLock.Lock()
+	defer mapLock.Unlock()
+	delete(dashboardMap, slug)
 }
 
-func getEvents() []Events {
-	eventList.RLock()
-	defer eventList.RUnlock()
-	values := make([]Events, len(eventList.events))
-	for i, event := range eventList.events {
-		values[i] = event
+func updateDashboardMap(slug string) {
+	mapLock.Lock()
+	defer mapLock.Unlock()
+	dashboard, err := meerkat.ReadDashboard(path.Join("dashboards", slug+".json"))
+	delete(dashboardMap, slug)
+	if err == nil {
+		for i := range dashboard.Elements {
+			if dashboard.Elements[i].Options.ObjectName != "" {
+				dashboardMap[dashboard.Slug] = make(map[string][]ElementCache)
+				cache := ElementCache{ObjectName: dashboard.Elements[i].Options.ObjectName, ObjectResponse: Result{}, ObjectType: dashboard.Elements[i].Options.ObjectType}
+				dashboardMap[dashboard.Slug][dashboard.Elements[i].Options.ObjectName] = append(dashboardMap[dashboard.Slug][dashboard.Elements[i].Options.ObjectName], cache)
+			}
+		}
+		fmt.Println("Updated dashboard:", slug, dashboardMap[slug])
 	}
-	return values
+}
+
+func createDashboardMap() {
+	mapLock.Lock()
+	defer mapLock.Unlock()
+	dashboardMap = make(map[string]map[string][]ElementCache)
+	dashboards, err := meerkat.ReadDashboardDir("dashboards")
+	if err == nil {
+		for dashboard := range dashboards {
+			status.Meerkat.Dashboards = append(status.Meerkat.Dashboards, Dashboard{Title: dashboards[dashboard].Title, Slug: dashboards[dashboard].Slug, Folder: dashboards[dashboard].Folder, CurrentlyOpenBy: []string{}})
+			server.CreateStream(dashboards[dashboard].Slug)
+			for i := range dashboards[dashboard].Elements {
+				if dashboards[dashboard].Elements[i].Options.ObjectName != "" {
+					if _, ok := dashboardMap[dashboards[dashboard].Slug][dashboards[dashboard].Elements[i].Options.ObjectName]; !ok {
+						dashboardMap[dashboards[dashboard].Slug] = make(map[string][]ElementCache)
+						cache := ElementCache{ObjectName: dashboards[dashboard].Elements[i].Options.ObjectName, ObjectResponse: Result{}, ObjectType: dashboards[dashboard].Elements[i].Options.ObjectType}
+						dashboardMap[dashboards[dashboard].Slug][dashboards[dashboard].Elements[i].Options.ObjectName] = append(dashboardMap[dashboards[dashboard].Slug][dashboards[dashboard].Elements[i].Options.ObjectName], cache)
+					}
+				}
+			}
+		}
+	}
 }
 
 func main() {
@@ -139,7 +165,7 @@ func main() {
 		server.AutoReplay = false
 		server.AutoStream = false
 		server.CreateStream("updates")
-		server.CreateStream("icinga")
+		//server.CreateStream("icinga")
 
 		eventList = EventList{}
 		go func() {
@@ -164,7 +190,8 @@ func main() {
 			}
 		}()
 
-		r.HandleFunc("/events", server.ServeHTTP)
+		createDashboardMap()
+		createEventStream(r)
 	}
 
 	// Previous versions of meerkat served user-uploaded files from this directory.
@@ -226,6 +253,7 @@ func main() {
 			}
 			if previousCheck != currentCheck && previousCheck != 0 && currentCheck != 0 {
 				log.Printf("Icinga reloaded prev: %v curr: %v\n", previousCheck, currentCheck)
+				createDashboardMap()
 				UpdateAll()
 			}
 			previousCheck = currentCheck

@@ -66,14 +66,12 @@ export function groupToObject(group, member) {
 		var object = {
 			name: member[i].attrs.__name,
 			state: member[i].attrs.last_check_result.state,
-			next_check: member[i].attrs.next_check,
 		};
 
 		members[i] = object;
 	}
 
 	let o = group;
-	o.attrs.next_check = soonestCheck(members);
 	o.attrs.state = worstState(members);
 	o.source = {};
 	for (let i = 0; i < members.length; i++) {
@@ -92,7 +90,6 @@ export function objectsToSingle(name, objects) {
 	let obj = {
 		name: name,
 		attrs: {
-			next_check: soonestCheck(objects),
 			state: worstState(objects),
 		},
 		source: {},
@@ -103,19 +100,6 @@ export function objectsToSingle(name, objects) {
 		obj.source[name] = objects[i];
 	}
 	return obj;
-}
-
-// soonestCheck returns the Unix timestamp of the next check to be scheduled by Icinga from objects.
-// A timestamp is used instead of a native Date type to maintain precision beyond milliseconds
-// for consistency with Icinga.
-function soonestCheck(objects) {
-	let soonest = 0;
-	for (let i = 0; i < objects.length; i++) {
-		if (soonest - objects[i].next_check < 0) {
-			soonest = objects[i].next_check;
-		}
-	}
-	return soonest;
 }
 
 export function worstState(objects) {
