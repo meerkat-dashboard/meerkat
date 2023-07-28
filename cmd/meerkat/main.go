@@ -11,6 +11,7 @@ import (
 	"net/url"
 	"os"
 	"path"
+	"sync"
 	"time"
 
 	"github.com/dgraph-io/ristretto"
@@ -25,17 +26,21 @@ var server *sse.Server
 var icingaLog log.Logger
 var status Status
 var requestList []Requests
+var dashboardCache map[string][]ElementStore
+var mapLock = &sync.RWMutex{}
 var cache *ristretto.Cache
 
-type ElementCache struct {
-	ObjectName     string
-	ObjectResponse Result
-	ObjectType     string
+type ElementStore struct {
+	Name    string   `json:"name"`
+	Type    string   `json:"type"`
+	Objects []string `json:"objects"`
 }
 
 var eventList EventList
 
 func updateDashboardCache(slug string) {
+	mapLock.Lock()
+	defer mapLock.Unlock()
 	dashboard, err := meerkat.ReadDashboard(path.Join("dashboards", slug+".json"))
 	if err != nil {
 		log.Println("Error reading dashboard:", err)
@@ -43,23 +48,21 @@ func updateDashboardCache(slug string) {
 	}
 	for _, element := range dashboard.Elements {
 		if len(element.Options.ObjectName) != 0 {
-			cachedMap := make(map[string][]ElementCache)
-			elementCache := ElementCache{ObjectName: element.Options.ObjectName, ObjectResponse: Result{}, ObjectType: element.Options.ObjectType}
-			cachedMap[element.Options.ObjectName] = append(cachedMap[element.Options.ObjectName], elementCache)
-
-			cache.Set(dashboard.Slug, cachedMap, 1)
-			cache.Wait()
+			dashboardCache[dashboard.Slug] = append(dashboardCache[dashboard.Slug], ElementStore{Name: element.Options.ObjectName, Type: element.Options.ObjectType})
 		}
 	}
 }
 
 func createDashboardCache() {
+	mapLock.Lock()
+	defer mapLock.Unlock()
 	dashboards, err := meerkat.ReadDashboardDir("dashboards")
 	if err != nil {
 		log.Println("Error reading dashboards:", err)
 		return
 	}
 	cache.Clear()
+	dashboardCache = make(map[string][]ElementStore)
 	for _, dashboard := range dashboards {
 		status.Meerkat.Dashboards = append(status.Meerkat.Dashboards,
 			Dashboard{
@@ -72,12 +75,7 @@ func createDashboardCache() {
 
 		for _, element := range dashboard.Elements {
 			if len(element.Options.ObjectName) != 0 {
-				cachedMap := make(map[string][]ElementCache)
-				elementCache := ElementCache{ObjectName: element.Options.ObjectName, ObjectResponse: Result{}, ObjectType: element.Options.ObjectType}
-				cachedMap[element.Options.ObjectName] = append(cachedMap[element.Options.ObjectName], elementCache)
-
-				cache.Set(dashboard.Slug, cachedMap, 1)
-				cache.Wait()
+				dashboardCache[dashboard.Slug] = append(dashboardCache[dashboard.Slug], ElementStore{Name: element.Options.ObjectName, Type: element.Options.ObjectType})
 			}
 		}
 	}
@@ -85,14 +83,14 @@ func createDashboardCache() {
 
 func main() {
 	configFile := flag.String("config", defaultConfigPath, "load configuration from this file")
-	vflag := flag.Bool("v", false, "build version information")
+	//vflag := flag.Bool("v", false, "build version information")
 	fflag := flag.String("ui", "", "user interface directory")
 	flag.Parse()
 
-	if *vflag {
-		log.Println(meerkat.BuildString())
-		return
-	}
+	//if *vflag {
+	//	log.Println(meerkat.BuildString())
+	//	return
+	//}
 
 	var err error
 	config, err = LoadConfig(*configFile)
@@ -233,6 +231,7 @@ func main() {
 	r.Get("/api/all", getAllHandler)
 	r.Get("/api/objects", getObjectHandler)
 	r.Get("/api/status", getStatusHandler)
+	r.Get("/api/cache/*", getCacheHandler)
 
 	r.Get("/{slug}/update", UpdateHandler)
 

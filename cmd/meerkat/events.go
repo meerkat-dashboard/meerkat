@@ -68,27 +68,38 @@ func handleEvent(response string) error {
 		name = name + "!" + event.Service
 	}
 
-	for _, dashboard := range status.Meerkat.Dashboards {
-		dashboardCache, found := cache.Get(dashboard.Slug)
-		if found {
-			mapCache := dashboardCache.(map[string][]ElementCache)
-			modified := false
-			for key, elementListCache := range mapCache {
-				for k, elementCache := range elementListCache {
-					if elementCache.ObjectName == name {
-						mapCache[key][k].ObjectResponse = eventToRequest(event, name, mapCache[key][k].ObjectType)
-						modified = true
-						server.Publish(dashboard.Slug, &sse.Event{
-							Event: []byte(event.Type),
-							Data:  []byte(name),
-						})
-						//fmt.Println("Publish Event:", event.Type, name, key)
+	mapLock.RLock()
+	defer mapLock.RUnlock()
+
+	for key, elementList := range dashboardCache {
+		for _, element := range elementList {
+			results := []Result{}
+			found := false
+			for _, objectName := range element.Objects {
+				if objectName == name {
+					found = true
+					req := eventToRequest(event, name, element.Type)
+					results = append(results, req)
+					cache.Set(objectName, req, 1)
+					cache.Wait()
+				} else {
+					value, ok := cache.Get(objectName)
+					if ok {
+						results = append(results, value.(Result))
 					}
 				}
 			}
-			if modified {
-				cache.Set(dashboard.Slug, mapCache, 1)
-				cache.Wait()
+			if found {
+				body, err := json.Marshal(results)
+				if err != nil {
+					return err
+				}
+
+				server.Publish(key, &sse.Event{
+					Event: []byte(event.Type),
+					Data:  []byte(body),
+				})
+				//fmt.Println("Publish Event:", event.Type, name, key, len(results))
 			}
 		}
 	}
@@ -235,7 +246,6 @@ func createEventStream(r *chi.Mux) {
 			} else {
 				<-r.Context().Done()
 			}
-			//return
 		}()
 
 		server.ServeHTTP(w, r)

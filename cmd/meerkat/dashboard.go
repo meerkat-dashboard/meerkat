@@ -24,6 +24,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/meerkat-dashboard/meerkat"
 	"github.com/r3labs/sse/v2"
+	"golang.org/x/exp/slices"
 )
 
 type Requests struct {
@@ -215,6 +216,8 @@ func handleUpdateDashboard(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleDeleteDashboard(w http.ResponseWriter, req *http.Request) {
+	mapLock.Lock()
+	defer mapLock.Unlock()
 	slug, _ := path.Split(req.URL.Path)
 	slug = path.Clean(slug)
 	fname := path.Join("dashboards", slug+".json")
@@ -226,8 +229,10 @@ func handleDeleteDashboard(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, "remove dashboard: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
+
 	cache.Del(slug)
 	server.RemoveStream(slug)
+	delete(dashboardCache, slug)
 	log.Printf("Deleted dashboard %s\n", fname)
 	http.RedirectHandler("/", http.StatusFound).ServeHTTP(w, req)
 }
@@ -359,21 +364,22 @@ func getObjectHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	slug := strings.Split(dashboardTitle, "/")[1]
-
-	cachedResults := []Result{}
 	isCached := false
-	dashboardCache, found := cache.Get(slug)
-	if found {
-		mapCache := dashboardCache.(map[string][]ElementCache)
-		for key, elementListCache := range mapCache {
-			for _, elementCache := range elementListCache {
-				if key == name && len(elementCache.ObjectResponse.Name) != 0 {
-					cachedResults = append(cachedResults, elementCache.ObjectResponse)
+	cachedResults := []Result{}
+
+	mapLock.RLock()
+	for _, element := range dashboardCache[slug] {
+		if element.Name == name && len(element.Name) != 0 {
+			for _, objectName := range element.Objects {
+				objectCache, found := cache.Get(objectName)
+				if found {
+					cachedResults = append(cachedResults, objectCache.(Result))
 					isCached = true
 				}
 			}
 		}
 	}
+	mapLock.RUnlock()
 
 	if isCached {
 		objects := ObjectResults{
@@ -415,15 +421,18 @@ func getObjectHandler(w http.ResponseWriter, r *http.Request) {
 			}
 
 			if len(name) != 0 {
-				elementCache := []ElementCache{}
-				for _, result := range objects.Results {
-					elementCache = append(elementCache, ElementCache{ObjectName: result.Attrs.Name, ObjectType: objectType, ObjectResponse: result})
-				}
-				if found {
-					cachedObject := dashboardCache.(map[string][]ElementCache)
-					cachedObject[name] = elementCache
-					cache.Set(slug, cachedObject, 1)
-					cache.Wait()
+				mapLock.Lock()
+				defer mapLock.Unlock()
+				for i, elementStore := range dashboardCache[slug] {
+					if elementStore.Name == name {
+						for _, result := range objects.Results {
+							cache.Set(result.Attrs.Name, result, 1)
+							cache.Wait()
+							if !slices.Contains(dashboardCache[slug][i].Objects, result.Attrs.Name) {
+								dashboardCache[slug][i].Objects = append(dashboardCache[slug][i].Objects, result.Attrs.Name)
+							}
+						}
+					}
 				}
 			}
 
@@ -469,6 +478,30 @@ func getStatusHandler(w http.ResponseWriter, r *http.Request) {
 
 	if _, err := io.Copy(w, bytes.NewReader(body)); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
+func getCacheHandler(w http.ResponseWriter, r *http.Request) {
+	paths := strings.Split(r.URL.Path, "/")
+	if len(paths) >= 3 {
+		slug := paths[3]
+		mapLock.RLock()
+		defer mapLock.RUnlock()
+
+		body, err := json.Marshal(dashboardCache[slug])
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+
+		if _, err := io.Copy(w, bytes.NewReader(body)); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	} else {
+		http.Error(w, "Invalid path", http.StatusInternalServerError)
 		return
 	}
 }

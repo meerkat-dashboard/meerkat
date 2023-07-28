@@ -363,10 +363,23 @@ export function CheckSVG({ events, options, dashboard }) {
 		}
 	};
 
-	const handleEvent = useCallback((event) => {
-		if (objectState && objectState.name.includes(event.data)) {
-			handleUpdate();
-			setSoundEvent(true);
+	const handleEvent = useCallback(async (event) => {
+		let objects = await meerkat.handleJSONList(JSON.parse(event.data));
+		for (let i = 0; i < objects.length; i++) {
+			if (objectState && objects[i].name == objectState.name) {
+				let obj = objects[i];
+				if (
+					objects.length > 1 &&
+					(options.objectType.endsWith("group") ||
+						options.objectType.endsWith("filter"))
+				) {
+					obj = IcingaJS.worstObject(objects);
+				}
+				setObjectState(obj);
+				parseUpdate(obj);
+
+				setSoundEvent(true);
+			}
 		}
 	});
 
