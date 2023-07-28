@@ -11,9 +11,9 @@ import (
 	"net/url"
 	"os"
 	"path"
-	"sync"
 	"time"
 
+	"github.com/dgraph-io/ristretto"
 	"github.com/go-chi/chi/v5"
 	"github.com/meerkat-dashboard/meerkat"
 	"github.com/meerkat-dashboard/meerkat/ui"
@@ -25,8 +25,7 @@ var server *sse.Server
 var icingaLog log.Logger
 var status Status
 var requestList []Requests
-var dashboardMap map[string]map[string][]ElementCache
-var mapLock = sync.RWMutex{}
+var cache *ristretto.Cache
 
 type ElementCache struct {
 	ObjectName     string
@@ -36,46 +35,49 @@ type ElementCache struct {
 
 var eventList EventList
 
-func deleteDashboardMap(slug string) {
-	mapLock.Lock()
-	defer mapLock.Unlock()
-	delete(dashboardMap, slug)
-}
-
-func updateDashboardMap(slug string) {
-	mapLock.Lock()
-	defer mapLock.Unlock()
+func updateDashboardCache(slug string) {
 	dashboard, err := meerkat.ReadDashboard(path.Join("dashboards", slug+".json"))
-	delete(dashboardMap, slug)
-	if err == nil {
-		for i := range dashboard.Elements {
-			if dashboard.Elements[i].Options.ObjectName != "" {
-				dashboardMap[dashboard.Slug] = make(map[string][]ElementCache)
-				cache := ElementCache{ObjectName: dashboard.Elements[i].Options.ObjectName, ObjectResponse: Result{}, ObjectType: dashboard.Elements[i].Options.ObjectType}
-				dashboardMap[dashboard.Slug][dashboard.Elements[i].Options.ObjectName] = append(dashboardMap[dashboard.Slug][dashboard.Elements[i].Options.ObjectName], cache)
-			}
+	if err != nil {
+		log.Println("Error reading dashboard:", err)
+		return
+	}
+	for _, element := range dashboard.Elements {
+		if len(element.Options.ObjectName) != 0 {
+			cachedMap := make(map[string][]ElementCache)
+			elementCache := ElementCache{ObjectName: element.Options.ObjectName, ObjectResponse: Result{}, ObjectType: element.Options.ObjectType}
+			cachedMap[element.Options.ObjectName] = append(cachedMap[element.Options.ObjectName], elementCache)
+
+			cache.Set(dashboard.Slug, cachedMap, 1)
+			cache.Wait()
 		}
-		fmt.Println("Updated dashboard:", slug, dashboardMap[slug])
 	}
 }
 
-func createDashboardMap() {
-	mapLock.Lock()
-	defer mapLock.Unlock()
-	dashboardMap = make(map[string]map[string][]ElementCache)
+func createDashboardCache() {
 	dashboards, err := meerkat.ReadDashboardDir("dashboards")
-	if err == nil {
-		for dashboard := range dashboards {
-			status.Meerkat.Dashboards = append(status.Meerkat.Dashboards, Dashboard{Title: dashboards[dashboard].Title, Slug: dashboards[dashboard].Slug, Folder: dashboards[dashboard].Folder, CurrentlyOpenBy: []string{}})
-			server.CreateStream(dashboards[dashboard].Slug)
-			for i := range dashboards[dashboard].Elements {
-				if dashboards[dashboard].Elements[i].Options.ObjectName != "" {
-					if _, ok := dashboardMap[dashboards[dashboard].Slug][dashboards[dashboard].Elements[i].Options.ObjectName]; !ok {
-						dashboardMap[dashboards[dashboard].Slug] = make(map[string][]ElementCache)
-						cache := ElementCache{ObjectName: dashboards[dashboard].Elements[i].Options.ObjectName, ObjectResponse: Result{}, ObjectType: dashboards[dashboard].Elements[i].Options.ObjectType}
-						dashboardMap[dashboards[dashboard].Slug][dashboards[dashboard].Elements[i].Options.ObjectName] = append(dashboardMap[dashboards[dashboard].Slug][dashboards[dashboard].Elements[i].Options.ObjectName], cache)
-					}
-				}
+	if err != nil {
+		log.Println("Error reading dashboards:", err)
+		return
+	}
+	cache.Clear()
+	for _, dashboard := range dashboards {
+		status.Meerkat.Dashboards = append(status.Meerkat.Dashboards,
+			Dashboard{
+				Title:           dashboard.Title,
+				Slug:            dashboard.Slug,
+				Folder:          dashboard.Folder,
+				CurrentlyOpenBy: []string{},
+			})
+		server.CreateStream(dashboard.Slug)
+
+		for _, element := range dashboard.Elements {
+			if len(element.Options.ObjectName) != 0 {
+				cachedMap := make(map[string][]ElementCache)
+				elementCache := ElementCache{ObjectName: element.Options.ObjectName, ObjectResponse: Result{}, ObjectType: element.Options.ObjectType}
+				cachedMap[element.Options.ObjectName] = append(cachedMap[element.Options.ObjectName], elementCache)
+
+				cache.Set(dashboard.Slug, cachedMap, 1)
+				cache.Wait()
 			}
 		}
 	}
@@ -142,12 +144,15 @@ func main() {
 			log.Fatalf("error opening file: %v", err)
 		}
 		defer f.Close()
-		if config.LogConsole && config.LogFile {
+		switch {
+		case config.LogConsole && config.LogFile:
 			multi := io.MultiWriter(f, os.Stdout)
 			icingaLog = *log.New(multi, "", log.Ldate|log.Ltime)
-		} else if config.LogConsole {
+			break
+		case config.LogConsole:
 			icingaLog = *log.New(os.Stdout, "", log.Ldate|log.Ltime)
-		} else if config.LogFile {
+			break
+		case config.LogFile:
 			icingaLog = *log.New(f, "", log.Ldate|log.Ltime)
 		}
 	}
@@ -165,7 +170,6 @@ func main() {
 		server.AutoReplay = false
 		server.AutoStream = false
 		server.CreateStream("updates")
-		//server.CreateStream("icinga")
 
 		eventList = EventList{}
 		go func() {
@@ -190,7 +194,16 @@ func main() {
 			}
 		}()
 
-		createDashboardMap()
+		cache, err = ristretto.NewCache(&ristretto.Config{
+			NumCounters: 1e7,     // number of keys to track frequency of (10M).
+			MaxCost:     1 << 30, // maximum cost of cache (1GB).
+			BufferItems: 64,      // number of keys per Get buffer.
+		})
+		if err != nil {
+			panic(err)
+		}
+
+		createDashboardCache()
 		createEventStream(r)
 	}
 
@@ -253,7 +266,7 @@ func main() {
 			}
 			if previousCheck != currentCheck && previousCheck != 0 && currentCheck != 0 {
 				log.Printf("Icinga reloaded prev: %v curr: %v\n", previousCheck, currentCheck)
-				createDashboardMap()
+				createDashboardCache()
 				UpdateAll()
 			}
 			previousCheck = currentCheck

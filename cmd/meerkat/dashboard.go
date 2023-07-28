@@ -131,7 +131,7 @@ func handleCreateDashboard(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, msg, http.StatusInternalServerError)
 		return
 	}
-	updateDashboardMap(dashboard.Slug)
+	updateDashboardCache(dashboard.Slug)
 	log.Printf("Created dashboard %s\n", fpath)
 	u := path.Join("/", dashboard.Slug, "edit")
 	http.Redirect(w, req, u, http.StatusFound)
@@ -171,7 +171,7 @@ func handleCloneDashboard(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, msg, http.StatusInternalServerError)
 		return
 	}
-	updateDashboardMap(dest.Slug)
+	updateDashboardCache(dest.Slug)
 	log.Printf("Cloned dashboard %s\n", destPath)
 	new := path.Join("/", dest.Slug, "edit")
 	next := http.RedirectHandler(new, http.StatusFound)
@@ -210,7 +210,7 @@ func handleUpdateDashboard(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	updateDashboardMap(slug)
+	updateDashboardCache(slug)
 	log.Printf("Updated dashboard %s\n", path.Join("dashboards", slug+".json"))
 }
 
@@ -226,7 +226,8 @@ func handleDeleteDashboard(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, "remove dashboard: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
-	deleteDashboardMap(slug)
+	cache.Del(slug)
+	server.RemoveStream(slug)
 	log.Printf("Deleted dashboard %s\n", fname)
 	http.RedirectHandler("/", http.StatusFound).ServeHTTP(w, req)
 }
@@ -290,7 +291,6 @@ type Attr struct {
 	Name             string          `json:"__name"`
 	Acknowledgement  int             `json:"acknowledgement"`
 	LastCheckResults LastCheckResult `json:"last_check_result"`
-	NextCheck        float64         `json:"next_check"`
 	State            int             `json:"state"`
 	StateType        int             `json:"state_type"`
 	Type             string          `json:"type"`
@@ -346,54 +346,49 @@ func getObjectHandler(w http.ResponseWriter, r *http.Request) {
 	requestURL := "/v1/objects/" + objectType
 	params := url.Values{}
 
+	name := ""
+
 	if objectName != "" {
 		params.Set("service", objectName)
+		name = objectName
 	}
 
 	if objectFilter != "" {
 		params.Set("filter", objectFilter)
+		name = objectFilter
 	}
 
 	slug := strings.Split(dashboardTitle, "/")[1]
-	keymap := ""
-	cache := false
 
-	if val, ok := dashboardMap[slug]; ok {
-		for key, element := range dashboardMap[slug] {
-			for i := range element {
-				if objectName != "" {
-					if key == objectName && val[key][i].ObjectResponse.Name != "" {
-						keymap = key
-						cache = true
-					}
-				} else if objectFilter != "" {
-					if key == objectFilter && val[key][i].ObjectResponse.Name != "" {
-						keymap = key
-						cache = true
-					}
+	cachedResults := []Result{}
+	isCached := false
+	dashboardCache, found := cache.Get(slug)
+	if found {
+		mapCache := dashboardCache.(map[string][]ElementCache)
+		for key, elementListCache := range mapCache {
+			for _, elementCache := range elementListCache {
+				if key == name && len(elementCache.ObjectResponse.Name) != 0 {
+					cachedResults = append(cachedResults, elementCache.ObjectResponse)
+					isCached = true
 				}
 			}
 		}
 	}
-	if cache {
-		res := []Result{}
 
-		for i := range dashboardMap[slug][keymap] {
-			res = append(res, dashboardMap[slug][keymap][i].ObjectResponse)
-		}
-		obj := ObjectResults{
-			Results: res,
+	if isCached {
+		objects := ObjectResults{
+			Results: cachedResults,
 		}
 
-		b, err := json.Marshal(obj)
+		b, err := json.Marshal(objects)
 		if err != nil {
 			log.Printf("Error: %s\n", err)
 			return
 		}
-		fmt.Println("Using cached response: ", string(b))
+		icingaLog.Println("Using cached response:", slug, objectName, objectFilter)
 		w.Write(b)
 	} else {
-		requestURL = requestURL + "?" + strings.Replace(params.Encode(), "+", "%20", -1)
+		requestURL = requestURL + "?" + strings.ReplaceAll(params.Encode(), "+", "%20")
 
 		response, err := icingaRequest(requestURL, dashboardTitle)
 		if err != nil {
@@ -419,15 +414,17 @@ func getObjectHandler(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-			if objectName != "" {
-				dashboardMap[slug][objectName] = []ElementCache{}
-				for i := range objects.Results {
-					dashboardMap[slug][objectName] = append(dashboardMap[slug][objectName], ElementCache{ObjectName: objects.Results[i].Attrs.Name, ObjectType: objectType, ObjectResponse: objects.Results[i]})
+			if len(name) != 0 {
+				elementCache := []ElementCache{}
+				for _, result := range objects.Results {
+					elementCache = append(elementCache, ElementCache{ObjectName: result.Attrs.Name, ObjectType: objectType, ObjectResponse: result})
 				}
-
-				params.Set("service", objectName)
-			} else if objectFilter != "" {
-				params.Set("filter", objectFilter)
+				if found {
+					cachedObject := dashboardCache.(map[string][]ElementCache)
+					cachedObject[name] = elementCache
+					cache.Set(slug, cachedObject, 1)
+					cache.Wait()
+				}
 			}
 
 			w.Write(b)

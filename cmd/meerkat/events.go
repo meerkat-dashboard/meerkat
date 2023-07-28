@@ -6,7 +6,6 @@ import (
 	"context"
 	"crypto/tls"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net"
 	"net/http"
@@ -69,23 +68,27 @@ func handleEvent(response string) error {
 		name = name + "!" + event.Service
 	}
 
-	//mapLock.RLock()
-	//defer mapLock.RUnlock()
-
-	mapLock.Lock()
-	defer mapLock.Unlock()
-	for key, element := range dashboardMap {
-		for k, e := range element {
-			for ev := range e {
-				if element[k][ev].ObjectName == name {
-					dashboardMap[key][k][ev].ObjectResponse = eventToRequest(event, name, dashboardMap[key][k][ev].ObjectType)
-					server.Publish(key, &sse.Event{
-						Event: []byte(event.Type),
-						Data:  []byte(name),
-					})
-					fmt.Println("Publish Event:", event.Type, name, key)
-					fmt.Println(dashboardMap)
+	for _, dashboard := range status.Meerkat.Dashboards {
+		dashboardCache, found := cache.Get(dashboard.Slug)
+		if found {
+			mapCache := dashboardCache.(map[string][]ElementCache)
+			modified := false
+			for key, elementListCache := range mapCache {
+				for k, elementCache := range elementListCache {
+					if elementCache.ObjectName == name {
+						mapCache[key][k].ObjectResponse = eventToRequest(event, name, mapCache[key][k].ObjectType)
+						modified = true
+						server.Publish(dashboard.Slug, &sse.Event{
+							Event: []byte(event.Type),
+							Data:  []byte(name),
+						})
+						//fmt.Println("Publish Event:", event.Type, name, key)
+					}
 				}
+			}
+			if modified {
+				cache.Set(dashboard.Slug, mapCache, 1)
+				cache.Wait()
 			}
 		}
 	}
@@ -204,9 +207,6 @@ func getEvents() []Events {
 	eventList.RLock()
 	defer eventList.RUnlock()
 	values := make([]Events, len(eventList.events))
-	//for i, event := range eventList.events {
-	//	values[i] = event
-	//}
 	copy(values, eventList.events)
 	return values
 }
