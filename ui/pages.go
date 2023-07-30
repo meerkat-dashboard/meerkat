@@ -133,6 +133,18 @@ func (srv *Server) DeletePage(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
+func (srv *Server) CachePage(w http.ResponseWriter, req *http.Request) {
+	tmpl, err := template.ParseFS(srv.fsys, "template/layout.tmpl", "template/cache.tmpl", "template/nav.tmpl")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	title := ""
+	if err := tmpl.Execute(w, title); err != nil {
+		log.Println(err)
+	}
+}
+
 func (srv *Server) ClonePage(w http.ResponseWriter, req *http.Request) {
 	dashboards, err := meerkat.ReadDashboardDir("dashboards")
 	if err != nil {

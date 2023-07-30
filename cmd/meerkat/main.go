@@ -231,7 +231,9 @@ func main() {
 	r.Get("/api/all", getAllHandler)
 	r.Get("/api/objects", getObjectHandler)
 	r.Get("/api/status", getStatusHandler)
-	r.Get("/api/cache/*", getCacheHandler)
+	r.Get("/api/cache/*", getCacheDashboardHandler)
+	r.Get("/api/cache", getCacheHandler)
+	r.Delete("/api/cache", clearCacheHandler)
 
 	r.Get("/{slug}/update", UpdateHandler)
 
@@ -241,6 +243,7 @@ func main() {
 	r.Delete("/file/sound", srv.DeleteFileHandler("./dashboards-sound"))
 	r.Get("/file/sound", srv.GetSounds)
 
+	r.Get("/cache", srv.CachePage)
 	r.Get("/view/*", oldPathHandler)
 	r.Get("/edit/*", oldPathHandler)
 	r.Get("/create", srv.CreatePage)

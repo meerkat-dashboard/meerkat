@@ -368,7 +368,9 @@ func getObjectHandler(w http.ResponseWriter, r *http.Request) {
 	cachedResults := []Result{}
 
 	mapLock.RLock()
-	for _, element := range dashboardCache[slug] {
+	dashboardCacheCopy := dashboardCache
+	mapLock.RUnlock()
+	for _, element := range dashboardCacheCopy[slug] {
 		if element.Name == name && len(element.Name) != 0 {
 			for _, objectName := range element.Objects {
 				objectCache, found := cache.Get(objectName)
@@ -379,7 +381,6 @@ func getObjectHandler(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
-	mapLock.RUnlock()
 
 	if isCached {
 		objects := ObjectResults{
@@ -482,14 +483,15 @@ func getStatusHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func getCacheHandler(w http.ResponseWriter, r *http.Request) {
+func getCacheDashboardHandler(w http.ResponseWriter, r *http.Request) {
 	paths := strings.Split(r.URL.Path, "/")
 	if len(paths) >= 3 {
 		slug := paths[3]
 		mapLock.RLock()
-		defer mapLock.RUnlock()
+		dashboardCacheCopy := dashboardCache
+		mapLock.RUnlock()
 
-		body, err := json.Marshal(dashboardCache[slug])
+		body, err := json.Marshal(dashboardCacheCopy[slug])
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -503,6 +505,39 @@ func getCacheHandler(w http.ResponseWriter, r *http.Request) {
 	} else {
 		http.Error(w, "Invalid path", http.StatusInternalServerError)
 		return
+	}
+}
+
+func getCacheHandler(w http.ResponseWriter, r *http.Request) {
+	mapLock.RLock()
+	dashboardCacheCopy := dashboardCache
+	mapLock.RUnlock()
+
+	body, err := json.Marshal(dashboardCacheCopy)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+
+	if _, err := io.Copy(w, bytes.NewReader(body)); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
+func clearCacheHandler(w http.ResponseWriter, r *http.Request) {
+	clearType := r.URL.Query().Get("clear")
+
+	switch clearType {
+	case "dashboard":
+		createDashboardCache()
+		w.Write([]byte("Cleared dashboard cache"))
+	case "object":
+		cache.Clear()
+		w.Write([]byte("Cleared object cache"))
+	default:
+		w.Write([]byte("Failed invalid clear parameter"))
 	}
 }
 
