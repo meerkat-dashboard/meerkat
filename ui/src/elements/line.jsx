@@ -117,7 +117,7 @@ export function CheckLine({ events, options, dashboard }) {
 			if (objectState && objects[i].name == objectState.name) {
 				let obj = objects[i];
 				if (
-					objects.length > 1 &&
+					objects.length > 0 &&
 					(options.objectType.endsWith("group") ||
 						options.objectType.endsWith("filter"))
 				) {
@@ -127,6 +127,7 @@ export function CheckLine({ events, options, dashboard }) {
 				setState(icinga.StateText(obj.state, options.objectType));
 
 				setSoundEvent(true);
+				return;
 			}
 		}
 	});

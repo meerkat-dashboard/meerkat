@@ -369,7 +369,7 @@ export function CheckSVG({ events, options, dashboard }) {
 			if (objectState && objects[i].name == objectState.name) {
 				let obj = objects[i];
 				if (
-					objects.length > 1 &&
+					objects.length > 0 &&
 					(options.objectType.endsWith("group") ||
 						options.objectType.endsWith("filter"))
 				) {
@@ -379,6 +379,7 @@ export function CheckSVG({ events, options, dashboard }) {
 				parseUpdate(obj);
 
 				setSoundEvent(true);
+				return;
 			}
 		}
 	});

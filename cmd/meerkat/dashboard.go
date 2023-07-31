@@ -360,7 +360,16 @@ func getObjectHandler(w http.ResponseWriter, r *http.Request) {
 
 	if objectFilter != "" {
 		params.Set("filter", objectFilter)
-		name = objectFilter
+
+		if objectType == "hosts" && strings.Contains(objectFilter, "\" in host.groups") {
+			name = strings.TrimSuffix(objectFilter, "\" in host.groups")
+			name = strings.TrimPrefix(name, "\"")
+		} else if objectType == "services" && strings.Contains(objectFilter, "\" in service.groups") {
+			name = strings.TrimSuffix(objectFilter, "\" in service.groups")
+			name = strings.TrimPrefix(name, "\"")
+		} else {
+			name = objectFilter
+		}
 	}
 
 	slug := strings.Split(dashboardTitle, "/")[1]

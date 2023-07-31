@@ -337,7 +337,7 @@ export function ObjectCard({ events, options, dashboard }) {
 			if (objectState && objects[i].name == objectState.name) {
 				let obj = objects[i];
 				if (
-					objects.length > 1 &&
+					objects.length > 0 &&
 					(options.objectType.endsWith("group") ||
 						options.objectType.endsWith("filter"))
 				) {
@@ -347,6 +347,7 @@ export function ObjectCard({ events, options, dashboard }) {
 				parseUpdate(obj);
 
 				setSoundEvent(true);
+				return;
 			}
 		}
 	});
@@ -449,6 +450,8 @@ function stateText(typ, state) {
 			case 0:
 				return "up";
 			case 1:
+			case 2:
+			case 3:
 				return "down";
 		}
 	}

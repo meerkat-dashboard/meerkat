@@ -46,6 +46,7 @@ func updateDashboardCache(slug string) {
 		log.Println("Error reading dashboard:", err)
 		return
 	}
+	dashboardCache[dashboard.Slug] = nil
 	for _, element := range dashboard.Elements {
 		if len(element.Options.ObjectName) != 0 {
 			dashboardCache[dashboard.Slug] = append(dashboardCache[dashboard.Slug], ElementStore{Name: element.Options.ObjectName, Type: element.Options.ObjectType})
