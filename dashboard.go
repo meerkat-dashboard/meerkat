@@ -42,9 +42,53 @@ type Element struct {
 }
 
 type Options struct {
-	ObjectAttr string `json:"objectAttr,omitempty"`
-	ObjectName string `json:"objectName,omitempty"`
-	ObjectType string `json:"objectType,omitempty"`
+	ObjectAttr                      string `json:"objectAttr,omitempty"`
+	ObjectName                      string `json:"objectName,omitempty"`
+	ObjectType                      string `json:"objectType,omitempty"`
+	TimeZone                        string `json:"timeZone,omitempty"`
+	FontSize                        string `json:"fontSize,omitempty"`
+	Image                           string `json:"image,omitempty"`
+	Source                          string `json:"source,omitempty"`
+	AudioSource                     string `json:"audioSource,omitempty"`
+	LinkUrl                         string `json:"linkURL,omitempty"`
+	ObjectAttrMatch                 string `json:"objectAttrMatch,omitempty"`
+	ObjectAttrNoMatch               string `json:"objectAttrNoMatch,omitempty"`
+	BoldText                        string `json:"boldText,omitempty"`
+	Text                            string `json:"text,omitempty"`
+	ScrollPeriod                    string `json:"scrollPeriod,omitempty"`
+	BackgroundColor                 string `json:"backgroundColor,omitempty"`
+	FontColor                       string `json:"fontColor,omitempty"`
+	OkFontColor                     string `json:"okFontColor,omitempty"`
+	WarningFontColor                string `json:"warningFontColor,omitempty"`
+	WarningAcknowledgedFontColor    string `json:"warningAcknowledgedFontColor,omitempty"`
+	UnknownFontColor                string `json:"unknownFontColor,omitempty"`
+	UnknownAcknowledgedFontColor    string `json:"unknownAcknowledgedFontColor,omitempty"`
+	CriticalFontColor               string `json:"criticalFontColor,omitempty"`
+	CriticalAcknowledgedFontColor   string `json:"criticalAcknowledgedFontColor,omitempty"`
+	TextAlign                       string `json:"textAlign,omitempty"`
+	TextVerticalAlign               string `json:"textVerticalAlign,omitempty"`
+	OkSound                         string `json:"okSound,omitempty"`
+	WarningSound                    string `json:"warningSound,omitempty"`
+	UnknownSound                    string `json:"unknownSound,omitempty"`
+	CriticalSound                   string `json:"criticalSound,omitempty"`
+	UpSound                         string `json:"upSound,omitempty"`
+	DownSound                       string `json:"downSound,omitempty"`
+	StrokeWidth                     string `json:"strokeWidth,omitempty"`
+	RightArrow                      string `json:"rightArrow,omitempty"`
+	LeftArrow                       string `json:"leftArrow,omitempty"`
+	OkSvg                           string `json:"okSvg,omitempty"`
+	OkStrokeColor                   string `json:"okStrokeColor,omitempty"`
+	WarningSvg                      string `json:"warningSvg,omitempty"`
+	WarningStrokeColor              string `json:"warningStrokeColor,omitempty"`
+	WarningAcknowledgedStrokeColor  string `json:"warningAcknowledgedStrokeColor,omitempty"`
+	UnknownSvg                      string `json:"unknownSvg,omitempty"`
+	UnknownStrokeColor              string `json:"unknownStrokeColor,omitempty"`
+	UnknownAcknowledgedStrokeColor  string `json:"unknownAcknowledgedStrokeColor,omitempty"`
+	CriticalSvg                     string `json:"criticalSvg,omitempty"`
+	CriticalStrokeColor             string `json:"criticalStrokeColor,omitempty"`
+	CriticalAcknowledgedStrokeColor string `json:"criticalAcknowledgedStrokeColor,omitempty"`
+	StrokeColor                     string `json:"strokeColor,omitempty"`
+	Svg                             string `json:"svg,omitempty"`
 }
 
 // Rect helper struct for positions

@@ -84,10 +84,8 @@ func handleKey(slug string, elementList []ElementStore, name string, event Event
 					cachedObject := value.(Result)
 					if worstObject == (Result{}) {
 						worstObject = cachedObject
-					} else {
-						if cachedObject.Attrs.State > worstObject.Attrs.State {
-							worstObject = cachedObject
-						}
+					} else if cachedObject.Attrs.State > worstObject.Attrs.State {
+						worstObject = cachedObject
 					}
 					results = []Result{worstObject}
 				}
