@@ -6,7 +6,6 @@ import (
 	"context"
 	"crypto/tls"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net"
 	"net/http"
@@ -61,17 +60,36 @@ func handleKey(slug string, elementList []ElementStore, name string, event Event
 	for _, element := range elementList {
 		results := make([]Result, 0, len(element.Objects))
 		found := false
+
+		var worstObject Result
 		for _, objectName := range element.Objects {
 			if objectName == name {
 				found = true
 				req := eventToRequest(event, name, element.Type)
-				results = append(results, req)
+
+				if worstObject == (Result{}) {
+					worstObject = req
+				} else {
+					if req.Attrs.State > worstObject.Attrs.State {
+						worstObject = req
+					}
+				}
+
+				results = []Result{worstObject}
 				cache.Set(objectName, req, 1)
 				cache.Wait()
 			} else {
 				value, ok := cache.Get(objectName)
 				if ok {
-					results = append(results, value.(Result))
+					cachedObject := value.(Result)
+					if worstObject == (Result{}) {
+						worstObject = cachedObject
+					} else {
+						if cachedObject.Attrs.State > worstObject.Attrs.State {
+							worstObject = cachedObject
+						}
+					}
+					results = []Result{worstObject}
 				}
 			}
 		}
@@ -86,7 +104,7 @@ func handleKey(slug string, elementList []ElementStore, name string, event Event
 				Event: []byte(event.Type),
 				Data:  []byte(body),
 			})
-			fmt.Println("Publish Event:", event.Type, name, slug, len(results))
+			// fmt.Println("Publish Event:", event.Type, name, slug, string(body))
 		}
 	}
 }

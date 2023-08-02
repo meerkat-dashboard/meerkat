@@ -541,6 +541,7 @@ func clearCacheHandler(w http.ResponseWriter, r *http.Request) {
 	switch clearType {
 	case "dashboard":
 		createDashboardCache()
+		UpdateAll()
 		w.Write([]byte("Cleared dashboard cache"))
 	case "object":
 		cache.Clear()
