@@ -31,9 +31,10 @@ var mapLock = &sync.RWMutex{}
 var cache *ristretto.Cache
 
 type ElementStore struct {
-	Name    string   `json:"name"`
-	Type    string   `json:"type"`
-	Objects []string `json:"objects"`
+	Name      string   `json:"name"`
+	Type      string   `json:"type"`
+	LastEvent string   `json:"last_event"`
+	Objects   []string `json:"objects"`
 }
 
 var eventList EventList
@@ -46,6 +47,7 @@ func updateDashboardCache(slug string) {
 		log.Println("Error reading dashboard:", err)
 		return
 	}
+	server.CreateStream(dashboard.Slug)
 	dashboardCache[dashboard.Slug] = nil
 	for _, element := range dashboard.Elements {
 		if len(element.Options.ObjectName) != 0 {
@@ -147,10 +149,8 @@ func main() {
 		case config.LogConsole && config.LogFile:
 			multi := io.MultiWriter(f, os.Stdout)
 			icingaLog = *log.New(multi, "", log.Ldate|log.Ltime)
-			break
 		case config.LogConsole:
 			icingaLog = *log.New(os.Stdout, "", log.Ldate|log.Ltime)
-			break
 		case config.LogFile:
 			icingaLog = *log.New(f, "", log.Ldate|log.Ltime)
 		}

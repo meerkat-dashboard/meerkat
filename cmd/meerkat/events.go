@@ -6,6 +6,7 @@ import (
 	"context"
 	"crypto/tls"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net"
 	"net/http"
@@ -57,31 +58,30 @@ type CheckResult struct {
 }
 
 func handleKey(slug string, elementList []ElementStore, name string, event Event) {
-	for _, element := range elementList {
+	for i, element := range elementList {
 		results := make([]Result, 0, len(element.Objects))
 		found := false
-
 		var worstObject Result
 		for _, objectName := range element.Objects {
 			if objectName == name {
 				found = true
-				req := eventToRequest(event, name, element.Type)
+				req := eventToRequest(event, name, element.Type, element.Name)
 
 				if worstObject == (Result{}) {
 					worstObject = req
-				} else {
-					if req.Attrs.State > worstObject.Attrs.State {
-						worstObject = req
-					}
+				} else if req.Attrs.State >= worstObject.Attrs.State {
+					worstObject = req
 				}
 
 				results = []Result{worstObject}
 				cache.Set(objectName, req, 1)
 				cache.Wait()
 			} else {
+
 				value, ok := cache.Get(objectName)
 				if ok {
 					cachedObject := value.(Result)
+					cachedObject.Element = element.Name
 					if worstObject == (Result{}) {
 						worstObject = cachedObject
 					} else if cachedObject.Attrs.State > worstObject.Attrs.State {
@@ -91,18 +91,21 @@ func handleKey(slug string, elementList []ElementStore, name string, event Event
 				}
 			}
 		}
-		if found {
+
+		if found && (worstObject.Attrs.Name != element.LastEvent || name == element.LastEvent) {
 			body, err := json.Marshal(results)
 			if err != nil {
 				log.Println(err)
 				return
 			}
-
+			mapLock.Lock()
+			dashboardCache[slug][i].LastEvent = worstObject.Name
+			mapLock.Unlock()
 			server.Publish(slug, &sse.Event{
 				Event: []byte(event.Type),
 				Data:  []byte(body),
 			})
-			// fmt.Println("Publish Event:", event.Type, name, slug, string(body))
+			fmt.Println("Publish Event:", event.Type, name, worstObject.Name, slug, string(body))
 		}
 	}
 }

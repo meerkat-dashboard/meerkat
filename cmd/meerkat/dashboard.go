@@ -11,7 +11,6 @@ import (
 	_ "image/png"
 	"io"
 	"io/fs"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
@@ -302,9 +301,10 @@ type Attr struct {
 }
 
 type Result struct {
-	Attrs Attr   `json:"attrs"`
-	Name  string `json:"name"`
-	Type  string `json:"type"`
+	Attrs   Attr   `json:"attrs"`
+	Name    string `json:"name"`
+	Type    string `json:"type"`
+	Element string `json:"element"`
 }
 
 type ObjectResults struct {
@@ -316,7 +316,7 @@ type ErrorPage struct {
 	Status string `json:"status"`
 }
 
-func eventToRequest(event Event, objectName string, objectType string) Result {
+func eventToRequest(event Event, objectName string, objectType string, elementName string) Result {
 	ack := 0
 	if event.Acknowledgement {
 		ack = 1
@@ -336,8 +336,9 @@ func eventToRequest(event Event, objectName string, objectType string) Result {
 			StateType: event.CheckResult.VarsAfter.StateType,
 			Type:      objectType,
 		},
-		Name: objectName,
-		Type: objectType,
+		Name:    objectName,
+		Type:    objectType,
+		Element: elementName,
 	}
 }
 
@@ -361,13 +362,14 @@ func getObjectHandler(w http.ResponseWriter, r *http.Request) {
 	if objectFilter != "" {
 		params.Set("filter", objectFilter)
 
-		if objectType == "hosts" && strings.Contains(objectFilter, "\" in host.groups") {
+		switch {
+		case objectType == "hosts" && strings.Contains(objectFilter, "\" in host.groups"):
 			name = strings.TrimSuffix(objectFilter, "\" in host.groups")
 			name = strings.TrimPrefix(name, "\"")
-		} else if objectType == "services" && strings.Contains(objectFilter, "\" in service.groups") {
+		case objectType == "services" && strings.Contains(objectFilter, "\" in service.groups"):
 			name = strings.TrimSuffix(objectFilter, "\" in service.groups")
 			name = strings.TrimPrefix(name, "\"")
-		} else {
+		default:
 			name = objectFilter
 		}
 	}
@@ -384,7 +386,9 @@ func getObjectHandler(w http.ResponseWriter, r *http.Request) {
 			for _, objectName := range element.Objects {
 				objectCache, found := cache.Get(objectName)
 				if found {
-					cachedResults = append(cachedResults, objectCache.(Result))
+					object := objectCache.(Result)
+					object.Element = name
+					cachedResults = append(cachedResults, object)
 					isCached = true
 				}
 			}
@@ -432,7 +436,6 @@ func getObjectHandler(w http.ResponseWriter, r *http.Request) {
 
 			if len(name) != 0 {
 				mapLock.Lock()
-				defer mapLock.Unlock()
 				for i, elementStore := range dashboardCache[slug] {
 					if elementStore.Name == name {
 						for _, result := range objects.Results {
@@ -444,6 +447,7 @@ func getObjectHandler(w http.ResponseWriter, r *http.Request) {
 						}
 					}
 				}
+				mapLock.Unlock()
 			}
 
 			w.Write(b)
@@ -561,7 +565,7 @@ func getAllHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer response.Body.Close()
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		log.Println("Error reading response:", err)
 	}
