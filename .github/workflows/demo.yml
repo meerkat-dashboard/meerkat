@@ -79,6 +79,9 @@ jobs:
       - name: change server name for nginx config
         run: sed -i "s|^        server_name demo.meerkat.run;.*$|        server_name ${{ steps.extract_branch.outputs.branch }}.demo.meerkat.run;|" "/etc/nginx/sites-enabled/meerkat-${{ steps.extract_branch.outputs.branch }}"
       
+      - name: remove default values
+        run: sed -i "s/ default_server//" "/etc/nginx/sites-enabled/meerkat-${{ steps.extract_branch.outputs.branch }}"
+      
       - name: change proxy port for nginx config
         run: RANDOM=${{ steps.extract_branch.outputs.branch }}; sed -i "s|^                proxy_pass https://127.0.0.1:8080;.*$|                proxy_pass https://127.0.0.1:$RANDOM;|" "/etc/nginx/sites-enabled/meerkat-${{ steps.extract_branch.outputs.branch }}"
       
