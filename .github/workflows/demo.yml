@@ -45,6 +45,11 @@ jobs:
         with:
           node-version: 16.x
       - uses: actions/setup-go@v3
+      
+      - name: Extract branch name
+        shell: bash
+        run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+        id: extract_branch
 
       - name: create distribution tarball
         working-directory: /usr/local/meerkat/meerkat/meerkat
@@ -52,11 +57,18 @@ jobs:
         
       - name: delete previous build folder
         working-directory: /usr/local/meerkat
-        run: rm -rf /usr/local/meerkat/main; mkdir /usr/local/meerkat/main
+        run: rm -rf /usr/local/meerkat/${{ steps.extract_branch.outputs.branch }}; mkdir /usr/local/meerkat/${{ steps.extract_branch.outputs.branch }}
         
       - name: extract tarball to demo install
         working-directory: /usr/local/meerkat/meerkat/meerkat
-        run: tar -xf meerkat.tar.gz -C /usr/local/meerkat/main/
+        run: tar -xf meerkat.tar.gz -C /usr/local/meerkat/${{ steps.extract_branch.outputs.branch }}/
+        
+      - name: create config if it doesn't exist
+        run: |
+          [ -e "/etc/meerkat.toml" ] && cp /etc/meerkat.toml /etc/meerkat-${{ steps.extract_branch.outputs.branch }}.toml
+        
+      - name: change config port for branch
+        run: $RANDOM=${{ steps.extract_branch.outputs.branch }};sed -i "s|^HTTPAddr = .*$|HTTPAddr = \"0.0.0.0:$RANDOM\"|" "/etc/meerkat.toml"
 
       - name: restart demo meerkat service
         run: systemctl restart meerkat.service
