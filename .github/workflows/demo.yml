@@ -7,7 +7,9 @@ on:
 jobs:
   test:
     runs-on: self-hosted
-
+    defaults:
+      run:
+        working-directory: /usr/local/meerkat
     steps:
     - uses: actions/checkout@v3
     - uses: actions/setup-go@v3
@@ -29,6 +31,9 @@ jobs:
 
   package:
     runs-on: self-hosted
+    defaults:
+      run:
+        working-directory: /usr/local/meerkat
     needs: [test]
 
     steps:
@@ -42,7 +47,7 @@ jobs:
         run: ./mkdist.sh .
         
       - name: extract tarball to demo install
-        run: tar -xf meerkat.tar.gz -C /usr/local/meerkat/ --exclude="dashboards"
+        run: tar -xf meerkat.tar.gz -C main/ --exclude="dashboards"
 
       - name: restart demo meerkat service
         run: systemctl restart meerkat.service
