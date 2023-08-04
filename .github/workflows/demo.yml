@@ -52,7 +52,7 @@ jobs:
         
       - name: delete previous build folder
         working-directory: /usr/local/meerkat
-        run: rm -r /usr/local/meerkat/main; mkdir /usr/local/meerkat/main
+        run: rm -rf /usr/local/meerkat/main; mkdir /usr/local/meerkat/main
         
       - name: extract tarball to demo install
         working-directory: /usr/local/meerkat/meerkat/meerkat
