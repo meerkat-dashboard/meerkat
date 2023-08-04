@@ -82,5 +82,12 @@ jobs:
       - name: change proxy port for nginx config
         run: RANDOM=${{ steps.extract_branch.outputs.branch }}; sed -i "s|^                proxy_pass https://127.0.0.1:8080;.*$|                proxy_pass https://127.0.0.1:$RANDOM;|" "/etc/nginx/sites-enabled/meerkat-${{ steps.extract_branch.outputs.branch }}"
       
-      - name: restart demo meerkat service
-        run: systemctl restart meerkat.service
+      - name: create systemd file if it doesn't exist
+        run: |
+          [ -e "/etc/systemd/system/meerkat-${{ steps.extract_branch.outputs.branch }}.service" ] && echo 0 || cp /etc/meerkat.toml /etc/systemd/system/meerkat-${{ steps.extract_branch.outputs.branch }}.service
+        
+      - name: change exec start
+        run: sed -i "s|^ExecStart=.*$|ExecStart=/usr/local/meerkat/${{ steps.extract_branch.outputs.branch }}/meerkat/meerkat -config /etc/meerkat-${{ steps.extract_branch.outputs.branch }}.toml|" "/etc/systemd/system/meerkat-${{ steps.extract_branch.outputs.branch }}.service"
+     
+      - name: reload services
+        run: systemctl daemon-reload; systemctl restart nginx; systemctl restart meerkat-${{ steps.extract_branch.outputs.branch }}.service
