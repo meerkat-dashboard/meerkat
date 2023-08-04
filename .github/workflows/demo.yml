@@ -7,6 +7,9 @@ on:
 jobs:
   test:
     runs-on: self-hosted
+    defaults:
+      run:
+        working-directory: /usr/local/meerkat
     steps:
     - uses: actions/checkout@v3
     - uses: actions/setup-go@v3
@@ -28,6 +31,9 @@ jobs:
 
   package:
     runs-on: self-hosted
+    defaults:
+      run:
+        working-directory: /usr/local/meerkat
     needs: [test]
 
     steps:
