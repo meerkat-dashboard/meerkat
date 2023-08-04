@@ -13,7 +13,15 @@ jobs:
       run:
         working-directory: /usr/local/meerkat
     steps:
+    
+    - name: Extract branch name
+      shell: bash
+      run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+      id: extract_branch
+  
     - uses: actions/checkout@v3
+      with:
+        ref: ${{ steps.extract_branch.outputs.branch }}
     - uses: actions/setup-go@v3
     - uses: actions/setup-node@v3
       with:
@@ -42,16 +50,18 @@ jobs:
     needs: [test]
 
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 16.x
-      - uses: actions/setup-go@v3
-      
       - name: Extract branch name
         shell: bash
         run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
         id: extract_branch
+    
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ steps.extract_branch.outputs.branch }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+      - uses: actions/setup-go@v3
 
       - name: create distribution tarball
         working-directory: /usr/local/meerkat/meerkat/meerkat
