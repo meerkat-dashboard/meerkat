@@ -64,7 +64,11 @@ jobs:
       - uses: actions/setup-go@v3
       
       - name: Set Port
-        run: PORT=$(cd /etc/nginx/sites-enabled/;PORTS=`grep proxy_pass * | cut -f 4 -d ":" | cut -f 1 -d ";" | sort | tail -n 1`; echo "$PORTS + 1" | bc) >> $GITHUB_ENV
+        id: vars
+        run: |
+          PORTS=`cd /etc/nginx/sites-enabled/ grep proxy_pass * | cut -f 4 -d ":" | cut -f 1 -d ";" | sort | tail -n 1`
+          NEW_PORT=$(($PORTS + 1))
+          echo "::set-output name=port::${NEW_PORT}"
 
       - name: Create distribution tarball
         working-directory: /usr/local/meerkat/meerkat/meerkat
@@ -83,7 +87,7 @@ jobs:
           [ -e "/etc/meerkat-${{ steps.extract_branch.outputs.branch }}.toml" ] && echo 0 || cp /etc/meerkat.toml /etc/meerkat-${{ steps.extract_branch.outputs.branch }}.toml
         
       - name: Change config port for branch
-        run: sed -i "s|^HTTPAddr = .*$|HTTPAddr = \"0.0.0.0:${{ env.PORT }}\"|" "/etc/meerkat-${{ steps.extract_branch.outputs.branch }}.toml"
+        run: sed -i "s|^HTTPAddr = .*$|HTTPAddr = \"0.0.0.0:${{ steps.vars.outputs.port }}\"|" "/etc/meerkat-${{ steps.extract_branch.outputs.branch }}.toml"
         
       - name: Create nginx config if it doesn't exist
         run: |
@@ -96,7 +100,7 @@ jobs:
         run: sed -i "s/ default_server//" "/etc/nginx/sites-enabled/meerkat-${{ steps.extract_branch.outputs.branch }}"
       
       - name: Change proxy port for nginx config
-        run: sed -i "s|^                proxy_pass https://127.0.0.1:8080;.*$|                proxy_pass https://127.0.0.1:${{ env.TAG }};|" "/etc/nginx/sites-enabled/meerkat-${{ steps.extract_branch.outputs.branch }}"
+        run: sed -i "s|^                proxy_pass https://127.0.0.1:8080;.*$|                proxy_pass https://127.0.0.1:${{ steps.vars.outputs.port }};|" "/etc/nginx/sites-enabled/meerkat-${{ steps.extract_branch.outputs.branch }}"
       
       - name: Create systemd file if it doesn't exist
         run: |
