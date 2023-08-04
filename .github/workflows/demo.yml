@@ -60,7 +60,3 @@ jobs:
 
       - name: restart demo meerkat service
         run: systemctl restart meerkat.service
-        
-      - name: delete build folder
-        working-directory: /usr/local/meerkat/
-        run: rm -rf /usr/local/meerkat/meerkat
