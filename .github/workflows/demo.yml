@@ -64,7 +64,7 @@ jobs:
       - uses: actions/setup-go@v3
       
       - name: Set Port
-        run: echo "PORT=`grep proxy_pass * | cut -f 4 -d ":" | cut -f 1 -d ";" | sort | tail -n 1`; let 'PORT+=1'" >> $GITHUB_ENV
+        run: echo "PORT=$(echo "PORTS=`grep proxy_pass * | cut -f 4 -d ":" | cut -f 1 -d ";" | sort | tail -n 1`; echo "$PORTS + 1" | bc")" >> $GITHUB_ENV
 
       - name: Create distribution tarball
         working-directory: /usr/local/meerkat/meerkat/meerkat
