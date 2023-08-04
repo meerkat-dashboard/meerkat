@@ -56,11 +56,11 @@ jobs:
         
       - name: extract tarball to demo install
         working-directory: /usr/local/meerkat/meerkat/meerkat
-        run: tar -xf meerkat.tar.gz -C /usr/local/meerkat/main/ --exclude="dashboards"
+        run: tar -xf meerkat.tar.gz -C /usr/local/meerkat/main/
 
       - name: restart demo meerkat service
         run: systemctl restart meerkat.service
         
       - name: delete build folder
-      - working-directory: /usr/local/meerkat/
+        working-directory: /usr/local/meerkat/
         run: rm -rf /usr/local/meerkat/meerkat
