@@ -77,7 +77,6 @@ func handleKey(slug string, elementList []ElementStore, name string, event Event
 				cache.Set(objectName, req, 1)
 				cache.Wait()
 			} else {
-
 				value, ok := cache.Get(objectName)
 				if ok {
 					cachedObject := value.(Result)
