@@ -70,7 +70,7 @@ jobs:
           [ -e "/etc/meerkat.toml" ] && cp /etc/meerkat.toml /etc/meerkat-${{ steps.extract_branch.outputs.branch }}.toml
         
       - name: change config port for branch
-        run: $RANDOM=${{ steps.extract_branch.outputs.branch }};sed -i "s|^HTTPAddr = .*$|HTTPAddr = \"0.0.0.0:$RANDOM\"|" "/etc/meerkat.toml"
+        run: RANDOM=${{ steps.extract_branch.outputs.branch }};sed -i "s|^HTTPAddr = .*$|HTTPAddr = \"0.0.0.0:$RANDOM\"|" "/etc/meerkat.toml"
 
       - name: restart demo meerkat service
         run: systemctl restart meerkat.service
