@@ -84,7 +84,7 @@ jobs:
       
       - name: create systemd file if it doesn't exist
         run: |
-          [ -e "/etc/systemd/system/meerkat-${{ steps.extract_branch.outputs.branch }}.service" ] && echo 0 || cp /etc/meerkat.toml /etc/systemd/system/meerkat-${{ steps.extract_branch.outputs.branch }}.service
+          [ -e "/etc/systemd/system/meerkat-${{ steps.extract_branch.outputs.branch }}.service" ] && echo 0 || cp /etc/systemd/system/meerkat.service /etc/systemd/system/meerkat-${{ steps.extract_branch.outputs.branch }}.service
         
       - name: change exec start
         run: sed -i "s|^ExecStart=.*$|ExecStart=/usr/local/meerkat/${{ steps.extract_branch.outputs.branch }}/meerkat/meerkat -config /etc/meerkat-${{ steps.extract_branch.outputs.branch }}.toml|" "/etc/systemd/system/meerkat-${{ steps.extract_branch.outputs.branch }}.service"
