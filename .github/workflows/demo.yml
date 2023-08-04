@@ -1,0 +1,50 @@
+name: demo
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  test:
+    runs-on: meerkat-demo
+
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-go@v3
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 16.x
+
+    - name: "JS lint"
+      run: |
+        cd ui
+        npm ci
+        npx eslint src
+        npx prettier -l src
+
+    - name: "test"
+      run: |
+          if ! [ -z "`gofmt -l .`" ]; then gofmt -l . && exit 1; fi
+          go test ./...
+
+  package:
+    runs-on: meerkat-demo
+    needs: [test]
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+      - uses: actions/setup-go@v3
+
+      - name: create distribution tarball
+        run: ./mkdist.sh .
+        
+      - name: extract tarball to demo install
+        run: tar -xf meerkat.tar.gz -C /usr/local/meerkat/ --exclude="dashboards"
+
+      - name: restart demo meerkat service
+        run: systemctl restart meerkat.service
