@@ -14,6 +14,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/dgraph-io/ristretto"
 	"github.com/go-chi/chi/v5"
 	"github.com/meerkat-dashboard/meerkat"
 	"github.com/meerkat-dashboard/meerkat/ui"
@@ -25,46 +26,74 @@ var server *sse.Server
 var icingaLog log.Logger
 var status Status
 var requestList []Requests
+var dashboardCache map[string][]ElementStore
+var mapLock = &sync.RWMutex{}
+var cache *ristretto.Cache
 
-type Events struct {
-	Name         string `json:"name"`
-	EventType    string `json:"type"`
-	ReceivedTime int64  `json:"received_time"`
-}
-
-type EventList struct {
-	sync.RWMutex
-	events []Events
+type ElementStore struct {
+	Name      string   `json:"name"`
+	Type      string   `json:"type"`
+	LastEvent string   `json:"last_event"`
+	Objects   []string `json:"objects"`
 }
 
 var eventList EventList
 
-func addEvent(event string, eventType string) {
-	eventList.Lock()
-	defer eventList.Unlock()
-	eventList.events = append(eventList.events, Events{Name: event, EventType: eventType, ReceivedTime: time.Now().UnixMilli()})
+func updateDashboardCache(slug string) {
+	mapLock.Lock()
+	defer mapLock.Unlock()
+	dashboard, err := meerkat.ReadDashboard(path.Join("dashboards", slug+".json"))
+	if err != nil {
+		log.Println("Error reading dashboard:", err)
+		return
+	}
+	server.CreateStream(dashboard.Slug)
+	dashboardCache[dashboard.Slug] = nil
+	for _, element := range dashboard.Elements {
+		if len(element.Options.ObjectName) != 0 {
+			dashboardCache[dashboard.Slug] = append(dashboardCache[dashboard.Slug], ElementStore{Name: element.Options.ObjectName, Type: element.Options.ObjectType})
+		}
+	}
 }
 
-func getEvents() []Events {
-	eventList.RLock()
-	defer eventList.RUnlock()
-	values := make([]Events, len(eventList.events))
-	for i, event := range eventList.events {
-		values[i] = event
+func createDashboardCache() {
+	mapLock.Lock()
+	defer mapLock.Unlock()
+	dashboards, err := meerkat.ReadDashboardDir("dashboards")
+	if err != nil {
+		log.Println("Error reading dashboards:", err)
+		return
 	}
-	return values
+	cache.Clear()
+	dashboardCache = make(map[string][]ElementStore)
+	for _, dashboard := range dashboards {
+		status.Meerkat.Dashboards = append(status.Meerkat.Dashboards,
+			Dashboard{
+				Title:           dashboard.Title,
+				Slug:            dashboard.Slug,
+				Folder:          dashboard.Folder,
+				CurrentlyOpenBy: []string{},
+			})
+		server.CreateStream(dashboard.Slug)
+
+		for _, element := range dashboard.Elements {
+			if len(element.Options.ObjectName) != 0 {
+				dashboardCache[dashboard.Slug] = append(dashboardCache[dashboard.Slug], ElementStore{Name: element.Options.ObjectName, Type: element.Options.ObjectType})
+			}
+		}
+	}
 }
 
 func main() {
 	configFile := flag.String("config", defaultConfigPath, "load configuration from this file")
-	vflag := flag.Bool("v", false, "build version information")
+	//vflag := flag.Bool("v", false, "build version information")
 	fflag := flag.String("ui", "", "user interface directory")
 	flag.Parse()
 
-	if *vflag {
-		log.Println(meerkat.BuildString())
-		return
-	}
+	//if *vflag {
+	//	log.Println(meerkat.BuildString())
+	//	return
+	//}
 
 	var err error
 	config, err = LoadConfig(*configFile)
@@ -116,12 +145,13 @@ func main() {
 			log.Fatalf("error opening file: %v", err)
 		}
 		defer f.Close()
-		if config.LogConsole && config.LogFile {
+		switch {
+		case config.LogConsole && config.LogFile:
 			multi := io.MultiWriter(f, os.Stdout)
 			icingaLog = *log.New(multi, "", log.Ldate|log.Ltime)
-		} else if config.LogConsole {
+		case config.LogConsole:
 			icingaLog = *log.New(os.Stdout, "", log.Ldate|log.Ltime)
-		} else if config.LogFile {
+		case config.LogFile:
 			icingaLog = *log.New(f, "", log.Ldate|log.Ltime)
 		}
 	}
@@ -139,7 +169,6 @@ func main() {
 		server.AutoReplay = false
 		server.AutoStream = false
 		server.CreateStream("updates")
-		server.CreateStream("icinga")
 
 		eventList = EventList{}
 		go func() {
@@ -164,7 +193,17 @@ func main() {
 			}
 		}()
 
-		r.HandleFunc("/events", server.ServeHTTP)
+		cache, err = ristretto.NewCache(&ristretto.Config{
+			NumCounters: 1e7,     // number of keys to track frequency of (10M).
+			MaxCost:     1 << 30, // maximum cost of cache (1GB).
+			BufferItems: 64,      // number of keys per Get buffer.
+		})
+		if err != nil {
+			panic(err)
+		}
+
+		createDashboardCache()
+		createEventStream(r)
 	}
 
 	// Previous versions of meerkat served user-uploaded files from this directory.
@@ -193,6 +232,9 @@ func main() {
 	r.Get("/api/all", getAllHandler)
 	r.Get("/api/objects", getObjectHandler)
 	r.Get("/api/status", getStatusHandler)
+	r.Get("/api/cache/*", getCacheDashboardHandler)
+	r.Get("/api/cache", getCacheHandler)
+	r.Delete("/api/cache", clearCacheHandler)
 
 	r.Get("/{slug}/update", UpdateHandler)
 
@@ -202,6 +244,7 @@ func main() {
 	r.Delete("/file/sound", srv.DeleteFileHandler("./dashboards-sound"))
 	r.Get("/file/sound", srv.GetSounds)
 
+	r.Get("/cache", srv.CachePage)
 	r.Get("/view/*", oldPathHandler)
 	r.Get("/edit/*", oldPathHandler)
 	r.Get("/create", srv.CreatePage)
@@ -226,6 +269,7 @@ func main() {
 			}
 			if previousCheck != currentCheck && previousCheck != 0 && currentCheck != 0 {
 				log.Printf("Icinga reloaded prev: %v curr: %v\n", previousCheck, currentCheck)
+				createDashboardCache()
 				UpdateAll()
 			}
 			previousCheck = currentCheck

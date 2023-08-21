@@ -178,9 +178,22 @@ export function DynamicText({ events, options }) {
 		setText(text);
 	};
 
-	const handleEvent = useCallback((event) => {
-		if (objectState && objectState.name.includes(event.data)) {
-			handleUpdate();
+	const handleEvent = useCallback(async (event) => {
+		let objects = await meerkat.handleJSONList(JSON.parse(event.data));
+		for (let i = 0; i < objects.length; i++) {
+			if (objectState && objects[i].element == options.objectName) {
+				let obj = objects[i];
+				if (
+					objects.length > 0 &&
+					(options.objectType.endsWith("group") ||
+						options.objectType.endsWith("filter"))
+				) {
+					obj = IcingaJS.worstObject(objects);
+				}
+				setObjectState(obj);
+				parseUpdate(obj);
+				return;
+			}
 		}
 	});
 
@@ -272,6 +285,8 @@ function stateText(typ, state) {
 			case 0:
 				return "up";
 			case 1:
+			case 2:
+			case 3:
 				return "down";
 		}
 	}

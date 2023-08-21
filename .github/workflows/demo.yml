@@ -4,7 +4,7 @@ on:
   push:
     branches: 
       - "main"
-      - "demo-deploy"
+      - "cache"
     
 jobs:
   test:
@@ -13,7 +13,15 @@ jobs:
       run:
         working-directory: /usr/local/meerkat
     steps:
+    
+    - name: Extract branch name
+      shell: bash
+      run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+      id: extract_branch
+  
     - uses: actions/checkout@v3
+      with:
+        ref: ${{ steps.extract_branch.outputs.branch }}
     - uses: actions/setup-go@v3
     - uses: actions/setup-node@v3
       with:
@@ -42,55 +50,64 @@ jobs:
     needs: [test]
 
     steps:
+      - name: Extract branch name
+        shell: bash
+        run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+        id: extract_branch
+    
       - uses: actions/checkout@v3
+        with:
+          ref: ${{ steps.extract_branch.outputs.branch }}
       - uses: actions/setup-node@v3
         with:
           node-version: 16.x
       - uses: actions/setup-go@v3
       
-      - name: Extract branch name
-        shell: bash
-        run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
-        id: extract_branch
+      - name: Set Port
+        id: vars
+        run: |
+          PORTS=`cd /etc/nginx/sites-enabled/ grep proxy_pass * | cut -f 4 -d ":" | cut -f 1 -d ";" | sort | tail -n 1`
+          NEW_PORT=$(($PORTS + 1))
+          echo "::set-output name=port::${NEW_PORT}"
 
-      - name: create distribution tarball
+      - name: Create distribution tarball
         working-directory: /usr/local/meerkat/meerkat/meerkat
         run: ./mkdist.sh .
         
-      - name: delete previous build folder
+      - name: Delete previous build folder
         working-directory: /usr/local/meerkat
         run: rm -rf /usr/local/meerkat/${{ steps.extract_branch.outputs.branch }}; mkdir /usr/local/meerkat/${{ steps.extract_branch.outputs.branch }}
         
-      - name: extract tarball to demo install
+      - name: Extract tarball to demo install
         working-directory: /usr/local/meerkat/meerkat/meerkat
         run: tar -xf meerkat.tar.gz -C /usr/local/meerkat/${{ steps.extract_branch.outputs.branch }}/
         
-      - name: create config if it doesn't exist
+      - name: Create config if it doesn't exist
         run: |
           [ -e "/etc/meerkat-${{ steps.extract_branch.outputs.branch }}.toml" ] && echo 0 || cp /etc/meerkat.toml /etc/meerkat-${{ steps.extract_branch.outputs.branch }}.toml
         
-      - name: change config port for branch
-        run: RANDOM=${{ steps.extract_branch.outputs.branch }};sed -i "s|^HTTPAddr = .*$|HTTPAddr = \"0.0.0.0:$RANDOM\"|" "/etc/meerkat-${{ steps.extract_branch.outputs.branch }}.toml"
+      - name: Change config port for branch
+        run: sed -i "s|^HTTPAddr = .*$|HTTPAddr = \"0.0.0.0:${{ steps.vars.outputs.port }}\"|" "/etc/meerkat-${{ steps.extract_branch.outputs.branch }}.toml"
         
-      - name: create nginx config if it doesn't exist
+      - name: Create nginx config if it doesn't exist
         run: |
           [ -e "/etc/nginx/sites-enabled/meerkat-${{ steps.extract_branch.outputs.branch }}" ] && echo 0 || cp /etc/nginx/sites-enabled/default /etc/nginx/sites-enabled/meerkat-${{ steps.extract_branch.outputs.branch }}
       
-      - name: change server name for nginx config
+      - name: Change server name for nginx config
         run: sed -i "s|^        server_name demo.meerkat.run;.*$|        server_name ${{ steps.extract_branch.outputs.branch }}.demo.meerkat.run;|" "/etc/nginx/sites-enabled/meerkat-${{ steps.extract_branch.outputs.branch }}"
       
-      - name: remove default values
+      - name: Remove default values
         run: sed -i "s/ default_server//" "/etc/nginx/sites-enabled/meerkat-${{ steps.extract_branch.outputs.branch }}"
       
-      - name: change proxy port for nginx config
-        run: RANDOM=${{ steps.extract_branch.outputs.branch }}; sed -i "s|^                proxy_pass https://127.0.0.1:8080;.*$|                proxy_pass https://127.0.0.1:$RANDOM;|" "/etc/nginx/sites-enabled/meerkat-${{ steps.extract_branch.outputs.branch }}"
+      - name: Change proxy port for nginx config
+        run: sed -i "s|^                proxy_pass https://127.0.0.1:8080;.*$|                proxy_pass https://127.0.0.1:${{ steps.vars.outputs.port }};|" "/etc/nginx/sites-enabled/meerkat-${{ steps.extract_branch.outputs.branch }}"
       
-      - name: create systemd file if it doesn't exist
+      - name: Create systemd file if it doesn't exist
         run: |
           [ -e "/etc/systemd/system/meerkat-${{ steps.extract_branch.outputs.branch }}.service" ] && echo 0 || cp /etc/systemd/system/meerkat.service /etc/systemd/system/meerkat-${{ steps.extract_branch.outputs.branch }}.service
         
-      - name: change exec start
+      - name: Change exec start
         run: sed -i "s|^ExecStart=.*$|ExecStart=/usr/local/meerkat/${{ steps.extract_branch.outputs.branch }}/meerkat/meerkat -config /etc/meerkat-${{ steps.extract_branch.outputs.branch }}.toml|" "/etc/systemd/system/meerkat-${{ steps.extract_branch.outputs.branch }}.service"
      
-      - name: reload services
+      - name: Reload services
         run: systemctl daemon-reload; systemctl restart nginx; systemctl restart meerkat-${{ steps.extract_branch.outputs.branch }}.service

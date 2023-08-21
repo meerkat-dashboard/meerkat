@@ -195,7 +195,7 @@ function linkWrap(ele, link) {
 // Paths are of the form /my-dashboard/view
 const elems = window.location.pathname.split("/");
 const slug = elems[elems.length - 2];
-const events = new EventSource("/events?stream=icinga");
+const events = new EventSource("/events?stream=" + slug);
 
 meerkat.getDashboard(slug).then((d) => {
 	render(

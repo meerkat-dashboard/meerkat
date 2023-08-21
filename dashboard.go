@@ -34,11 +34,61 @@ type Dashboard struct {
 
 // Element contains any service/host information needed
 type Element struct {
-	Type     string                 `json:"type"`
-	Title    string                 `json:"title"`
-	Rect     Rect                   `json:"rect"`
-	Options  map[string]interface{} `json:"options"`
-	Rotation float64                `json:"rotation"`
+	Type     string  `json:"type"`
+	Title    string  `json:"title"`
+	Rect     Rect    `json:"rect"`
+	Options  Options `json:"options,omitempty"`
+	Rotation float64 `json:"rotation"`
+}
+
+type Options struct {
+	ObjectAttr                      string      `json:"objectAttr,omitempty"`
+	ObjectName                      string      `json:"objectName,omitempty"`
+	ObjectType                      string      `json:"objectType,omitempty"`
+	TimeZone                        string      `json:"timeZone,omitempty"`
+	FontSize                        json.Number `json:"fontSize,omitempty"`
+	Image                           string      `json:"image,omitempty"`
+	Source                          string      `json:"source,omitempty"`
+	AudioSource                     string      `json:"audioSource,omitempty"`
+	LinkUrl                         string      `json:"linkURL,omitempty"`
+	ObjectAttrMatch                 string      `json:"objectAttrMatch,omitempty"`
+	ObjectAttrNoMatch               string      `json:"objectAttrNoMatch,omitempty"`
+	BoldText                        bool        `json:"boldText,omitempty"`
+	Text                            string      `json:"text,omitempty"`
+	ScrollPeriod                    string      `json:"scrollPeriod,omitempty"`
+	BackgroundColor                 string      `json:"backgroundColor,omitempty"`
+	FontColor                       string      `json:"fontColor,omitempty"`
+	OkFontColor                     string      `json:"okFontColor,omitempty"`
+	WarningFontColor                string      `json:"warningFontColor,omitempty"`
+	WarningAcknowledgedFontColor    string      `json:"warningAcknowledgedFontColor,omitempty"`
+	UnknownFontColor                string      `json:"unknownFontColor,omitempty"`
+	UnknownAcknowledgedFontColor    string      `json:"unknownAcknowledgedFontColor,omitempty"`
+	CriticalFontColor               string      `json:"criticalFontColor,omitempty"`
+	CriticalAcknowledgedFontColor   string      `json:"criticalAcknowledgedFontColor,omitempty"`
+	TextAlign                       string      `json:"textAlign,omitempty"`
+	TextVerticalAlign               string      `json:"textVerticalAlign,omitempty"`
+	OkSound                         string      `json:"okSound,omitempty"`
+	WarningSound                    string      `json:"warningSound,omitempty"`
+	UnknownSound                    string      `json:"unknownSound,omitempty"`
+	CriticalSound                   string      `json:"criticalSound,omitempty"`
+	UpSound                         string      `json:"upSound,omitempty"`
+	DownSound                       string      `json:"downSound,omitempty"`
+	StrokeWidth                     json.Number `json:"strokeWidth,omitempty"`
+	RightArrow                      bool        `json:"rightArrow,omitempty"`
+	LeftArrow                       bool        `json:"leftArrow,omitempty"`
+	OkSvg                           string      `json:"okSvg,omitempty"`
+	OkStrokeColor                   string      `json:"okStrokeColor,omitempty"`
+	WarningSvg                      string      `json:"warningSvg,omitempty"`
+	WarningStrokeColor              string      `json:"warningStrokeColor,omitempty"`
+	WarningAcknowledgedStrokeColor  string      `json:"warningAcknowledgedStrokeColor,omitempty"`
+	UnknownSvg                      string      `json:"unknownSvg,omitempty"`
+	UnknownStrokeColor              string      `json:"unknownStrokeColor,omitempty"`
+	UnknownAcknowledgedStrokeColor  string      `json:"unknownAcknowledgedStrokeColor,omitempty"`
+	CriticalSvg                     string      `json:"criticalSvg,omitempty"`
+	CriticalStrokeColor             string      `json:"criticalStrokeColor,omitempty"`
+	CriticalAcknowledgedStrokeColor string      `json:"criticalAcknowledgedStrokeColor,omitempty"`
+	StrokeColor                     string      `json:"strokeColor,omitempty"`
+	Svg                             string      `json:"svg,omitempty"`
 }
 
 // Rect helper struct for positions
@@ -119,11 +169,11 @@ func CreateDashboard(name string, dashboard *Dashboard) error {
 }
 
 func TitleToSlug(title string) string {
-	title = strings.ToLower(title)                //convert upper case to lower case
-	title = strings.TrimSpace(title)              //remove preceeding and trailing whitespace
-	dashSpaceMatch := regexp.MustCompile(`[_\s]`) //convert spaces and underscores to dashes
+	title = strings.ToLower(title)                // convert upper case to lower case
+	title = strings.TrimSpace(title)              // remove preceeding and trailing whitespace
+	dashSpaceMatch := regexp.MustCompile(`[_\s]`) // convert spaces and underscores to dashes
 	title = dashSpaceMatch.ReplaceAllString(title, "-")
-	unwantedMatch := regexp.MustCompile(`[^a-z0-9\-]`) //Remove any other characters
+	unwantedMatch := regexp.MustCompile(`[^a-z0-9\-]`) // Remove any other characters
 	title = unwantedMatch.ReplaceAllString(title, "")
 
 	return title
@@ -169,13 +219,4 @@ func ParseDashboardForm(form url.Values) (Dashboard, error) {
 		}
 	}
 	return dashboard, nil
-}
-
-func arrayContains(array []string, value string) bool {
-	for _, v := range array {
-		if v == value {
-			return true
-		}
-	}
-	return false
 }

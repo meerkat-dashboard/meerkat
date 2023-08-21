@@ -6,11 +6,14 @@ import (
 	"context"
 	"crypto/tls"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net"
 	"net/http"
+	"sync"
 	"time"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/r3labs/sse/v2"
 )
 
@@ -37,21 +40,73 @@ type CheckResult struct {
 	ScheduleEnd       float64     `json:"schedule_end,omitempty"`
 	ScheduleStart     float64     `json:"schedule_start,omitempty"`
 	SchedulingSource  string      `json:"scheduling_source,omitempty"`
-	State             json.Number `json:"state,omitempty"`
+	State             int         `json:"state,omitempty"`
 	TTL               int         `json:"ttl,omitempty"`
 	Type              string      `json:"type,omitempty"`
 	VarsAfter         *struct {
 		Attempt   json.Number `json:"attempt,omitempty"`
 		Reachable bool        `json:"reachable,omitempty"`
-		State     json.Number `json:"state,omitempty"`
-		StateType json.Number `json:"state_type,omitempty"`
+		State     int         `json:"state,omitempty"`
+		StateType int         `json:"state_type,omitempty"`
 	} `json:"vars_after,omitempty"`
 	VarsBefore *struct {
 		Attempt   json.Number `json:"attempt,omitempty"`
 		Reachable bool        `json:"reachable,omitempty"`
-		State     json.Number `json:"state,omitempty"`
-		StateType json.Number `json:"state_type,omitempty"`
+		State     int         `json:"state,omitempty"`
+		StateType int         `json:"state_type,omitempty"`
 	} `json:"vars_before,omitempty"`
+}
+
+func handleKey(slug string, elementList []ElementStore, name string, event Event) {
+	for i, element := range elementList {
+		results := make([]Result, 0, len(element.Objects))
+		found := false
+		var worstObject Result
+		for _, objectName := range element.Objects {
+			if objectName == name {
+				found = true
+				req := eventToRequest(event, name, element.Type, element.Name)
+
+				if worstObject == (Result{}) {
+					worstObject = req
+				} else if req.Attrs.State >= worstObject.Attrs.State {
+					worstObject = req
+				}
+
+				results = []Result{worstObject}
+				cache.Set(objectName, req, 1)
+				cache.Wait()
+			} else {
+				value, ok := cache.Get(objectName)
+				if ok {
+					cachedObject := value.(Result)
+					cachedObject.Element = element.Name
+					if worstObject == (Result{}) {
+						worstObject = cachedObject
+					} else if cachedObject.Attrs.State > worstObject.Attrs.State {
+						worstObject = cachedObject
+					}
+					results = []Result{worstObject}
+				}
+			}
+		}
+
+		if found && (worstObject.Attrs.Name != element.LastEvent || name == element.LastEvent) {
+			body, err := json.Marshal(results)
+			if err != nil {
+				log.Println(err)
+				return
+			}
+			mapLock.Lock()
+			dashboardCache[slug][i].LastEvent = worstObject.Name
+			mapLock.Unlock()
+			server.Publish(slug, &sse.Event{
+				Event: []byte(event.Type),
+				Data:  []byte(body),
+			})
+			fmt.Println("Publish Event:", event.Type, name, worstObject.Name, slug, string(body))
+		}
+	}
 }
 
 func handleEvent(response string) error {
@@ -66,10 +121,24 @@ func handleEvent(response string) error {
 		name = name + "!" + event.Service
 	}
 
-	server.Publish("icinga", &sse.Event{
-		Event: []byte(event.Type),
-		Data:  []byte(name),
-	})
+	mapLock.RLock()
+	dashboardCacheCopy := dashboardCache
+	mapLock.RUnlock()
+
+	var wg sync.WaitGroup
+
+	for _, dashboard := range status.Meerkat.Dashboards {
+		if len(dashboard.CurrentlyOpenBy) > 0 {
+			wg.Add(1)
+			go func(slug string, elementList []ElementStore) {
+				defer wg.Done()
+				handleKey(slug, elementList, name, event)
+			}(dashboard.Slug, dashboardCacheCopy[dashboard.Slug])
+		}
+	}
+
+	wg.Wait()
+
 	status.Backends.Icinga.Connections.EventStreams.LastEventReceived = int(time.Now().UnixMilli())
 	addEvent(name, event.Type)
 	return nil
@@ -161,4 +230,59 @@ Loop:
 	}
 
 	log.Println("Event stream connection was closed")
+}
+
+type Events struct {
+	Name         string `json:"name"`
+	EventType    string `json:"type"`
+	ReceivedTime int64  `json:"received_time"`
+}
+
+type EventList struct {
+	sync.RWMutex
+	events []Events
+}
+
+func addEvent(event string, eventType string) {
+	eventList.Lock()
+	defer eventList.Unlock()
+	eventList.events = append(eventList.events, Events{Name: event, EventType: eventType, ReceivedTime: time.Now().UnixMilli()})
+}
+
+func getEvents() []Events {
+	eventList.RLock()
+	defer eventList.RUnlock()
+	values := make([]Events, len(eventList.events))
+	copy(values, eventList.events)
+	return values
+}
+
+func createEventStream(r *chi.Mux) {
+	r.HandleFunc("/events", func(w http.ResponseWriter, r *http.Request) {
+		go func() {
+			stream := r.URL.Query().Get("stream")
+			if stream != "update" {
+				var index int
+				for dashboard := range status.Meerkat.Dashboards {
+					if status.Meerkat.Dashboards[dashboard].Slug == stream {
+						index = dashboard
+						status.Meerkat.Dashboards[dashboard].CurrentlyOpenBy = append(status.Meerkat.Dashboards[dashboard].CurrentlyOpenBy, r.RemoteAddr)
+					}
+				}
+				<-r.Context().Done()
+				if status.Meerkat.Dashboards[index].Slug == stream {
+					for i, v := range status.Meerkat.Dashboards[index].CurrentlyOpenBy {
+						if v == r.RemoteAddr {
+							status.Meerkat.Dashboards[index].CurrentlyOpenBy = append(status.Meerkat.Dashboards[index].CurrentlyOpenBy[:i], status.Meerkat.Dashboards[index].CurrentlyOpenBy[i+1:]...)
+							break
+						}
+					}
+				}
+			} else {
+				<-r.Context().Done()
+			}
+		}()
+
+		server.ServeHTTP(w, r)
+	})
 }
