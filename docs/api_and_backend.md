@@ -19,7 +19,8 @@ This provides the current status of the running Meerkat including
 The cache page allows you to tell the Meerkat server to clear it's internal caches. 
 
 **Dashboard Cache**
-The dashbaord cache is a cache of all the dashboards currently open and the list of Icinga objects associated with each dashboard, clearing this cache will...
+The dashboard cache is a cache of all the dashboards currently open and the list of Icinga objects associated with each dashboard.
+Each time this cache initalizes it is cleared before being built, the clear cache Tool for Dashboards performs a reinitalization of the cache and sends the reload dashboard request to the clients.
 
 **Object Cache**
-The object cache is a cache of all the Icinga objects Meerkat is currently tracking and their current state, clearing this cache will...
+The object cache is a cache of all the Icinga objects Meerkat is currently tracking and their current state. Clearing this cache will drop the cache only. 
