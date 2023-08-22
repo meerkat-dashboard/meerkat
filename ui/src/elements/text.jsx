@@ -285,8 +285,6 @@ function stateText(typ, state) {
 			case 0:
 				return "up";
 			case 1:
-			case 2:
-			case 3:
 				return "down";
 		}
 	}

@@ -15,8 +15,6 @@ export function StateText(state, objectType) {
 			case 0:
 				return "ok";
 			case 1:
-			case 2:
-			case 3:
 				return "critical";
 			default:
 				return "unknown";
