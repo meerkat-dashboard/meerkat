@@ -86,14 +86,15 @@ func createDashboardCache() {
 
 func main() {
 	configFile := flag.String("config", defaultConfigPath, "load configuration from this file")
-	//vflag := flag.Bool("v", false, "build version information")
+	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
+	vflag := flag.Bool("v", false, "build version information")
 	fflag := flag.String("ui", "", "user interface directory")
 	flag.Parse()
 
-	//if *vflag {
-	//	log.Println(meerkat.BuildString())
-	//	return
-	//}
+	if *vflag {
+		log.Println(meerkat.BuildString())
+		return
+	}
 
 	var err error
 	config, err = LoadConfig(*configFile)

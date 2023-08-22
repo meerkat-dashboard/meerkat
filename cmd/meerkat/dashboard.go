@@ -355,7 +355,7 @@ func getObjectHandler(w http.ResponseWriter, r *http.Request) {
 	name := ""
 
 	if objectName != "" {
-		params.Set("service", objectName)
+		params.Set(objectType, objectName)
 		name = objectName
 	}
 
