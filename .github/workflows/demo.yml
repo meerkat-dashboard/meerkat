@@ -3,8 +3,7 @@ name: demo
 on:
   push:
     branches: 
-      - "main"
-      - "cache"
+      - "*"
     
 jobs:
   test:
@@ -66,7 +65,7 @@ jobs:
       - name: Set Port
         id: vars
         run: |
-          PORTS=`cd /etc/nginx/sites-enabled/ grep proxy_pass * | cut -f 4 -d ":" | cut -f 1 -d ";" | sort | tail -n 1`
+          PORTS=`cd /etc/nginx/sites-enabled/; grep proxy_pass * | cut -f 4 -d ":" | cut -f 1 -d ";" | sort | tail -n 1`
           NEW_PORT=$(($PORTS + 1))
           echo "::set-output name=port::${NEW_PORT}"
 
