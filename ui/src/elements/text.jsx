@@ -281,11 +281,10 @@ export function DynamicText({ events, options }) {
 
 function stateText(typ, state) {
 	if (typ.toLowerCase().includes("host")) {
-		switch (state) {
-			case 0:
-				return "up";
-			case 1:
-				return "down";
+		if (state < 2) {
+			return "up";
+		} else if (state >= 2) {
+			return "down";
 		}
 	}
 	if (typ.toLowerCase().includes("service")) {

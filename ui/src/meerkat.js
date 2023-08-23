@@ -64,7 +64,7 @@ export async function handleJSON(obj) {
 		type: obj.attrs.type,
 		output: obj.attrs.last_check_result.output,
 		perfdata: {},
-		state: obj.attrs.state,
+		state: obj.attrs.last_check_result.state,
 		element: obj.element,
 	};
 	try {

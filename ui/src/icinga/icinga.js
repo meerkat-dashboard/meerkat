@@ -11,13 +11,12 @@ export function StateText(state, objectType) {
 		return "unknown";
 	}
 	if (objectType.toLowerCase() == "host") {
-		switch (state) {
-			case 0:
-				return "ok";
-			case 1:
-				return "critical";
-			default:
-				return "unknown";
+		if (state == 0 || state == 1) {
+			return "ok";
+		} else if (state == 2 || state == 3) {
+			return "critical";
+		} else {
+			return "unknown";
 		}
 	}
 
