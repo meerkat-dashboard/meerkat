@@ -85,8 +85,8 @@ func createDashboardCache() {
 }
 
 func main() {
-	configFile := flag.String("config", defaultConfigPath, "load configuration from this file")
 	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
+	configFile := flag.String("config", defaultConfigPath, "load configuration from this file")
 	vflag := flag.Bool("v", false, "build version information")
 	fflag := flag.String("ui", "", "user interface directory")
 	flag.Parse()
