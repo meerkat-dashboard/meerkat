@@ -72,7 +72,13 @@ jobs:
       - name: Create distribution tarball
         working-directory: /usr/local/meerkat/meerkat/meerkat
         run: ./mkdist.sh .
-        
+
+      - name: upload tarball
+        uses: actions/upload-artifact@v3
+        with:
+          name: meerkat.tar.gz
+          path: meerkat.tar.gz
+
       - name: Delete previous build folder
         working-directory: /usr/local/meerkat
         run: rm -rf /usr/local/meerkat/${{ steps.extract_branch.outputs.branch }}; mkdir /usr/local/meerkat/${{ steps.extract_branch.outputs.branch }}
