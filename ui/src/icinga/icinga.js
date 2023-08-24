@@ -10,7 +10,7 @@ export function StateText(state, objectType) {
 	if (!objectType) {
 		return "unknown";
 	}
-	if (objectType.toLowerCase() == "host") {
+	if (objectType.toLowerCase().includes("host")) {
 		if (state == 0 || state == 1) {
 			return "ok";
 		} else if (state == 2 || state == 3) {
