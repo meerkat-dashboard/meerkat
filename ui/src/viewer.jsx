@@ -14,72 +14,9 @@ import { StaticSVG } from "./statics/svg";
 import { ObjectCard } from "./elements/i2object";
 
 function Viewer({ dashboard, events }) {
-	const [error, setError] = useState("");
-	const [backendError, setBackendError] = useState(false);
-
-	var reconnectFrequencySeconds = 1;
-	var evtSource;
-
-	var waitFunc = function () {
-		return reconnectFrequencySeconds * 1000;
-	};
-	var tryToSetupFunc = function () {
-		setupEventSource();
-		reconnectFrequencySeconds *= 2;
-		if (reconnectFrequencySeconds >= 32) {
-			reconnectFrequencySeconds = 32;
-		}
-	};
-
-	function setupEventSource() {
-		evtSource = new EventSource("/events?stream=updates");
-		evtSource.onmessage = function (e) {
-			if (
-				dashboard.slug == e.data ||
-				e.data == "update" ||
-				(e.data == "icinga-success" && backendError) ||
-				(e.data == "heartbeat" && !backendError && error)
-			) {
-				evtSource.close();
-				window.location.reload(true);
-			} else if (e.data == "icinga-error") {
-				if (!backendError) {
-					errorMessage("backend");
-					setBackendError(true);
-				}
-			}
-		};
-		evtSource.onopen = function () {
-			reconnectFrequencySeconds = 1;
-		};
-		evtSource.onerror = function () {
-			setTimeout(function () {
-				errorMessage("meerkat");
-			}, 5000);
-			setBackendError(false);
-			evtSource.close();
-			setTimeout(tryToSetupFunc, waitFunc());
-		};
-	}
-
-	setupEventSource();
-
 	if (!dashboard.elements) {
 		return;
 	}
-
-	const errorMessage = (type) => {
-		if (error === "") {
-			err = (
-				<div class="alert alert-danger w-100 p-3 fixed-top" role="alert">
-					<div style="width:100%">
-						<strong>Error connecting to {type} server</strong>
-					</div>
-				</div>
-			);
-			setError(err);
-		}
-	};
 
 	const elements = dashboard.elements.map((element) => {
 		const left = `${element.rect.x}%`;
@@ -127,14 +64,14 @@ function Viewer({ dashboard, events }) {
 			<div style="position: relative; width: 100%">
 				<img src={dashboard.background} style="width: 100%; height: auto" />
 				{elements}
-				{error}
+				<div id="error"></div>
 			</div>
 		);
 	}
 	return (
 		<div style="width: 100vh; height: 100vh">
 			{elements}
-			{error}
+			<div id="error"></div>
 		</div>
 	);
 }
@@ -191,6 +128,63 @@ function DashElement({ typ, options }) {
 function linkWrap(ele, link) {
 	return <a href={link}>{ele}</a>;
 }
+
+var reconnectFrequencySeconds = 5;
+var evtSource;
+var backendError = false;
+
+var tryToSetupFunc = function () {
+	setupEventSource();
+	reconnectFrequencySeconds *= 2;
+	if (reconnectFrequencySeconds >= 64) {
+		reconnectFrequencySeconds = 64;
+	}
+};
+
+const errorMessage = (type) => {
+	if (document.getElementById("error").innerHTML == "") {
+		var err =
+			'<div class="alert alert-danger w-100 p-3 fixed-top" role="alert"><div style="width:100%"><strong>Error connecting to ' +
+			type +
+			" server</strong></div></div>";
+		document.getElementById("error").innerHTML = err;
+	}
+};
+
+function setupEventSource() {
+	evtSource = new EventSource("/events?stream=updates");
+	evtSource.onmessage = function (e) {
+		if (
+			dashboard.slug == e.data ||
+			e.data == "update" ||
+			(e.data == "icinga-success" && backendError) ||
+			(e.data == "heartbeat" &&
+				!backendError &&
+				document.getElementById("error").innerHTML != "")
+		) {
+			evtSource.close();
+			window.location.reload(true);
+		} else if (e.data == "icinga-error") {
+			if (!backendError) {
+				errorMessage("backend");
+				backendError = true;
+			}
+		}
+	};
+	evtSource.onopen = function () {
+		reconnectFrequencySeconds = 5;
+	};
+	evtSource.onerror = function () {
+		setTimeout(function () {
+			errorMessage("meerkat");
+		}, 5000);
+		backendError = false;
+		evtSource.close();
+		setTimeout(tryToSetupFunc, reconnectFrequencySeconds * 1000);
+	};
+}
+
+setupEventSource();
 
 // Paths are of the form /my-dashboard/view
 const elems = window.location.pathname.split("/");

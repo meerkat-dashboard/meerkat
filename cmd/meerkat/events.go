@@ -6,7 +6,6 @@ import (
 	"context"
 	"crypto/tls"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net"
 	"net/http"
@@ -104,7 +103,7 @@ func handleKey(slug string, elementList []ElementStore, name string, event Event
 				Event: []byte(event.Type),
 				Data:  []byte(body),
 			})
-			fmt.Println("Publish Event:", event.Type, name, worstObject.Name, slug, string(body))
+			//fmt.Println("Publish Event:", event.Type, name, worstObject.Name, slug, string(body))
 		}
 	}
 }
