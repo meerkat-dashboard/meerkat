@@ -129,6 +129,9 @@ function linkWrap(ele, link) {
 	return <a href={link}>{ele}</a>;
 }
 
+const elems = window.location.pathname.split("/");
+const slug = elems[elems.length - 2];
+
 var reconnectFrequencySeconds = 5;
 var evtSource;
 var backendError = false;
@@ -155,7 +158,7 @@ function setupEventSource() {
 	evtSource = new EventSource("/events?stream=updates");
 	evtSource.onmessage = function (e) {
 		if (
-			dashboard.slug == e.data ||
+			slug == e.data ||
 			e.data == "update" ||
 			(e.data == "icinga-success" && backendError) ||
 			(e.data == "heartbeat" &&
@@ -187,8 +190,6 @@ function setupEventSource() {
 setupEventSource();
 
 // Paths are of the form /my-dashboard/view
-const elems = window.location.pathname.split("/");
-const slug = elems[elems.length - 2];
 const events = new EventSource("/events?stream=" + slug);
 
 meerkat.getDashboard(slug).then((d) => {
