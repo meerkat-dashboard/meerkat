@@ -3,6 +3,7 @@
 </header>
 <main class="container">
 <h2>{{ .Dashboard.Title }}</h2>
+<script src="https://SortableJS.github.io/Sortable/Sortable.js"></script>
 <section class="container">
 <div class="row">
 <div class="col-9">
@@ -37,7 +38,7 @@
 
 <hr>
 <h3>Modify dashboard</h3>
-<form method="POST">
+<form id="infoForm" method="POST">
 	<fieldset class="form-group mb-3">
 		<label class="form-label" for="title">Title</label>
 		<input class="form-control" type="text" id="title" name="title" minlength="4" value="{{ .Dashboard.Title }}" placeholder="Dashboard name..."  required>
@@ -62,6 +63,119 @@
 				Global Mute
 			</label>
 		</div>
+
+		<style>
+			.list-group {
+				--bs-list-group-color: #212529;
+				--bs-list-group-bg: #fff;
+				--bs-list-group-border-color: rgba(0, 0, 0, 0.125);
+				--bs-list-group-border-width: 1px;
+				--bs-list-group-border-radius: 0.375rem;
+				--bs-list-group-item-padding-x: 1rem;
+				--bs-list-group-item-padding-y: 0.5rem;
+				--bs-list-group-action-color: #495057;
+				--bs-list-group-action-hover-color: #495057;
+				--bs-list-group-action-hover-bg: #f8f9fa;
+				--bs-list-group-action-active-color: #212529;
+				--bs-list-group-action-active-bg: #e9ecef;
+				--bs-list-group-disabled-color: #6c757d;
+				--bs-list-group-disabled-bg: #fff;
+				--bs-list-group-active-color: #fff;
+				--bs-list-group-active-bg: #0d6efd;
+				--bs-list-group-active-border-color: #0d6efd;
+			}
+		</style>
+
+		<div class="form-group">
+		  	<div class="row">
+    			<div class="col" data-bs-theme="light">
+					<label for="orderList">Severity Order <i class="bi bi-info-circle-fill" data-bs-toggle="tooltip" data-bs-placement="top" title="When there's more than one icinga check for a dashboard element (e.g. a host filter or service filter), we only display the highest severity status.  This setting configures the order of severity from highest (top) to lowest (bottom)."></i></label>
+						<ul id="orderList" class="list-group">
+					</ul>
+				</div>
+					<div class="col mt-4 text-center">
+					<p>Drag and drop to reorder the severity order.</p>
+					<p>Top is most severe and bottom is least severe</p>
+					<div class="d-grid gap-2 col-6 mx-auto">
+						<button class="btn btn-primary" type="button" onclick="resetOrder(true)">Icinga2 Severity</button>
+						<button class="btn btn-primary" type="button" onclick="resetOrder(false)">Default</button>
+					</div>
+				</div>
+  			</div>
+		</div>
+
+		<script>
+			const order = {{ .Dashboard.Order }};
+			const sortedKeys = Object.keys(order).sort((a, b) => order[a] - order[b]);
+			const ul = document.getElementById('orderList');
+			for (const key of sortedKeys) {
+				const li = document.createElement('li');
+				li.className = 'list-group-item';
+				li.id = key;
+
+				const badgeSpan = document.createElement('span');
+
+				const glyphiconSpan = document.createElement('i');
+				glyphiconSpan.className = 'bi bi-arrows-move';
+
+				badgeSpan.appendChild(glyphiconSpan);
+
+				li.appendChild(badgeSpan);
+
+				const text = document.createTextNode(`  ${(key.charAt(0).toUpperCase() + key.slice(1)).replace('_ack', ' (ACK)')}`);
+				li.appendChild(text);
+
+				ul.appendChild(li);
+			}
+
+			var sortable = Sortable.create(orderList, {});
+
+			function resetOrder(icinga) {
+				ul.replaceChildren();
+
+				var defaultOrder = {
+					critical: 0,
+					critical_ack: 1,
+					warning: 2,
+					warning_ack: 3,
+					unknown: 4,
+					unknown_ack: 5,
+					ok: 6,
+				}
+
+				if (icinga) {
+					defaultOrder = {
+						critical: 0,
+						unknown: 1,
+						warning: 2,
+						critical_ack: 3,
+						unknown_ack: 4,
+						warning_ack: 5,
+						ok: 6,
+					}
+				}
+
+				for (let key in defaultOrder) {
+					const li = document.createElement('li');
+					li.className = 'list-group-item';
+					li.id = key;
+
+					const badgeSpan = document.createElement('span');
+
+					const glyphiconSpan = document.createElement('i');
+					glyphiconSpan.className = 'bi bi-arrows-move';
+
+					badgeSpan.appendChild(glyphiconSpan);
+
+					li.appendChild(badgeSpan);
+
+					const text = document.createTextNode(`  ${(key.charAt(0).toUpperCase() + key.slice(1)).replace('_ack', ' (ACK)')}`);
+					li.appendChild(text);
+
+					ul.appendChild(li);
+				}
+			}
+		</script>
 
 		<label class="form-label" for="okSound">Ok Sound</label>
 		<select class="form-select" id="okSound" name="okSound" aria-label="okSound Select">
@@ -116,6 +230,34 @@
 	</button>
 </form>
 <script>
+	const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+	const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+
+
+	const infoForm = document.getElementById("infoForm");
+	infoForm.addEventListener("submit", (e) => {
+  		e.preventDefault();
+
+		elementIndex = 0;
+		for (var item = 0; item <= ul.childNodes.length; item++) {
+			var ele = ul.childNodes[item];
+			if (ele == undefined) {
+				continue;
+			}
+			if (ele.className == "list-group-item") {
+				var input = document.createElement("input");
+				input.setAttribute("type", "hidden");
+				input.setAttribute("name", ele.id);
+				input.setAttribute("value", elementIndex);
+				infoForm.appendChild(input);
+
+				elementIndex += 1;
+			}
+		}
+
+		infoForm.submit();
+	});
+
 	document.getElementById("background").value = "{{ .Dashboard.Background }}";
 	document.getElementById("okSound").value = "{{ .Dashboard.OkSound }}";
 	document.getElementById("warningSound").value = "{{ .Dashboard.WarningSound }}";

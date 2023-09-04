@@ -43,6 +43,25 @@ func updateDashboardCache(slug string) {
 	mapLock.Lock()
 	defer mapLock.Unlock()
 	dashboard, err := meerkat.ReadDashboard(path.Join("dashboards", slug+".json"))
+
+	dashboardIndex := 0
+	found := false
+	for _, d := range status.Meerkat.Dashboards {
+		if d.Slug == slug {
+			found = true
+			break
+		}
+		dashboardIndex++
+	}
+
+	if found {
+		d := status.Meerkat.Dashboards[dashboardIndex]
+		d.Folder = dashboard.Folder
+		d.Title = dashboard.Title
+		d.Order = dashboard.Order
+		status.Meerkat.Dashboards[dashboardIndex] = d
+	}
+
 	if err != nil {
 		log.Println("Error reading dashboard:", err)
 		return
@@ -73,6 +92,7 @@ func createDashboardCache() {
 				Slug:            dashboard.Slug,
 				Folder:          dashboard.Folder,
 				CurrentlyOpenBy: []string{},
+				Order:           dashboard.Order,
 			})
 		server.CreateStream(dashboard.Slug)
 

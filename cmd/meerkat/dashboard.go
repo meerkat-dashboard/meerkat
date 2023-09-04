@@ -34,10 +34,11 @@ type Requests struct {
 }
 
 type Dashboard struct {
-	Title           string   `json:"title"`
-	Slug            string   `json:"slug"`
-	Folder          string   `json:"folder"`
-	CurrentlyOpenBy []string `json:"currently_open_by"`
+	Title           string        `json:"title"`
+	Slug            string        `json:"slug"`
+	Folder          string        `json:"folder"`
+	CurrentlyOpenBy []string      `json:"currently_open_by"`
+	Order           meerkat.Order `json:"order"`
 }
 
 type Status struct {
@@ -72,9 +73,13 @@ func UpdateHandler(w http.ResponseWriter, req *http.Request) {
 	}
 	name := strings.Split(path.Dir(req.URL.Path), "/")[1]
 	log.Printf("Updated %s dashboards\n", name)
+	updateDashboardCache(name)
 	server.Publish("updates", &sse.Event{
 		Data: []byte(name),
 	})
+	if req.Header.Get("Referer") != "" {
+		http.Redirect(w, req, req.Header.Get("Referer"), http.StatusFound)
+	}
 	w.WriteHeader(200)
 }
 func SetWorking() {
@@ -342,6 +347,17 @@ func eventToRequest(event Event, objectName string, objectType string, elementNa
 	}
 }
 
+func getWorstObject(objects ObjectResults, dashboard Dashboard) Result {
+	worst := objects.Results[0]
+
+	for _, object := range objects.Results {
+		if object.isWorse(worst, dashboard) {
+			worst = object
+		}
+	}
+	return worst
+}
+
 func getObjectHandler(w http.ResponseWriter, r *http.Request) {
 	objectType := r.URL.Query().Get("type")
 	objectName := r.URL.Query().Get("name")
@@ -381,6 +397,7 @@ func getObjectHandler(w http.ResponseWriter, r *http.Request) {
 	mapLock.RLock()
 	dashboardCacheCopy := dashboardCache
 	mapLock.RUnlock()
+	var worstObject Result
 	for _, element := range dashboardCacheCopy[slug] {
 		if element.Name == name && len(element.Name) != 0 {
 			for _, objectName := range element.Objects {
@@ -388,12 +405,22 @@ func getObjectHandler(w http.ResponseWriter, r *http.Request) {
 				if found {
 					object := objectCache.(Result)
 					object.Element = name
-					cachedResults = append(cachedResults, object)
+					if worstObject == (Result{}) {
+						worstObject = object
+					}
+					for _, dashboard := range status.Meerkat.Dashboards {
+						if dashboard.Slug == slug {
+							if object.isWorse(worstObject, dashboard) {
+								worstObject = object
+							}
+						}
+					}
 					isCached = true
 				}
 			}
 		}
 	}
+	cachedResults = append(cachedResults, worstObject)
 
 	if isCached {
 		objects := ObjectResults{
@@ -428,7 +455,16 @@ func getObjectHandler(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				log.Println("Failed to decode response:", err)
 			}
-			b, err := json.Marshal(objects)
+			worst := Result{}
+			for _, dashboard := range status.Meerkat.Dashboards {
+				if dashboard.Slug == slug {
+					worst = getWorstObject(objects, dashboard)
+				}
+			}
+			worstObjects := ObjectResults{
+				Results: []Result{worst},
+			}
+			b, err := json.Marshal(worstObjects)
 			if err != nil {
 				log.Printf("Error: %s\n", err)
 				return
