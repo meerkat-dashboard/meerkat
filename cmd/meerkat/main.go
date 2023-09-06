@@ -71,7 +71,9 @@ func updateDashboardCache(slug string) {
 func createDashboardCache() {
 	mapLock.Lock()
 	defer mapLock.Unlock()
+	dashboardLock.Lock()
 	status.Meerkat.Dashboards = make(map[string]Dashboard)
+	dashboardLock.Unlock()
 	dashboards, err := meerkat.ReadDashboardDir("dashboards")
 	if err != nil {
 		log.Println("Error reading dashboards:", err)
