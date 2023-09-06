@@ -155,8 +155,11 @@ func handleEvent(response string) error {
 	mapLock.RUnlock()
 
 	var wg sync.WaitGroup
+	dashboardLock.RLock()
+	dashboardListCopy := status.Meerkat.Dashboards
+	dashboardLock.RUnlock()
 
-	for _, dashboard := range status.Meerkat.Dashboards {
+	for _, dashboard := range dashboardListCopy {
 		if len(dashboard.CurrentlyOpenBy) > 0 {
 			wg.Add(1)
 			go func(dashboard Dashboard, elementList []ElementStore) {
