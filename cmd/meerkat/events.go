@@ -6,7 +6,6 @@ import (
 	"context"
 	"crypto/tls"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net"
 	"net/http"
@@ -141,7 +140,6 @@ func handleKey(dashboard Dashboard, elementList []ElementStore, name string, eve
 
 func handleEvent(response string) error {
 	var event Event
-	fmt.Println(response)
 	err := json.Unmarshal([]byte(response), &event)
 	if err != nil {
 		return err
