@@ -43,8 +43,8 @@ type Dashboard struct {
 
 type Status struct {
 	Meerkat struct {
-		StartTime  int64       `json:"start_time"`
-		Dashboards []Dashboard `json:"dashboards"`
+		StartTime  int64                `json:"start_time"`
+		Dashboards map[string]Dashboard `json:"dashboards"`
 	} `json:"meerkat"`
 	Backends struct {
 		Icinga struct {
@@ -408,13 +408,15 @@ func getObjectHandler(w http.ResponseWriter, r *http.Request) {
 					if worstObject == (Result{}) {
 						worstObject = object
 					}
-					for _, dashboard := range status.Meerkat.Dashboards {
-						if dashboard.Slug == slug {
-							if object.isWorse(worstObject, dashboard) {
-								worstObject = object
-							}
+
+					dashboardLock.RLock()
+					dashboard, ok := status.Meerkat.Dashboards[slug]
+					if ok {
+						if object.isWorse(worstObject, dashboard) {
+							worstObject = object
 						}
 					}
+					dashboardLock.RUnlock()
 					isCached = true
 				}
 			}
@@ -456,11 +458,14 @@ func getObjectHandler(w http.ResponseWriter, r *http.Request) {
 				log.Println("Failed to decode response:", err)
 			}
 			worst := Result{}
-			for _, dashboard := range status.Meerkat.Dashboards {
-				if dashboard.Slug == slug {
-					worst = getWorstObject(objects, dashboard)
-				}
+
+			dashboardLock.RLock()
+			dashboard, ok := status.Meerkat.Dashboards[slug]
+			if ok {
+				worst = getWorstObject(objects, dashboard)
 			}
+			dashboardLock.RUnlock()
+
 			worstObjects := ObjectResults{
 				Results: []Result{worst},
 			}

@@ -57,13 +57,6 @@
 			{{ end }}
 		</select>
 
-		<div class="form-check">
-			<input class="form-check-input" type="checkbox" name="globalMute" id="globalMute" value="true" {{ if eq .Dashboard.GlobalMute true }} checked {{end}}>
-			<label class="form-check-label" for="globalMute">
-				Global Mute
-			</label>
-		</div>
-
 		<style>
 			.list-group {
 				--bs-list-group-color: #212529;
@@ -176,6 +169,13 @@
 				}
 			}
 		</script>
+
+		<div class="form-check">
+			<input class="form-check-input" type="checkbox" name="globalMute" id="globalMute" value="true" {{ if eq .Dashboard.GlobalMute true }} checked {{end}}>
+			<label class="form-check-label" for="globalMute">
+				Global Mute
+			</label>
+		</div>
 
 		<label class="form-label" for="okSound">Ok Sound</label>
 		<select class="form-select" id="okSound" name="okSound" aria-label="okSound Select">

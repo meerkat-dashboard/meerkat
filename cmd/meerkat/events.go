@@ -6,6 +6,7 @@ import (
 	"context"
 	"crypto/tls"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net"
 	"net/http"
@@ -55,8 +56,6 @@ type CheckResult struct {
 		StateType int         `json:"state_type,omitempty"`
 	} `json:"vars_before,omitempty"`
 }
-
-//1, 4, 2, 5, 3, 6, 7
 
 func getPriority(result Result, dashboard Dashboard) int {
 	switch result.Attrs.State {
@@ -142,6 +141,7 @@ func handleKey(dashboard Dashboard, elementList []ElementStore, name string, eve
 
 func handleEvent(response string) error {
 	var event Event
+	fmt.Println(response)
 	err := json.Unmarshal([]byte(response), &event)
 	if err != nil {
 		return err
@@ -293,22 +293,28 @@ func createEventStream(r *chi.Mux) {
 		go func() {
 			stream := r.URL.Query().Get("stream")
 			if stream != "update" {
-				var index int
-				for dashboard := range status.Meerkat.Dashboards {
-					if status.Meerkat.Dashboards[dashboard].Slug == stream {
-						index = dashboard
-						status.Meerkat.Dashboards[dashboard].CurrentlyOpenBy = append(status.Meerkat.Dashboards[dashboard].CurrentlyOpenBy, r.RemoteAddr)
-					}
+				dashboardLock.Lock()
+				dashboard, ok := status.Meerkat.Dashboards[stream]
+				if ok {
+					dashboard.CurrentlyOpenBy = append(dashboard.CurrentlyOpenBy, r.RemoteAddr)
+					status.Meerkat.Dashboards[stream] = dashboard
 				}
+				dashboardLock.Unlock()
+
 				<-r.Context().Done()
-				if status.Meerkat.Dashboards[index].Slug == stream {
-					for i, v := range status.Meerkat.Dashboards[index].CurrentlyOpenBy {
+
+				dashboardLock.Lock()
+				dashboard, ok = status.Meerkat.Dashboards[stream]
+				if ok {
+					for i, v := range dashboard.CurrentlyOpenBy {
 						if v == r.RemoteAddr {
-							status.Meerkat.Dashboards[index].CurrentlyOpenBy = append(status.Meerkat.Dashboards[index].CurrentlyOpenBy[:i], status.Meerkat.Dashboards[index].CurrentlyOpenBy[i+1:]...)
+							dashboard.CurrentlyOpenBy = append(dashboard.CurrentlyOpenBy[:i], dashboard.CurrentlyOpenBy[i+1:]...)
+							status.Meerkat.Dashboards[stream] = dashboard
 							break
 						}
 					}
 				}
+				dashboardLock.Unlock()
 			} else {
 				<-r.Context().Done()
 			}
