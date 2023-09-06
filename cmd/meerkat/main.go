@@ -28,6 +28,7 @@ var status Status
 var requestList []Requests
 var dashboardCache map[string][]ElementStore
 var mapLock = &sync.RWMutex{}
+var dashboardLock = &sync.RWMutex{}
 var cache *ristretto.Cache
 
 type ElementStore struct {
@@ -43,6 +44,17 @@ func updateDashboardCache(slug string) {
 	mapLock.Lock()
 	defer mapLock.Unlock()
 	dashboard, err := meerkat.ReadDashboard(path.Join("dashboards", slug+".json"))
+
+	dashboardLock.Lock()
+	d, ok := status.Meerkat.Dashboards[slug]
+	if ok {
+		d.Folder = dashboard.Folder
+		d.Title = dashboard.Title
+		d.Order = dashboard.Order
+		status.Meerkat.Dashboards[slug] = d
+	}
+	dashboardLock.Unlock()
+
 	if err != nil {
 		log.Println("Error reading dashboard:", err)
 		return
@@ -59,6 +71,7 @@ func updateDashboardCache(slug string) {
 func createDashboardCache() {
 	mapLock.Lock()
 	defer mapLock.Unlock()
+	status.Meerkat.Dashboards = make(map[string]Dashboard)
 	dashboards, err := meerkat.ReadDashboardDir("dashboards")
 	if err != nil {
 		log.Println("Error reading dashboards:", err)
@@ -66,14 +79,15 @@ func createDashboardCache() {
 	}
 	cache.Clear()
 	dashboardCache = make(map[string][]ElementStore)
+	dashboardLock.Lock()
 	for _, dashboard := range dashboards {
-		status.Meerkat.Dashboards = append(status.Meerkat.Dashboards,
-			Dashboard{
-				Title:           dashboard.Title,
-				Slug:            dashboard.Slug,
-				Folder:          dashboard.Folder,
-				CurrentlyOpenBy: []string{},
-			})
+		status.Meerkat.Dashboards[dashboard.Slug] = Dashboard{
+			Title:           dashboard.Title,
+			Slug:            dashboard.Slug,
+			Folder:          dashboard.Folder,
+			CurrentlyOpenBy: []string{},
+			Order:           dashboard.Order,
+		}
 		server.CreateStream(dashboard.Slug)
 
 		for _, element := range dashboard.Elements {
@@ -82,6 +96,7 @@ func createDashboardCache() {
 			}
 		}
 	}
+	dashboardLock.Unlock()
 }
 
 func main() {

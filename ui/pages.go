@@ -330,6 +330,7 @@ func (srv *Server) EditInfoHandler(w http.ResponseWriter, req *http.Request) {
 	dashboard.UnknownSound = newdash.UnknownSound
 	dashboard.UpSound = newdash.UpSound
 	dashboard.DownSound = newdash.DownSound
+	dashboard.Order = newdash.Order
 	err = meerkat.CreateDashboard(fname, &dashboard)
 	if err != nil {
 		msg := fmt.Sprintf("edit dashboard info: %v", err)
@@ -337,7 +338,7 @@ func (srv *Server) EditInfoHandler(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, msg, http.StatusInternalServerError)
 		return
 	}
-	url := path.Join("/", slug, "info")
+	url := path.Join("/", slug, "update")
 	log.Printf("Dashboard info updated %s\n", dashboard.Title)
 	http.Redirect(w, req, url, http.StatusFound)
 }

@@ -30,6 +30,17 @@ type Dashboard struct {
 	UpSound       string    `json:"upSound"`
 	DownSound     string    `json:"downSound"`
 	Elements      []Element `json:"elements"`
+	Order         Order     `json:"order"`
+}
+
+type Order struct {
+	Ok          int `json:"ok"`
+	Warning     int `json:"warning"`
+	Critical    int `json:"critical"`
+	Unknown     int `json:"unknown"`
+	WarningAck  int `json:"warning_ack"`
+	CriticalAck int `json:"critical_ack"`
+	UnknownAck  int `json:"unknown_ack"`
 }
 
 // Element contains any service/host information needed
@@ -142,6 +153,15 @@ func ReadDashboard(name string) (Dashboard, error) {
 	}
 	defer f.Close()
 	var dashboard Dashboard
+	dashboard.Order = Order{
+		Critical:    0,
+		CriticalAck: 1,
+		Warning:     2,
+		WarningAck:  3,
+		Unknown:     4,
+		UnknownAck:  5,
+		Ok:          6,
+	}
 	if err := json.NewDecoder(f).Decode(&dashboard); err != nil {
 		return Dashboard{}, fmt.Errorf("decode dashboard %s: %w", f.Name(), err)
 	}
@@ -214,6 +234,20 @@ func ParseDashboardForm(form url.Values) (Dashboard, error) {
 			dashboard.UpSound = v
 		case "downSound":
 			dashboard.DownSound = v
+		case "critical":
+			dashboard.Order.Critical, _ = strconv.Atoi(v)
+		case "warning":
+			dashboard.Order.Warning, _ = strconv.Atoi(v)
+		case "unknown":
+			dashboard.Order.Unknown, _ = strconv.Atoi(v)
+		case "ok":
+			dashboard.Order.Ok, _ = strconv.Atoi(v)
+		case "critical_ack":
+			dashboard.Order.CriticalAck, _ = strconv.Atoi(v)
+		case "warning_ack":
+			dashboard.Order.WarningAck, _ = strconv.Atoi(v)
+		case "unknown_ack":
+			dashboard.Order.UnknownAck, _ = strconv.Atoi(v)
 		default:
 			return Dashboard{}, fmt.Errorf("unknown form parameter %s", k)
 		}
