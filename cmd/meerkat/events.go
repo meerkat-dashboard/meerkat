@@ -120,7 +120,7 @@ func handleKey(dashboard Dashboard, elementList []ElementStore, name string, eve
 			}
 		}
 
-		if found && (worstObject.Attrs.Name != element.LastEvent || name == element.LastEvent) {
+		if found && (worstObject.Attrs.Name != element.LastEvent || name == element.LastEvent) && worstObject != (Result{}) {
 			body, err := json.Marshal(results)
 			if err != nil {
 				log.Println(err)

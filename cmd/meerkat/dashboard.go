@@ -424,7 +424,9 @@ func getObjectHandler(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
-	cachedResults = append(cachedResults, worstObject)
+	if worstObject != (Result{}) {
+		cachedResults = append(cachedResults, worstObject)
+	}
 
 	if isCached {
 		objects := ObjectResults{
@@ -470,6 +472,9 @@ func getObjectHandler(w http.ResponseWriter, r *http.Request) {
 
 			worstObjects := ObjectResults{
 				Results: []Result{worst},
+			}
+			if worst == (Result{}) {
+				worstObjects.Results = []Result{}
 			}
 			b, err := json.Marshal(worstObjects)
 			if err != nil {
