@@ -348,10 +348,12 @@ func eventToRequest(event Event, objectName string, objectType string, elementNa
 }
 
 func getWorstObject(objects ObjectResults, dashboard Dashboard) Result {
-	worst := objects.Results[0]
+	worst := Result{}
 
 	for _, object := range objects.Results {
-		if object.isWorse(worst, dashboard) {
+		if worst == (Result{}) {
+			worst = object
+		} else if object.isWorse(worst, dashboard) {
 			worst = object
 		}
 	}
