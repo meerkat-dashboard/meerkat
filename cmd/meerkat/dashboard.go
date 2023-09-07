@@ -18,6 +18,7 @@ import (
 	"path"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -25,6 +26,8 @@ import (
 	"github.com/r3labs/sse/v2"
 	"golang.org/x/exp/slices"
 )
+
+var dashboardSync sync.Map
 
 type Requests struct {
 	CallMade   string `json:"call_made"`
@@ -43,8 +46,7 @@ type Dashboard struct {
 
 type Status struct {
 	Meerkat struct {
-		StartTime  int64                `json:"start_time"`
-		Dashboards map[string]Dashboard `json:"dashboards"`
+		StartTime int64 `json:"start_time"`
 	} `json:"meerkat"`
 	Backends struct {
 		Icinga struct {
@@ -411,14 +413,13 @@ func getObjectHandler(w http.ResponseWriter, r *http.Request) {
 						worstObject = object
 					}
 
-					dashboardLock.RLock()
-					dashboard, ok := status.Meerkat.Dashboards[slug]
+					dashboard, ok := dashboardSync.Load(slug)
 					if ok {
-						if object.isWorse(worstObject, dashboard) {
+						d := dashboard.(Dashboard)
+						if object.isWorse(worstObject, d) {
 							worstObject = object
 						}
 					}
-					dashboardLock.RUnlock()
 					isCached = true
 				}
 			}
@@ -463,12 +464,11 @@ func getObjectHandler(w http.ResponseWriter, r *http.Request) {
 			}
 			worst := Result{}
 
-			dashboardLock.RLock()
-			dashboard, ok := status.Meerkat.Dashboards[slug]
+			dashboard, ok := dashboardSync.Load(slug)
 			if ok {
-				worst = getWorstObject(objects, dashboard)
+				d := dashboard.(Dashboard)
+				worst = getWorstObject(objects, d)
 			}
-			dashboardLock.RUnlock()
 
 			worstObjects := ObjectResults{
 				Results: []Result{worst},

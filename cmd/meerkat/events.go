@@ -155,11 +155,9 @@ func handleEvent(response string) error {
 	mapLock.RUnlock()
 
 	var wg sync.WaitGroup
-	dashboardLock.RLock()
-	dashboardListCopy := status.Meerkat.Dashboards
-	dashboardLock.RUnlock()
 
-	for _, dashboard := range dashboardListCopy {
+	dashboardSync.Range(func(key, value interface{}) bool {
+		dashboard := value.(Dashboard)
 		if len(dashboard.CurrentlyOpenBy) > 0 {
 			wg.Add(1)
 			go func(dashboard Dashboard, elementList []ElementStore) {
@@ -167,7 +165,8 @@ func handleEvent(response string) error {
 				handleKey(dashboard, elementList, name, event)
 			}(dashboard, dashboardCacheCopy[dashboard.Slug])
 		}
-	}
+		return true
+	})
 
 	wg.Wait()
 
@@ -294,28 +293,26 @@ func createEventStream(r *chi.Mux) {
 		go func() {
 			stream := r.URL.Query().Get("stream")
 			if stream != "update" {
-				dashboardLock.Lock()
-				dashboard, ok := status.Meerkat.Dashboards[stream]
+				dashboard, ok := dashboardSync.Load(stream)
 				if ok {
-					dashboard.CurrentlyOpenBy = append(dashboard.CurrentlyOpenBy, r.RemoteAddr)
-					status.Meerkat.Dashboards[stream] = dashboard
+					d := dashboard.(Dashboard)
+					d.CurrentlyOpenBy = append(d.CurrentlyOpenBy, r.RemoteAddr)
+					dashboardSync.Store(stream, d)
 				}
-				dashboardLock.Unlock()
 
 				<-r.Context().Done()
 
-				dashboardLock.Lock()
-				dashboard, ok = status.Meerkat.Dashboards[stream]
+				dashboard, ok = dashboardSync.Load(stream)
 				if ok {
-					for i, v := range dashboard.CurrentlyOpenBy {
+					d := dashboard.(Dashboard)
+					for i, v := range d.CurrentlyOpenBy {
 						if v == r.RemoteAddr {
-							dashboard.CurrentlyOpenBy = append(dashboard.CurrentlyOpenBy[:i], dashboard.CurrentlyOpenBy[i+1:]...)
-							status.Meerkat.Dashboards[stream] = dashboard
+							d.CurrentlyOpenBy = append(d.CurrentlyOpenBy[:i], d.CurrentlyOpenBy[i+1:]...)
+							dashboardSync.Store(stream, d)
 							break
 						}
 					}
 				}
-				dashboardLock.Unlock()
 			} else {
 				<-r.Context().Done()
 			}
