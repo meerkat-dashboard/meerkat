@@ -16,8 +16,10 @@ import (
 	"net/url"
 	"os"
 	"path"
+	"reflect"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -25,6 +27,8 @@ import (
 	"github.com/r3labs/sse/v2"
 	"golang.org/x/exp/slices"
 )
+
+var dashboardSync sync.Map
 
 type Requests struct {
 	CallMade   string `json:"call_made"`
@@ -43,8 +47,7 @@ type Dashboard struct {
 
 type Status struct {
 	Meerkat struct {
-		StartTime  int64                `json:"start_time"`
-		Dashboards map[string]Dashboard `json:"dashboards"`
+		StartTime int64 `json:"start_time"`
 	} `json:"meerkat"`
 	Backends struct {
 		Icinga struct {
@@ -411,14 +414,13 @@ func getObjectHandler(w http.ResponseWriter, r *http.Request) {
 						worstObject = object
 					}
 
-					dashboardLock.RLock()
-					dashboard, ok := status.Meerkat.Dashboards[slug]
+					dashboard, ok := dashboardSync.Load(slug)
 					if ok {
-						if object.isWorse(worstObject, dashboard) {
+						d := dashboard.(Dashboard)
+						if object.isWorse(worstObject, d) {
 							worstObject = object
 						}
 					}
-					dashboardLock.RUnlock()
 					isCached = true
 				}
 			}
@@ -463,12 +465,11 @@ func getObjectHandler(w http.ResponseWriter, r *http.Request) {
 			}
 			worst := Result{}
 
-			dashboardLock.RLock()
-			dashboard, ok := status.Meerkat.Dashboards[slug]
+			dashboard, ok := dashboardSync.Load(slug)
 			if ok {
-				worst = getWorstObject(objects, dashboard)
+				d := dashboard.(Dashboard)
+				worst = getWorstObject(objects, d)
 			}
-			dashboardLock.RUnlock()
 
 			worstObjects := ObjectResults{
 				Results: []Result{worst},
@@ -522,6 +523,13 @@ func handleError(w http.ResponseWriter, dec *json.Decoder, dashboardTitle string
 	w.Write(b)
 }
 
+type RespProp struct {
+	Type      string `json:"type"`
+	Title     string `json:"title"`
+	Default   string `json:"default,omitempty"`
+	MinLength int    `json:"minLength,omitempty"`
+}
+
 func getStatusHandler(w http.ResponseWriter, r *http.Request) {
 	status.Backends.Icinga.Connections.APICalls.RecentRequestCount = len(requestList)
 	status.Backends.Icinga.Connections.APICalls.RecentHistory = requestList
@@ -530,7 +538,25 @@ func getStatusHandler(w http.ResponseWriter, r *http.Request) {
 	status.Backends.Icinga.Connections.EventStreams.ReceivedEventCount = len(events)
 	status.Backends.Icinga.Connections.EventStreams.RecentHistory = events
 
-	body, err := json.Marshal(status)
+	response := make(map[string]interface{})
+	v := reflect.ValueOf(status)
+	typeOfResponse := v.Type()
+
+	for i := 0; i < v.NumField(); i++ {
+		response[strings.ToLower(typeOfResponse.Field(i).Name)] = v.Field(i).Interface()
+	}
+
+	jsonDashboards := make(map[string]interface{})
+	dashboardSync.Range(func(k interface{}, v interface{}) bool {
+		jsonDashboards[k.(string)] = v
+		return true
+	})
+	response["meerkat"] = map[string]interface{}{
+		"start_time": status.Meerkat.StartTime,
+		"dashboards": jsonDashboards,
+	}
+
+	body, err := json.Marshal(response)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
