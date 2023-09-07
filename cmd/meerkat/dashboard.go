@@ -16,6 +16,7 @@ import (
 	"net/url"
 	"os"
 	"path"
+	"reflect"
 	"strconv"
 	"strings"
 	"sync"
@@ -522,6 +523,13 @@ func handleError(w http.ResponseWriter, dec *json.Decoder, dashboardTitle string
 	w.Write(b)
 }
 
+type RespProp struct {
+	Type      string `json:"type"`
+	Title     string `json:"title"`
+	Default   string `json:"default,omitempty"`
+	MinLength int    `json:"minLength,omitempty"`
+}
+
 func getStatusHandler(w http.ResponseWriter, r *http.Request) {
 	status.Backends.Icinga.Connections.APICalls.RecentRequestCount = len(requestList)
 	status.Backends.Icinga.Connections.APICalls.RecentHistory = requestList
@@ -530,7 +538,25 @@ func getStatusHandler(w http.ResponseWriter, r *http.Request) {
 	status.Backends.Icinga.Connections.EventStreams.ReceivedEventCount = len(events)
 	status.Backends.Icinga.Connections.EventStreams.RecentHistory = events
 
-	body, err := json.Marshal(status)
+	response := make(map[string]interface{})
+	v := reflect.ValueOf(status)
+	typeOfResponse := v.Type()
+
+	for i := 0; i < v.NumField(); i++ {
+		response[strings.ToLower(typeOfResponse.Field(i).Name)] = v.Field(i).Interface()
+	}
+
+	jsonDashboards := make(map[string]interface{})
+	dashboardSync.Range(func(k interface{}, v interface{}) bool {
+		jsonDashboards[k.(string)] = v
+		return true
+	})
+	response["meerkat"] = map[string]interface{}{
+		"start_time": status.Meerkat.StartTime,
+		"dashboards": jsonDashboards,
+	}
+
+	body, err := json.Marshal(response)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
