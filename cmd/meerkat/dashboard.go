@@ -440,7 +440,9 @@ func getObjectHandler(w http.ResponseWriter, r *http.Request) {
 			log.Printf("Error: %s\n", err)
 			return
 		}
-		icingaLog.Println("Using cached response:", slug, objectName, objectFilter)
+		if config.IcingaDebug {
+			icingaLog.Println("Using cached response:", slug, objectName, objectFilter)
+		}
 		w.Write(b)
 	} else {
 		requestURL = requestURL + "?" + strings.ReplaceAll(params.Encode(), "+", "%20")
