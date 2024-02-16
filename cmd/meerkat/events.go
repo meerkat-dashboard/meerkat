@@ -9,6 +9,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"reflect"
 	"sync"
 	"time"
 
@@ -120,20 +121,30 @@ func handleKey(dashboard Dashboard, elementList []ElementStore, name string, eve
 			}
 		}
 
-		if found && (worstObject.Attrs.Name != element.LastEvent || name == element.LastEvent) && worstObject != (Result{}) {
+		// Prevents duplicate events being sent
+		if event.Type == "CheckResult" {
+			if worstObject.Attrs.Name == element.LastEvent.Attrs.Name {
+				if worstObject.Attrs.State == element.LastEvent.Attrs.State {
+					if reflect.DeepEqual(worstObject.Attrs.LastCheckResults.PerformanceData, element.LastEvent.Attrs.LastCheckResults.PerformanceData) {
+						return
+					}
+				}
+			}
+		}
+
+		if found && worstObject != (Result{}) {
 			body, err := json.Marshal(results)
 			if err != nil {
 				log.Println(err)
 				return
 			}
 			mapLock.Lock()
-			dashboardCache[dashboard.Slug][i].LastEvent = worstObject.Name
+			dashboardCache[dashboard.Slug][i].LastEvent = worstObject
 			mapLock.Unlock()
 			server.Publish(dashboard.Slug, &sse.Event{
 				Event: []byte(event.Type),
 				Data:  []byte(body),
 			})
-			//fmt.Println("Publish Event:", event.Type, name, worstObject.Name, slug, string(body))
 		}
 	}
 }

@@ -33,7 +33,7 @@ var cache *ristretto.Cache
 type ElementStore struct {
 	Name      string   `json:"name"`
 	Type      string   `json:"type"`
-	LastEvent string   `json:"last_event"`
+	LastEvent Result   `json:"last_event"`
 	Objects   []string `json:"objects"`
 }
 
