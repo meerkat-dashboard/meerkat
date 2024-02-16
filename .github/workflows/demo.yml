@@ -24,7 +24,7 @@ jobs:
     - uses: actions/setup-go@v3
     - uses: actions/setup-node@v3
       with:
-        node-version: 16.x
+        node-version: 21.x
 
     - name: "JS lint"
       working-directory: /usr/local/meerkat/meerkat/meerkat
@@ -59,7 +59,7 @@ jobs:
           ref: ${{ steps.extract_branch.outputs.branch }}
       - uses: actions/setup-node@v3
         with:
-          node-version: 16.x
+          node-version: 21.x
       - uses: actions/setup-go@v3
       
       - name: Set Port
