@@ -69,7 +69,11 @@ export async function handleJSON(obj) {
 	};
 	try {
 		if (obj.attrs.last_check_result.performance_data) {
-			for (let i = 0; i < obj.attrs.last_check_result.performance_data.length;i++) {
+			for (
+				let i = 0;
+				i < obj.attrs.last_check_result.performance_data.length;
+				i++
+			) {
 				var data = obj.attrs.last_check_result.performance_data[i];
 				if (typeof data === "string") {
 					var label = data.split("=")[0];
