@@ -169,7 +169,7 @@ Here is an example `ApiUser` object with limited, read-only privileges:
 
 	object ApiUser "meerkat" {
 		password = "meerkat"
-		permissions = [ "objects/query/Host", "objects/query/Service", "objects/query/ServiceGroup", "objects/query/HostGroup", "events/StateChange" , "events/CheckResult", "status/query" ]
+		permissions = [ "objects/query/Host", "objects/query/Service", "objects/query/ServiceGroup", "objects/query/HostGroup", "events/StateChange" , "events/CheckResult", "events/AcknowledgementSet", "events/AcknowledgementCleared", "status/query" ]	
 	}
 
 In a default Icinga2 installation, you can write this definition to `/etc/icinga2/conf.d/api-users.conf`.
