@@ -23,7 +23,7 @@ We will use the example username and password "meerkat".
 
 	object ApiUser "meerkat" {
 		password = "meerkat"
-		permissions = [ "objects/query/Host", "objects/query/Service", "objects/query/ServiceGroup", "objects/query/HostGroup", "events/StateChange" , "events/CheckResult", "status/query" ]
+		permissions = [ "objects/query/Host", "objects/query/Service", "objects/query/ServiceGroup", "objects/query/HostGroup", "events/StateChange" , "events/CheckResult", "events/AcknowledgementSet", "events/AcknowledgementCleared", "status/query" ]
 	}
 
 [apiuser]: https://icinga.com/docs/icinga-2/latest/doc/09-object-types/#apiuser

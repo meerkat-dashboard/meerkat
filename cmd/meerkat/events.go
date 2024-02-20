@@ -10,12 +10,27 @@ import (
 	"net"
 	"net/http"
 	"reflect"
+	"strings"
 	"sync"
 	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/r3labs/sse/v2"
 )
+
+type AcknowledgementSet struct {
+	Host    string
+	Service string
+	Author  string
+	Comment string
+	Notify  bool
+	Expiry  float64
+}
+
+type AcknowledgementCleared struct {
+	Host    string
+	Service string
+}
 
 type Event struct {
 	Acknowledgement bool        `json:"acknowledgement,omitempty"`
@@ -123,10 +138,12 @@ func handleKey(dashboard Dashboard, elementList []ElementStore, name string, eve
 
 		// Prevents duplicate events being sent
 		if event.Type == "CheckResult" {
-			if worstObject.Attrs.Name == element.LastEvent.Attrs.Name {
-				if worstObject.Attrs.State == element.LastEvent.Attrs.State {
-					if reflect.DeepEqual(worstObject.Attrs.LastCheckResults.PerformanceData, element.LastEvent.Attrs.LastCheckResults.PerformanceData) {
-						return
+			if worstObject.Attrs.Acknowledgement == element.LastEvent.Attrs.Acknowledgement {
+				if worstObject.Attrs.Name == element.LastEvent.Attrs.Name {
+					if worstObject.Attrs.State == element.LastEvent.Attrs.State {
+						if reflect.DeepEqual(worstObject.Attrs.LastCheckResults.PerformanceData, element.LastEvent.Attrs.LastCheckResults.PerformanceData) {
+							return
+						}
 					}
 				}
 			}
@@ -149,18 +166,101 @@ func handleKey(dashboard Dashboard, elementList []ElementStore, name string, eve
 	}
 }
 
+func handleAcknowledge(dashboard Dashboard, elementList []ElementStore, name string, acknowledged int) {
+	for i, element := range elementList {
+		value, ok := cache.Get(name)
+		if ok {
+			req := value.(Result)
+			req.Attrs.Acknowledgement = acknowledged
+
+			if element.LastEvent.Name == name {
+				element.LastEvent.Attrs.Acknowledgement = acknowledged
+				mapLock.Lock()
+				dashboardCache[dashboard.Slug][i].LastEvent = element.LastEvent
+				mapLock.Unlock()
+
+				results := []Result{element.LastEvent}
+				body, err := json.Marshal(results)
+				if err != nil {
+					log.Println(err)
+					return
+				}
+
+				server.Publish(dashboard.Slug, &sse.Event{
+					Event: []byte("StateChange"),
+					Data:  []byte(body),
+				})
+
+				server.Publish(dashboard.Slug, &sse.Event{
+					Event: []byte("CheckResult"),
+					Data:  []byte(body),
+				})
+			}
+
+			cache.Set(name, req, 1)
+		}
+	}
+}
+
 func handleEvent(response string) error {
+	var name string
 	var event Event
-	err := json.Unmarshal([]byte(response), &event)
-	if err != nil {
-		return err
-	}
-	name := event.Host
+	var eventType int
+	var acknowledgement int
+	if strings.Contains(response, "AcknowledgementSet") {
+		eventType = 1
+		acknowledgement = 1
+		var ack AcknowledgementSet
+		err := json.Unmarshal([]byte(response), &ack)
+		if err != nil {
+			return err
+		}
 
-	if event.Service != "" {
-		name = name + "!" + event.Service
-	}
+		name = ack.Host
+		if ack.Service != "" {
+			name = name + "!" + ack.Service
+		}
 
+		value, ok := cache.Get(name)
+		if ok {
+			req := value.(Result)
+			req.Attrs.Acknowledgement = 1
+			cache.Set(name, req, 1)
+			cache.Wait()
+		}
+	} else if strings.Contains(response, "AcknowledgementCleared") {
+		eventType = 1
+		acknowledgement = 0
+		var ack AcknowledgementCleared
+		err := json.Unmarshal([]byte(response), &ack)
+		if err != nil {
+			return err
+		}
+
+		name = ack.Host
+		if ack.Service != "" {
+			name = name + "!" + ack.Service
+		}
+
+		value, ok := cache.Get(name)
+		if ok {
+			req := value.(Result)
+			req.Attrs.Acknowledgement = 0
+			cache.Set(name, req, 1)
+			cache.Wait()
+		}
+	} else {
+		eventType = 0
+		err := json.Unmarshal([]byte(response), &event)
+		if err != nil {
+			return err
+		}
+		name = event.Host
+
+		if event.Service != "" {
+			name = name + "!" + event.Service
+		}
+	}
 	mapLock.RLock()
 	dashboardCacheCopy := dashboardCache
 	mapLock.RUnlock()
@@ -173,7 +273,11 @@ func handleEvent(response string) error {
 			wg.Add(1)
 			go func(dashboard Dashboard, elementList []ElementStore) {
 				defer wg.Done()
-				handleKey(dashboard, elementList, name, event)
+				if eventType == 0 {
+					handleKey(dashboard, elementList, name, event)
+				} else {
+					handleAcknowledge(dashboard, elementList, name, acknowledgement)
+				}
 			}(dashboard, dashboardCacheCopy[dashboard.Slug])
 		}
 		return true
@@ -181,8 +285,10 @@ func handleEvent(response string) error {
 
 	wg.Wait()
 
-	status.Backends.Icinga.Connections.EventStreams.LastEventReceived = int(time.Now().UnixMilli())
-	addEvent(name, event.Type)
+	if eventType == 0 {
+		addEvent(name, event.Type)
+	}
+
 	return nil
 }
 
@@ -200,7 +306,7 @@ func EventListener() {
 		},
 	}
 
-	var requestBody = []byte(`{ "types": [ "CheckResult", "StateChange" ], "queue": "meerkat", "filter": ""}`)
+	var requestBody = []byte(`{ "types": [ "CheckResult", "StateChange", "AcknowledgementSet", "AcknowledgementCleared" ], "queue": "meerkat", "filter": ""}`)
 
 	req, err := http.NewRequest("POST", config.IcingaURL+"/v1/events", bytes.NewBuffer(requestBody))
 	if err != nil {
@@ -289,6 +395,7 @@ func addEvent(event string, eventType string) {
 	eventList.Lock()
 	defer eventList.Unlock()
 	eventList.events = append(eventList.events, Events{Name: event, EventType: eventType, ReceivedTime: time.Now().UnixMilli()})
+	status.Backends.Icinga.Connections.EventStreams.LastEventReceived = int(time.Now().UnixMilli())
 }
 
 func getEvents() []Events {
