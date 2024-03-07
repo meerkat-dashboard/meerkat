@@ -8,13 +8,6 @@ export async function getAll(objectType) {
 	return await readResults(resp);
 }
 
-export async function getAllInGroup(name, objectType) {
-	// "example" in service.groups
-	const typ = singular(objectType);
-	const expr = `"${name}" in ${typ}.groups`;
-	return getAllFilter(expr, objectType);
-}
-
 export async function getAllFilter(expr, objectType) {
 	// %22example%22%20in%20service.groups
 	const filter = encodeURIComponent(expr);
@@ -51,7 +44,7 @@ export async function getIcingaObject(name, typ) {
 	const results = await readResults(resp);
 	let obj = results[0];
 	if (typ.endsWith("groups")) {
-		const members = await getAllInGroup(name, typ);
+		const members = await getAllFilter(name, typ);
 		obj = icinga.groupToObject(obj, members);
 	}
 	return await handleJSON(obj);
@@ -129,16 +122,6 @@ function pluralise(str) {
 		return str + "s";
 	}
 	return str;
-}
-
-function singular(objType) {
-	if (objType == "servicegroups" || objType == "servicegroup") {
-		return "service";
-	}
-	if (objType == "hostgroups" || objType == "hostgroup") {
-		return "host";
-	}
-	throw new Error(`no single form of object type ${objType}`);
 }
 
 /**

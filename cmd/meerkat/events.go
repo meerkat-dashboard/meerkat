@@ -104,6 +104,10 @@ func (r Result) isWorse(result Result, dashboard Dashboard) bool {
 
 func handleKey(dashboard Dashboard, elementList []ElementStore, name string, event Event) {
 	for i, element := range elementList {
+		if (element.Type == "host" && event.Service != "") || (element.Type == "service" && event.Service == "") {
+			continue
+		}
+
 		results := make([]Result, 0, len(element.Objects))
 		found := false
 		var worstObject Result

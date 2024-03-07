@@ -382,17 +382,7 @@ func getObjectHandler(w http.ResponseWriter, r *http.Request) {
 
 	if objectFilter != "" {
 		params.Set("filter", objectFilter)
-
-		switch {
-		case objectType == "hosts" && strings.Contains(objectFilter, "\" in host.groups"):
-			name = strings.TrimSuffix(objectFilter, "\" in host.groups")
-			name = strings.TrimPrefix(name, "\"")
-		case objectType == "services" && strings.Contains(objectFilter, "\" in service.groups"):
-			name = strings.TrimSuffix(objectFilter, "\" in service.groups")
-			name = strings.TrimPrefix(name, "\"")
-		default:
-			name = objectFilter
-		}
+		name = objectFilter
 	}
 
 	slug := strings.Split(dashboardTitle, "/")[1]
@@ -405,6 +395,11 @@ func getObjectHandler(w http.ResponseWriter, r *http.Request) {
 	var worstObject Result
 	for _, element := range dashboardCacheCopy[slug] {
 		if element.Name == name && len(element.Name) != 0 {
+
+			if !strings.Contains(objectType, element.Type) {
+				continue
+			}
+
 			for _, objectName := range element.Objects {
 				objectCache, found := cache.Get(objectName)
 				if found {
@@ -490,6 +485,10 @@ func getObjectHandler(w http.ResponseWriter, r *http.Request) {
 				for i, elementStore := range dashboardCache[slug] {
 					if elementStore.Name == name {
 						for _, result := range objects.Results {
+							if (strings.Contains(elementStore.Type, "host") && strings.Contains(result.Attrs.Name, "!")) || (strings.Contains(elementStore.Type, "service") && !strings.Contains(result.Attrs.Name, "!")) {
+								continue
+							}
+
 							cache.Set(result.Attrs.Name, result, 1)
 							cache.Wait()
 							if !slices.Contains(dashboardCache[slug][i].Objects, result.Attrs.Name) {

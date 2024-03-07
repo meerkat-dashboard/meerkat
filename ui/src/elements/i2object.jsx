@@ -334,7 +334,11 @@ export function ObjectCard({ events, options, dashboard }) {
 	const handleEvent = useCallback(async (event) => {
 		let objects = await meerkat.handleJSONList(JSON.parse(event.data));
 		for (let i = 0; i < objects.length; i++) {
-			if (objectState && objects[i].element == options.objectName) {
+			if (
+				objectState &&
+				objects[i].element == options.objectName &&
+				options.objectType.includes(objects[i].type.toLowerCase())
+			) {
 				let obj = objects[i];
 				if (
 					objects.length > 0 &&
