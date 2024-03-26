@@ -363,6 +363,11 @@ func getWorstObject(objects ObjectResults, dashboard Dashboard) Result {
 	return worst
 }
 
+/*
+getObjectHandler handles the requests to icinga to get the object data.
+First it checks if the object is in the cache, if it is it returns the cached object.
+Otherwise it makes a request to the icinga API to get the object data.
+*/
 func getObjectHandler(w http.ResponseWriter, r *http.Request) {
 	objectType := r.URL.Query().Get("type")
 	objectName := r.URL.Query().Get("name")
@@ -483,7 +488,15 @@ func getObjectHandler(w http.ResponseWriter, r *http.Request) {
 			if len(name) != 0 {
 				mapLock.Lock()
 				for i, elementStore := range dashboardCache[slug] {
-					if elementStore.Name == name {
+					elementName := name
+					if elementStore.Type == "hostgroup" {
+						elementName = strings.TrimSuffix(objectFilter, "\" in host.groups")
+						elementName = strings.TrimPrefix(elementName, "\"")
+					} else if elementStore.Type == "servicegroup" {
+						elementName = strings.TrimSuffix(objectFilter, "\" in service.groups")
+						elementName = strings.TrimPrefix(elementName, "\"")
+					}
+					if elementStore.Name == elementName {
 						for _, result := range objects.Results {
 							if (strings.Contains(elementStore.Type, "host") && strings.Contains(result.Attrs.Name, "!")) || (strings.Contains(elementStore.Type, "service") && !strings.Contains(result.Attrs.Name, "!")) {
 								continue

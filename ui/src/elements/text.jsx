@@ -239,6 +239,7 @@ export function DynamicText({ events, options }) {
 
 		if (options.objectAttr) {
 			events.addEventListener("CheckResult", handleEvent);
+			events.addEventListener("StateChange", handleEvent);
 		} else {
 			events.addEventListener("StateChange", handleEvent);
 		}

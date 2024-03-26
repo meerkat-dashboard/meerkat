@@ -102,6 +102,11 @@ func (r Result) isWorse(result Result, dashboard Dashboard) bool {
 	return getPriority(r, dashboard) < getPriority(result, dashboard)
 }
 
+/*
+This function is used to handle the event stream from Icinga.
+When an event is received compare the event with the objects in an element to get the worst result.
+If the worst result is worse than the last event, update the last event and send the event to the dashboard.
+*/
 func handleKey(dashboard Dashboard, elementList []ElementStore, name string, event Event) {
 	for i, element := range elementList {
 		if (element.Type == "host" && event.Service != "") || (element.Type == "service" && event.Service == "") {
