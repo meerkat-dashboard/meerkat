@@ -324,6 +324,9 @@ type ErrorPage struct {
 	Status string `json:"status"`
 }
 
+/*
+Converts an event object from icinga event stream into a regular icinga request object to be sent back to dashboard.
+*/
 func eventToRequest(event Event, objectName string, objectType string, elementName string) Result {
 	ack := 0
 	if event.Acknowledgement {
@@ -700,6 +703,9 @@ func addRequest(request Requests) {
 	requestList = append(requestList, request)
 }
 
+/*
+Makes a authenticated request to the icinga api and returns the response.
+*/
 func icingaRequest(apiPath string, dashboardTitle string) (*http.Response, error) {
 	client := &http.Client{}
 	if config.IcingaInsecureTLS {
@@ -743,6 +749,9 @@ func icingaRequest(apiPath string, dashboardTitle string) (*http.Response, error
 	return res, nil
 }
 
+/*
+Checks the status of the Icinga application used to check if icinga is running.
+*/
 func checkProgramStart() float64 {
 	var statusCheck StatusCheck
 	response, err := icingaRequest("/v1/status/IcingaApplication", config.HTTPAddr)

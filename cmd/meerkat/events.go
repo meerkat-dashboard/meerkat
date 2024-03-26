@@ -72,6 +72,7 @@ type CheckResult struct {
 	} `json:"vars_before,omitempty"`
 }
 
+// Returns the priority of a results state based on the dashboard severity order configuration.
 func getPriority(result Result, dashboard Dashboard) int {
 	switch result.Attrs.State {
 	case 2: // CRITICAL
@@ -175,6 +176,7 @@ func handleKey(dashboard Dashboard, elementList []ElementStore, name string, eve
 	}
 }
 
+// This function is used to handle the AcknowledgementSet and AcknowledgementCleared events from Icinga.
 func handleAcknowledge(dashboard Dashboard, elementList []ElementStore, name string, acknowledged int) {
 	for i, element := range elementList {
 		value, ok := cache.Get(name)
@@ -211,6 +213,7 @@ func handleAcknowledge(dashboard Dashboard, elementList []ElementStore, name str
 	}
 }
 
+// This function is used to handle the event stream from Icinga.
 func handleEvent(response string) error {
 	var name string
 	var event Event
