@@ -195,7 +195,7 @@ function setupEventSource() {
 			(e.data == "heartbeat" &&
 				!backendError &&
 				document.getElementById("error").innerHTML != "" &&
-				!document.getElementById("error").innerHTML.includes("sort order"))
+				!document.getElementById("error").innerHTML.includes("Severity Order"))
 		) {
 			evtSource.close();
 			window.location.reload(true);
