@@ -67,7 +67,7 @@ function Viewer({ dashboard, events }) {
 						<div style="width:100%">
 							<strong>
 								<a href={`/${dashboard.slug}/info`}>
-									Inconsistent sort order: Click here to fix{" "}
+									Inconsistent dashboard Severity Order: Click here to fix{" "}
 								</a>
 							</strong>
 						</div>
