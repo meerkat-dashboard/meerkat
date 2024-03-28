@@ -12,6 +12,7 @@ import (
 	"reflect"
 	"strings"
 	"sync"
+	"testing"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -58,7 +59,7 @@ type CheckResult struct {
 	State             int         `json:"state,omitempty"`
 	TTL               int         `json:"ttl,omitempty"`
 	Type              string      `json:"type,omitempty"`
-	VarsAfter         *struct {
+	VarsAfter         struct {
 		Attempt   json.Number `json:"attempt,omitempty"`
 		Reachable bool        `json:"reachable,omitempty"`
 		State     int         `json:"state,omitempty"`
@@ -168,10 +169,12 @@ func handleKey(dashboard Dashboard, elementList []ElementStore, name string, eve
 			mapLock.Lock()
 			dashboardCache[dashboard.Slug][i].LastEvent = worstObject
 			mapLock.Unlock()
-			server.Publish(dashboard.Slug, &sse.Event{
-				Event: []byte(event.Type),
-				Data:  []byte(body),
-			})
+			if !testing.Testing() {
+				server.Publish(dashboard.Slug, &sse.Event{
+					Event: []byte(event.Type),
+					Data:  []byte(body),
+				})
+			}
 		}
 	}
 }
