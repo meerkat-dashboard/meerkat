@@ -67,7 +67,8 @@ function Viewer({ dashboard, events }) {
 						<div style="width:100%">
 							<strong>
 								<a href={`/${dashboard.slug}/info`}>
-									Inconsistent Severity Order: Check Severity Order and Save dashboard info to fix{" "}
+									Inconsistent Severity Order: Check Severity Order and Save
+									dashboard info to fix{" "}
 								</a>
 							</strong>
 						</div>
