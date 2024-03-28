@@ -59,19 +59,39 @@ function Viewer({ dashboard, events }) {
 			</div>
 		);
 	});
+	const errorElement = () => {
+		if (hasDuplicates(dashboard.order)) {
+			return (
+				<div id="error">
+					<div class="alert alert-danger w-100 p-3 fixed-top" role="alert">
+						<div style="width:100%">
+							<strong>
+								<a href={`/${dashboard.slug}/info`}>
+									Inconsistent sort order: Click here to fix{" "}
+								</a>
+							</strong>
+						</div>
+					</div>
+				</div>
+			);
+		} else {
+			return <div id="error"></div>;
+		}
+	};
+
 	if (dashboard.background && dashboard.background != "") {
 		return (
 			<div style="position: relative; width: 100%">
 				<img src={dashboard.background} style="width: 100%; height: auto" />
 				{elements}
-				<div id="error"></div>
+				{errorElement()}
 			</div>
 		);
 	}
 	return (
 		<div style="width: 100vh; height: 100vh">
 			{elements}
-			<div id="error"></div>
+			{errorElement()}
 		</div>
 	);
 }
@@ -144,6 +164,17 @@ var tryToSetupFunc = function () {
 	}
 };
 
+const hasDuplicates = (order) => {
+	let values = new Set();
+	for (let key in order) {
+		if (values.has(order[key])) {
+			return true;
+		}
+		values.add(order[key]);
+	}
+	return false;
+};
+
 const errorMessage = (type) => {
 	if (document.getElementById("error").innerHTML == "") {
 		var err =
@@ -163,7 +194,8 @@ function setupEventSource() {
 			(e.data == "icinga-success" && backendError) ||
 			(e.data == "heartbeat" &&
 				!backendError &&
-				document.getElementById("error").innerHTML != "")
+				document.getElementById("error").innerHTML != "" &&
+				!document.getElementById("error").innerHTML.includes("sort order"))
 		) {
 			evtSource.close();
 			window.location.reload(true);
