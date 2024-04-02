@@ -37,7 +37,8 @@ workdir="$tmp/meerkat"
 mkdir -p $workdir
 mkdir -p $workdir/dashboards-sound
 
-(cd cmd/meerkat && go build -o $workdir/)
+# Build using the latest tag version of the branch name
+(cd cmd/meerkat && go build -ldflags "-X main.version=$(git describe --tags `git rev-list --tags --max-count=1` 2>/dev/null || git rev-parse --abbrev-ref HEAD)" -o $workdir/)
 cp README.md LICENSE $workdir
 cp Dockerfile $workdir
 cp favicon.ico $workdir

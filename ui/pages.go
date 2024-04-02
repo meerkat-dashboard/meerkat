@@ -349,7 +349,16 @@ func (srv *Server) AboutPage(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	err = tmpl.Execute(w, meerkat.BuildString())
+
+	about := struct {
+		BuildString string
+		VersionString string
+	}{
+		BuildString:   meerkat.BuildString(),
+		VersionString: version,
+	}
+
+	err = tmpl.Execute(w, about)
 	if err != nil {
 		log.Println(err)
 	}
