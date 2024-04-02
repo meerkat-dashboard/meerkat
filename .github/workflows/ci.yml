@@ -53,5 +53,5 @@ jobs:
       - name: upload tarball
         uses: actions/upload-artifact@v3
         with:
-          name: meerkat.tar.gz
-          path: meerkat.tar.gz
+          name: meerkat-ubuntu.tar.gz
+          path: meerkat-ubuntu.tar.gz

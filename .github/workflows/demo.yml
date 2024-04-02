@@ -52,6 +52,7 @@ jobs:
       - uses: actions/checkout@v3
         with:
           ref: ${{ steps.extract_branch.outputs.branch }}
+          fetch-depth: 0
           with-tags: true
       - uses: actions/setup-node@v3
         with:
@@ -74,8 +75,8 @@ jobs:
       - name: upload tarball
         uses: actions/upload-artifact@v3
         with:
-          name: meerkat.tar.gz
-          path: meerkat.tar.gz
+          name: meerkat-debian.tar.gz
+          path: meerkat-debian.tar.gz
 
       - name: Delete previous build folder
         working-directory: /usr/local/meerkat
