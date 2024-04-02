@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"runtime/debug"
+	"strings"
 )
 
 func BuildString() string {
@@ -40,7 +41,7 @@ func VersionString() string {
 		return dev
 	}
 
-	version := string(bytes)
+	version := strings.Split(string(bytes), "\n")[0]
 	if len(version) == 0 {
 		return dev
 	}
