@@ -40,7 +40,7 @@ mkdir -p $workdir/dashboards-sound
 # Build using the latest tag version of the branch name
 build_version=$(git describe --tags `git rev-list --tags --max-count=1` 2>/dev/null || git rev-parse --abbrev-ref HEAD)
 echo $build_version > $workdir/VERSION
-(cd cmd/meerkat && go build" -o $workdir/)
+(cd cmd/meerkat && go build -o $workdir/)
 cp README.md LICENSE $workdir
 cp Dockerfile $workdir
 cp favicon.ico $workdir
