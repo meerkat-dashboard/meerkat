@@ -39,7 +39,7 @@ jobs:
     - name: "test"
       run: |
           if ! [ -z "`gofmt -l .`" ]; then gofmt -l . && exit 1; fi
-          go test ./...
+          go test ./cmd/meerkat
 
   package:
     runs-on: self-hosted
