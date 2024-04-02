@@ -12,7 +12,9 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - uses: actions/setup-go@v3
+    - uses: actions/setup-go@v4
+      with:
+        go-version: 1.21
     - uses: actions/setup-node@v3
       with:
         node-version: 21.x
@@ -38,7 +40,9 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 21.x
-      - uses: actions/setup-go@v3
+      - uses: actions/setup-go@v4
+        with:
+          go-version: 1.21
 
       - name: create distribution tarball
         run: ./mkdist.sh .
