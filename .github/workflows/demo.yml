@@ -76,7 +76,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: meerkat-debian.tar.gz
-          path: meerkat-debian.tar.gz
+          path: meerkat.tar.gz
 
       - name: Delete previous build folder
         working-directory: /usr/local/meerkat
