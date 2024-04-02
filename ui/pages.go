@@ -351,7 +351,7 @@ func (srv *Server) AboutPage(w http.ResponseWriter, req *http.Request) {
 	}
 
 	about := struct {
-		BuildString string
+		BuildString   string
 		VersionString string
 	}{
 		BuildString:   meerkat.BuildString(),
