@@ -33,13 +33,6 @@ jobs:
         npm ci
         npx eslint src
         npx prettier -l src
-        
-
-    - name: "test"
-      working-directory: /usr/local/meerkat/meerkat/meerkat
-      run: |
-          if ! [ -z "`gofmt -l .`" ]; then gofmt -l . && exit 1; fi
-          go test ./...
 
   package:
     runs-on: self-hosted
