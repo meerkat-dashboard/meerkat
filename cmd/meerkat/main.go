@@ -21,7 +21,6 @@ import (
 	"github.com/r3labs/sse/v2"
 )
 
-var version string = "development"
 var config Config
 var server *sse.Server
 var icingaLog log.Logger
@@ -107,7 +106,7 @@ func main() {
 	flag.Parse()
 
 	if *vflag {
-		log.Println("Application Version:", version)
+		log.Println("Application Version:", meerkat.VersionString())
 		log.Println(meerkat.BuildString())
 		return
 	}

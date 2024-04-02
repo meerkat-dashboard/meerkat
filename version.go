@@ -5,6 +5,8 @@ import (
 	"runtime/debug"
 )
 
+var version string
+
 func BuildString() string {
 	info, ok := debug.ReadBuildInfo()
 	if !ok {
@@ -29,4 +31,8 @@ func BuildString() string {
 		s += " (dirty)"
 	}
 	return s
+}
+
+func VersionString() string {
+	return version
 }

@@ -355,7 +355,7 @@ func (srv *Server) AboutPage(w http.ResponseWriter, req *http.Request) {
 		VersionString string
 	}{
 		BuildString:   meerkat.BuildString(),
-		VersionString: version,
+		VersionString: meerkat.VersionString(),
 	}
 
 	err = tmpl.Execute(w, about)
