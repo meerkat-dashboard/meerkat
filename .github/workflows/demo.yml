@@ -34,6 +34,11 @@ jobs:
         npx eslint src
         npx prettier -l src
 
+    - name: "test"
+      run: |
+          if ! [ -z "`gofmt -l .`" ]; then gofmt -l . && exit 1; fi
+          go test ./...
+
   package:
     runs-on: self-hosted
     defaults:
