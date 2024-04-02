@@ -13,6 +13,8 @@ flowchart TB
         mb_routesandevents[Create Routes and Subscribe to Icinga events]
         mb_loaded[Server is loaded]
         mb_eventcache[Meerkat event cache]
+        style mb_loaded fill:#80ff80
+        style mb_started fill:#ff8888
     end
     subgraph Frontend
         fe_staticwww[Serve static frontend files]
