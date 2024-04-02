@@ -12,7 +12,8 @@ flowchart TB
         mb_dashbaordsandcache[Initialize dashboard and object cache]
         mb_routesandevents[Create Routes and Subscribe to Icinga events]
         mb_loaded[Server is loaded]
-        mb_eventcache[Meerkat event cache]
+        mb_receiveevent[Receive event]
+        style mb_receiveevent fill:#ffd080
         style mb_loaded fill:#80ff80
         style mb_started fill:#ff8888
     end
@@ -27,7 +28,7 @@ flowchart TB
     mb_routesandevents --> mb_loaded
     mb_routesandevents --> fe_staticwww
     mb_routesandevents --> ic_checkresults
-    ic_checkresults --> mb_eventcache
+    ic_checkresults --> mb_receiveevent
 ```
 
 ### Meerkat Event Changes
@@ -39,11 +40,12 @@ flowchart TB
         style ic_statechange fill:#ff8888
     end
     subgraph Meerkat Backend
-        mb1[Receive event]
+        mb_receiveevent[Receive event]
         mb_eventcache[Save event to cache]
         mb3{Is worst event?}
         mb_ignoreevent[Ignore event]
         mb_proxyapicall[Proxy API Call]
+        style mb_receiveevent fill:#ffd080
     end
     subgraph Frontend
         fe_worstevent[Receive worst event from backend]
@@ -52,8 +54,8 @@ flowchart TB
         style fe_dashbaord fill:#ff8888
     end
 
-    ic_statechange -->|event stream triggered| mb1
-    mb1 --> mb_eventcache
+    ic_statechange -->|event stream triggered| mb_receiveevent
+    mb_receiveevent --> mb_eventcache
     mb_eventcache --> mb3
     mb3 -- Yes --> fe_worstevent
     mb3 -- No --> mb_ignoreevent
