@@ -2,10 +2,10 @@ package meerkat
 
 import (
 	"fmt"
+	"os"
 	"runtime/debug"
+	"strings"
 )
-
-var version string
 
 func BuildString() string {
 	info, ok := debug.ReadBuildInfo()
@@ -34,5 +34,17 @@ func BuildString() string {
 }
 
 func VersionString() string {
+	bytes, err := os.ReadFile("VERSION")
+	dev := "development"
+
+	if err != nil {
+		return dev
+	}
+
+	version := strings.Split(string(bytes), "\n")[0]
+	if len(version) == 0 {
+		return dev
+	}
+
 	return version
 }
