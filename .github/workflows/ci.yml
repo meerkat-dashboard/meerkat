@@ -37,6 +37,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          with-tags: true
       - uses: actions/setup-node@v3
         with:
           node-version: 21.x

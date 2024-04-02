@@ -52,6 +52,7 @@ jobs:
       - uses: actions/checkout@v3
         with:
           ref: ${{ steps.extract_branch.outputs.branch }}
+          with-tags: true
       - uses: actions/setup-node@v3
         with:
           node-version: 21.x
