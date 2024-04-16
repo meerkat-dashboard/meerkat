@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/object"
 )
 
@@ -296,13 +297,13 @@ func gitListDashboardCommits(filePath string) ([]*object.Commit, error) {
 
 // generateDiff generates a diff for a specific file between a specified commit and its parent.
 func generateDiff(repoPath, commitHash, filePath string) (string, error) {
-	r, err := git.PlainOpen(repoPath)
+	gitRepo, err := git.PlainOpen(repoPath)
 	if err != nil {
 		return "", fmt.Errorf("failed to open repository: %v", err)
 	}
 
 	// Retrieve the specific commit
-	commit, err := r.CommitObject(plumbing.NewHash(commitHash))
+	commit, err := gitRepo.CommitObject(plumbing.NewHash(commitHash))
 	if err != nil {
 		return "", fmt.Errorf("failed to find commit: %v", err)
 	}
@@ -324,7 +325,7 @@ func generateDiff(repoPath, commitHash, filePath string) (string, error) {
 	}
 
 	// Compute the diff between the commit and its parent
-	changes, err := object.DiffTree(parentTree, commitTree, nil)
+	changes, err := object.DiffTree(parentTree, commitTree)
 	if err != nil {
 		return "", fmt.Errorf("failed to compute tree diff: %v", err)
 	}
