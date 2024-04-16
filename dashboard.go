@@ -14,7 +14,7 @@ import (
 	"strings"
 	"time"
 
-	git "github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing/object"
 )
 
@@ -258,7 +258,7 @@ func gitCommitFile(filePath, message string) error {
 }
 
 // gitListDashboardCommits lists the commits that have modified a specific file in a Git repository.
-func gitListDashboardCommits(filePath string) ([]*git.Commit, error) {
+func gitListDashboardCommits(filePath string) ([]*object.Commit, error) {
 	dashboardDirPath, fileName, err := getDashboardPaths(filePath)
 	if err != nil {
 		fmt.Println("Dashboard paths error:", err)
