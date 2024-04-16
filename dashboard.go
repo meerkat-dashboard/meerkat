@@ -281,7 +281,7 @@ func gitListDashboardCommits(filePath string) ([]*object.Commit, error) {
 	}
 	defer iter.Close()
 
-	var commits []*git.Commit
+	var commits []*object.Commit
 	// Iterate through the commit logs
 	for {
 		commit, err := iter.Next()
