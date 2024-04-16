@@ -133,7 +133,7 @@ func handleCreateDashboard(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	fpath := path.Join("dashboards", dashboard.Slug+".json")
-	if err := meerkat.CreateDashboard(fpath, &dashboard); err != nil {
+	if err := meerkat.WriteDashboard(fpath, &dashboard); err != nil {
 		msg := fmt.Sprintf("create dashboard %s: %v", dashboard.Slug, err)
 		log.Println(msg)
 		http.Error(w, msg, http.StatusInternalServerError)
@@ -173,7 +173,7 @@ func handleCloneDashboard(w http.ResponseWriter, req *http.Request) {
 	dest.Slug = meerkat.TitleToSlug(dest.Title)
 	destPath := path.Join("dashboards", dest.Slug+".json")
 
-	if err := meerkat.CreateDashboard(destPath, &dest); err != nil {
+	if err := meerkat.WriteDashboard(destPath, &dest); err != nil {
 		msg := fmt.Sprintf("create dashboard from %s: %v", srcPath, err)
 		log.Println(msg)
 		http.Error(w, msg, http.StatusInternalServerError)
@@ -213,7 +213,7 @@ func handleUpdateDashboard(w http.ResponseWriter, r *http.Request) {
 		dashboard.Width = strconv.Itoa(width)
 	}
 
-	err = meerkat.CreateDashboard(path.Join("dashboards", slug+".json"), &dashboard)
+	err = meerkat.WriteDashboard(path.Join("dashboards", slug+".json"), &dashboard)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

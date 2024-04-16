@@ -8,9 +8,14 @@ import (
 	"net/url"
 	"os"
 	"path"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
+
+	git "github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/plumbing/object"
 )
 
 // Dashboard contains all information to render a dashboard
@@ -169,9 +174,9 @@ func ReadDashboard(name string) (Dashboard, error) {
 	return dashboard, nil
 }
 
-// CreateDashboard writes the provided dashboard to the named file.
+// WriteDashboard writes the provided dashboard to the named file.
 // The file is always truncated beforehand.
-func CreateDashboard(name string, dashboard *Dashboard) error {
+func WriteDashboard(name string, dashboard *Dashboard) error {
 	dashboard.Slug = TitleToSlug(dashboard.Title)
 	buf, err := json.MarshalIndent(&dashboard, "", "  ")
 	if err != nil {
@@ -185,7 +190,158 @@ func CreateDashboard(name string, dashboard *Dashboard) error {
 	if _, err := f.Write(buf); err != nil {
 		return fmt.Errorf("write dashboard file: %w", err)
 	}
-	return nil
+	return gitCommitFile("./", name, "Saving dashboard")
+}
+
+func getDashboardPaths(dashboardFile string) (string, string, error) {
+   // Assuming the 'dashboards' directory is the Git root
+   dashboardDirPath := filepath.Join(".", "dashboards")
+
+   // Make sure the filePath is relative to the Git root
+   absoluteFilePath, err := filepath.Abs(dashboardFile)
+   if err != nil {
+	   return fmt.Errorf("getting absolute file path: %v", err)
+   }
+
+   absoluteDashboardDirPath, err := filepath.Abs(dashboardDirPath)
+   if err != nil {
+	   return fmt.Errorf("getting absolute repo path: %v", err)
+   }
+
+   FileName, err := filepath.Rel(absoluteDashboardDirPath, absoluteFilePath)
+   if err != nil {
+	   return fmt.Errorf("converting to relative file path: %v", err)
+   }
+
+   return dashboardDirPath, fileName, nil 
+
+}
+
+func gitCommitFile(filePath, message string) error {
+	dashboardDirPath, fileName, err := getDashboardPaths(filePath)
+	if err != nil {
+		fmt.Println("Dashboard paths error:", err)
+		return
+	}
+
+    // Open the Git repository located at the 'dashboards' directory
+    r, err := git.PlainOpen(repoPath)
+    if err != nil {
+        return fmt.Errorf("git open: %v", err)
+    }
+
+    // Get the worktree of the repository
+    w, err := r.Worktree()
+    if err != nil {
+        return fmt.Errorf("git worktree: %v", err)
+    }
+
+    // Add the file to the staging area using the relative path
+    _, err = w.Add(fileName)
+    if err != nil {
+        return fmt.Errorf("git add: %v", err)
+    }
+
+    // Commit the changes to the repository
+    _, err = w.Commit(message, &git.CommitOptions{
+        Author: &object.Signature{
+            Name:  "Meerkat Application",
+            Email: "meerkat@meerkat.run",
+            When:  time.Now(),
+        },
+    })
+    if err != nil {
+        return fmt.Errorf("git commit: %v", err)
+    }
+
+    return nil
+}
+
+// gitListDashboardCommits lists the commits that have modified a specific file in a Git repository.
+func gitListDashboardCommits(filePath string) ([]*git.Commit, error) {
+	dashboardDirPath, fileName, err := getDashboardPaths(filePath)
+	if err != nil {
+		fmt.Println("Dashboard paths error:", err)
+		return
+	}
+	// Open the existing repository
+	r, err := git.PlainOpen(dashboardDirPath)
+	if err != nil {
+		return nil, fmt.Errorf("error opening repository: %v", err)
+	}
+
+	// Log options to include the history of a specific file
+	logOpts := &git.LogOptions{
+		FileName: &filePath,
+	}
+
+	// Get the commit iterator
+	iter, err := r.Log(logOpts)
+	if err != nil {
+		return nil, fmt.Errorf("error obtaining log: %v", err)
+	}
+	defer iter.Close()
+
+	var commits []*git.Commit
+	// Iterate through the commit logs
+	for {
+		commit, err := iter.Next()
+		if err != nil {
+			break // End of commit log
+		}
+		commits = append(commits, commit)
+	}
+
+	return commits, nil
+}
+
+// generateDiff generates a diff for a specific file between a specified commit and its parent.
+func generateDiff(repoPath, commitHash, filePath string) (string, error) {
+	r, err := git.PlainOpen(repoPath)
+	if err != nil {
+		return "", fmt.Errorf("failed to open repository: %v", err)
+	}
+
+	// Retrieve the specific commit
+	commit, err := r.CommitObject(plumbing.NewHash(commitHash))
+	if err != nil {
+		return "", fmt.Errorf("failed to find commit: %v", err)
+	}
+
+	// Get the parent of the commit to diff with
+	parent, err := commit.Parent(0)
+	if err != nil {
+		return "", fmt.Errorf("failed to find parent commit: %v", err)
+	}
+
+	// Get the trees from the commit and its parent
+	parentTree, err := parent.Tree()
+	if err != nil {
+		return "", fmt.Errorf("failed to get parent tree: %v", err)
+	}
+	commitTree, err := commit.Tree()
+	if err != nil {
+		return "", fmt.Errorf("failed to get commit tree: %v", err)
+	}
+
+	// Compute the diff between the commit and its parent
+	changes, err := object.DiffTree(parentTree, commitTree, nil)
+	if err != nil {
+		return "", fmt.Errorf("failed to compute tree diff: %v", err)
+	}
+
+	// Find the specific change for the file
+	for _, change := range changes {
+		if change.From.Name == filePath || change.To.Name == filePath {
+			patch, err := change.Patch()
+			if err != nil {
+				return "", fmt.Errorf("failed to generate patch: %v", err)
+			}
+			return patch.String(), nil
+		}
+	}
+
+	return "", fmt.Errorf("no changes found for the file")
 }
 
 func TitleToSlug(title string) string {
