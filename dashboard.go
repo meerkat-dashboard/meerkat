@@ -259,7 +259,7 @@ func gitCommitFile(filePath, message string) error {
 
 // gitListDashboardCommits lists the commits that have modified a specific file in a Git repository.
 func gitListDashboardCommits(filePath string) ([]*object.Commit, error) {
-	dashboardDirPath, fileName, err := getDashboardPaths(filePath)
+	dashboardDirPath, _, err := getDashboardPaths(filePath)
 	if err != nil {
 		return nil, fmt.Errorf("Dashboard paths error: %v", err)
 		
