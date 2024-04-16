@@ -208,7 +208,7 @@ func getDashboardPaths(dashboardFile string) (string, string, error) {
 	   return "", "", fmt.Errorf("getting absolute repo path: %v", err)
    }
 
-   FileName, err := filepath.Rel(absoluteDashboardDirPath, absoluteFilePath)
+   fileName, err := filepath.Rel(absoluteDashboardDirPath, absoluteFilePath)
    if err != nil {
 	   return "", "", fmt.Errorf("converting to relative file path: %v", err)
    }
@@ -225,7 +225,7 @@ func gitCommitFile(filePath, message string) error {
 	}
 
     // Open the Git repository located at the 'dashboards' directory
-    r, err := git.PlainOpen(repoPath)
+    r, err := git.PlainOpen(dashboardDirPath)
     if err != nil {
         return fmt.Errorf("git open: %v", err)
     }
