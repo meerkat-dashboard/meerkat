@@ -200,17 +200,17 @@ func getDashboardPaths(dashboardFile string) (string, string, error) {
    // Make sure the filePath is relative to the Git root
    absoluteFilePath, err := filepath.Abs(dashboardFile)
    if err != nil {
-	   return fmt.Errorf("getting absolute file path: %v", err)
+	   return "", "", fmt.Errorf("getting absolute file path: %v", err)
    }
 
    absoluteDashboardDirPath, err := filepath.Abs(dashboardDirPath)
    if err != nil {
-	   return fmt.Errorf("getting absolute repo path: %v", err)
+	   return "", "", fmt.Errorf("getting absolute repo path: %v", err)
    }
 
    FileName, err := filepath.Rel(absoluteDashboardDirPath, absoluteFilePath)
    if err != nil {
-	   return fmt.Errorf("converting to relative file path: %v", err)
+	   return "", "", fmt.Errorf("converting to relative file path: %v", err)
    }
 
    return dashboardDirPath, fileName, nil 
