@@ -190,7 +190,7 @@ func WriteDashboard(name string, dashboard *Dashboard) error {
 	if _, err := f.Write(buf); err != nil {
 		return fmt.Errorf("write dashboard file: %w", err)
 	}
-	return gitCommitFile("./", name, "Saving dashboard")
+	return gitCommitFile(name, "Saving dashboard")
 }
 
 func getDashboardPaths(dashboardFile string) (string, string, error) {
