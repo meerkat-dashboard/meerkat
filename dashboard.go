@@ -220,8 +220,7 @@ func getDashboardPaths(dashboardFile string) (string, string, error) {
 func gitCommitFile(filePath, message string) error {
 	dashboardDirPath, fileName, err := getDashboardPaths(filePath)
 	if err != nil {
-		fmt.Println("Dashboard paths error:", err)
-		return
+		return fmt.Errorf("Dashboard paths error: %v", err)
 	}
 
     // Open the Git repository located at the 'dashboards' directory
@@ -261,8 +260,8 @@ func gitCommitFile(filePath, message string) error {
 func gitListDashboardCommits(filePath string) ([]*object.Commit, error) {
 	dashboardDirPath, fileName, err := getDashboardPaths(filePath)
 	if err != nil {
-		fmt.Println("Dashboard paths error:", err)
-		return
+		return nil, fmt.Errorf("Dashboard paths error: %v", err)
+		
 	}
 	// Open the existing repository
 	r, err := git.PlainOpen(dashboardDirPath)
