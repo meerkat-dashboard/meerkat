@@ -153,7 +153,7 @@ func handleKey(dashboard Dashboard, elementList []ElementStore, name string, eve
 				if worstObject.Attrs.Name == element.LastEvent.Attrs.Name {
 					if worstObject.Attrs.State == element.LastEvent.Attrs.State {
 						if reflect.DeepEqual(worstObject.Attrs.LastCheckResults.PerformanceData, element.LastEvent.Attrs.LastCheckResults.PerformanceData) {
-							return
+							continue
 						}
 					}
 				}
@@ -164,7 +164,7 @@ func handleKey(dashboard Dashboard, elementList []ElementStore, name string, eve
 			body, err := json.Marshal(results)
 			if err != nil {
 				log.Println(err)
-				return
+				continue
 			}
 			mapLock.Lock()
 			dashboardCache[dashboard.Slug][i].LastEvent = worstObject
