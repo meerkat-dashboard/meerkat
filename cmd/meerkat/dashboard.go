@@ -446,6 +446,8 @@ func getObjectHandler(w http.ResponseWriter, r *http.Request) {
 		if config.IcingaDebug {
 			icingaLog.Println("Using cached response:", slug, objectName, objectFilter)
 		}
+		w.Header().Set("content-type", "application/json")
+		w.Header().Set("x-meercat-cache", "HIT")
 		w.Write(b)
 	} else {
 		requestURL = requestURL + "?" + strings.ReplaceAll(params.Encode(), "+", "%20")
@@ -459,6 +461,7 @@ func getObjectHandler(w http.ResponseWriter, r *http.Request) {
 
 		w.WriteHeader(response.StatusCode)
 		w.Header().Set("content-type", "application/json")
+		w.Header().Set("x-meercat-cache", "MISS")
 		dec := json.NewDecoder(response.Body)
 		defer response.Body.Close()
 
