@@ -28,6 +28,8 @@ SSLKey = ""
 LogFile = true
 # If LogConsole is true, meerkat will log to console.
 LogConsole = false
+# If LogTrace is true, meerkat will log everything
+LogTrace = false
 # Path to folder to store log files. 
 LogDirectory = "log/"
 

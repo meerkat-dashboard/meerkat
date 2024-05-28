@@ -24,6 +24,7 @@ import (
 var config Config
 var server *sse.Server
 var icingaLog log.Logger
+var traceLog log.Logger
 var status Status
 var requestList []Requests
 var dashboardCache map[string][]ElementStore
@@ -59,9 +60,20 @@ func updateDashboardCache(slug string) {
 	}
 	server.CreateStream(dashboard.Slug)
 	dashboardCache[dashboard.Slug] = nil
+	// var added = make(map[string]int)
 	for _, element := range dashboard.Elements {
 		if len(element.Options.ObjectName) != 0 {
-			dashboardCache[dashboard.Slug] = append(dashboardCache[dashboard.Slug], ElementStore{Name: element.Options.ObjectName, Type: element.Options.ObjectType})
+			// Check we haven't added it already
+			/*
+			_, found := added[element.Options.ObjectName]
+			if found {
+				log.Printf("updateDashboardCache: [%v] %v (%v) already exists, not adding", dashboard.Slug, element.Options.ObjectName, element.Options.ObjectType)
+			} else {
+				*/
+				dashboardCache[dashboard.Slug] = append(dashboardCache[dashboard.Slug], ElementStore{Name: element.Options.ObjectName, Type: element.Options.ObjectType})
+				// added[element.Options.ObjectName] = 1
+				log.Printf("updateDashboardCache: [%v] %v (%v) added", dashboard.Slug, element.Options.ObjectName, element.Options.ObjectType)
+			//}
 		}
 	}
 }
@@ -90,9 +102,20 @@ func createDashboardCache() {
 		})
 		server.CreateStream(dashboard.Slug)
 
+		// var added = make(map[string]int)
 		for _, element := range dashboard.Elements {
 			if len(element.Options.ObjectName) != 0 {
-				dashboardCache[dashboard.Slug] = append(dashboardCache[dashboard.Slug], ElementStore{Name: element.Options.ObjectName, Type: element.Options.ObjectType})
+				// Check we haven't added it already
+				/*
+				_, found := added[element.Options.ObjectName]
+				if found {
+					log.Printf("createDashboardCache: [%v] %v (%v) already exists, not adding", dashboard.Slug, element.Options.ObjectName, element.Options.ObjectType)
+				} else {
+					*/
+					dashboardCache[dashboard.Slug] = append(dashboardCache[dashboard.Slug], ElementStore{Name: element.Options.ObjectName, Type: element.Options.ObjectType})
+					// added[element.Options.ObjectName] = 1
+					log.Printf("createDashboardCache: [%v] %v (%v) added", dashboard.Slug, element.Options.ObjectName, element.Options.ObjectType)
+				// }
 			}
 		}
 	}
@@ -118,10 +141,14 @@ func main() {
 		// config file but it's not there. No problem.
 	} else if err != nil {
 		log.Fatalln("load config:", err)
+	} else {
+		log.Println("Loaded config without error from:", *configFile)
 	}
 	icingaURL, err := url.Parse(config.IcingaURL)
 	if err != nil {
 		log.Fatalln("parse icinga url:", err)
+	} else {
+		log.Println("icingaURL is:", icingaURL)
 	}
 
 	// Make directories for dashboards and related assets
@@ -142,17 +169,36 @@ func main() {
 	}
 
 	if config.LogFile {
-		f, err := os.OpenFile(config.LogDirectory+"meerkat.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+		var logfilepath string = config.LogDirectory+"meerkat.log"
+		f, err := os.OpenFile(logfilepath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 		if err != nil {
 			log.Fatalf("error opening file: %v", err)
+		} else {
+			log.Println("Opened log file: ", logfilepath)
 		}
 		defer f.Close()
 		if config.LogConsole {
 			multi := io.MultiWriter(f, os.Stdout)
 			log.SetOutput(multi)
+			log.Println("Logging to both console and logfile")
 		} else {
+			log.Println("Not logging to console as LogConsole not set in config")
 			log.SetOutput(f)
 		}
+		if config.LogTrace {
+			switch {
+				case config.LogConsole && config.LogFile:
+					multi := io.MultiWriter(f, os.Stdout)
+					traceLog = *log.New(multi, "TRACE: ", log.Ldate|log.Ltime)
+				case config.LogConsole:
+					traceLog = *log.New(os.Stdout, "TRACE: ", log.Ldate|log.Ltime)
+				case config.LogFile:
+					traceLog = *log.New(f, "TRACE: ", log.Ldate|log.Ltime)
+			}
+			traceLog.Println("Trace logging set")
+		}
+	} else {
+		log.Println("No log file configured")
 	}
 
 	if config.IcingaDebug {
@@ -162,13 +208,13 @@ func main() {
 		}
 		defer f.Close()
 		switch {
-		case config.LogConsole && config.LogFile:
-			multi := io.MultiWriter(f, os.Stdout)
-			icingaLog = *log.New(multi, "", log.Ldate|log.Ltime)
-		case config.LogConsole:
-			icingaLog = *log.New(os.Stdout, "", log.Ldate|log.Ltime)
-		case config.LogFile:
-			icingaLog = *log.New(f, "", log.Ldate|log.Ltime)
+			case config.LogConsole && config.LogFile:
+				multi := io.MultiWriter(f, os.Stdout)
+				icingaLog = *log.New(multi, "", log.Ldate|log.Ltime)
+			case config.LogConsole:
+				icingaLog = *log.New(os.Stdout, "", log.Ldate|log.Ltime)
+			case config.LogFile:
+				icingaLog = *log.New(f, "", log.Ldate|log.Ltime)
 		}
 	}
 

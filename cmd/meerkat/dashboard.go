@@ -108,6 +108,9 @@ func SendError() {
 }
 
 func SendHeartbeat() {
+	if config.LogTrace {
+		traceLog.Printf("Sending Heartbeat\n");
+	}
 	server.Publish("updates", &sse.Event{
 		Data: []byte("heartbeat"),
 	})
@@ -745,6 +748,10 @@ func icingaRequest(apiPath string, dashboardTitle string) (*http.Response, error
 		log.Println("Icinga2 API error:", err)
 		addRequest(Requests{CallMade: apiPath, CallTime: time.Now().UnixMilli(), Dashboard: dashboardTitle, StatusCode: 0})
 		return nil, err
+	}
+
+	if config.LogTrace {
+		traceLog.Println("Connected to Icinga2 API without error:", icingaURL.ResolveReference(pathURL).String())
 	}
 
 	addRequest(Requests{CallMade: apiPath, CallTime: time.Now().UnixMilli(), Dashboard: dashboardTitle, StatusCode: res.StatusCode})

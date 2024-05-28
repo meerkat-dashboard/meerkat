@@ -105,20 +105,43 @@ func (r Result) isWorse(result Result, dashboard Dashboard) bool {
 }
 
 /*
+	handleIcingaStreamEvent
+
+	* send on events from icinga if they are relevant to the dashboard, either:
+	- they change the status of the element
+	- they change the output of the element (for elements which care about the content)
+
+
+func handleIcingaStreamEvent(dashboard Dashboard, elementList []ElementStore, icingaObject string, event Event) {
+	//
+}
+*/
+
+/*
 This function is used to handle the event stream from Icinga.
 When an event is received compare the event with the objects in an element to get the worst result.
 If the worst result is worse than the last event, update the last event and send the event to the dashboard.
 */
 func handleKey(dashboard Dashboard, elementList []ElementStore, name string, event Event) {
 	for i, element := range elementList {
+		if config.LogTrace {
+			traceLog.Printf("handleKey: [%v]%v '%v' %v element object(s) ok: %v\n", dashboard.Slug, i, name, len(element.Objects), element.Objects)
+		}
+
 		if (element.Type == "host" && event.Service != "") || (element.Type == "service" && event.Service == "") {
+			if config.LogTrace {
+				traceLog.Printf("handleKey: [%v]%v '%v': empty %v, skipping\n", dashboard.Slug, i, name, element.Type)
+			}
 			continue
 		}
 
 		results := make([]Result, 0, len(element.Objects))
 		found := false
 		var worstObject Result
-		for _, objectName := range element.Objects {
+		for j, objectName := range element.Objects {
+			if config.LogTrace {
+				traceLog.Printf("handleKey: [%v]%v,%v comparing %v to %v\n", dashboard.Slug, i, j, name, objectName)
+			}
 			if objectName == name {
 				found = true
 				req := eventToRequest(event, name, element.Type, element.Name)
@@ -128,13 +151,25 @@ func handleKey(dashboard Dashboard, elementList []ElementStore, name string, eve
 				} else if req.isWorse(worstObject, dashboard) {
 					worstObject = req
 				}
+				if config.LogTrace {
+					from, ok := cache.Get(objectName)
+					if ok {
+						traceLog.Printf("handleKey: [%v]%v '%v': Updating Cache from %v to %v\n", dashboard.Slug, i, name, from, req)
+					} else {
+						traceLog.Printf("handleKey: [%v]%v '%v': Setting Cache to %v\n", dashboard.Slug, i, name, req)
+					}
+				}
 
 				results = []Result{worstObject}
 				cache.Set(objectName, req, 1)
 				cache.Wait()
 			} else {
+				// FIXME this is coming through for objects irrelevant to the element
 				value, ok := cache.Get(objectName)
 				if ok {
+					if config.LogTrace {
+						traceLog.Printf("handleKey: [%v]%v '%v': Retrieved '%v' from Cache %v\n", dashboard.Slug, i, name, objectName, value)
+					}
 					cachedObject := value.(Result)
 					cachedObject.Element = element.Name
 					if worstObject == (Result{}) {
@@ -153,6 +188,9 @@ func handleKey(dashboard Dashboard, elementList []ElementStore, name string, eve
 				if worstObject.Attrs.Name == element.LastEvent.Attrs.Name {
 					if worstObject.Attrs.State == element.LastEvent.Attrs.State {
 						if reflect.DeepEqual(worstObject.Attrs.LastCheckResults.PerformanceData, element.LastEvent.Attrs.LastCheckResults.PerformanceData) {
+							if config.LogTrace {
+								traceLog.Printf("handleKey: [%v]%v '%v' %v element object(s) not Sending event as nothing has changed: %v\n", dashboard.Slug, i, name, len(element.Objects), element.Objects)
+							}
 							continue
 						}
 					}
@@ -170,6 +208,9 @@ func handleKey(dashboard Dashboard, elementList []ElementStore, name string, eve
 			dashboardCache[dashboard.Slug][i].LastEvent = worstObject
 			mapLock.Unlock()
 			if !testing.Testing() {
+				if config.LogTrace {
+					traceLog.Printf("handleKey: [%v]%v: '%v' Sending event type %v: %v\n", dashboard.Slug, i, name, event.Type, string(body))
+				}
 				server.Publish(dashboard.Slug, &sse.Event{
 					Event: []byte(event.Type),
 					Data:  []byte(body),
@@ -288,10 +329,23 @@ func handleEvent(response string) error {
 			wg.Add(1)
 			go func(dashboard Dashboard, elementList []ElementStore) {
 				defer wg.Done()
+				elementList = dashboardCacheCopy[dashboard.Slug]
 				if eventType == 0 {
+					if config.LogTrace {
+						traceLog.Printf("before handleKey: [%v] '%v' %v elements listed\n", dashboard.Slug, name, len(elementList))
+					}
 					handleKey(dashboard, elementList, name, event)
+					if config.LogTrace {
+						traceLog.Printf("after handleKey: [%v] '%v' %v elements listed\n", dashboard.Slug, name, len(elementList))
+					}
 				} else {
+					if config.LogTrace {
+						traceLog.Printf("before handleAcknowledge: [%v] '%v' %v elements listed\n", dashboard.Slug, name, len(elementList))
+					}
 					handleAcknowledge(dashboard, elementList, name, acknowledgement)
+					if config.LogTrace {
+						traceLog.Printf("after handleAcknowledge: [%v] '%v' %v elements listed\n", dashboard.Slug, name, len(elementList))
+					}
 				}
 			}(dashboard, dashboardCacheCopy[dashboard.Slug])
 		}
@@ -300,6 +354,9 @@ func handleEvent(response string) error {
 
 	wg.Wait()
 
+	if config.LogTrace {
+		traceLog.Printf("Processed event of Type: %v (%v), name: %v, body:",event.Type,eventType, name, event.CheckResult)
+	}
 	if eventType == 0 {
 		addEvent(name, event.Type)
 	}

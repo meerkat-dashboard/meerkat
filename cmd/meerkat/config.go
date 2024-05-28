@@ -21,6 +21,7 @@ type Config struct {
 	LogFile      bool
 	LogConsole   bool
 	LogDirectory string
+	LogTrace     bool
 
 	IcingaDebug bool
 
