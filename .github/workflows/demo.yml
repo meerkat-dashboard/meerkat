@@ -4,6 +4,8 @@ on:
   push:
     branches: 
       - "*"
+    create:
+      tags: ['*']
     
 jobs:
   test:
