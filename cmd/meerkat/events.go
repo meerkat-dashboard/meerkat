@@ -133,6 +133,7 @@ func handleKey(dashboard Dashboard, elementList []ElementStore, name string, eve
 				cache.Set(objectName, req, 1)
 				cache.Wait()
 			} else {
+				found = true
 				value, ok := cache.Get(objectName)
 				if ok {
 					cachedObject := value.(Result)
