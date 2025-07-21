@@ -8,5 +8,12 @@ WorkingDirectory=/usr/local/meerkat/
 ExecStart=/usr/local/meerkat/meerkat
 User=meerkat
 
+# Important: ensure restarts on crash
+Restart=always
+RestartSec=15
+# Optional: safer shutdown
+KillMode=control-group
+TimeoutStopSec=20
+
 [Install]
 WantedBy=multi-user.target
