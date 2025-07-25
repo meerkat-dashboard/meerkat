@@ -1,4 +1,5 @@
 /usr/local/meerkat/log/*.log {
+    su meerkat meerkat
     daily
     rotate 7
     compress
